@@ -29,6 +29,15 @@ export const resetPswdSchema = z
   });
 
   export const campaignSchema = z.object({
-    name: z.string().min(3, { message: "Campaign Name should not be empty and should of min. 3 characters" }),
+     name: z.string().min(3, { message: "Campaign Name should not be empty and should of min. 3 characters" }),
     url: z.string().url({ message: "Invalid URL" }),
+  searchLocation: z.string().optional(),
+    keywordTag: z.string().optional(),
+    SearchEngine: z.string().optional(),
+    allkeywords: z.string().optional(),
+  volumeLocation: z.string().optional(),
+  language: z.string().optional(),
+  serpType: z.string().optional(),
+  deviceType: z.string().optional(),
   });
+ 

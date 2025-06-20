@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import Loader from "@/components/global/Loader";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
-
+import { Poppins } from "next/font/google";
+import { CampaignDataProvider } from "@/app/context/CampaignContext";
 // Create a React Query client instance
 const queryClient = new QueryClient();
-
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: "400",
+});
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -32,17 +36,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Loader />
+      <body className={`${poppins.className} antialiased`}>
+        <CampaignDataProvider>
+          <Loader />
           <ReactQueryProvider>
-          {/* {children} */}
-        {children}
-        </ReactQueryProvider>
-        <Toaster />
-        
+         
+            {children}
+          </ReactQueryProvider>
+          <Toaster />
+        </CampaignDataProvider>
       </body>
     </html>
   );

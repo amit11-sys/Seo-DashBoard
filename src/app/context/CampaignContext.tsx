@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, {
   createContext,
@@ -7,7 +7,7 @@ import React, {
   ReactNode,
   Dispatch,
   SetStateAction,
-} from 'react';
+} from "react";
 
 // --- Types ---
 export interface Campaign {
@@ -19,16 +19,12 @@ export interface Campaign {
   updatedAt: string;
   __v: number;
 }
-
-export interface CampaignContextType {
-  success: boolean;
-  message: string;
-  campaign: Campaign[];
-}
+export type CampaignContextType = Campaign[];
 
 interface CampaignContextProps {
   campaignData: CampaignContextType;
   setCampaignData: Dispatch<SetStateAction<CampaignContextType>>;
+  
 }
 
 interface ProviderProps {
@@ -36,25 +32,23 @@ interface ProviderProps {
 }
 
 // --- Context ---
- const CampaignContext = createContext<CampaignContextProps | undefined>(undefined);
+const CampaignContext = createContext<CampaignContextProps | undefined>(
+  undefined
+);
 
 // --- Provider ---
 export const CampaignDataProvider = ({ children }: ProviderProps) => {
-  const [campaignData, setCampaignData] = useState<CampaignContextType>({
-    success: true,
-    message: 'Campaign Successfully Found',
-    campaign: [
-      {
-        _id: '',
-        campaignName: '',
-        projectUrl: '',
-        userId: '',
-        createdAt: '',
-        updatedAt: '',
-        __v: 0,
-      },
-    ],
-  });
+  const [campaignData, setCampaignData] = useState<CampaignContextType>([
+    {
+      _id: "",
+      campaignName: "",
+      projectUrl: "",
+      userId: "",
+      createdAt: "",
+      updatedAt: "",
+      __v: 0,
+    },
+  ]);
 
   return (
     <CampaignContext.Provider value={{ campaignData, setCampaignData }}>
@@ -67,7 +61,9 @@ export const CampaignDataProvider = ({ children }: ProviderProps) => {
 export const useCampaignData = (): CampaignContextProps => {
   const context = useContext(CampaignContext);
   if (!context) {
-    throw new Error('useCampaignData must be used within a CampaignDataProvider');
+    throw new Error(
+      "useCampaignData must be used within a CampaignDataProvider"
+    );
   }
   return context;
 };

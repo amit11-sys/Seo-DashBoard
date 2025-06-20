@@ -8,7 +8,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-
 } from "@/components/ui/sidebar";
 
 import {
@@ -21,55 +20,33 @@ import { getUserCampaign } from "@/actions/campaign";
 // import ClientCampaignLinks from "./ClientCampaignLinks";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { TbBrandCampaignmonitor } from "react-icons/tb";
-// import { useCampaignData } from "@/app/context/CampaignContext";
 import ClientCampaignsLink from "@/components/global/Sidebar/ClientCampaignLinks";
 
-type campaignType = {
-  success: true;
-  message: "Campaign Successfully Found";
-  campaign: [
-    {
-      _id: "";
-      campaignName: "";
-      projectUrl: "";
-      userId: "";
-      createdAt: "";
-      updatedAt: "";
-      __v: 0;
-    }
-  ];
-};
 
 export async function AppSidebar() {
   const campaign = await getUserCampaign();
-// console.log(campaign);
+  
 
-const Convertedcampaign  = campaign?.campaign?.map((c) => {
+  const Convertedcampaign = campaign?.campaign?.map((c) => {
+    let obj = {
+      _id: "",
+      campaignName: "",
+      projectUrl: "",
+      userId: "",
+      createdAt: "",
+      updatedAt: "",
+      __v: 0,
+    };
 
+    obj._id = c._id.toString();
+    obj.campaignName = c.campaignName.toString();
+    obj.projectUrl = c.projectUrl.toString();
+    obj.userId = c.userId.toString();
+    obj.createdAt = c.createdAt.toString();
+    obj.updatedAt = c.updatedAt.toString();
+    return obj;
+  });
 
- let obj={
-  _id:'',
-  campaignName:'',
-  projectUrl:'',
-  userId:'',
-  createdAt: '' ,
-  updatedAt: '',
-  __v: 0
- }
-
- obj._id = c._id.toString();
- obj.campaignName = c.campaignName.toString();
- obj.projectUrl = c.projectUrl.toString();
- obj.userId = c.userId.toString();
- obj.createdAt = c.createdAt.toString();
- obj.updatedAt = c.updatedAt.toString();
- return obj
-
-
-})
-
-
-  //  const { campaignData, setCampaignData } = useCampaignData();
 
   return (
     <div className="w-64 min-h-screen border-r bg-gradient-to-b from-white to-slate-50 dark:from-sidebar-background dark:to-gray-800 shadow-md z-30">
@@ -94,7 +71,7 @@ const Convertedcampaign  = campaign?.campaign?.map((c) => {
 
                     <CollapsibleContent>
                       <SidebarMenuSub className="mt-1">
-                        <ClientCampaignsLink campaign={campaign} />
+                        <ClientCampaignsLink campaign={Convertedcampaign} />
                         {/* {campaign?.campaign?.length ? (
                           <ClientCampaignLinks
                             campaigns={campaign.campaign.map((c) => ({

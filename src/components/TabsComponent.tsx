@@ -24,7 +24,7 @@ import {
 import { campaignSchema } from "@/lib/zod";
 import { useLoader } from "@/hooks/useLoader";
 import { toast } from "sonner";
-import { createCampaign } from "@/actions/campaign";
+import { createCampaign, getUserCampaign } from "@/actions/campaign";
 import { CiCircleCheck } from "react-icons/ci";
 import DropDownList from "@/components/DropDownList";
 import { HiMiniTag } from "react-icons/hi2";
@@ -34,6 +34,7 @@ import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
 import axios from "axios";
 import { NewCustomInput } from "./NewCustomInput";
 import CustomButton from "@/components/ui/CustomButton";
+import { useCampaignData } from "@/app/context/CampaignContext";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 
@@ -55,7 +56,6 @@ export function CampaignTabs() {
       deviceType: "",
     },
   });
-  console.log(form.getValues());
 
   const [tagsInput, settagsInput] = useState("");
   const [keywordTag, setkeywordTag] = useState("");
@@ -64,6 +64,7 @@ export function CampaignTabs() {
   const [activeTab, setActiveTab] = useState("account");
   const [language, setLanguage] = useState<string[]>([]);
   const [location, setLocation] = useState<string[]>([]);
+  const { setCampaignData } = useCampaignData();
 
   const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
   const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
@@ -155,12 +156,13 @@ export function CampaignTabs() {
     try {
       const response = await createCampaign(payload);
       if (response?.success) {
-        console.log(response);
+        const campaign = await getUserCampaign();
         toast("Campaign created successfully");
         form.reset();
         setKeywords([]);
         setCampaignValid(false);
         setActiveTab("account");
+        setCampaignData(campaign?.campaign || []);
       } else {
         toast(response?.error || "Failed to create campaign");
       }

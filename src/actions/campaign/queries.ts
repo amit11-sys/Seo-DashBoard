@@ -36,6 +36,7 @@ export const newCampaign = async (formData: any) => {
     return {
       success: true,
       message: "Campaign Created successfully",
+      campaign
     };
     // }
   } catch (error) {
@@ -64,6 +65,38 @@ export const getCampaign = async () => {
       success: true,
       message: "Campaign Successfully Found",
       campaign
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+
+export const saveKeywordId = async (keywordId: string, campaignId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+    // console.log(user);
+
+    const campaign = await Campaign.findOneAndUpdate(
+      { _id: campaignId },
+      { $set: { keywordId } }, // Assuming your Campaign model has a keywordIds array
+      { new: true } // Return the updated document
+    );
+    if (!campaign) {
+      return { error: "Error while updating campaign" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "Campaign Successfully Updated",
+      campaign,
     };
     // }
   } catch (error) {

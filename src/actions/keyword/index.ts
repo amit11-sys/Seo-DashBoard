@@ -8,7 +8,7 @@ export const addKeyword=async (keyword:string)=>{
 }
 
 export const addMultipleKeyword=async (keyword:[])=>{
-    console.log(keyword);
+ 
     
     const addKeyword=await saveMultipleKeyword(keyword);
     return addKeyword

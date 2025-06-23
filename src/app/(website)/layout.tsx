@@ -7,12 +7,14 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
     <>
       
       <div className="flex flex-col">
-      <div>
+      <div className="w-full">
         <SidebarProvider className="relative">
-          <AppSidebar />
-          <div className="flex-1">
           <Header />
+          <div className=" relative flex">
+          <AppSidebar />
+
           <main className="p-4">{children}</main>
+         
           </div>
         </SidebarProvider>
         </div>

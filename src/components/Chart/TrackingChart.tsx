@@ -52,10 +52,10 @@ const data = [
 export default function TrackingChart() {
   return (
     <div className="rounded-xl my-10  flex-1 p-4 shadow-sm">
-      <h2 className="text-2xl font-medium mb-4 text-muted-foreground">
+      <h2 className="text-2xl text-black font-medium mb-4 ">
         Keywords in top positions for the last 30 days
       </h2>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={400}>
         <BarChart data={data} barGap={6}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />

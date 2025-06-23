@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import { Poppins } from "next/font/google";
 import { CampaignDataProvider } from "@/app/context/CampaignContext";
+import AnimatedBackground from "@/components/AnimatedBg/AnimatedBg";
 // Create a React Query client instance
 const queryClient = new QueryClient();
 const poppins = Poppins({
@@ -36,7 +37,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} antialiased`}>
+      <body className={`${poppins.className} antialiased  relative `}>
+        <AnimatedBackground/>
         <CampaignDataProvider>
           <Loader />
           <ReactQueryProvider>

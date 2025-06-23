@@ -25,7 +25,7 @@ import DropDownList from "../DropDownList";
 const DialogForm = () => {
   return (
     <Dialog >
-      <DialogTrigger  className=" bg-gradient-to-r from-blue-500 to-blue-700 text-white px-5 py-4 rounded-full  text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105 hover:from-blue-600 hover:to-blue-800 flex items-center ">
+      <DialogTrigger  className=" bg-gradient-to-r from-[#FE7743] to-[#d65d2d]  text-white px-5 py-4 rounded-full  text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105 hover:to-[#d65d2d] hover:to-from-[#FE7743] flex items-center ">
       
         Add Keywords
       </DialogTrigger>

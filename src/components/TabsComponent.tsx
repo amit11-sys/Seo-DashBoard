@@ -35,6 +35,7 @@ import axios from "axios";
 import { NewCustomInput } from "./NewCustomInput";
 import CustomButton from "@/components/ui/CustomButton";
 import { useCampaignData } from "@/app/context/CampaignContext";
+import AnimatedBackground from "./AnimatedBg/AnimatedBg";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 
@@ -176,6 +177,7 @@ export function CampaignTabs() {
   return (
     <Form {...form}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {/* <AnimatedBackground /> */}
         {/* <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="account">
             Campaign Info
@@ -187,50 +189,50 @@ export function CampaignTabs() {
             Live Keyword Tracking
           </TabsTrigger>
         </TabsList> */}
-        <TabsList className="w-full flex gap-2 p-1 bg-gray-100 rounded-lg relative overflow-hidden">
+        <TabsList className="w-full flex justify-center items-center gap-2 p-1 mt-20  rounded-lg relative overflow-hidden">
           <TabsTrigger
             value="account"
-            className="group relative flex-1 py-3 text-sm font-semibold text-gray-600 rounded-md transition-all duration-300 ease-in-out 
+            className=" rounded-full group relative flex-1 p-10 text-sm font-semibold text-gray-600  transition-all duration-300 ease-in-out 
                hover:shadow-md hover:bg-blue-100 hover:text-blue-700 
-               data-[state=active]:bg-[#335488] 
+               data-[state=active]:bg-[#273F4F] 
                data-[state=active]:text-white 
                data-[state=active]:shadow-lg
                disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="flex items-center justify-center gap-2">
+            <span className="flex text-2xl items-center justify-center gap-2">
               Campaign Info
               {campaignValid && (
                 <CiCircleCheck
-                  className="text-black-300 group-data-[state=active]:text-white transition-colors duration-200"
+                  className=" group-data-[state=active]:text-white transition-colors duration-200"
                   size={25}
                 />
               )}
             </span>
             {/* Animated underline */}
-            <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-data-[state=active]:w-full" />
+            <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black mt-2 transition-all duration-300 group-data-[state=active]:w-full" />
           </TabsTrigger>
 
           <TabsTrigger
             value="keywords"
             disabled={!campaignValid}
-            className="group relative flex-1 py-3 text-sm font-semibold text-gray-600 rounded-md transition-all duration-300 ease-in-out 
+            className="group rounded-full relative flex-1 p-10 text-sm font-semibold text-gray-600 transition-all duration-300 ease-in-out 
                hover:shadow-md hover:bg-blue-100 hover:text-blue-700 
-               data-[state=active]:bg-[#335488] 
+               data-[state=active]:bg-[#273F4F] 
                data-[state=active]:text-white 
                data-[state=active]:shadow-lg
                disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="flex items-center justify-center gap-2">
+            <span className="flex items-center text-2xl text-white justify-center gap-2">
               Live Keyword Tracking
             </span>
             {/* Animated underline */}
-            <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-white transition-all duration-300 group-data-[state=active]:w-full" />
+            <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black transition-all duration-300 group-data-[state=active]:w-full" />
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="account">
-          <div className="flex flex-col md:flex-row gap-4">
-            <Card className="w-[40%]">
+        <TabsContent className=" pt-10 flex justify-center items-center" value="account">
+          <div className=" w-[60%] flex justify-center items-center gap-4">
+            <Card className="w-[50%] min-h-52 border text-black bg-white border-slate-300   shadow-xl">
               <CardHeader>
                 <CardTitle>Campaign Info</CardTitle>
                 <CardDescription>

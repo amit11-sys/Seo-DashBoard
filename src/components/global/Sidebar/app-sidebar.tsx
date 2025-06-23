@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -8,6 +9,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 import {
@@ -17,45 +20,32 @@ import {
 } from "@/components/ui/collapsible";
 
 import { getUserCampaign } from "@/actions/campaign";
-// import ClientCampaignLinks from "./ClientCampaignLinks";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { TbBrandCampaignmonitor } from "react-icons/tb";
 import ClientCampaignsLink from "@/components/global/Sidebar/ClientCampaignLinks";
 
-
 export async function AppSidebar() {
   const campaign = await getUserCampaign();
-  
 
-  const Convertedcampaign = campaign?.campaign?.map((c) => {
-    let obj = {
-      _id: "",
-      campaignName: "",
-      projectUrl: "",
-      userId: "",
-      createdAt: "",
-      updatedAt: "",
-      __v: 0,
-    };
-
-    obj._id = c._id.toString();
-    obj.campaignName = c.campaignName.toString();
-    obj.projectUrl = c.projectUrl.toString();
-    obj.userId = c.userId.toString();
-    obj.createdAt = c.createdAt.toString();
-    obj.updatedAt = c.updatedAt.toString();
-    return obj;
-  });
-
+  const Convertedcampaign = campaign?.campaign?.map((c) => ({
+    _id: c._id.toString(),
+    campaignName: c.campaignName.toString(),
+    projectUrl: c.projectUrl.toString(),
+    userId: c.userId.toString(),
+    createdAt: c.createdAt.toString(),
+    updatedAt: c.updatedAt.toString(),
+    __v: c.__v,
+  })) || [];
 
   return (
-    <div className="w-64 min-h-screen border-r bg-gradient-to-b from-white to-slate-50 dark:from-sidebar-background dark:to-gray-800 shadow-md z-30">
-      <Sidebar>
-        <SidebarContent>
+    <div className="w-64 fixed min-h-screen border-r bg-gradient-to-b from-[#273F4F] to-[#273F4F] dark:from-sidebar-background dark:to-gray-800 shadow-lg z-30 ">
+      <Sidebar className=" fixed h-full  bg-gradient-to-b z-30   from-[#273F4F] to-[#273F4F]">
+        <SidebarContent className="p-2">
           <SidebarGroup>
             <SidebarGroupLabel className="flex items-center gap-2 text-blue-700 font-semibold text-md px-2 py-3">
-              <MdOutlineSpaceDashboard className="text-xl" />
-              ANALYTICS DASHBOARD
+              <MdOutlineSpaceDashboard className="text-4xl" />
+              <span className="truncate">ANALYTICS DASHBOARD</span>
+               {/* <SidebarTrigger  /> */}
             </SidebarGroupLabel>
 
             <SidebarGroupContent className="overflow-hidden transition-all data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
@@ -65,25 +55,13 @@ export async function AppSidebar() {
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton className="flex items-center gap-2 hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-700 font-medium">
                         <TbBrandCampaignmonitor className="text-blue-500 text-lg" />
-                        <span>Campaigns</span>
+                        <span className="font-bold uppercase">Campaigns</span>
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
 
                     <CollapsibleContent>
-                      <SidebarMenuSub className="mt-1">
+                      <SidebarMenuSub className="mt-1 pl-4">
                         <ClientCampaignsLink campaign={Convertedcampaign} />
-                        {/* {campaign?.campaign?.length ? (
-                          <ClientCampaignLinks
-                            campaigns={campaign.campaign.map((c) => ({
-                              _id: c._id.toString(),
-                              projectUrl: c.projectUrl,
-                            }))}
-                          />
-                        ) : (
-                          <SidebarMenuSubItem className="text-gray-400 italic">
-                            No campaigns found
-                          </SidebarMenuSubItem>
-                        )} */}
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>
@@ -96,3 +74,5 @@ export async function AppSidebar() {
     </div>
   );
 }
+
+

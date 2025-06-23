@@ -8,7 +8,7 @@ const page = () => {
 
   return (
     <>
-    <section className="liveKeywordTracking">
+    <section className="liveKeywordTracking ">
 
     <LiveKeywordComponent/>
 

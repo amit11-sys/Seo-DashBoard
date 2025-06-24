@@ -3,9 +3,9 @@ const colors = ["bg-red-500", "bg-blue-500", "bg-orange-400"];
 
 export default function AnimatedBackground() {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden bg-white">
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-whit">
       <div className="absolute w-full h-full">
-        {[...Array(20)].map((_, i) => {
+        {/* {[...Array(20)].map((_, i) => {
           const colorClass = colors[Math.floor(Math.random() * colors.length)];
           return (
             <span
@@ -21,7 +21,7 @@ export default function AnimatedBackground() {
               }}
             />
           );
-        })}
+        })} */}
       </div>
     </div>
   );

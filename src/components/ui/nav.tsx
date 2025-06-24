@@ -8,24 +8,27 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { ChevronDown, LucideIcon } from "lucide-react";
+// import { ChevronDown, LucideIcon } from "lucide-react";
+import { FaChevronDown, FaTiktok  } from "react-icons/fa";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { IconType } from "react-icons/lib";
 
 interface NavProps {
   isCollapsed: boolean;
   links: {
     title: string;
     label?: string;
-    icon: LucideIcon;
+    icon: IconType;
     variant: "default" | "ghost";
     href: string;
     dropdownItems?: {
       title: string;
       href: string;
       label?: string;
-      icon: LucideIcon;
+      icon: IconType ;
       variant: "default" | "ghost";
     }[];
   }[];
@@ -184,7 +187,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                           </span>
                         )}
                         {link.dropdownItems && (
-                          <ChevronDown
+                          <FaChevronDown
                             className={cn("ml-2 h-4 w-4 transition-transform", {
                               "rotate-180": openDropdownIndex === index,
                             })}

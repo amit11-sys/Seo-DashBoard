@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
     if (token) {
         if (isPublicPath) {
             return NextResponse.redirect(
-                new URL('/', request.nextUrl)
+                new URL('/dashboard', request.nextUrl)
             );
         }
     } else {
@@ -19,6 +19,18 @@ export function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/sign-in', request.nextUrl));
         }
     }
+    
+    // if (token) {
+    //      return NextResponse.redirect(
+    //             new URL('/dashboard', request.nextUrl)
+    //          );
+
+    // } else {
+    //     return NextResponse.redirect(new URL('/sign-in', request.nextUrl))
+    // }
+
+
+
 
 }
 
@@ -26,6 +38,6 @@ export const config = {
     matcher: [
         '/sign-up',
         '/sign-in',
-        '/'
+        '/dashboard'
     ],
 };

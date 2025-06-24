@@ -41,7 +41,7 @@ export default function SignInForm() {
 
       if (user?.success) {
         toast.success("Login Successful");
-        router.push("/");
+        router.push("/dashboard");
       } else {
         toast.error(user?.error || "Invalid credentials");
       }

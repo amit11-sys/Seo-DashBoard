@@ -36,6 +36,7 @@ import { NewCustomInput } from "./NewCustomInput";
 import CustomButton from "@/components/ui/CustomButton";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import AnimatedBackground from "./AnimatedBg/AnimatedBg";
+import { FaCircleCheck } from "react-icons/fa6";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 
@@ -152,6 +153,7 @@ export function CampaignTabs() {
       ...values,
       allkeywords,
     };
+    
 
     startLoading();
     try {
@@ -162,6 +164,7 @@ export function CampaignTabs() {
         form.reset();
         setKeywords([]);
         setCampaignValid(false);
+       
         setActiveTab("account");
         setCampaignData(campaign?.campaign || []);
       } else {
@@ -189,10 +192,10 @@ export function CampaignTabs() {
             Live Keyword Tracking
           </TabsTrigger>
         </TabsList> */}
-        <TabsList className="w-full flex justify-center items-center gap-2 p-1 mt-20  rounded-lg relative overflow-hidden">
+        <TabsList className="w-full  flex justify-center items-center gap-2 p-1 mt-32  rounded-lg relative overflow-hidden">
           <TabsTrigger
             value="account"
-            className=" rounded-full group relative flex-1 p-10 text-sm font-semibold text-gray-600  transition-all duration-300 ease-in-out 
+            className=" rounded-full group relative flex-1 p-3 text-sm font-semibold text-gray-600  transition-all duration-300 ease-in-out 
                hover:shadow-md hover:bg-blue-100 hover:text-blue-700 
                data-[state=active]:bg-[#273F4F] 
                data-[state=active]:text-white 
@@ -202,37 +205,37 @@ export function CampaignTabs() {
             <span className="flex text-2xl items-center justify-center gap-2">
               Campaign Info
               {campaignValid && (
-                <CiCircleCheck
-                  className=" group-data-[state=active]:text-white transition-colors duration-200"
+                <FaCircleCheck
+                  className=" text-green-700 font-bold group-data-[state=active]:text-white transition-colors duration-200"
                   size={25}
                 />
               )}
             </span>
             {/* Animated underline */}
-            <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black mt-2 transition-all duration-300 group-data-[state=active]:w-full" />
+            {/* <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black mt-2 transition-all duration-300 group-data-[state=active]:w-full" /> */}
           </TabsTrigger>
 
           <TabsTrigger
             value="keywords"
             disabled={!campaignValid}
-            className="group rounded-full relative flex-1 p-10 text-sm font-semibold text-gray-600 transition-all duration-300 ease-in-out 
+            className=" rounded-full group relative flex-1 p-3 text-sm font-semibold text-gray-600  transition-all duration-300 ease-in-out 
                hover:shadow-md hover:bg-blue-100 hover:text-blue-700 
                data-[state=active]:bg-[#273F4F] 
                data-[state=active]:text-white 
                data-[state=active]:shadow-lg
                disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="flex items-center text-2xl text-white justify-center gap-2">
+            <span className="flex items-center text-2xl  justify-center gap-2">
               Live Keyword Tracking
             </span>
             {/* Animated underline */}
-            <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black transition-all duration-300 group-data-[state=active]:w-full" />
+            {/* <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black transition-all duration-300 group-data-[state=active]:w-full" /> */}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent className=" pt-10 flex justify-center items-center" value="account">
           <div className=" w-[60%] flex justify-center items-center gap-4">
-            <Card className="w-[50%] min-h-52 border text-black bg-white border-slate-300   shadow-xl">
+            <Card className="w-[50%] drop-shadow-lg border-slate-300 min-h-52 border text-black     shadow-xl">
               <CardHeader>
                 <CardTitle>Campaign Info</CardTitle>
                 <CardDescription>
@@ -284,14 +287,14 @@ export function CampaignTabs() {
         </TabsContent>
 
         <TabsContent className="flex flex-col gap-5" value="keywords">
-          <div className="flex gap-5">
-            <Card className="flex-1">
+          <div className="flex w-[70%] mx-auto gap-5">
+            <Card className="flex-1 drop-shadow-lg border-slate-300">
               <CardHeader>
                 <CardTitle>Live Keyword Tracking</CardTitle>
                 <CardDescription>Add keywords to track.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border p-2 rounded w-full max-w-xl">
+                <div className="border  p-2 rounded w-full max-w-xl">
                   <div className="flex flex-wrap gap-2">
                     {keywords.map((keyword, index) => (
                       <span
@@ -309,13 +312,13 @@ export function CampaignTabs() {
                       onChange={(e) => settagsInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Type a keyword and press Enter"
-                      className="flex-1 p-1 outline-none"
+                      className="flex-1 bg-transparent p-1 outline-none"
                     />
                   </div>
                 </div>
               </CardContent>
             </Card>
-            <Card className="flex-1 w-full md:w-1/2 p-4 space-y-4">
+            <Card className="flex-1  drop-shadow-lg border-slate-300 w-full md:w-1/2 p-4 space-y-4">
               <Controller
                 name="keywordTag"
                 control={form.control}

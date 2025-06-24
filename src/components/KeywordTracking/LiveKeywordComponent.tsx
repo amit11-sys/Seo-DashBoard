@@ -364,7 +364,7 @@ const LiveKeywordComponent = () => {
   const [state, setState] = useState<any>();
 
   return (
-    <div className="w-full min-h-[80vh]  text-gray-100 ps-[300px] py-8 space-y-12">
+    <div className="w-full min-h-[80vh]  text-gray-100  py-8 space-y-12">
       <div className="my-14 backdrop-blur-md text-black bg-white/10 border border-white/10 rounded-xl p-6 shadow-lg">
         <LiveKeyTrakingHeader />
       </div>

@@ -37,8 +37,7 @@ import CustomButton from "@/components/ui/CustomButton";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import AnimatedBackground from "./AnimatedBg/AnimatedBg";
 import { FaCircleCheck } from "react-icons/fa6";
-
-
+import { motion } from "framer-motion";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 
@@ -141,7 +140,7 @@ export function CampaignTabs() {
     toast("Campaign Info validated!");
     setActiveTab("keywords");
   };
-const keywords = Keywords
+  const keywords = Keywords;
   const onFinalSubmit = async () => {
     const values = form.getValues();
 
@@ -155,20 +154,18 @@ const keywords = Keywords
       keywords,
     };
 
-    
-
     console.log(payload);
 
     startLoading();
     try {
       const response = await createCampaign(payload);
-        // if(!response?.token_expired){
-        //   // await userExpire()
-        //   // Cookies.remove('accessToken');
-        //   return;
-          
-        // }
-       
+      // if(!response?.token_expired){
+      //   // await userExpire()
+      //   // Cookies.remove('accessToken');
+      //   return;
+
+      // }
+
       if (response?.success) {
         const campaign = await getUserCampaign();
         toast("Campaign created successfully");
@@ -180,8 +177,7 @@ const keywords = Keywords
         setCampaignData(campaign?.campaign || []);
       } else {
         toast(response?.error || "Failed to create campaign");
-        console.log(response)
-        
+        console.log(response);
       }
     } catch (error) {
       toast("Something went wrong");
@@ -250,7 +246,17 @@ const keywords = Keywords
           className=" pt-10 flex justify-center items-center"
           value="account"
         >
-          <div className=" w-[60%] flex justify-center items-center gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              type: "spring",
+              stiffness: 80,
+              damping: 15,
+              duration: 0.6,
+            }}
+            className=" w-[60%] flex justify-center items-center gap-4"
+          >
             <Card className="w-[50%] drop-shadow-lg border-slate-300 min-h-52 border text-black     shadow-xl">
               <CardHeader>
                 <CardTitle>Campaign Info</CardTitle>
@@ -299,11 +305,21 @@ const keywords = Keywords
                 />
               </CardFooter>
             </Card>
-          </div>
+          </motion.div>
         </TabsContent>
 
         <TabsContent className="flex flex-col gap-5" value="keywords">
-          <div className="flex w-[70%] mx-auto gap-5">
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              type: "spring",
+              stiffness: 80,
+              damping: 15,
+              duration: 0.6,
+            }}
+            className="flex w-[70%] mx-auto gap-5"
+          >
             <Card className="flex-1 drop-shadow-lg border-slate-300">
               <CardHeader>
                 <CardTitle>Live Keyword Tracking</CardTitle>
@@ -444,7 +460,7 @@ const keywords = Keywords
                 />
               </div>
             </Card>
-          </div>
+          </motion.div>
           <div className="w-full flex gap-4 items-end justify-end">
             <BlueButton
               transparent={true}

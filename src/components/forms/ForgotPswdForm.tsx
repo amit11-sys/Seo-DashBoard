@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CustomButton from "../ui/CustomButton"; // Replace with `Button` if you prefer
 import CustomInput from "../ui/CustomInput";
-
+import {motion} from "framer-motion";
 const ForgotPswdForm = () => {
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
@@ -53,7 +53,16 @@ const ForgotPswdForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-md">
+    <motion.div
+    initial={{ opacity: 0, y: 30, scale: 0.80, }}
+  animate={{ opacity: 1, y: 0, scale: 1,  }}
+  transition={{
+    type: "spring",
+    stiffness: 80,
+    damping: 15,
+    duration: 0.6,
+  }}
+     className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-md">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
         Forgot Password
       </h1>
@@ -91,7 +100,7 @@ const ForgotPswdForm = () => {
           </div>
         </form>
       </Form>
-    </div>
+    </motion.div>
   );
 };
 

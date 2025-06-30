@@ -4,5 +4,5 @@ export default async function DashboardDetails({
   params: Promise<{ campaignId: string }>
 }) {
   const { campaignId } = await params
-  return <div>My Post: {campaignId}</div>
+  return <div className="mt-28">My Post: {campaignId}</div>
 }

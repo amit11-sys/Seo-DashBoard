@@ -7,7 +7,7 @@ import { useCampaignData } from "@/app/context/CampaignContext";
 import { useEffect } from "react";
 import { getUserCampaign } from "@/actions/campaign";
 
-export default function ClientCampaignsLink({ campaign }: any) {
+export default function  ClientCampaignsLink({ campaign }: any) {
   const router = useRouter();
   const { campaignData, setCampaignData } = useCampaignData();
   useEffect(() => {

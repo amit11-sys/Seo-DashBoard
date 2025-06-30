@@ -1,5 +1,6 @@
 "use client";
 
+import { getUserCampaign } from "@/actions/campaign";
 import React, {
   createContext,
   useContext,
@@ -37,7 +38,8 @@ const CampaignContext = createContext<CampaignContextProps | undefined>(
 );
 
 // --- Provider ---
-export const CampaignDataProvider = ({ children }: ProviderProps) => {
+export const CampaignDataProvider =  ({ children }: ProviderProps) => {
+  //  const campaign = await getUserCampaign();
   const [campaignData, setCampaignData] = useState<CampaignContextType>([
     {
       _id: "",

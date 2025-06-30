@@ -11,6 +11,7 @@ export const newCampaign = async (formData: any) => {
 
     const user = await getUserFromToken();
     if (!user) {
+      // return { error: "Unauthorized",token_expired: true };
       return { error: "Unauthorized" };
     }
     // const nameExists = await Campaign.findOne({ campaignName: formData?.name });

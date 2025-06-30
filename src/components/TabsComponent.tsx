@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BlueButton from "@/components/ui/CustomButton";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { boolean, z } from "zod";
 import {
   Form,
   FormControl,
@@ -38,6 +38,8 @@ import { useCampaignData } from "@/app/context/CampaignContext";
 import AnimatedBackground from "./AnimatedBg/AnimatedBg";
 import { FaCircleCheck } from "react-icons/fa6";
 
+
+
 type CampaignFormType = z.infer<typeof campaignSchema>;
 
 export function CampaignTabs() {
@@ -49,7 +51,7 @@ export function CampaignTabs() {
       name: "",
       url: "",
       keywordTag: "",
-      allkeywords: "",
+
       SearchEngine: "",
       searchLocation: "",
       volumeLocation: "",
@@ -61,7 +63,7 @@ export function CampaignTabs() {
 
   const [tagsInput, settagsInput] = useState("");
   const [keywordTag, setkeywordTag] = useState("");
-  const [keywords, setKeywords] = useState<string[]>([]);
+  const [Keywords, setKeywords] = useState<string[]>([]);
   const [campaignValid, setCampaignValid] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [language, setLanguage] = useState<string[]>([]);
@@ -111,11 +113,11 @@ export function CampaignTabs() {
     ) {
       e.preventDefault();
       const trimmed = tagsInput.trim();
-      if (!keywords.includes(trimmed)) {
+      if (!Keywords.includes(trimmed)) {
         setKeywords((prev) => [...prev, trimmed]);
       }
       settagsInput("");
-    } else if (e.key === "Backspace" && !tagsInput && keywords.length) {
+    } else if (e.key === "Backspace" && !tagsInput && Keywords.length) {
       setKeywords((prev) => prev.slice(0, -1));
     }
   };
@@ -139,36 +141,47 @@ export function CampaignTabs() {
     toast("Campaign Info validated!");
     setActiveTab("keywords");
   };
-  const allkeywords = keywords.join(" ");
-
+const keywords = Keywords
   const onFinalSubmit = async () => {
     const values = form.getValues();
 
-    if (!values.name || !values.url || keywords.length === 0) {
+    if (!values.name || !values.url || Keywords.length === 0) {
       toast("Please complete all fields.");
       return;
     }
 
     const payload = {
       ...values,
-      allkeywords,
+      keywords,
     };
+
     
+
+    console.log(payload);
 
     startLoading();
     try {
       const response = await createCampaign(payload);
+        // if(!response?.token_expired){
+        //   // await userExpire()
+        //   // Cookies.remove('accessToken');
+        //   return;
+          
+        // }
+       
       if (response?.success) {
         const campaign = await getUserCampaign();
         toast("Campaign created successfully");
         form.reset();
         setKeywords([]);
         setCampaignValid(false);
-       
+
         setActiveTab("account");
         setCampaignData(campaign?.campaign || []);
       } else {
         toast(response?.error || "Failed to create campaign");
+        console.log(response)
+        
       }
     } catch (error) {
       toast("Something went wrong");
@@ -180,7 +193,7 @@ export function CampaignTabs() {
   return (
     <Form {...form}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* <AnimatedBackground /> */}
+        {/* <AnimatedBackground /> */}
         {/* <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="account">
             Campaign Info
@@ -233,7 +246,10 @@ export function CampaignTabs() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent className=" pt-10 flex justify-center items-center" value="account">
+        <TabsContent
+          className=" pt-10 flex justify-center items-center"
+          value="account"
+        >
           <div className=" w-[60%] flex justify-center items-center gap-4">
             <Card className="w-[50%] drop-shadow-lg border-slate-300 min-h-52 border text-black     shadow-xl">
               <CardHeader>
@@ -296,7 +312,7 @@ export function CampaignTabs() {
               <CardContent>
                 <div className="border  p-2 rounded w-full max-w-xl">
                   <div className="flex flex-wrap gap-2">
-                    {keywords.map((keyword, index) => (
+                    {Keywords.map((keyword, index) => (
                       <span
                         key={index}
                         className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1"

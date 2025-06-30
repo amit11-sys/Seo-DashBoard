@@ -39,6 +39,7 @@
 
 
 
+
 @layer base {
   * {
     @apply border-border;
@@ -50,5 +51,5 @@
 }
 
 .error-msg {
-  @apply bg-yellow-100 text-red-400 p-1 italic
+  @apply  text-red-400 p-1 italic
 }

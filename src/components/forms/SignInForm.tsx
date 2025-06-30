@@ -21,6 +21,7 @@ import { getLoggedInUser } from "@/actions/user";
 import { useLoader } from "@/hooks/useLoader";
 import { NewCustomInput } from "../NewCustomInput";
 import CustomButton from "../ui/CustomButton";
+import { motion } from "framer-motion";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -38,12 +39,13 @@ export default function SignInForm() {
     startLoading();
     try {
       const user = await getLoggedInUser(values);
-
+      
       if (user?.success) {
         toast.success("Login Successful");
         router.push("/dashboard");
       } else {
         toast.error(user?.error || "Invalid credentials");
+         
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -53,7 +55,16 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl">
+    <motion.div
+     initial={{ opacity: 0, y: 30, scale: 0.80, }}
+  animate={{ opacity: 1, y: 0, scale: 1,  }}
+  transition={{
+    type: "spring",
+    stiffness: 80,
+    damping: 15,
+    duration: 0.6,
+  }}
+     className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         Sign In
       </h1>
@@ -69,7 +80,7 @@ export default function SignInForm() {
                 <FormControl>
                   <NewCustomInput placeholder="Enter your email" {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="error-msg" />
               </FormItem>
             )}
           />
@@ -83,11 +94,12 @@ export default function SignInForm() {
                 <FormControl>
                   <NewCustomInput
                     placeholder="Enter your password"
+                     showPasswordToggle={true}
                     type="password"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage  className="error-msg" />
               </FormItem>
             )}
           />
@@ -112,6 +124,6 @@ export default function SignInForm() {
           </div>
         </form>
       </Form>
-    </div>
+    </motion.div>
   );
 }

@@ -124,13 +124,13 @@ export const verifyUser = async (formData: any) => {
     // Set cookies
     if (accessToken) {
       cookies().set("accessToken", accessToken, {
-        httpOnly: true,
+        // httpOnly: true,
         secure: true,
       });
     }
     if (refreshToken) {
       cookies().set("refreshToken", refreshToken, {
-        httpOnly: true,
+        // httpOnly: true,
         secure: true,
       });
     }

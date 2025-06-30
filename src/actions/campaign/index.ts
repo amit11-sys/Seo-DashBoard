@@ -8,7 +8,8 @@ export const createCampaign = async (formData: any) => {
   
   const campaign = await newCampaign(formData);
   if(campaign){
-    await addMultipleKeyword(formData?.keywords)
+    // await addMultipleKeyword(formData?.keywords)
+    await addMultipleKeyword(formData)
   }
   return campaign;
 };

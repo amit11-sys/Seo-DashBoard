@@ -9,27 +9,28 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 // import { ChevronDown, LucideIcon } from "lucide-react";
-import { FaChevronDown, FaTiktok  } from "react-icons/fa";
+import { FaChevronDown, FaTiktok } from "react-icons/fa";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons/lib";
-
+import { useCampaignData } from "@/app/context/CampaignContext";
+import { motion } from "framer-motion";
 interface NavProps {
   isCollapsed: boolean;
   links: {
     title: string;
     label?: string;
     icon: IconType;
-    variant: "default" | "ghost";
+    variant?: "default" | "ghost";
     href: string;
     dropdownItems?: {
       title: string;
       href: string;
       label?: string;
-      icon: IconType ;
-      variant: "default" | "ghost";
+      icon: IconType;
+      variant?: "default" | "ghost";
     }[];
   }[];
 }
@@ -37,15 +38,19 @@ interface NavProps {
 export function Nav({ links, isCollapsed }: NavProps) {
   const pathName = usePathname();
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
-    null,
+    null
   );
+  const { campaignData, setCampaignData } = useCampaignData();
+  useEffect(() => {
+    // setCampaignData(campaign);
+  }, []);
 
   useEffect(() => {
     // Automatically open the dropdown if one of its items is active
-    links.forEach((link, index) => {
+    links?.forEach((link, index) => {
       if (link.dropdownItems) {
         const isDropdownActive = link.dropdownItems.some(
-          (dropdownItem) => pathName === dropdownItem.href,
+          (dropdownItem) => pathName === dropdownItem.href
         );
         if (isDropdownActive) {
           setOpenDropdownIndex(index);
@@ -64,10 +69,10 @@ export function Nav({ links, isCollapsed }: NavProps) {
       className="group flex min-h-[calc(100vh-48px)] flex-col gap-4 py-2 data-[collapsed=true]:gap-1 data-[collapsed=true]:py-2 dark:border-muted dark:bg-muted dark:text-muted-foreground"
     >
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
-        {links.map((link, index) => {
+        {links?.map((link, index) => {
           const isLinkActive = pathName === link.href;
           const isDropdownActive = link.dropdownItems?.some(
-            (dropdownItem) => pathName === dropdownItem.href,
+            (dropdownItem) => pathName === dropdownItem.href
           );
 
           return (
@@ -85,18 +90,18 @@ export function Nav({ links, isCollapsed }: NavProps) {
                               : "ghost",
                           size: "icon",
                         }),
-                        "h-9 w-9",
+                        "h-9 text-4xl  w-9 ",
                         link.variant === "default" &&
-                          "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
+                          "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted bg-white dark:hover:text-white"
                       )}
                     >
-                      <link.icon className="h-4 w-4" />
+                      <link.icon className="h-4 text-2xl w-4 " />
                       <span className="sr-only">{link.title}</span>
                     </Link>
                   </PopoverTrigger>
                   <PopoverContent
                     side="right"
-                    className="flex w-64 flex-col gap-4 border-l-2 bg-background"
+                    className="flex w-64 flex-col gap-4 border-l-2 bg-white"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <span>{link.title}</span>
@@ -112,7 +117,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                       <ScrollArea
                         className={cn(
                           link.dropdownItems.length > 5 ? "h-44" : "",
-                          "space-y-1 border-l-2 border-primary bg-background",
+                          "space-y-1 border-l-2 border-primary bg-background"
                         )}
                       >
                         {link.dropdownItems.map((dropdownItem, i) => (
@@ -127,7 +132,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                                     : "ghost",
                                 size: "sm",
                               }),
-                              "flex items-center justify-start gap-2 rounded-none pl-0",
+                              "flex items-center justify-start gap-2 rounded-none pl-0"
                             )}
                           >
                             <dropdownItem.icon className="h-4 w-4 text-primary" />
@@ -137,7 +142,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                                 className={cn(
                                   "ml-auto",
                                   dropdownItem.variant === "default" &&
-                                    "text-background dark:text-white",
+                                    "text-background dark:text-white"
                                 )}
                               >
                                 {dropdownItem.label}
@@ -163,15 +168,15 @@ export function Nav({ links, isCollapsed }: NavProps) {
                       }),
                       link.variant === "default" &&
                         "rounded-none dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
-                      "flex cursor-pointer items-center justify-start",
+                      "flex cursor-pointer items-center justify-start"
                     )}
                   >
                     <Link
                       href={link.href}
-                      className="flex w-full items-center justify-between"
+                      className="flex w-full text-lg text-red-500 items-center justify-between"
                     >
                       <div className="flex items-center justify-start">
-                        <link.icon className="mr-2 h-4 w-4" />
+                        <link.icon className="mr-2 text-4xl" />
                         {link.title}
                       </div>
                       <div className="flex items-center justify-start">
@@ -180,7 +185,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                             className={cn(
                               "ml-auto",
                               link.variant === "default" &&
-                                "text-background dark:text-white",
+                                "text-background  dark:text-white"
                             )}
                           >
                             {link.label}
@@ -188,22 +193,33 @@ export function Nav({ links, isCollapsed }: NavProps) {
                         )}
                         {link.dropdownItems && (
                           <FaChevronDown
-                            className={cn("ml-2 h-4 w-4 transition-transform", {
-                              "rotate-180": openDropdownIndex === index,
-                            })}
+                            className={cn(
+                              "ml-2 h-4 w-4  transition-transform",
+                              {
+                                "rotate-180": openDropdownIndex === index,
+                              }
+                            )}
                           />
                         )}
                       </div>
                     </Link>
                   </div>
                   {link.dropdownItems && (
-                    <div
+                    <motion.div
+                      initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 80,
+                        damping: 15,
+                        duration: 0.6,
+                      }}
                       className={cn(
-                        "ml-5 mt-1 space-y-1 border-l-2 border-primary bg-background",
+                        "ml-5 mt-1  text-2xl space-y-1 border-l-2 border-primary bg-background",
                         "transition-opacity duration-300 ease-in-out",
                         openDropdownIndex === index
                           ? "block translate-y-0 opacity-100"
-                          : "hidden -translate-y-2 opacity-0",
+                          : "hidden -translate-y-2 opacity-0"
                       )}
                     >
                       {link.dropdownItems.map((dropdownItem, i) => (
@@ -218,7 +234,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                                   : "ghost",
                               size: "sm",
                             }),
-                            "flex items-center justify-start gap-2 rounded-none pl-0",
+                            "flex shadow-lg hover:scale-[1.03] mt-3 border-1 rounded-sm items-center overflow-x-hidden text-sm justify-start gap-2  pl-0"
                           )}
                         >
                           <dropdownItem.icon className="h-4 w-4 text-primary" />
@@ -228,7 +244,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                               className={cn(
                                 "ml-auto",
                                 dropdownItem.variant === "default" &&
-                                  "text-background dark:text-white",
+                                  "text-background dark:text-white"
                               )}
                             >
                               {dropdownItem.label}
@@ -236,7 +252,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                           )}
                         </Link>
                       ))}
-                    </div>
+                    </motion.div>
                   )}
                 </>
               )}

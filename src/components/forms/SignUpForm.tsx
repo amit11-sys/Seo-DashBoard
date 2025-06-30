@@ -20,7 +20,7 @@ import { createUser } from "@/actions/user";
 import { useLoader } from "@/hooks/useLoader";
 import { NewCustomInput } from "../NewCustomInput"; // Optional, if using custom input
 import CustomButton from "../ui/CustomButton"; // Optional, use `Button` if not
-
+import { motion } from "framer-motion";
 const SignupForm = () => {
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
@@ -52,7 +52,16 @@ const SignupForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-md">
+    <motion.div 
+     initial={{ opacity: 0, y: 30, scale: 0.80, }}
+  animate={{ opacity: 1, y: 0, scale: 1,  }}
+  transition={{
+    type: "spring",
+    stiffness: 80,
+    damping: 15,
+    duration: 0.6,
+  }}
+    className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-md">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         Sign Up
       </h1>
@@ -68,7 +77,7 @@ const SignupForm = () => {
                 <FormControl>
                   <NewCustomInput placeholder="Enter your email" {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage  className="error-msg" />
               </FormItem>
             )}
           />
@@ -83,10 +92,11 @@ const SignupForm = () => {
                   <NewCustomInput
                     placeholder="Enter your password"
                     type="password"
+                     showPasswordToggle={true}
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage  className="error-msg" />
               </FormItem>
             )}
           />
@@ -105,7 +115,7 @@ const SignupForm = () => {
           </div>
         </form>
       </Form>
-    </div>
+    </motion.div>
   );
 };
 

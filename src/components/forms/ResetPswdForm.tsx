@@ -20,7 +20,7 @@ import { useLoader } from "@/hooks/useLoader";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CustomButton from "../ui/CustomButton"; // Optional, replace with Button if not using
-
+import {motion} from "framer-motion";
 const ResetPswdForm = () => {
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
@@ -52,7 +52,16 @@ const ResetPswdForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-md">
+    <motion.div 
+    initial={{ opacity: 0, y: 30, scale: 0.80, }}
+  animate={{ opacity: 1, y: 0, scale: 1,  }}
+  transition={{
+    type: "spring",
+    stiffness: 80,
+    damping: 15,
+    duration: 0.6,
+  }}
+    className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-md">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
         Reset Password
       </h1>
@@ -102,7 +111,7 @@ const ResetPswdForm = () => {
           </div>
         </form>
       </Form>
-    </div>
+    </motion.div>
   );
 };
 

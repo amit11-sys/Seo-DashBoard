@@ -21,6 +21,8 @@ export const saveKeyword=async (keyword:string)=>{
         // if (urlExists) {
         //   return { error: "Domain must be unique" };
         // }
+        console.log(keyword);
+        
         const addKeyword = await Keyword.create({
           //   data: {
             keyword,
@@ -60,6 +62,7 @@ export const saveMultipleKeyword=async (keyword:[])=>{
         return {
           success: true,
           message: "Keyword Added Successfully",
+          addKeyword
         };
       } catch (error) {
         console.log(error);

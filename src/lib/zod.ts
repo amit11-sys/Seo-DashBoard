@@ -28,16 +28,21 @@ export const resetPswdSchema = z
     message: 'Passwords do not match',
   });
 
-  export const campaignSchema = z.object({
-     name: z.string().min(3, { message: "Campaign Name should not be empty and should of min. 3 characters" }),
-    url: z.string().url({ message: "Invalid URL" }),
-  searchLocation: z.string().optional(),
-    keywordTag: z.string().optional(),
-    SearchEngine: z.string().optional(),
-    allkeywords: z.string().optional(),
+ 
+
+export const campaignSchema = z.object({
+  name: z.string().min(3, { message: "Campaign Name should not be empty and should be at least 3 characters long" }),
+    url: z.string().url({ message: "Please enter a valid URL" }),
+  searchLocation: z.string().min(1, { message: "Search Location is required" }),
+  keywordTag: z.string().optional(),
+  SearchEngine: z.string().optional(),
+  // keyword: z.string().min(1, { message: "Please provide at least one keyword" }),
+  keyword: z.array(z.string().min(1, { message: "Please provide at least one keyword" })),
+    
   volumeLocation: z.string().optional(),
-  language: z.string().optional(),
+  language: z.string().min(1, { message: "Language is required" }),
   serpType: z.string().optional(),
   deviceType: z.string().optional(),
-  });
- 
+});
+
+  

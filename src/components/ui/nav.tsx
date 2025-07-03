@@ -8,14 +8,14 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-// import { ChevronDown, LucideIcon } from "lucide-react";
-import { FaChevronDown, FaTiktok } from "react-icons/fa";
+
+import { FaChevronDown } from "react-icons/fa";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IconType } from "react-icons/lib";
-import { useCampaignData } from "@/app/context/CampaignContext";
+
 import { motion } from "framer-motion";
 interface NavProps {
   isCollapsed: boolean;
@@ -40,7 +40,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
     null
   );
-  const { campaignData, setCampaignData } = useCampaignData();
+ 
   useEffect(() => {
     // setCampaignData(campaign);
   }, []);
@@ -234,7 +234,7 @@ export function Nav({ links, isCollapsed }: NavProps) {
                                   : "ghost",
                               size: "sm",
                             }),
-                            "flex shadow-lg hover:scale-[1.03] mt-3 border-1 rounded-sm items-center overflow-x-hidden text-sm justify-start gap-2  pl-0"
+                            "flex  hover:scale-[1.03] mt-3 border-1 rounded-sm items-center overflow-x-hidden text-sm justify-start gap-2  pl-0"
                           )}
                         >
                           <dropdownItem.icon className="h-4 w-4 text-primary" />

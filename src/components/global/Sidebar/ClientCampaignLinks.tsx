@@ -5,7 +5,7 @@ import { SidebarMenuSubItem } from "@/components/ui/sidebar";
 import { HiOutlineLink } from "react-icons/hi";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { useEffect } from "react";
-import { getUserCampaign } from "@/actions/campaign";
+
 
 export default function  ClientCampaignsLink({ campaign }: any) {
   const router = useRouter();
@@ -13,13 +13,7 @@ export default function  ClientCampaignsLink({ campaign }: any) {
   useEffect(() => {
    
     setCampaignData(campaign);
-  }, []);
-
- 
-
-
-
-
+  }, [campaignData]);
   return (
     <>
       {Array.isArray(campaignData) && campaignData.length > 0 ? (

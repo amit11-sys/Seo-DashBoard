@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BlueButton from "@/components/ui/CustomButton";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { boolean, z } from "zod";
+import { string, z } from "zod";
 import {
   Form,
   FormControl,
@@ -25,7 +25,6 @@ import { campaignSchema } from "@/lib/zod";
 import { useLoader } from "@/hooks/useLoader";
 import { toast } from "sonner";
 import { createCampaign, getUserCampaign } from "@/actions/campaign";
-import { CiCircleCheck } from "react-icons/ci";
 import DropDownList from "@/components/DropDownList";
 import { HiMiniTag } from "react-icons/hi2";
 import { MdOutlineDevices, MdOutlineLocationOn } from "react-icons/md";
@@ -35,7 +34,6 @@ import axios from "axios";
 import { NewCustomInput } from "./NewCustomInput";
 import CustomButton from "@/components/ui/CustomButton";
 import { useCampaignData } from "@/app/context/CampaignContext";
-import AnimatedBackground from "./AnimatedBg/AnimatedBg";
 import { FaCircleCheck } from "react-icons/fa6";
 import { motion } from "framer-motion";
 
@@ -50,7 +48,7 @@ export function CampaignTabs() {
       name: "",
       url: "",
       keywordTag: "",
-
+      keyword: [],
       SearchEngine: "",
       searchLocation: "",
       volumeLocation: "",
@@ -61,13 +59,14 @@ export function CampaignTabs() {
   });
 
   const [tagsInput, settagsInput] = useState("");
-  const [keywordTag, setkeywordTag] = useState("");
   const [Keywords, setKeywords] = useState<string[]>([]);
   const [campaignValid, setCampaignValid] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [language, setLanguage] = useState<string[]>([]);
   const [location, setLocation] = useState<string[]>([]);
   const { setCampaignData } = useCampaignData();
+  const [keywordError, setKeywordError] = useState<string | null>(null);
+
 
   const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
   const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
@@ -127,12 +126,20 @@ export function CampaignTabs() {
 
   const handleCampaignSubmit = async () => {
     const values = form.getValues();
-    const isValid = await form.trigger();
+    console.log(values);
 
-    if (!values.name || !values.url) {
-      toast("Please fill all fields.");
-      return;
-    }
+    const isValid = await form.trigger(["name", "url"]);
+
+    // if (!isValid) {
+    //   if (form.formState.errors.keyword) {
+    //     toast.error(form.formState.errors.name.message || "Please provide Name.");
+    //   }
+    //   if (form.formState.errors.searchLocation) {
+    //     toast.error(form.formState.errors.url.message || "Please select a url.");
+    //   }
+
+    //   return;
+    // }
 
     if (!isValid) return;
 
@@ -141,51 +148,146 @@ export function CampaignTabs() {
     setActiveTab("keywords");
   };
   const keywords = Keywords;
+  // const onFinalSubmit = async () => {
+  //   const values = form.getValues();
+  //   const isValid = await form.trigger([
+  //     "keyword",
+  //     "searchLocation",
+  //     "language",
+  //   ]);
+
+  //   if (!isValid) {
+  //     return;
+  //   }
+  //   // if ( Keywords.length === 0) {
+  //   //   toast("Please complete all fields.");
+  //   //   return;
+  //   // }
+  //   // if (!values.name || !values.url || Keywords.length === 0 || !values.searchLocation || !values.language) {
+  //   //   toast("Please complete all fields.");
+  //   //   return;
+  //   // }
+
+  //   const payload = {
+  //     ...values,
+  //     keywords,
+  //   };
+
+  //   console.log(payload);
+
+  //   startLoading();
+  //   try {
+  //     const response = await createCampaign(payload);
+  //     // if(!response?.token_expired){
+  //     //   // await userExpire()
+  //     //   // Cookies.remove('accessToken');
+  //     //   return;
+
+  //     // }
+
+  //     if (response?.success) {
+  //       const campaign = await getUserCampaign();
+  //       toast("Campaign created successfully");
+  //       form.reset();
+  //       setKeywords([]);
+  //       setCampaignValid(false);
+
+  //       setActiveTab("account");
+  //       setCampaignData(campaign?.campaign || []);
+  //     } else {
+  //       toast(response?.error || "Failed to create campaign");
+  //       console.log(response);
+  //     }
+  //   } catch (error) {
+  //     toast("Something went wrong");
+  //   } finally {
+  //     stopLoading();
+  //   }
+  // };
+  // console.log(form.formState.errors.searchLocation?.message)
+  // console.log(form.formState.errors.language?.message)
+
   const onFinalSubmit = async () => {
-    const values = form.getValues();
+  const values = form.getValues();
+  const isValid = await form.trigger();
 
-    if (!values.name || !values.url || Keywords.length === 0) {
-      toast("Please complete all fields.");
-      return;
-    }
 
-    const payload = {
-      ...values,
-      keywords,
-    };
+  if (keywords.length === 0) {
+    setKeywordError("Please enter at least one keyword.");
+    return;
+  } else {
+    setKeywordError(null);
+  }
+  if (!isValid) {
+    return;
+  }
 
-    console.log(payload);
-
-    startLoading();
-    try {
-      const response = await createCampaign(payload);
-      // if(!response?.token_expired){
-      //   // await userExpire()
-      //   // Cookies.remove('accessToken');
-      //   return;
-
-      // }
-
-      if (response?.success) {
-        const campaign = await getUserCampaign();
-        toast("Campaign created successfully");
-        form.reset();
-        setKeywords([]);
-        setCampaignValid(false);
-
-        setActiveTab("account");
-        setCampaignData(campaign?.campaign || []);
-      } else {
-        toast(response?.error || "Failed to create campaign");
-        console.log(response);
-      }
-    } catch (error) {
-      toast("Something went wrong");
-    } finally {
-      stopLoading();
-    }
+  const payload = {
+    ...values,
+    keywords: Keywords,
   };
+//   const keywordArry= payload.keywords
+//   interface ValuesType {
+//   SearchEngine: string;
+//   deviceType: string;
+//   keywordTag: string;
+//   language: string;
+//   name: string;
+//   searchLocation: string;
+//   serpType: string;
+//   url: string;
+//   volumeLocation: string;
+// }
+// interface FinalPayload {
+//   keywords: string;
+//   SearchEngine: string;
+//   deviceType: string;
+//   keywordTag: string;
+//   language: string;
+//   name: string;
+//   searchLocation: string;
+//   serpType: string;
+//   url: string;
+//   volumeLocation: string;
+   
+// }
+//   function createPayloads(values: ValuesType, keywordArry: string[], userId: string): FinalPayload[] {
+//   return Keywords.map((keywordArry) => ({
+//     keywords: keywordArry,
+//     ...values,
+//     // userId: { $oid: userId },
+//   }));
+// }
+  
 
+  // console.log(createPayloads);
+
+  startLoading();
+  try {
+    const response = await createCampaign(payload);
+
+    if (response?.success) {
+      const campaign = await getUserCampaign();
+      toast("Campaign created successfully");
+      form.reset();
+      setKeywords([]);
+      setCampaignValid(false);
+      setActiveTab("account");
+      setCampaignData(campaign?.campaign || []);
+    } else {
+      toast(response?.error || "Failed to create campaign");
+      console.log(response);
+    }
+  } catch (error) {
+    toast("Something went wrong");
+  } finally {
+    stopLoading();
+  }
+};
+
+  console.log(form.formState.errors.keyword?.message);
+
+  // console.log(Keywords)
   return (
     <Form {...form}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -275,9 +377,9 @@ export function CampaignTabs() {
                           <NewCustomInput
                             placeholder="Enter Campaign Name"
                             {...field}
+                            errorMessage={form.formState.errors.name?.message}
                           />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -290,9 +392,9 @@ export function CampaignTabs() {
                           <NewCustomInput
                             placeholder="Enter Domain URL"
                             {...field}
+                            errorMessage={form.formState.errors.url?.message}
                           />
                         </FormControl>
-                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -326,7 +428,7 @@ export function CampaignTabs() {
                 <CardDescription>Add keywords to track.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border  p-2 rounded w-full max-w-xl">
+                {/* <div className=" multipleKeyword border  p-2 rounded w-full max-w-xl">
                   <div className="flex flex-wrap gap-2">
                     {Keywords.map((keyword, index) => (
                       <span
@@ -345,9 +447,40 @@ export function CampaignTabs() {
                       onKeyDown={handleKeyDown}
                       placeholder="Type a keyword and press Enter"
                       className="flex-1 bg-transparent p-1 outline-none"
+                      
                     />
+                  
                   </div>
                 </div>
+                <p className="text-red-500 text-sm ml/-3">
+                  {form.formState.errors.keyword?.message}
+                </p> */}
+
+                <div className="multipleKeyword border p-2 rounded w-full max-w-xl">
+  <div className="flex flex-wrap gap-2">
+    {Keywords.map((keyword, index) => (
+      <span
+        key={index}
+        className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1"
+      >
+        {keyword}
+        <button onClick={() => removeKeyword(index)}>&times;</button>
+      </span>
+    ))}
+    <input
+      value={tagsInput}
+      onChange={(e) => settagsInput(e.target.value)}
+      onKeyDown={handleKeyDown}
+      placeholder="Type a keyword and press Enter"
+      className="flex-1 bg-transparent p-1 outline-none"
+    />
+  </div>
+</div>
+{keywordError && (
+  <p className="text-red-500 text-sm mt-1">{keywordError}</p>
+)}
+
+                {/* <p className="text-red-500 text-sm ml-3">error</p> */}
               </CardContent>
             </Card>
             <Card className="flex-1  drop-shadow-lg border-slate-300 w-full md:w-1/2 p-4 space-y-4">
@@ -377,6 +510,9 @@ export function CampaignTabs() {
                       listName="Search Location"
                       value={field.value}
                       onChange={(selected) => field.onChange(selected?.value)}
+                      errorMessage={
+                        form.formState.errors.searchLocation?.message
+                      } // <-- Passing error message
                     />
                   )}
                 />
@@ -424,6 +560,7 @@ export function CampaignTabs() {
                     listName="Language"
                     value={field.value}
                     onChange={(selected) => field.onChange(selected?.value)}
+                    errorMessage={form.formState.errors.language?.message}
                   />
                 )}
               />

@@ -6,27 +6,25 @@ import {
   FaPowerOff,
   FaTrash,
 } from "react-icons/fa";
-import { HiOutlineKey } from "react-icons/hi";
+import { HiOutlineKey, HiRefresh } from "react-icons/hi";
 import { MdEdit } from "react-icons/md";
-import { BsPlayCircle } from "react-icons/bs";
+
 import { FcDataSheet } from "react-icons/fc";
-import CustomButton from "../ui/CustomButton";
-import { Dialog, DialogTrigger } from "../ui/dialog";
-import DialogFrom from "../DialogForm/DialogFrom";
+
+import DialogFrom from "../AddKeywordDialog/DialogFrom";
 
 export default function LiveKeyTrakingHeader() {
   const iconButtons = [
-    { icon: <FaTag />, color: "text-blue-500" },
-    { icon: <FaFilePdf />, color: "text-red-400" },
-    { icon: <FaStar />, color: "text-yellow-500" },
-    { icon: <FcDataSheet />, color: "text-green-600" },
-    { icon: <FaPowerOff />, color: "text-purple-500" },
-    { icon: <MdEdit />, color: "text-orange-400" },
-    { icon: <FaTrash />, color: "text-red-500" },
+   
+    { icon: <FaFilePdf className="text-3xl" />, color: "text-red-400 " },
+   
+    { icon: <FcDataSheet className="text-3xl" />, color: "text-green-600 " },
+    { icon: <HiRefresh className="text-3xl" />, color: "text-purple-500" },
+   
   ];
 
   return (
-    <div className=" flex flex-col md:flex-row items-center justify-between text-black rounded-xl p-10 gap-4">
+    <div className=" flex flex-col md:flex-row items-center  justify-between text-black rounded-xl  gap-4">
       {/* Left Side: Title and Subtitle */}
       <div className="flex items-center gap-4">
         <div className="text-3xl text-orange-500">

@@ -1,45 +1,3 @@
-// "use client";
-
-// import { useState } from "react";
-// import Header from "@/components/Common/Header";
-// import Sidebar from "@/components/Common/Sidebar";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { cn } from "@/lib/utils";
-// import { MdDashboard } from "react-icons/md";
-
-// export default function SidebarWrapper({ children }: { children: React.ReactNode;
-//   Convertedcampaign: [{}]; 
-// }) {
-//   const [isCollapsed, setIsCollapsed] = useState(false);
-
-//   return (
-//     <>
-//       <div
-//         className={cn(
-//           "h-screen border-r border-muted transition-all duration-300 ease-in-out",
-//           isCollapsed ? "w-16" : "w-0 md:w-64",
-//         )}
-//       >
-//         {isCollapsed ? (
-//           <span className="text-lg font-semibold"><MdDashboard /></span>
-//         ) : (
-//           <span className="text-lg font-semibold">Dashboard</span>
-//         )}
-//         <ScrollArea className="h-[calc(100vh-48px)]">
-//           <Sidebar isCollapsed={isCollapsed} />
-//         </ScrollArea>
-//       </div>
-
-//       <div className="flex-1 transition-all w-full duration-300 ease-in-out">
-//         <ScrollArea className="h-[calc(100vh-48px)]">
-//           <Header setIsCollapsed={setIsCollapsed} isCollapsed={isCollapsed} />
-//           {children}
-//         </ScrollArea>
-//       </div>
-//     </>
-//   );
-// }
-
 
 "use client";
 
@@ -72,7 +30,7 @@ export default function SidebarWrapper({
   Convertedcampaign,
 }: SidebarWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { campaignData,setCampaignData } = useCampaignData();
+  const { setCampaignData } = useCampaignData();
 
   useEffect(() => {
     if (Convertedcampaign) {

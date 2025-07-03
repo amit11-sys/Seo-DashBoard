@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+
 import { forgotPswd } from "@/actions/user";
 import { useLoader } from "@/hooks/useLoader";
 import { useRouter } from "next/navigation";

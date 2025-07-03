@@ -1,29 +1,19 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Loader from "@/components/global/Loader";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import { Poppins } from "next/font/google";
 import { CampaignDataProvider } from "@/app/context/CampaignContext";
-import AnimatedBackground from "@/components/AnimatedBg/AnimatedBg";
-// Create a React Query client instance
-const queryClient = new QueryClient();
+
+
+
 const poppins = Poppins({
   subsets: ["latin"],
   weight: "400",
 });
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -39,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.className} antialiased  relative `}>
-        <AnimatedBackground/>
+       
         <CampaignDataProvider>
           <Loader />
           <ReactQueryProvider>

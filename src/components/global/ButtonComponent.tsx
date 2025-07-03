@@ -1,15 +1,20 @@
+<<<<<<< Updated upstream
 import React from 'react';
 import { Button } from '../ui/button';
-import { RiLoader2Line } from "react-icons/ri";
 
+=======
+import React from "react";
+import { Button } from "../ui/button";
+import { RiLoader2Line } from "react-icons/ri";
+>>>>>>> Stashed changes
 
 const ButtonComponent = ({
   Icon,
   children,
   onClick,
   disabled = false,
-  loading = false
-}:any) => {
+  loading = false,
+}: any) => {
   return (
     <Button
       onClick={onClick}
@@ -17,11 +22,11 @@ const ButtonComponent = ({
       className="bg-[#3B82F6] text-white hover:text-gray-700 flex items-center gap-2"
     >
       {loading ? (
-        <RiLoader2Line className="animate-spin w-4 h-4" />
+        <Loader2 className="animate-spin w-4 h-4" />
       ) : (
         Icon && <Icon />
       )}
-      {loading ? 'Loading...' : children}
+      {loading ? "Loading..." : children}
     </Button>
   );
 };

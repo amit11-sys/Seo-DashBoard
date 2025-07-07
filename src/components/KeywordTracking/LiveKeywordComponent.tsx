@@ -1,16 +1,15 @@
 
-"use client";
 import React, { ReactNode } from "react";
-import CustomTrackingCard from "@/components/cards/CustomTrackingCard";
+import CustomTrackingCard from "@/components/KeywordTracking/CustomTrackingCard";
 import TrackingChart from "@/components/Chart/TrackingChart";
 import DropDownList from "@/components/DropDownList";
 import SearchBar from "@/components/searchBar/SearchBar";
-import CustomTable from "@/components/Keywordtable/CustomTable";
+import CustomTable from "@/components/KeywordTracking/Keywordtable/CustomTable";
 import CustomButton from "@/components/ui/CustomButton";
 import { FaStar } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@radix-ui/react-checkbox";
-import LiveKeyTrakingHeader from "@/components/cards/LiveKeyTrakingHeader";
+import LiveKeyTrakingHeader from "@/components/KeywordTracking/LiveKeyTrakingHeader";
 
 type Tableitems = {
   key: string;
@@ -90,15 +89,19 @@ const cardsData: CardDataProp[] = [
   { title: "In Top 30", data: keywordList, type: "keyword" },
   { title: "In Top 100", data: keywordList, type: "keyword" },
 ];
+interface campaignId {
+    campaignId:any
+}
 
-const LiveKeywordComponent = () => {
+const LiveKeywordComponent = ({campaignId}:campaignId) => {
+  
 
 
   return (
     <div className="w-full min-h-[80vh] text-gray-100 py-8 space-y-12">
       {/* Header */}
       <div className="my-14  backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
-        <LiveKeyTrakingHeader />
+        <LiveKeyTrakingHeader campaignId={campaignId} />
       </div>
 
       {/* Cards & Chart Section */}

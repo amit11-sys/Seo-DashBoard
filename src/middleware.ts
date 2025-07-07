@@ -49,6 +49,7 @@ export function middleware(request: NextRequest) {
 
   const isPublicPath = pathname === '/sign-in' || pathname === '/sign-up';
   const isRootPath = pathname === '/';
+  const isPath = pathname === '/';
 
   // Redirect root to sign-in
   if (isRootPath) {

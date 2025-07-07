@@ -1,8 +1,9 @@
+import { useCampaignData } from "@/app/context/CampaignContext";
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
-import Campaign from "@/lib/models/campaign.model";
 import Keyword from "@/lib/models/keyword.model";
 import User from "@/lib/models/user.model";
+import { getUserCampaign } from "../campaign";
 // export const saveKeyword = async (keyword: {}) => {
 //   try {
 //     await connectToDB();
@@ -43,9 +44,15 @@ import User from "@/lib/models/user.model";
 //     return { error: "Internal Server Error." };
 //   }
 // };
+interface compaigntype {
+  _id: string;
+}
 
-export const saveMultipleKeyword = async (formData: any) => {
-  console.log("formData", formData);
+export const saveMultipleKeyword = async (
+  formData: any,
+  campaign: compaigntype
+) => {
+  // console.log("formData", formData);
   // const convertdFormdata = [formData].map((c) => {
   //   console.log("convertdFormdata", c);
   //   return {
@@ -68,11 +75,35 @@ export const saveMultipleKeyword = async (formData: any) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-    const addKeyword = await Keyword.create({
-      ...formData,
-      keyword: formData.keywords, 
-      userId: user?.id,
-    });
+    // const addKeyword = await Keyword.create({
+    //   ...formData,
+    //   keyword: formData.keywords
+    //   userId: user?.id,
+    // });
+    //  const campaignData = await getUserCampaign();
+
+    // const userCompaignId = campaignData?.campaign?.filter((userIdData)=>{
+    //   // console.log(userIdData,"userIdData")
+
+    //   return(
+    //       userIdData.userId == user?.id
+    //   )
+    // })
+    // console.log(campaignData,"campaignData")
+    // console.log(userCompaignId,"userCompaignId")
+    // console.log(campaign?._id,"campaign id")
+    const addKeyword = await Promise.all(
+      formData?.keyword?.map(async (singleKeyword: string) => {
+        const { keywords, ...rest } = formData;
+        return await Keyword.create({
+          ...rest,
+          keywords: singleKeyword,
+          userId: user?.id,
+          CampaignId: campaign?._id,
+        });
+      })
+    );
+
     if (!addKeyword) {
       return { error: "Error while adding keyword" };
     }

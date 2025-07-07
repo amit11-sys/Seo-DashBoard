@@ -1,9 +1,12 @@
 import React from "react";
-import TabsDemo from "@/components/TabsComponent";
+import  { CampaignTabs } from "@/components/Compaign/CampaignTabs";
+import TabsComponents from "@/components/Compaign/TabsComponents";
 const AddCamapign = () => {
   return (
     <div>
-      <TabsDemo />
+     
+      <TabsComponents/>
+     
     </div>
   );
 };

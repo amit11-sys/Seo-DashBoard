@@ -1,10 +1,8 @@
-
+'use client'
 import {
-  FaTag,
+  
   FaFilePdf,
-  FaStar,
-  FaPowerOff,
-  FaTrash,
+ 
 } from "react-icons/fa";
 import { HiOutlineKey, HiRefresh } from "react-icons/hi";
 import { MdEdit } from "react-icons/md";
@@ -12,15 +10,36 @@ import { MdEdit } from "react-icons/md";
 import { FcDataSheet } from "react-icons/fc";
 
 import DialogFrom from "../AddKeywordDialog/DialogFrom";
+import { getRefreshCampaign } from "@/actions/campaignRefresh";
+interface CampaignIdProps {
+  campaignId: string;
+}
+export default   function LiveKeyTrakingHeader({ campaignId }: CampaignIdProps) {
 
-export default function LiveKeyTrakingHeader() {
-  const iconButtons = [
-   
-    { icon: <FaFilePdf className="text-3xl" />, color: "text-red-400 " },
-   
-    { icon: <FcDataSheet className="text-3xl" />, color: "text-green-600 " },
-    { icon: <HiRefresh className="text-3xl" />, color: "text-purple-500" },
-   
+
+  // const handleRefershCampaign = async  () => {
+  //   const refreshCompaign = await getRefreshCampaign({campaignId});
+  //   console.log(refreshCompaign, "Refresh header");
+  
+  // };
+  
+
+ const iconButtons = [
+    {
+      icon: <FaFilePdf className="text-3xl" />,
+      color: "text-red-400",
+      onClick: () => {}, // No action for this
+    },
+    {
+      icon: <FcDataSheet className="text-3xl" />,
+      color: "text-green-600",
+      onClick: () => {}, // No action for this
+    },
+    {
+      icon: <HiRefresh className="text-3xl" />,
+      color: "text-purple-500",
+      // onClick: handleRefershCampaign, // Refresh button assigned
+    },
   ];
 
   return (
@@ -28,10 +47,11 @@ export default function LiveKeyTrakingHeader() {
       {/* Left Side: Title and Subtitle */}
       <div className="flex items-center gap-4">
         <div className="text-3xl text-orange-500">
+       
           <HiOutlineKey />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-black">
+          <h2  className="text-xl font-bold text-black">
             Live Keyword Tracking
           </h2>
           <p className="text-sm text-black">
@@ -50,7 +70,7 @@ export default function LiveKeyTrakingHeader() {
             key={idx}
             className="w-10 h-10  rounded-full bg-gray-100 hover:bg-gray-200 shadow-sm flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer"
           >
-            <span className={`text-xl ${item.color}`}>{item.icon}</span>
+            <button onClick={item.onClick}  className={`text-xl ${item.color}`}>{item.icon}</button>
           </div>
         ))}
         

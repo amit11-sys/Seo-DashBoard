@@ -1,4 +1,4 @@
-
+"use client"
 import AnalyticsChart1 from "@/components/SearchAnalytics/AnalyticsChart";
 import { useEffect, useRef, useState } from "react";
 import CustomButton from "../ui/CustomButton";

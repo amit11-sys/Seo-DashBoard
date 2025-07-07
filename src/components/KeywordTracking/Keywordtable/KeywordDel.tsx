@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { MdDelete } from "react-icons/md";
 import { HiOutlineExclamationCircle } from "react-icons/hi2";
-import CustomButton from "../ui/CustomButton";
+import CustomButton from "../../ui/CustomButton";
 
 const DeleteConfirm = () => {
   return (
@@ -38,7 +38,7 @@ const DeleteConfirm = () => {
           />
           <CustomButton
             buttonName="Delete"
-            className="bg-red-500 hover:bg-red-600 text-white"
+           
           />
         </div>
       </DialogContent>

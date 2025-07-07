@@ -1,12 +1,15 @@
+"use client"
 import AnalyticsChart from "@/components/Chart/GoogleChart";
 import { useEffect, useState } from "react";
 // import { useSearchParams } from "react-router-dom";
 import googledata from "@/lib/googleData.json";
 import chartData from "@/lib/chartdata.json";
 import SearchConsoleHead from "./SearchConsoleHead";
+// import { getTrackingData } from "@/actions/keywordTracking";
 
 const SearchConsoleData = () => {
   // let [searchParams] = useSearchParams();
+  
   const [
     searchConsoleGraphData,
     // setSearchConsoleGraphData

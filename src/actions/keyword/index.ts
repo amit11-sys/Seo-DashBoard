@@ -7,9 +7,9 @@ import {  saveMultipleKeyword } from "./queries";
 //     return addKeyword
 // }
 
-export const addMultipleKeyword = async (formData: {}) => {
+export const addMultipleKeyword = async (formData: {},campaign:any) => {
   // console.log(keyword,"rttdt");
 
-  const addKeyword = await saveMultipleKeyword(formData);
+  const addKeyword = await saveMultipleKeyword(formData,campaign?.campaign);
   return addKeyword;
 };

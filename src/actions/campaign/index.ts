@@ -2,19 +2,25 @@
 
 import { getCampaign, newCampaign } from "./queries";
 import { addMultipleKeyword } from "../keyword";
+import { getTrackingData } from "../keywordTracking";
 
 export const createCampaign = async (formData: any) => {
   console.log(formData);
   
   const campaign = await newCampaign(formData);
+  // console.log(campaign,"from index")
+  
   if(campaign){
     // await addMultipleKeyword(formData?.keywords)
-    await addMultipleKeyword(formData)
+    await addMultipleKeyword(formData,campaign)
+     const newCompaignId = campaign?.campaign?._id
+    await getTrackingData(newCompaignId)
   }
   return campaign;
 };
 
 export const getUserCampaign=async ()=>{
   const campaign= await getCampaign()
+ 
   return campaign
 }

@@ -16,6 +16,7 @@ import AnimatedStats from "../GoogleConsole/AnimatedStats";
 import DashboardStats from "../GoogleConsole/CombinedCode";
 import DashboardStatsCollage from "../GoogleConsole/CombinedCode";
 import { FaFileExcel } from "react-icons/fa6";
+import DateRangeDialog from "../GoogleConsole/DateTable/DateTableDialog";
 const AnalyticsChart = ({
   analyticData,
   tableData,
@@ -56,10 +57,11 @@ const AnalyticsChart = ({
         <div className="flex justify-end shadow-md p-5 items-center w-full my-4 gap-3">
       <button className="p-2 rounded-full hover:bg-gray-100" title="Export to Excel">
         <FaFileExcel className="text-green-600 text-4xl" />
+       
       </button>
-      <button className="p-2 rounded-full hover:bg-gray-100" title="Select Date">
-        <FaCalendarAlt className="text-blue-500 text-4xl" />
-      </button>
+      <div className="p-2 rounded-full hover:bg-gray-100" title="Select Date">
+        <DateRangeDialog/>
+      </div>
       <button className="p-2 rounded-full hover:bg-gray-100" title="Refresh Data">
         <FaSync className="text-purple-500 text-4xl" />
       </button>

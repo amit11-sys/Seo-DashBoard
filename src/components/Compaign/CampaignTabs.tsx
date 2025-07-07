@@ -31,15 +31,24 @@ import { MdOutlineDevices, MdOutlineLocationOn } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
 import axios from "axios";
-import { NewCustomInput } from "./NewCustomInput";
+import { NewCustomInput } from "../NewCustomInput";
 import CustomButton from "@/components/ui/CustomButton";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { FaCircleCheck } from "react-icons/fa6";
 import { motion } from "framer-motion";
+// import { getTrackingData } from "@/actions/keywordTracking";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
+interface LocationAndLanguageType {
+  allLanguages: string[];
+  allLocations: string[];
+}
 
-export function CampaignTabs() {
+interface CampaignTabsProps {
+  location_and_language: LocationAndLanguageType;
+}
+
+export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
   const { startLoading, stopLoading } = useLoader();
 
   const form = useForm<CampaignFormType>({
@@ -66,42 +75,47 @@ export function CampaignTabs() {
   const [location, setLocation] = useState<string[]>([]);
   const { setCampaignData } = useCampaignData();
   const [keywordError, setKeywordError] = useState<string | null>(null);
+  const [volumeLocationOptions, setVolumeLocationOptions] = useState<string[]>(
+    []
+  );
 
+  const fetchCitiesByCountry = async (country: string) => {
+    if (!country) {
+      setVolumeLocationOptions([]);
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_COUNTRIESNOW_URL}countries/cities`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country }),
+        }
+      );
 
-  const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
-  const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
+      const data = await res.json();
+      // console.log();
+
+      if (data) {
+        // const stateData = data.data.states.map((state: any) => state?.name);
+        setVolumeLocationOptions(data.data);
+      } else {
+        setVolumeLocationOptions([]);
+        toast.error("No cities found for selected country.");
+      }
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      toast.error("Failed to fetch cities.");
+    }
+  };
+
+  // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
+  // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          "https://api.dataforseo.com/v3/dataforseo_labs/locations_and_languages",
-          {
-            auth: { username, password },
-            headers: { "content-type": "application/json" },
-          }
-        );
-
-        const langData = response.data?.tasks?.[0]?.result || [];
-
-        const allLanguages: string[] = [];
-        const allLocations: string[] = [];
-
-        langData.forEach((item: any) => {
-          item.available_languages.forEach((langItem: any) => {
-            allLanguages.push(langItem.language_name);
-          });
-          allLocations.push(item.location_name);
-        });
-
-        setLanguage(allLanguages);
-        setLocation(allLocations);
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
-    };
-
-    fetchData();
+    setLanguage(location_and_language.allLanguages);
+    setLocation(location_and_language.allLocations);
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -208,84 +222,53 @@ export function CampaignTabs() {
   // console.log(form.formState.errors.language?.message)
 
   const onFinalSubmit = async () => {
-  const values = form.getValues();
-  const isValid = await form.trigger();
+    const values = form.getValues();
+    const isValid = await form.trigger();
 
-
-  if (keywords.length === 0) {
-    setKeywordError("Please enter at least one keyword.");
-    return;
-  } else {
-    setKeywordError(null);
-  }
-  if (!isValid) {
-    return;
-  }
-
-  const payload = {
-    ...values,
-    keywords: Keywords,
-  };
-//   const keywordArry= payload.keywords
-//   interface ValuesType {
-//   SearchEngine: string;
-//   deviceType: string;
-//   keywordTag: string;
-//   language: string;
-//   name: string;
-//   searchLocation: string;
-//   serpType: string;
-//   url: string;
-//   volumeLocation: string;
-// }
-// interface FinalPayload {
-//   keywords: string;
-//   SearchEngine: string;
-//   deviceType: string;
-//   keywordTag: string;
-//   language: string;
-//   name: string;
-//   searchLocation: string;
-//   serpType: string;
-//   url: string;
-//   volumeLocation: string;
-   
-// }
-//   function createPayloads(values: ValuesType, keywordArry: string[], userId: string): FinalPayload[] {
-//   return Keywords.map((keywordArry) => ({
-//     keywords: keywordArry,
-//     ...values,
-//     // userId: { $oid: userId },
-//   }));
-// }
-  
-
-  // console.log(createPayloads);
-
-  startLoading();
-  try {
-    const response = await createCampaign(payload);
-
-    if (response?.success) {
-      const campaign = await getUserCampaign();
-      toast("Campaign created successfully");
-      form.reset();
-      setKeywords([]);
-      setCampaignValid(false);
-      setActiveTab("account");
-      setCampaignData(campaign?.campaign || []);
+    if (keywords.length === 0) {
+      setKeywordError("Please enter at least one keyword.");
+      return;
     } else {
-      toast(response?.error || "Failed to create campaign");
-      console.log(response);
+      setKeywordError(null);
     }
-  } catch (error) {
-    toast("Something went wrong");
-  } finally {
-    stopLoading();
-  }
-};
+    if (!isValid) {
+      return;
+    }
 
-  console.log(form.formState.errors.keyword?.message);
+    const payload = {
+      ...values,
+      keyword: Keywords,
+    };
+
+    console.log(payload);
+
+    startLoading();
+    try {
+      const response = await createCampaign(payload);
+
+      if (response?.success) {
+        const campaign = await getUserCampaign();
+        console.log(campaign, "from on submit");
+
+        //
+        toast("Campaign created successfully");
+        form.reset();
+        setKeywords([]);
+        setCampaignValid(false);
+        setActiveTab("account");
+        setCampaignData(campaign?.campaign || []);
+      } else {
+        toast(response?.error || "Failed to create campaign");
+        console.log(response);
+      }
+    } catch (error) {
+      toast("Something went wrong");
+    } finally {
+      stopLoading();
+    }
+  };
+
+  // console.log(form.formState.errors.keyword?.message);
 
   // console.log(Keywords)
   return (
@@ -456,29 +439,33 @@ export function CampaignTabs() {
                   {form.formState.errors.keyword?.message}
                 </p> */}
 
-                <div className="multipleKeyword border p-2 rounded w-full max-w-xl">
-  <div className="flex flex-wrap gap-2">
-    {Keywords.map((keyword, index) => (
-      <span
-        key={index}
-        className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1"
-      >
-        {keyword}
-        <button onClick={() => removeKeyword(index)}>&times;</button>
-      </span>
-    ))}
-    <input
-      value={tagsInput}
-      onChange={(e) => settagsInput(e.target.value)}
-      onKeyDown={handleKeyDown}
-      placeholder="Type a keyword and press Enter"
-      className="flex-1 bg-transparent p-1 outline-none"
-    />
-  </div>
-</div>
-{keywordError && (
-  <p className="text-red-500 text-sm mt-1">{keywordError}</p>
-)}
+                <div
+                  className={`multipleKeyword border ${keywordError && "border-red-400"}  p-2 rounded w-full max-w-xl`}
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {Keywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1"
+                      >
+                        {keyword}
+                        <button onClick={() => removeKeyword(index)}>
+                          &times;
+                        </button>
+                      </span>
+                    ))}
+                    <input
+                      value={tagsInput}
+                      onChange={(e) => settagsInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Type a keyword and press Enter"
+                      className="flex-1 bg-transparent p-1 outline-none"
+                    />
+                  </div>
+                </div>
+                {keywordError && (
+                  <p className="text-red-500 text-sm mt-1">{keywordError}</p>
+                )}
 
                 {/* <p className="text-red-500 text-sm ml-3">error</p> */}
               </CardContent>
@@ -496,45 +483,73 @@ export function CampaignTabs() {
                 )}
               />
 
-              <div className="w-full gap-5 flex md:flex-nowrap flex-wrap   items-center">
-                <Controller
-                  name="searchLocation"
-                  control={form.control}
-                  render={({ field }) => (
-                    <DropDownList
-                      showArrow={false}
-                      listData={location}
-                      icon={
-                        <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                      }
-                      listName="Search Location"
-                      value={field.value}
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      errorMessage={
-                        form.formState.errors.searchLocation?.message
-                      } // <-- Passing error message
-                    />
-                  )}
-                />
+              <div className="w-full gap-1 flex flex-col md:flex-nowrap flex-wrap ">
+                <div className="flex w-full gap-6">
 
-                <Controller
-                  name="volumeLocation"
-                  control={form.control}
-                  render={({ field }) => (
-                    <DropDownList
-                      showArrow={false}
-                      listData={location}
-                      icon={
-                        <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                      }
-                      listName="Volume Location"
-                      value={field.value}
-                      onChange={(selected) => field.onChange(selected?.value)}
-                    />
-                  )}
-                />
+
+                <div className="flex-1  flex flex-col justify-start items-start">
+                  
+                  <Controller
+                    name="searchLocation"
+                    control={form.control}
+                    render={({ field }) => (
+                      <DropDownList
+                        showArrow={false}
+                        listData={location}
+                        icon={
+                          <MdOutlineLocationOn className="text-blue-500 text-xl" />
+                        }
+                        listName="Search Location"
+                        value={field.value}
+                        onChange={async (selected) => {
+                          field.onChange(selected?.value);
+
+                          if (selected?.value) {
+                            await fetchCitiesByCountry(selected.value);
+                          }
+                        }}
+                        className={`${form.formState.errors.searchLocation?.message && "border-red-500 animate-shake "}`}
+                        
+                        // errorMessage={
+                        //   form.formState.errors.searchLocation?.message
+                        // }
+                      />
+                    )}
+                  />
+                </div>
+
+
+                <div className="flex-1 flex justify-start items-start">
+                 
+
+                  <Controller
+                    name="volumeLocation"
+                    control={form.control}
+                    render={({ field }) => (
+                      <DropDownList
+                        showArrow={false}
+                        listData={volumeLocationOptions}
+                        icon={
+                          <MdOutlineLocationOn className="text-blue-500 text-xl" />
+                        }
+                        listName="Volume Location"
+                        value={field.value}
+                        onChange={(selected) => field.onChange(selected?.value)}
+                        errorMessage={
+                          form.formState.errors.volumeLocation?.message
+                        }
+                      />
+                    )}
+                  />
+                </div>
+                </div>
+                <div className="w-full text-sm text-red-500">{form.formState.errors.searchLocation?.message}</div>
+                
               </div>
 
+
+                      
+                {/* ----- */}
               <Controller
                 name="SearchEngine"
                 control={form.control}

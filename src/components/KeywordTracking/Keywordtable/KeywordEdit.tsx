@@ -12,11 +12,11 @@ import { MdOutlineDevices } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
 import { BsPlus } from "react-icons/bs";
-import CustomButton from "../ui/CustomButton";
+import CustomButton from "../../ui/CustomButton";
 import { FaLink } from "react-icons/fa6";
-import CustomInput from "../ui/CustomInput";
+import CustomInput from "../../ui/CustomInput";
 import { Textarea } from "@/components/ui/textarea";
-import DropDownList from "../DropDownList";
+import DropDownList from "../../DropDownList";
 
 const KeywordEdit = () => {
   return (

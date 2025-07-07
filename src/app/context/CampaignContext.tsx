@@ -1,6 +1,5 @@
 "use client";
 
-import { getUserCampaign } from "@/actions/campaign";
 import React, {
   createContext,
   useContext,

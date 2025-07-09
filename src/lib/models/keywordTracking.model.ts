@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { string } from "zod";
 
 const KeywordTrackingSchema = new mongoose.Schema(
   {
@@ -7,11 +8,15 @@ const KeywordTrackingSchema = new mongoose.Schema(
     language_code: { type: String },     // "en"
     url: { type: String },               // "https://www.handonawhiteboard.com/locations/toronto"
     rank_group: { type: Number },        // 2
-    rank_absolute: { type: Number },     // 3
+    rank_absolute: { type: Number },
+    keyword: { type: String },
+    location_name: { type: String } ,    // 3
+    // campaignId: { type: String},
+    campaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign"},
   },
-  {
-    timestamps: true,
-  }
+  { 
+    timestamps: true, 
+  }  
 );
 
 const KeywordTracking =

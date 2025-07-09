@@ -23,7 +23,8 @@ interface CustomTrackingCardProps {
   };
 }
 
-const CustomTrackingCard = ({ cardData }: CustomTrackingCardProps) => {
+const CustomTrackingCard = ({ cardData }: CustomTrackingCardProps) => { 
+  console.log(cardData,"cardata")
   const [bgGradient, setBgGradient] = useState<string>("");
 
   useEffect(() => {

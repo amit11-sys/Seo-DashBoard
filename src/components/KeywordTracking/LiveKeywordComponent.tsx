@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from "react";
 import CustomTrackingCard from "@/components/KeywordTracking/CustomTrackingCard";
 import TrackingChart from "@/components/Chart/TrackingChart";
@@ -18,13 +17,14 @@ type Tableitems = {
 };
 
 type TablebodyItems = {
-  select: boolean;
+  // select: boolean;
   keyword: string;
   location: string;
   intent: string;
   start: string;
   page: string;
-  rank: string;
+  Group_Rank: string;
+  Absolute_Rank: string;
   oneDay: string;
   sevenDays: string;
   thirtyDays: string;
@@ -41,61 +41,122 @@ type CardDataProp = {
   type?: string;
 };
 
-const tableHeader: Tableitems[] = [
-  { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
-  { key: "keyword", label: "Keyword" },
-  { key: "location", label: "Location" },
-  { key: "intent", label: "Intent" },
-  { key: "start", label: "Start" },
-  { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
-  { key: "rank", label: "Rank", icon: <FcGoogle className="inline mr-1" /> },
-  { key: "one_day", label: "1 Day" },
-  { key: "seven_days", label: "7 Days" },
-  { key: "thirty_days", label: "30 Days" },
-  { key: "life", label: "Life" },
-  { key: "comp", label: "Comp" },
-  { key: "sv", label: "SV" },
-  { key: "date", label: "Date" },
-  { key: "ranking_url", label: "Ranking URL" },
-  { key: "edit", label: "Edit keyword" },
-];
-
-const tableBody: TablebodyItems[] = new Array(6).fill({
-  select: false,
-  keyword: "public adjuster glen ridge",
-  location: "Florida, USA",
-  intent: "C",
-  start: "1",
-  page: "1",
-  rank: "2",
-  oneDay: "1",
-  sevenDays: "98",
-  thirtyDays: "-",
-  life: "-1",
-  comp: "0",
-  sv: "0",
-  date: "07-Feb-25",
-  rankingUrl: "/public-adjuster-glen-ridge",
-  
-});
-
-const keywordList = tableBody.map((item) => item.keyword);
-
-const cardsData: CardDataProp[] = [
-  { title: "Keywords up", data: keywordList, type: "keyword" },
-  { title: "In Top 3", data: keywordList, type: "keyword" },
-  { title: "In Top 10", data: keywordList, type: "keyword" },
-  { title: "In Top 20", data: keywordList, type: "keyword" },
-  { title: "In Top 30", data: keywordList, type: "keyword" },
-  { title: "In Top 100", data: keywordList, type: "keyword" },
-];
 interface campaignId {
-    campaignId:any
+  campaignId: any;
+}
+interface campaignLiveKeywordsData {
+  campaignLiveKeywordsData: {
+    success?: boolean;
+    message?: string;
+    error?: string;
+    LiveKeywordDbData?: any[];
+  };
+  campaignId: string;
 }
 
-const LiveKeywordComponent = ({campaignId}:campaignId) => {
-  
+const LiveKeywordComponent = (
+  campaignLiveKeywordsData: campaignLiveKeywordsData,
+  campaignId: string
+) => {
+  console.log(
+    campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData,
+    "real data in table compo"
+  );
 
+  const tableHeader: Tableitems[] = [
+    // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
+    { key: "keyword", label: "Keyword" },
+    { key: "location", label: "Location" },
+    { key: "intent", label: "Intent" },
+    { key: "start", label: "Start" },
+    { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
+    { key: "Absolute-Rank", label: "Absolute-Rank", icon: <FcGoogle className="inline mr-1" /> },
+    { key: "Group-Rank", label: "Group-Rank", icon: <FcGoogle className="inline mr-1" /> },
+    { key: "one_day", label: "1 Day" },
+    { key: "seven_days", label: "7 Days" },
+    { key: "thirty_days", label: "30 Days" },
+    { key: "life", label: "Life" },
+    { key: "comp", label: "Comp" },
+    { key: "sv", label: "SV" },
+    { key: "date", label: "Date" },
+    { key: "ranking_url", label: "Ranking URL" },
+    { key: "edit", label: "Edit keyword" },
+  ];
+
+  let tableBody: TablebodyItems[] = [];
+
+  if (campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData) {
+    tableBody =
+      campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData.map(
+        (item: any) => ({
+          // select: false,
+          keyword: item.keyword,
+          location: item.location_name,
+          intent: "C",
+          start: String(item.rank_group),
+          page: Math.ceil(item.rank_absolute / 10).toString(),
+          Absolute_Rank: String(item.rank_absolute),
+          Group_Rank: String(item.rank_group),
+          oneDay: "1",
+          sevenDays: "98",
+          thirtyDays: "-",
+          life: "-1",
+          comp: "0",
+          sv: "0",
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item.url ,
+          // rankingUrl: new URL(item.url) || "/",
+        })
+      );
+  }
+
+  console.log(tableBody, "table");
+
+  const keywordList = tableBody.map((item) => item.keyword);
+
+  // const top3 = tableBody
+  //   .filter((item) => parseInt(item.rank) <= 3)
+  //   .map((item) => item.keyword);
+  // // const top3 = tableBody.filter((item) => {
+  // // console.log(item,"items")
+  // //   return parseInt(item.rank) <= 3
+
+  // // }
+
+  // // )
+
+  // const top10 = tableBody
+  //   .filter((item) => parseInt(item.rank) <= 10)
+  //   .map((item) => item.keyword);
+  // const top20 = tableBody
+  //   .filter((item) => parseInt(item.rank) <= 20)
+  //   .map((item) => item.keyword);
+  // const top30 = tableBody
+  //   .filter((item) => parseInt(item.rank) <= 30)
+  //   .map((item) => item.keyword);
+  // const top100 = tableBody
+  //   .filter((item) => parseInt(item.rank) <= 100)
+  //   .map((item) => item.keyword);
+
+  // // Count keywords that improved (1-day change is a negative number)
+  // const keywordsUp = tableBody
+  //   .filter(
+  //     (item) => !isNaN(parseInt(item.oneDay)) && parseInt(item.oneDay) < 0
+  //   )
+  //   .map((item) => item.keyword);
+
+  const cardsData: CardDataProp[] = [
+    { title: "Keywords up", data: [], type: "keyword" },
+    { title: "In Top 3", data: [], type: "keyword" },
+    { title: "In Top 10", data: [], type: "keyword" },
+    { title: "In Top 20", data: [], type: "keyword" },
+    { title: "In Top 30", data: [], type: "keyword" },
+    { title: "In Top 100", data: [], type: "keyword" },
+  ];
 
   return (
     <div className="w-full min-h-[80vh] text-gray-100 py-8 space-y-12">
@@ -112,7 +173,7 @@ const LiveKeywordComponent = ({campaignId}:campaignId) => {
             //   key={i}
             //   className="w-full h-[75%] backdrop-blur-md bg-white/10 border border-white/10 rounded-xl p-4 shadow-lg"
             // >
-              <CustomTrackingCard key={i}   cardData={card} />
+            <CustomTrackingCard key={i} cardData={card} />
             // </div>
           ))}
         </div>

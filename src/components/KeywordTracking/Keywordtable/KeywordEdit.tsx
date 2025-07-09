@@ -93,7 +93,7 @@ const KeywordEdit = () => {
           </div>
 
           <div className="pt-4">
-            <CustomButton buttonName="Submit" />
+            <CustomButton onClick={()=>console.log("change")} buttonName="Submit" />
           </div>
         </div>
       </DialogContent>

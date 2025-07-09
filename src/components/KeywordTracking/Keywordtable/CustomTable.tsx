@@ -321,13 +321,14 @@ interface TableHeaderitems {
   icon?: ReactNode;
 }
 interface TablebodyItems {
-  select: boolean;
+  // select: boolean;
   keyword: string;
   location: string;
   intent: string;
   start: string;
   page: string;
-  rank: string;
+  Absolute_Rank: string;
+  Group_Rank: string;
   oneDay: string;
   sevenDays: string;
   thirtyDays: string;
@@ -389,9 +390,9 @@ const CustomTable = ({ tableHeader, tableData }: CustomTableProps) => {
         <tbody>
           {tableValues.map((data, rowIndex) => (
             <tr key={rowIndex} className="hover:bg-indigo-50 transition-colors">
-              <td className="text-center  border p-3">
+              {/* <td className="text-center  border p-3">
                 <Checkbox />
-              </td>
+              </td> */}
               <td className="text-center border font-medium p-3  ">{data.keyword}</td>
               <td className="text-center border p-3">{data.location}</td>
               <td className="text-center border p-3">{data.intent}</td>
@@ -420,7 +421,8 @@ const CustomTable = ({ tableHeader, tableData }: CustomTableProps) => {
               </td>
 
               <td className="text-center border p-3">{data.page}</td>
-              <td className="text-center border p-3">{data.rank}</td>
+              <td className="text-center border p-3">{data.Absolute_Rank}</td>
+              <td className="text-center border p-3">{data.Group_Rank}</td>
               <td className="text-center border p-3">{data.oneDay}</td>
               <td className="text-center border p-3">{data.sevenDays}</td>
               <td className="text-center border p-3">{data.thirtyDays}</td>
@@ -428,9 +430,9 @@ const CustomTable = ({ tableHeader, tableData }: CustomTableProps) => {
               <td className="text-center border p-3">{data.comp}</td>
               <td className="text-center border p-3">{data.sv}</td>
               <td className="text-center border p-3">{data.date}</td>
-              <td className="text-center   border p-3">
+              <td className="text-center    border p-3">
 
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center w-20overflow-auto items-center">
 
                
                 <a
@@ -438,7 +440,9 @@ const CustomTable = ({ tableHeader, tableData }: CustomTableProps) => {
                   className="text-blue-600"
                   href={data.rankingUrl}
                 >
-                  {data.rankingUrl}
+                  
+                  {/* {data.rankingUrl} */}
+                  view 
                 </a>
 
                 </div>

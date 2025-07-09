@@ -50,15 +50,18 @@ export const getLiveData = async (
         language_name:
           keywordObj.language.charAt(0).toUpperCase() +
           keywordObj.language.slice(1).toLowerCase(),
+          target: keywordObj.url,
+
       })
     );
+console.log(payload,"livekeywordspayload")
 
     const responses: KeywordResponse[] = [];
 
     for (const item of payload) {
       //  `${process.env.NEXT_PUBLIC_API_URL}${"serp/google/organic/live/advanced"}`,
       const res = await fetch(
-        "https://api.dataforseo.com/v3/serp/google/organic/live/advancedll", 
+        "https://api.dataforseo.com/v3/serp/google/organic/live/advanced",  
         {
           method: "POST",
           headers: {
@@ -76,13 +79,13 @@ export const getLiveData = async (
         );
         responses.push({ keyword: item.keyword, response: null });
       } else {
-        // const result = await res.json();
+        const result = await res.json();
          
-        responses.push({ keyword: item.keyword, response: keworddata });
+        responses.push({ keyword: item.keyword, response: result });
       }
     }
 
-    // console.log(responses)
+    console.log(responses,"api ka response") 
     return responses;
   } catch (error) {
     console.error(error);

@@ -1,4 +1,4 @@
-import { createNewKeywordTrackingData } from "@/actions/keywordTracking";
+import { createNewKeywordTrackingData, getDbLiveKeywordData } from "@/actions/keywordTracking";
 import { getKeywordLiveData } from "@/actions/liveKeywords";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
@@ -10,34 +10,37 @@ export default async function DashboardDetails({
   params: Promise<{ campaignId: string }>;
 }) {
   const { campaignId } = await params;
- 
-  const liveKeywordsDataAPI = await getKeywordLiveData(campaignId);
-  // console.log(liveKeywordsDataAPI, "ui");
+const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId)
+
+//   const liveKeywordsDataAPI = await getKeywordLiveData(campaignId);
+//   console.log(JSON.stringify(liveKeywordsDataAPI), "liveKeywordsDataAPI");
 
 
-if (Array.isArray(liveKeywordsDataAPI)) {
-  const keywordData = liveKeywordsDataAPI.map((item) => { 
-    return {
-      Keyword: item?.keyword,
-      Response: item?.response?.tasks, 
-    }; 
-  }); 
+// if (Array.isArray(liveKeywordsDataAPI)) {
+//  const keywordData = liveKeywordsDataAPI.map((item) => {
+//   return {
+//     Keyword: item?.keyword,
+//     Response: item?.response?.[0]?.tasks || [], // Fix: access tasks from first response item
+//     CampaignId:campaignId,
+//   };
+// }); 
 
-  console.log(keywordData, "array");
+// console.log(keywordData,"arry")
 
-  const FetchKeyWordsDb = await createNewKeywordTrackingData(keywordData);
+//   const FetchKeyWordsDb = await createNewKeywordTrackingData(keywordData);
+//   console.log(FetchKeyWordsDb,"db DAta")
 
-} else {
-  console.error("Error:", liveKeywordsDataAPI.error);
-}
+// } else {
+//   console.error("Error:", liveKeywordsDataAPI.error);
+// }
 
 
 
   return (
     <section className=" liveKeywordTracking p-3 mt-10">
-      <SearchConsoleData />
-      <SearchAnalytics />
-      <LiveKeywordComponent campaignId={campaignId} />
+      {/* <SearchConsoleData />
+      <SearchAnalytics /> */}
+      <LiveKeywordComponent campaignLiveKeywordsData={campaignLiveKeywordsData} campaignId={campaignId} />
     </section>
   );
 }

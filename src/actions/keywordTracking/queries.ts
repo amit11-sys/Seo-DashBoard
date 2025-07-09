@@ -2,53 +2,68 @@ import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
+import mongoose from "mongoose";
 
 export const createKeywordTracking = async (keywordData: any) => {
   try {
-   await connectToDB();
+    await connectToDB();
 
-const user = await getUserFromToken();
-// console.log(user, "user");
+    const user = await getUserFromToken();
+    // console.log(user, "user");
 
-if (!user) {
-  return { error: "Unauthorized" };
-}
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
 
-const createdRecords = [];
+    // console.log(keywordData, "createlivedata");
 
-for (const element of keywordData) {
-  createdRecords.push({
-    type: "organic",
-    location_code: 2124,
-    language_code: "en",
-    url:
-      element?.Response?.items?.[0]?.url ||
-      "https://www.handonawhiteboard.com/locations/toronto",
-    rank_group: element?.Response?.items?.[0]?.rank_group || 2,
-    rank_absolute: element?.Response?.items?.[0]?.rank_absolute || 1,
-    keyword: element?.Keyword || "",
-  });
-}
+   const createdRecords: any[] = [];
+   console.log(keywordData,"new")
+
+keywordData.forEach((item: any) => {
+  const keyword = item?.keyword;
+  const campaignId = item?.campaignId;
+
+  const task = item?.response?.[0]; // Access first task
+  const result = task?.result?.[0]; // Access first result
+  const resultItem = result?.items?.[0]; // Access first item
+    console.log(task,"task")
+  const record = {
+    type: "organic", 
+    location_code: result?.location_code || 2124,
+    language_code: result?.language_code || "en",
+    location_name:  task?.data?.location_name || "",
+    url: resultItem?.url || "no ranking",
+    rank_group: resultItem?.rank_group || 0,
+    rank_absolute: resultItem?.rank_absolute || 0,
+    keyword: keyword || "",
+    campaignId: campaignId,
+  };
+
+  createdRecords.push(record); 
+}); 
 
 
-const KeywordTrackingData = await KeywordTracking.insertMany(createdRecords);
+    console.log(createdRecords, "orignal");
 
-return {
-  success: true,
-  message: "KeywordTrackingData Successfully created",
-  KeywordTrackingData,
-};
+    const KeywordTrackingData =
+      await KeywordTracking.insertMany(createdRecords);
+    
+    return {
+      success: true,
+      message: "KeywordTrackingData Successfully created",
+      KeywordTrackingData,
+    };
 
-if (createdRecords.length === 0) {
-  return { error: "Error while creating KeywordTrackingData" };
-}
+    // if (createdRecords.length === 0) {
+    //   return { error: "Error while creating KeywordTrackingData" };
+    // }
 
-return {
-  success: true,
-  message: "KeywordTrackingData Successfully created",
-  KeywordTrackingData: createdRecords,
-};
-
+    // return {
+    //   success: true,
+    //   message: "KeywordTrackingData Successfully created",
+    //   KeywordTrackingData: createdRecords,
+    // };
   } catch (error) {
     console.log(error);
 
@@ -92,3 +107,38 @@ export const getUserKeywordData = async (newCompaignId: any) => {
     return { error: "Internal Server Error." };
   }
 };
+
+export const DbLiveKeywordData = async (newCompaignId: string)=>{
+try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+    // console.log(user);
+    // console.log(newCompaignId,"newkeywordCampaign")
+    const LiveKeywordDbData = await KeywordTracking.find({
+      campaignId:newCompaignId,
+    });
+
+    // console.log(campaignKeywords,"fromkeywordtracking")
+
+    if (!LiveKeywordDbData) {
+      return { error: "Error while getting LiveKeywordDbData" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "LiveKeywordDbData Successfully Found",
+      LiveKeywordDbData,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+
+
+}

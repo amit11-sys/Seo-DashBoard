@@ -44,7 +44,7 @@ type CardDataProp = {
 interface campaignId {
   campaignId: any;
 }
-interface campaignLiveKeywordsData {
+interface LiveKeywordComponentProps {
   campaignLiveKeywordsData: {
     success?: boolean;
     message?: string;
@@ -54,14 +54,14 @@ interface campaignLiveKeywordsData {
   campaignId: string;
 }
 
-const LiveKeywordComponent = (
-  campaignLiveKeywordsData: campaignLiveKeywordsData,
-  campaignId: string
-) => {
-  console.log(
-    campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData,
-    "real data in table compo"
-  );
+const LiveKeywordComponent = ({
+  campaignLiveKeywordsData,
+  campaignId,
+}: LiveKeywordComponentProps) => {
+  // console.log(
+  //   campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData,
+  //   "real data in table compo"
+  // );
 
   const tableHeader: Tableitems[] = [
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
@@ -84,10 +84,10 @@ const LiveKeywordComponent = (
   ];
 
   let tableBody: TablebodyItems[] = [];
-
-  if (campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData) {
+ 
+  if (campaignLiveKeywordsData.LiveKeywordDbData) {
     tableBody =
-      campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData.map(
+      campaignLiveKeywordsData.LiveKeywordDbData.map(
         (item: any) => ({
           // select: false,
           keyword: item.keyword,
@@ -112,21 +112,21 @@ const LiveKeywordComponent = (
           // rankingUrl: new URL(item.url) || "/",
         })
       );
-  }
-
-  console.log(tableBody, "table");
-
+  } 
+ 
+  // console.log(tableBody, "table");
+ 
   const keywordList = tableBody.map((item) => item.keyword);
 
   // const top3 = tableBody
   //   .filter((item) => parseInt(item.rank) <= 3)
-  //   .map((item) => item.keyword);
+  //   .map((item) => item.keyword); 
   // // const top3 = tableBody.filter((item) => {
   // // console.log(item,"items")
   // //   return parseInt(item.rank) <= 3
 
   // // }
-
+    
   // // )
 
   // const top10 = tableBody
@@ -148,7 +148,7 @@ const LiveKeywordComponent = (
   //     (item) => !isNaN(parseInt(item.oneDay)) && parseInt(item.oneDay) < 0
   //   )
   //   .map((item) => item.keyword);
-
+   
   const cardsData: CardDataProp[] = [
     { title: "Keywords up", data: [], type: "keyword" },
     { title: "In Top 3", data: [], type: "keyword" },

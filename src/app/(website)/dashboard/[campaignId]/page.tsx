@@ -11,7 +11,7 @@ export default async function DashboardDetails({
 }) {
   const { campaignId } = await params;
 const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId)
-
+  await getDbLiveKeywordData(campaignId)
 //   const liveKeywordsDataAPI = await getKeywordLiveData(campaignId);
 //   console.log(JSON.stringify(liveKeywordsDataAPI), "liveKeywordsDataAPI");
 

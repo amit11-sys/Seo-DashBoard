@@ -85,7 +85,7 @@ console.log(payload,"livekeywordspayload")
       }
     }
 
-    console.log(responses,"api ka response") 
+    // console.log(responses,"api ka response") 
     return responses;
   } catch (error) {
     console.error(error);

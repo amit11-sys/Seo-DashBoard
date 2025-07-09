@@ -9,12 +9,14 @@ import { MdEdit } from "react-icons/md";
 
 import { FcDataSheet } from "react-icons/fc";
 
-import DialogFrom from "../AddKeywordDialog/DialogFrom";
+import DialogFrom from "./AddKeywordDialog/DialogFrom";
 import { getRefreshCampaign } from "@/actions/campaignRefresh";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader({ campaignId }: CampaignIdProps) {
+export default   function LiveKeyTrakingHeader( {campaignId} :CampaignIdProps) {
+
+  
 
 
   // const handleRefershCampaign = async  () => {
@@ -63,7 +65,7 @@ export default   function LiveKeyTrakingHeader({ campaignId }: CampaignIdProps) 
 
       {/* Right Side: Action Icons */}
       <div className="flex items-center gap-3 flex-wrap justify-end">
-       <DialogFrom/>
+       <DialogFrom campaignId={campaignId}/>
        
         {iconButtons.map((item, idx) => (
           <div

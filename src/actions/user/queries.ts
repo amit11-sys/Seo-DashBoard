@@ -64,7 +64,7 @@ function generateAccessToken(user: any) {
   };
 
   const secret: Secret = "swayam"; // Type explicitly
-  const options: SignOptions = { expiresIn: "1h" }; // Type explicitly
+  const options: SignOptions = { expiresIn: "10h" }; // Type explicitly
 
   return jwt.sign(payload, secret, options);
 }

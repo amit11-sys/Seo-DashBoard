@@ -36,14 +36,11 @@ const schema = z.object({
   deviceType: z.string().optional(),
 });
 interface compaignid {
-campaignId:string
+  campaignId: string;
 }
-const DialogForm = (campaignId:compaignid) => {
-  
-  
-
+const DialogForm = (campaignId: any) => {
   const form = useForm({
-    resolver: zodResolver(addKeywordsSchema), 
+    resolver: zodResolver(addKeywordsSchema),
     defaultValues: {
       url: "",
       keywordTag: "",
@@ -82,57 +79,61 @@ const DialogForm = (campaignId:compaignid) => {
   };
 
   const onSubmit = async () => {
-  const isValid = await form.trigger();
-  if (Keywords.length === 0) {
-    setKeywordError("Please enter at least one keyword.");
-    return;
-  } else {
-    setKeywordError(null);
-  }
-  if (!isValid) return;
+    const isValid = await form.trigger();
+    if (Keywords.length === 0) {
+      setKeywordError("Please enter at least one keyword.");
+      return;
+    } else {
+      setKeywordError(null);
+    }
+    if (!isValid) return;
 
-  const payload = {
-    ...form.getValues(),
-    keywords: Keywords,
-    campaignId,
+    const payload = {
+      ...form.getValues(),
+      keywords: Keywords,
+      campaignId,
+    };
+
+    try {
+      const res = await fetch("/api/add-keywords", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to create keywords");
+
+      const response = await res.json();
+      // if (!response.success) {
+      //   throw new Error(response.error || "Failed to create keywords");
+      // }
+      console.log(response, "Response from API");
+
+      // await campaignId?.showAddedKeyword(response?.data);
+      // Optionally, you can log the response or handle it as needed
+      // console.log("Submitted:", response);
+      toast.success(response?.message);
+
+      // form.reset({
+      //   url: "",
+      //   keywordTag: "",
+      //   searchLocation: "",
+      //   language: "",
+      //   SearchEngine: "",
+      //   serpType: "",
+      //   deviceType: "",
+      //   volumeLocation: "",
+      //   keywords: [],
+      // });
+
+      setKeywords([]);
+      // await getDbLiveKeywordData(campaignId.campaignId)
+    } catch (error) {
+      console.error("Submission Error:", error);
+    }
   };
-
- try {
-    const res = await fetch("/api/add-keywords", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) throw new Error("Failed to create keywords");
-
-    const response = await res.json();
-
-    console.log("Submitted:", response);
-     toast.success(response?.message);
-
-    form.reset({
-      url: "",
-      keywordTag: "",
-      searchLocation: "",
-      language: "",
-      SearchEngine: "",
-      serpType: "",
-      deviceType: "",
-      volumeLocation: "",
-      keywords: [],
-    });
-
-    setKeywords([]);
-    await getDbLiveKeywordData(campaignId.campaignId)
-    
-  } catch (error) {
-    console.error("Submission Error:", error);
-  }
-};
-
 
   return (
     <Dialog>
@@ -178,7 +179,7 @@ const DialogForm = (campaignId:compaignid) => {
                 control={form.control}
                 render={({ field }) => (
                   <DropDownList
-                    listData={["USA", "Canada","New zealand"]}
+                    listData={["USA", "Canada", "New zealand"]}
                     icon={
                       <MdOutlineLocationOn className="text-blue-500 text-xl" />
                     }

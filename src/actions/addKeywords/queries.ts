@@ -89,9 +89,9 @@ export const addkeywords = async (formData: any) => {
     const createdRecords: any[] = [];
 
 responses.forEach((item: any) => {
-  console.log(item.response.tasks, "response a gyea task");
+  console.log(item?.response?.tasks, "response a gyea task");
 
-  item.response.tasks.forEach((task: any) => {
+  item?.response?.tasks?.forEach((task: any) => {
     const keyword = task?.data?.keyword;
 
     const results = task?.result?.map((data: any) => {

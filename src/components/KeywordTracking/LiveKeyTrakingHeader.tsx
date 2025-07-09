@@ -14,7 +14,7 @@ import { getRefreshCampaign } from "@/actions/campaignRefresh";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {campaignId} :CampaignIdProps) {
+export default   function LiveKeyTrakingHeader( {campaignId, showAddedKeyword} :any) {
 
   
 
@@ -65,8 +65,8 @@ export default   function LiveKeyTrakingHeader( {campaignId} :CampaignIdProps) {
 
       {/* Right Side: Action Icons */}
       <div className="flex items-center gap-3 flex-wrap justify-end">
-       <DialogFrom campaignId={campaignId}/>
-       
+       <DialogFrom campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
+       {/* <button>Add Keyword</button> */}
         {iconButtons.map((item, idx) => (
           <div
             key={idx}

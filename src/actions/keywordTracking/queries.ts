@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
@@ -16,7 +16,7 @@ export const createKeywordTracking = async (keywordData: any) => {
       return { error: "Unauthorized" };
     }
 
-    // console.log(keywordData, "createlivedata");
+    console.log(keywordData, "createlivedata");
 
     const createdRecords: any[] = [];
     //  console.log(keywordData,"new")
@@ -39,6 +39,7 @@ export const createKeywordTracking = async (keywordData: any) => {
         rank_absolute: resultItem?.rank_absolute || 0,
         keyword: keyword || "",
         campaignId: campaignId,
+        keywordId: item,
       };
 
       createdRecords.push(record);
@@ -120,6 +121,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     // console.log(newCompaignId,"newkeywordCampaign")
     const LiveKeywordDbData = await KeywordTracking.find({
       campaignId: newCompaignId,
+      status: 1,
     });
 
     // console.log(campaignKeywords,"fromkeywordtracking")

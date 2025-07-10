@@ -4,6 +4,7 @@ import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import User from "@/lib/models/user.model";
 import { getUserCampaign } from "../campaign";
+import KeywordTracking from "@/lib/models/keywordTracking.model";
 // export const saveKeyword = async (keyword: {}) => {
 //   try {
 //     await connectToDB();
@@ -110,6 +111,7 @@ export const saveMultipleKeyword = async (
     return {
       success: true,
       message: "Keyword Added Successfully",
+      addKeyword
     };
   } catch (error) {
     console.log(error);
@@ -117,8 +119,9 @@ export const saveMultipleKeyword = async (
     return { error: "Internal Server Error." };
   }
 };
+
 type KeywordUpdateData = {
-  keywords?: string[]; // changed from string to string[]
+  keywords?: string; // NOTE: your DB expects this as string (not array)
   SearchEngine?: string;
   deviceType?: string;
   keywordTag?: string;
@@ -127,22 +130,150 @@ type KeywordUpdateData = {
   serpType?: string;
   url?: string;
   volumeLocation?: string;
-  campaignId?: string; // optional: handle if needed
+  campaignId?: string;
+  keywordId: string;
 };
 
-export const updateKeywordById = async (updatedData:KeywordUpdateData) => {  
-  
-  await connectToDB();
-const CampaignId  = updatedData.campaignId
+const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
+const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
 
-  const response = await Keyword.findByIdAndUpdate(
-    CampaignId,
-    { $set: updatedData },
-    { new: true }
-  );
- return {
+const capitalize = (str: string = "") =>
+  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const { keywordId, campaignId } = updatedData;
+
+    // ✅ Update keyword document
+    const updatedKeyword = await Keyword.findByIdAndUpdate(
+      keywordId,
+      { $set: updatedData },
+      { new: true }
+    );
+
+    if (!updatedKeyword) {
+      return { error: "Keyword not found" };
+    }
+
+    // ✅ Prepare DataForSEO Payload
+    const payload = [
+      {
+        keyword: updatedKeyword.keywords,
+        location_name: capitalize(updatedKeyword.searchLocation),
+        language_name: capitalize(updatedKeyword.language),
+        target: updatedKeyword.url,
+      },
+    ];
+
+    const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    const responses: any[] = [];
+
+    for (const item of payload) {
+      const res = await fetch(
+        "https://api.dataforseo.com/v3/serp/google/organic/live/advanced",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${basicAuth}`,
+          },
+          body: JSON.stringify([item]),
+        }
+      );
+
+      const result = res.ok ? await res.json() : null;
+
+      responses.push({
+        keyword: item.keyword,
+        response: result,
+      });
+    }
+
+    // ✅ Parse response and generate tracking data
+    const createdRecords: any[] = [];
+
+    responses.forEach((item) => {
+      item?.response?.tasks?.forEach((task: any) => {
+        const keyword = task?.data?.keyword;
+
+        task?.result?.forEach((data: any) => {
+          createdRecords.push({
+            type: task?.data?.se_type,
+            location_code: data?.location_code || 2124,
+            language_code: data?.language_code || "en",
+            location_name: task?.data?.location_name || "",
+            url: task?.data?.target || "no ranking",
+            rank_group: data?.items?.[0]?.rank_group || 0,
+            rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+            keyword: keyword || "",
+            campaignId: campaignId,
+            keywordId: updatedKeyword._id,
+          });
+        });
+      });
+    });
+
+    // ✅ Optional: Clear previous tracking records for this keyword
+    await KeywordTracking.deleteMany({ keywordId: updatedKeyword._id });
+
+    // ✅ Save new tracking data
+    const addedTracking = await KeywordTracking.insertMany(createdRecords);
+
+    return {
       success: true,
-      message: "updated successfully",
-      response
+      message: "Keyword updated and tracking data refreshed",
+      editedKeyword: updatedKeyword,
+      tracking: addedTracking,
     };
+  } catch (error: any) {
+    console.error("Update failed:", error);
+    return {
+      error: "Internal Server Error",
+    };
+  }
+};
+
+
+export const deleteKeywordById = async (deletedData: { keywordId: string }) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const { keywordId } = deletedData;
+    console.log(keywordId,"delet id")
+
+    // ✅ Update keyword document status to 2 (soft delete)
+    const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
+      {keywordId},
+      { $set: { status: 2 } },
+      { new: true }
+    );
+
+    console.log(modifiedStatusKeyword, "status del");
+
+    if (!modifiedStatusKeyword) {
+      return { error: "Keyword delete failed" };
+    }
+
+    return {
+      success: true,
+      message: "Keyword deleted successfully",
+    };
+  } catch (error: any) {
+    console.error("Delete failed:", error);
+    return {
+      error: "Internal Server Error",
+    };
+  }
 };

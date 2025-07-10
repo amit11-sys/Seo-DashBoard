@@ -21,6 +21,7 @@ import CustomButton from "../../ui/CustomButton";
 import { NewCustomInput } from "@/components/NewCustomInput";
 import DropDownList from "../../DropDownList";
 import { toast } from "sonner";
+import { createUpdateKeywordById } from "@/actions/keyword";
 
 const editKeywordsSchema = z.object({
   url: z.string().url("Invalid URL"),
@@ -31,15 +32,16 @@ const editKeywordsSchema = z.object({
   SearchEngine: z.string().optional(),
   serpType: z.string().optional(),
   deviceType: z.string().optional(),
-  keywords: z.array(z.string()).min(1, "Enter at least one keyword"),
+  keywords: z.string().min(1, "Enter at least one keyword"),
 });
 
 interface EditKeywordsProps {
-  campaignId: string;
-  defaultData?: any; // for editing existing values
+  campaignId: string,
+  defaultData?: any, // for editing existing values
+   keywordId:string,
 }
 
-const EditKeywords: React.FC<EditKeywordsProps> = ({ campaignId, defaultData }) => {
+const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) => {
   const form = useForm<z.infer<typeof editKeywordsSchema>>({
     resolver: zodResolver(editKeywordsSchema),
     defaultValues: {
@@ -51,12 +53,12 @@ const EditKeywords: React.FC<EditKeywordsProps> = ({ campaignId, defaultData }) 
       SearchEngine: defaultData?.SearchEngine || "",
       serpType: defaultData?.serpType || "",
       deviceType: defaultData?.deviceType || "",
-      keywords: defaultData?.keywords || [],
+      keywords: defaultData?.keywords || "",
     },
   });
 
   const [tagsInput, setTagsInput] = useState("");
-  const [keywords, setKeywords] = useState<string[]>(defaultData?.keywords || []);
+  const [keywords, setKeywords] = useState<string[]>(defaultData?.keywords || "");
   const [keywordError, setKeywordError] = useState<string | null>(null);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -88,11 +90,27 @@ const EditKeywords: React.FC<EditKeywordsProps> = ({ campaignId, defaultData }) 
 
     const payload = {
       ...form.getValues(),
-      keywords,
+      
       campaignId,
+      keywordId,
     };
-    console.log(payload,"edit")
 
+
+    console.log(payload,"edit")
+      try {
+        const Response = await createUpdateKeywordById(payload)
+        
+
+      if (!Response) throw new Error("Update failed");
+
+      toast.success("Keywords updated successfully");
+
+      // Optional: form.reset(); or refresh logic
+    } catch (error) {
+      console.error("Edit Error:", error);
+      toast.error("Failed to update keywords");
+    }
+     
     // try {
     //   const res = await fetch("/api/edit-keywords", {
     //     method: "POST",
@@ -111,6 +129,8 @@ const EditKeywords: React.FC<EditKeywordsProps> = ({ campaignId, defaultData }) 
     //   console.error("Edit Error:", error);
     //   toast.error("Failed to update keywords");
     // }
+
+  
   };
 
   return (
@@ -195,24 +215,18 @@ const EditKeywords: React.FC<EditKeywordsProps> = ({ campaignId, defaultData }) 
               />
             </div>
 
-            <div className="space-y-4">
-              <div className={`multipleKeyword border ${keywordError && "border-red-400"} p-2 rounded w-full`}>
-                <div className="flex flex-wrap gap-2">
-                  {keywords.map((keyword, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1">
-                      {keyword}
-                      <button type="button" onClick={() => removeKeyword(index)}>&times;</button>
-                    </span>
-                  ))}
-                  <input
-                    value={tagsInput}
-                    onChange={(e) => setTagsInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type a keyword and press Enter"
-                    className="flex-1 bg-transparent p-1 outline-none"
+           <div className="space-y-4">
+                <Controller
+                name="keywords"
+                control={form.control}
+                render={({ field }) => (
+                  <NewCustomInput
+                    icon={<TbTag className="text-blue-500" />}
+                    placeholder="Keywords"
+                    {...field}
                   />
-                </div>
-              </div>
+                )}
+              />
               {keywordError && <p className="text-red-500 text-sm">{keywordError}</p>}
 
               <Controller
@@ -254,7 +268,8 @@ const EditKeywords: React.FC<EditKeywordsProps> = ({ campaignId, defaultData }) 
                   />
                 )}
               />
-            </div>
+            </div> 
+           
           </div>
 
           <div className="mt-6 flex justify-start">

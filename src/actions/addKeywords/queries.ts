@@ -42,7 +42,7 @@ export const addkeywords = async (formData: any) => {
       })
     );
 
-    console.log(newAddKeyword,"response a gyea")
+    // console.log(newAddKeyword,"response for id")
     // const
     const payload: KeywordPayload[] = newAddKeyword.map((keywordObj: any) => ({
       keyword: keywordObj.keywords,
@@ -88,38 +88,47 @@ export const addkeywords = async (formData: any) => {
 
     const createdRecords: any[] = [];
 
-    responses.forEach((item: any) => {
-      console.log(item?.response?.tasks, "response a gyea task");
+   responses.forEach((item: any) => {
+  // console.log(item?.response?.tasks, "response a gyea task");
 
-      item?.response?.tasks?.forEach((task: any) => {
-        const keyword = task?.data?.keyword;
+  item?.response?.tasks?.forEach((task: any) => {
+    const keyword = task?.data?.keyword;
 
-        const results = task?.result?.map((data: any) => {
-          return {
-            type: task?.data?.se_type,
-            location_code: data?.location_code || 2124,
-            language_code: data?.language_code || "en",
-            location_name: task?.data?.location_name || "",
-            url: task?.data?.target || "no ranking",
-            rank_group: data?.items?.[0]?.rank_group || 0,
-            rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-            keyword: keyword || "",
-            campaignId: campaignId,
-          };
-        });
+    const results = task?.result?.flatMap((data: any) => {
+      // Find the matching keyword document
+      const matchedKeyword = newAddKeyword.find(
+        (addDataKeyword) => addDataKeyword.keywords === keyword
+      );
 
-        // ✅ Push each record from the results array
-        if (results?.length) {
-          createdRecords.push(...results); // spread to avoid nested arrays
-        }
-      });
+     
+
+      return [{
+        type: task?.data?.se_type,
+        location_code: data?.location_code || 2124,
+        language_code: data?.language_code || "en",
+        location_name: task?.data?.location_name || "",
+        url: task?.data?.target || "no ranking",
+        rank_group: data?.items?.[0]?.rank_group || 0,
+        rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+        keyword: keyword || "",
+        campaignId: campaignId,
+        keywordId: matchedKeyword._id,
+      }];
     });
+
+    if (results?.length) {
+      createdRecords.push(...results);
+    }
+  });
+});
+
 
     console.log(createdRecords, "all records pushed ✅");
 
     console.log(createdRecords, "one keyword add");
 
     const addedKeywords = await KeywordTracking.insertMany(createdRecords);
+    console.log(addedKeywords,"return keywrods")
 
     return {
       success: true,

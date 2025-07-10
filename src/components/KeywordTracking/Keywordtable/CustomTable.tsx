@@ -490,7 +490,10 @@ interface TableHeaderitems {
   icon?: ReactNode;
 }
 interface TablebodyItems {
+
   keyword: string;
+  keywordId:string;
+  status : number;
   location: string;
   intent: string;
   start: string;
@@ -555,7 +558,7 @@ const CustomTable = ({ tableHeader, tableData, campaignId }: CustomTableProps) =
         <tbody>
           {tableValues.map((data, rowIndex) => {
               // console.log(data,"inside loop data table")
-
+                    const  keywordId = data.keywordId
             return (
              
               <tr key={rowIndex} className="hover:bg-indigo-50 transition-colors">
@@ -612,6 +615,7 @@ const CustomTable = ({ tableHeader, tableData, campaignId }: CustomTableProps) =
                   <div className="flex justify-center items-center gap-2">
                     <KeywordEdit
                       campaignId={campaignId}
+                     keywordId={keywordId}
                       defaultData={{
                         url: data.rankingUrl,
                         keywordTag:'',
@@ -626,11 +630,9 @@ const CustomTable = ({ tableHeader, tableData, campaignId }: CustomTableProps) =
                     />
                     <DeleteConfirm
                       campaignId={campaignId}
+                         keywordId={keywordId}
                       keyword={data.keyword}
-                      onDelete={() => {
-                        const updated = tableValues.filter((_, i) => i !== rowIndex);
-                        setTableValues(updated);
-                      }}
+                     
                     />
                   </div>
                 </td>

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { number } from "zod";
 
 const keywordSchema = new mongoose.Schema(
   {
@@ -13,7 +14,13 @@ const keywordSchema = new mongoose.Schema(
     url: { type: String },
     volumeLocation: { type: String },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    CampaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign"  },
+    CampaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
+    keywordId: { type: String },
+    status: {
+      type: Number,
+
+      default: 1,
+    },
   },
 
   {

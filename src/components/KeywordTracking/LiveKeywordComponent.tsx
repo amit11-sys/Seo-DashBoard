@@ -21,6 +21,8 @@ type Tableitems = {
 
 type TablebodyItems = {
   // select: boolean;
+  keywordId:string;
+  status:number
   keyword: string;
   location: string;
   intent: string;
@@ -100,6 +102,8 @@ const LiveKeywordComponent = ({
   if (campaignLiveKeywordsData.LiveKeywordDbData) {
     tableBody = campaignLiveKeywordsData.LiveKeywordDbData.map((item: any) => ({
       // select: false,
+      status: item.status,
+      keywordId:item.keywordId,
       keyword: item.keyword,
       location: item.location_name,
       intent: "C",

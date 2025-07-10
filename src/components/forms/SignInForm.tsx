@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -22,6 +21,7 @@ import { useLoader } from "@/hooks/useLoader";
 import { NewCustomInput } from "../NewCustomInput";
 import CustomButton from "../ui/CustomButton";
 import { motion } from "framer-motion";
+import { getUserCampaign } from "@/actions/campaign";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -39,13 +39,20 @@ export default function SignInForm() {
     startLoading();
     try {
       const user = await getLoggedInUser(values);
-      
+        console.log(user)
       if (user?.success) {
         toast.success("Login Successful");
-        router.push("/dashboard");
+
+        const campaignId =user.campaignId
+      
+
+        
+        // console.log(campaignId[0])
+
+        router.push(`/dashboard/${campaignId}`);
+
       } else {
         toast.error(user?.error || "Invalid credentials");
-         
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -56,15 +63,16 @@ export default function SignInForm() {
 
   return (
     <motion.div
-     initial={{ opacity: 0, y: 30, scale: 0.80, }}
-  animate={{ opacity: 1, y: 0, scale: 1,  }}
-  transition={{
-    type: "spring",
-    stiffness: 80,
-    damping: 15,
-    duration: 0.6,
-  }}
-     className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl">
+      initial={{ opacity: 1, y: 30, scale: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        type: "spring",
+        stiffness: 80,
+        damping: 15,
+        duration: 0.6,
+      }}
+      className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl"
+    >
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         Sign In
       </h1>
@@ -94,12 +102,12 @@ export default function SignInForm() {
                 <FormControl>
                   <NewCustomInput
                     placeholder="Enter your password"
-                     showPasswordToggle={true}
+                    showPasswordToggle={true}
                     type="password"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage  className="error-msg" />
+                <FormMessage className="error-msg" />
               </FormItem>
             )}
           />
@@ -111,11 +119,8 @@ export default function SignInForm() {
             >
               Forgot Password?
             </Link>
-            <Link
-              href="/sign-up"
-              className="text-[#182E57] hover:underline"
-            >
-                Don&apos;t have an account? Sign up
+            <Link href="/sign-up" className="text-[#182E57] hover:underline">
+              Don&apos;t have an account? Sign up
             </Link>
           </div>
 

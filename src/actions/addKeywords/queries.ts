@@ -42,8 +42,8 @@ export const addkeywords = async (formData: any) => {
       })
     );
 
-    // console.log(newAddKeyword,"response a gyea")
-
+    console.log(newAddKeyword,"response a gyea")
+    // const
     const payload: KeywordPayload[] = newAddKeyword.map((keywordObj: any) => ({
       keyword: keywordObj.keywords,
       location_name:
@@ -88,53 +88,38 @@ export const addkeywords = async (formData: any) => {
 
     const createdRecords: any[] = [];
 
-responses.forEach((item: any) => {
-  console.log(item?.response?.tasks, "response a gyea task");
+    responses.forEach((item: any) => {
+      console.log(item?.response?.tasks, "response a gyea task");
 
-  item?.response?.tasks?.forEach((task: any) => {
-    const keyword = task?.data?.keyword;
+      item?.response?.tasks?.forEach((task: any) => {
+        const keyword = task?.data?.keyword;
 
-    const results = task?.result?.map((data: any) => {
-      return {
-        type: task?.data?.se_type,
-        location_code: data?.location_code || 2124,
-        language_code: data?.language_code || "en",
-        location_name: task?.data?.location_name || "",
-        url: task?.data?.target || "no ranking",
-        rank_group: data?.items?.[0]?.rank_group || 0,
-        rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-        keyword: keyword || "",
-        campaignId: campaignId,
-      };
+        const results = task?.result?.map((data: any) => {
+          return {
+            type: task?.data?.se_type,
+            location_code: data?.location_code || 2124,
+            language_code: data?.language_code || "en",
+            location_name: task?.data?.location_name || "",
+            url: task?.data?.target || "no ranking",
+            rank_group: data?.items?.[0]?.rank_group || 0,
+            rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+            keyword: keyword || "",
+            campaignId: campaignId,
+          };
+        });
+
+        // ✅ Push each record from the results array
+        if (results?.length) {
+          createdRecords.push(...results); // spread to avoid nested arrays
+        }
+      });
     });
 
-    // ✅ Push each record from the results array
-    if (results?.length) {
-      createdRecords.push(...results); // spread to avoid nested arrays
-    }
-  });
-});
-
-console.log(createdRecords, "all records pushed ✅");
-
-
-      // const campaignId = item?.CampaignId;
-
-      // const task = item?.response?.[0]; // Access first task
-      // const result = task?.result?.[0]; // Access first result
-      // const resultItem = result?.items?.[0]; // Access first item
-      // // console.log(task,"task")
-
-      // // createdRecords.push(record);
-   
+    console.log(createdRecords, "all records pushed ✅");
 
     console.log(createdRecords, "one keyword add");
 
-     const addedKeywords =
-      await KeywordTracking.insertMany(createdRecords);
-
-      
-    
+    const addedKeywords = await KeywordTracking.insertMany(createdRecords);
 
     return {
       success: true,

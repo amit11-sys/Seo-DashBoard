@@ -2,10 +2,12 @@ import { connectToDB } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import User from "@/lib/models/user.model";
 import { cookies } from "next/headers";
-import jwt, { SignOptions, Secret } from 'jsonwebtoken';
+import jwt, { SignOptions, Secret } from "jsonwebtoken";
 import { generateToken } from "@/lib/utils/token";
 import { generateResetEmail } from "@/lib/template/html_template";
 import { mailSender } from "../mail";
+import { getUserCampaign } from "../campaign";
+import Campaign from "@/lib/models/campaign.model";
 
 export const newUserSignUp = async (formData: any) => {
   try {
@@ -106,6 +108,7 @@ export const verifyUser = async (formData: any) => {
 
     // Check if the user exists
     const user = await User.findOne({ email });
+    console.log(user, "user-Data");
     if (!user) {
       return { error: "User does not exist." };
     }
@@ -115,7 +118,8 @@ export const verifyUser = async (formData: any) => {
     if (!isPasswordValid) {
       return { error: "Invalid User Credentials." };
     }
-
+    const campaign = await Campaign.find({ userId: user?.id });
+    // console.log(campaign[0]._id,"campaign id")
     // Generate tokens
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
       user._id
@@ -134,7 +138,7 @@ export const verifyUser = async (formData: any) => {
         secure: true,
       });
     }
-
+    const campaignId = campaign[0]?._id;
     // Return success response
     return {
       success: true,
@@ -146,6 +150,7 @@ export const verifyUser = async (formData: any) => {
       },
       accessToken,
       refreshToken,
+      campaignId,
     };
   } catch (error) {
     console.error("Login Error:", error);
@@ -175,7 +180,7 @@ export async function forgotPasswordAction(email: string) {
 
     const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}&email=${email}`;
 
-     await mailSender(
+    await mailSender(
       email,
       "Reset Your Password",
       generateResetEmail(resetLink) // your HTML template

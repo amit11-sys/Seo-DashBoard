@@ -11,7 +11,7 @@ import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import LiveKeyTrakingHeader from "@/components/KeywordTracking/LiveKeyTrakingHeader";
 import { getDbLiveKeywordData } from "@/actions/keywordTracking";
-import { table } from "console";
+import { log, table } from "console";
 
 type Tableitems = {
   key: string;
@@ -78,6 +78,7 @@ const LiveKeywordComponent = ({
       label: "Absolute-Rank",
       icon: <FcGoogle className="inline mr-1" />,
     },
+   
     {
       key: "Group-Rank",
       label: "Group-Rank",
@@ -123,6 +124,8 @@ const LiveKeywordComponent = ({
   }
 
   const showAddedKeyword = (newItem: any) => {
+    console.log(newItem,"showadded ok hai");
+    
      if (newItem && newItem.length > 0) {
   tableBody = newItem.map((item: any) => ({
       // select: false,
@@ -149,6 +152,7 @@ const LiveKeywordComponent = ({
     }));
   }
 };
+console.log(tableBody, 'tableBody');
 
   return (
     <div className="w-full min-h-[80vh] text-gray-100 py-8 space-y-12">
@@ -159,10 +163,15 @@ const LiveKeywordComponent = ({
 
       {/* Filter & Table Section */}
       <div className="backdrop-blur-md   rounded-xl p-6 ">
-        <CustomTable tableHeader={tableHeader} tableData={tableBody} />
+        <CustomTable tableHeader={tableHeader} tableData={tableBody}  campaignId={campaignId} />
       </div>
     </div>
   );
 };
 
 export default LiveKeywordComponent;
+
+
+
+
+

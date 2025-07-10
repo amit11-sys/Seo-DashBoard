@@ -11,8 +11,13 @@ import {
 import { MdDelete } from "react-icons/md";
 import { HiOutlineExclamationCircle } from "react-icons/hi2";
 import CustomButton from "../../ui/CustomButton";
-
-const DeleteConfirm = () => {
+import { DialogClose } from "@radix-ui/react-dialog";
+interface DeleteConfirmProps {
+  campaignId: string;
+  keyword: string;
+  onDelete?: () => void;
+}
+const DeleteConfirm = ({campaignId,keyword,onDelete}:DeleteConfirmProps) => {
   return (
     <Dialog>
       <DialogTrigger className="p-2  text-red-600 rounded-full hover:bg-red-200">
@@ -32,13 +37,16 @@ const DeleteConfirm = () => {
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
+           <DialogClose asChild>
           <CustomButton
             buttonName="Cancel"
             
           />
+              
+            </DialogClose>
           <CustomButton
             buttonName="Delete"
-           
+           onClick={onDelete}
           />
         </div>
       </DialogContent>

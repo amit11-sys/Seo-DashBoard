@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,98 +9,261 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { HiOutlineKey } from "react-icons/hi";
-import { FaEdit, FaTag } from "react-icons/fa";
-import { MdOutlineDevices } from "react-icons/md";
+import { MdOutlineDevices, MdOutlineLocationOn } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
-import { BsPlus } from "react-icons/bs";
+import { TbTag } from "react-icons/tb";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
 import CustomButton from "../../ui/CustomButton";
-import { FaLink } from "react-icons/fa6";
-import CustomInput from "../../ui/CustomInput";
-import { Textarea } from "@/components/ui/textarea";
+import { NewCustomInput } from "@/components/NewCustomInput";
 import DropDownList from "../../DropDownList";
+import { toast } from "sonner";
 
-const KeywordEdit = () => {
+const editKeywordsSchema = z.object({
+  url: z.string().url("Invalid URL"),
+  keywordTag: z.string().optional(),
+  searchLocation: z.string().min(1, "Location is required"),
+  volumeLocation: z.string().optional(),
+  language: z.string().min(1, "Language is required"),
+  SearchEngine: z.string().optional(),
+  serpType: z.string().optional(),
+  deviceType: z.string().optional(),
+  keywords: z.array(z.string()).min(1, "Enter at least one keyword"),
+});
+
+interface EditKeywordsProps {
+  campaignId: string;
+  defaultData?: any; // for editing existing values
+}
+
+const EditKeywords: React.FC<EditKeywordsProps> = ({ campaignId, defaultData }) => {
+  const form = useForm<z.infer<typeof editKeywordsSchema>>({
+    resolver: zodResolver(editKeywordsSchema),
+    defaultValues: {
+      url: defaultData?.url || "",
+      keywordTag: defaultData?.keywordTag || "",
+      searchLocation: defaultData?.searchLocation || "",
+      volumeLocation: defaultData?.volumeLocation || "",
+      language: defaultData?.language || "",
+      SearchEngine: defaultData?.SearchEngine || "",
+      serpType: defaultData?.serpType || "",
+      deviceType: defaultData?.deviceType || "",
+      keywords: defaultData?.keywords || [],
+    },
+  });
+
+  const [tagsInput, setTagsInput] = useState("");
+  const [keywords, setKeywords] = useState<string[]>(defaultData?.keywords || []);
+  const [keywordError, setKeywordError] = useState<string | null>(null);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((e.key === "Enter" || e.key === "," || e.key === " ") && tagsInput.trim()) {
+      e.preventDefault();
+      const trimmed = tagsInput.trim();
+      if (!keywords.includes(trimmed)) {
+        setKeywords(prev => [...prev, trimmed]);
+      }
+      setTagsInput("");
+    } else if (e.key === "Backspace" && !tagsInput && keywords.length) {
+      setKeywords(prev => prev.slice(0, -1));
+    }
+  };
+
+  const removeKeyword = (index: number) => {
+    setKeywords(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const onSubmit = async () => {
+    const isValid = await form.trigger();
+    if (keywords.length === 0) {
+      setKeywordError("Please enter at least one keyword.");
+      return;
+    } else {
+      setKeywordError(null);
+    }
+    if (!isValid) return;
+
+    const payload = {
+      ...form.getValues(),
+      keywords,
+      campaignId,
+    };
+    console.log(payload,"edit")
+
+    // try {
+    //   const res = await fetch("/api/edit-keywords", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(payload),
+    //   });
+
+    //   const result = await res.json();
+
+    //   if (!res.ok) throw new Error(result.error || "Update failed");
+
+    //   toast.success("Keywords updated successfully");
+
+    //   // Optional: form.reset(); or refresh logic
+    // } catch (error) {
+    //   console.error("Edit Error:", error);
+    //   toast.error("Failed to update keywords");
+    // }
+  };
+
   return (
     <Dialog>
       <DialogTrigger>
-        <FaEdit className="text-xl me-4   text-green-500 cursor-pointer" />
+        <HiOutlineKey className="text-xl text-blue-600 cursor-pointer" />
       </DialogTrigger>
 
-      <DialogContent className="max-w-md md:max-w-xl border-none shadow-2xl bg-white p-6 rounded-2xl">
-        <DialogHeader className="flex items-center gap-2 mb-4">
+      <DialogContent className="max-w-4xl border-none shadow-2xl bg-white p-6">
+        <DialogHeader className="flex items-center gap-2">
           <HiOutlineKey className="text-2xl text-orange-500" />
           <DialogTitle className="text-2xl font-semibold text-gray-800">
             Edit Keywords
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex gap-3">
-            <div className="flex flex-1 items-center gap-2 px-3 py-2 border rounded-lg">
-              <FaLink className="text-blue-500 text-xl" />
-              <input
-                type="text"
-                defaultValue="https://barclayspublicadjusters.com/"
-                className="flex-1 text-sm outline-none"
+        <Form {...form}>
+          <div className="grid grid-cols-2 gap-6 mt-6">
+            <div className="space-y-4">
+              <Controller
+                name="url"
+                control={form.control}
+                render={({ field }) => (
+                  <NewCustomInput
+                    placeholder="Enter Domain URL"
+                    {...field}
+                    errorMessage={form.formState.errors.url?.message}
+                  />
+                )}
               />
-              <select className="text-sm text-gray-600 bg-transparent outline-none">
-                <option>Root Domain</option>
-                <option>Exact URL</option>
-              </select>
+              <Controller
+                name="keywordTag"
+                control={form.control}
+                render={({ field }) => (
+                  <NewCustomInput
+                    icon={<TbTag className="text-blue-500" />}
+                    placeholder="Keyword Tag"
+                    {...field}
+                  />
+                )}
+              />
+              <Controller
+                name="searchLocation"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["USA", "Canada", "New Zealand"]}
+                    icon={<MdOutlineLocationOn className="text-blue-500 text-xl" />}
+                    listName="Search Location"
+                    value={field.value}
+                    onChange={(selected) => field.onChange(selected?.value)}
+                    errorMessage={form.formState.errors.searchLocation?.message}
+                  />
+                )}
+              />
+              <Controller
+                name="volumeLocation"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["Toronto", "OK"]}
+                    icon={<MdOutlineLocationOn className="text-blue-500 text-xl" />}
+                    listName="Volume Location"
+                    value={field.value}
+                    onChange={(selected) => field.onChange(selected?.value)}
+                  />
+                )}
+              />
+              <Controller
+                name="language"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["English", "French"]}
+                    icon={<LiaLanguageSolid className="text-blue-500 text-xl" />}
+                    listName="Language"
+                    value={field.value}
+                    onChange={(selected) => field.onChange(selected?.value)}
+                    errorMessage={form.formState.errors.language?.message}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <div className={`multipleKeyword border ${keywordError && "border-red-400"} p-2 rounded w-full`}>
+                <div className="flex flex-wrap gap-2">
+                  {keywords.map((keyword, index) => (
+                    <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1">
+                      {keyword}
+                      <button type="button" onClick={() => removeKeyword(index)}>&times;</button>
+                    </span>
+                  ))}
+                  <input
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type a keyword and press Enter"
+                    className="flex-1 bg-transparent p-1 outline-none"
+                  />
+                </div>
+              </div>
+              {keywordError && <p className="text-red-500 text-sm">{keywordError}</p>}
+
+              <Controller
+                name="SearchEngine"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["US (google.com)", "NL (google.com)"]}
+                    icon={<FcGoogle className="text-xl" />}
+                    listName="Search Engine"
+                    value={field.value}
+                    onChange={(selected) => field.onChange(selected?.value)}
+                  />
+                )}
+              />
+              <Controller
+                name="serpType"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["organic", "paid"]}
+                    icon={<LiaSearchLocationSolid className="text-blue-500 text-xl" />}
+                    listName="SERP Type"
+                    value={field.value}
+                    onChange={(selected) => field.onChange(selected?.value)}
+                  />
+                )}
+              />
+              <Controller
+                name="deviceType"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["desktop", "mobile"]}
+                    icon={<MdOutlineDevices className="text-blue-500 text-xl" />}
+                    listName="Device Type"
+                    value={field.value}
+                    onChange={(selected) => field.onChange(selected?.value)}
+                  />
+                )}
+              />
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button className="px-3 py-1 rounded-full border text-sm">Florida, USA</button>
-            <button className="px-3 py-1 rounded-full border text-sm">United States</button>
-            <button className="p-2 bg-blue-600 rounded-full text-white">
-              <BsPlus />
-            </button>
+          <div className="mt-6 flex justify-start">
+            <CustomButton buttonName="Update" onClick={onSubmit} />
           </div>
-
-          <Textarea
-            rows={4}
-            placeholder="📈 Enter one keyword per line"
-            className="w-full rounded-lg border outline-none text-sm"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <DropDownList
-              showArrow
-              icon={<FcGoogle className="text-xl" />}
-              listName="us (google.com)"
-            //   onChange={(e) => console.log(e.target.value)}
-            />
-
-            <DropDownList
-              icon={<LiaLanguageSolid className="text-xl" />}
-              listName="English"
-            //   onChange={(e) => console.log(e.target.value)}
-            />
-
-            <DropDownList
-              listData={["Local + Organic", "Paid"]}
-              icon={<LiaSearchLocationSolid className="text-xl" />}
-              listName="Local + Organic"
-            //   onChange={(e) => console.log(e.target.value)}
-            />
-
-            <DropDownList
-              listData={["Desktop", "Mobile"]}
-              icon={<MdOutlineDevices className="text-xl" />}
-              listName="Desktop"
-            //   onChange={(e) => console.log(e.target.value)}
-            />
-          </div>
-
-          <div className="pt-4">
-            <CustomButton onClick={()=>console.log("change")} buttonName="Submit" />
-          </div>
-        </div>
+        </Form>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default KeywordEdit;
+export default EditKeywords;

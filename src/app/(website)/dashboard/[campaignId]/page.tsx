@@ -7,7 +7,8 @@ import APIKeyword from "@/lib/KeywordApi.json"
 export default async function DashboardDetails({
   params,
 }: {
-  params: Promise<{ campaignId: string }>;
+  // params: Promise<{ campaignId: string }>;
+    params: { campaignId: string };
 }) {
   const { campaignId } = await params;
 const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId)

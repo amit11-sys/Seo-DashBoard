@@ -17,7 +17,9 @@ export const createUser = async (formData: any) => {
 
 export const getLoggedInUser = async (formData: any) => {
   const newUser = verifyUser(formData);
-  if (!newUser) return redirect("/sign-in");
+  if (!newUser){
+       return redirect("/sign-in");
+  }
   return newUser;
 };
 

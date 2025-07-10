@@ -117,3 +117,32 @@ export const saveMultipleKeyword = async (
     return { error: "Internal Server Error." };
   }
 };
+type KeywordUpdateData = {
+  keywords?: string[]; // changed from string to string[]
+  SearchEngine?: string;
+  deviceType?: string;
+  keywordTag?: string;
+  language?: string;
+  searchLocation?: string;
+  serpType?: string;
+  url?: string;
+  volumeLocation?: string;
+  campaignId?: string; // optional: handle if needed
+};
+
+export const updateKeywordById = async (updatedData:KeywordUpdateData) => {  
+  
+  await connectToDB();
+const CampaignId  = updatedData.campaignId
+
+  const response = await Keyword.findByIdAndUpdate(
+    CampaignId,
+    { $set: updatedData },
+    { new: true }
+  );
+ return {
+      success: true,
+      message: "updated successfully",
+      response
+    };
+};

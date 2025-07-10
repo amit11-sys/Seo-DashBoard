@@ -12,7 +12,7 @@ import { HiOutlineKey } from "react-icons/hi";
 import { MdOutlineDevices, MdOutlineLocationOn } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
-
+import { useRouter } from "next/navigation";
 import CustomButton from "../../ui/CustomButton";
 import { NewCustomInput } from "@/components/NewCustomInput";
 import DropDownList from "../../DropDownList";
@@ -22,9 +22,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { TbTag } from "react-icons/tb";
 import { addKeywordsSchema } from "@/lib/zod";
-import { createNewkeywords } from "@/actions/addKeywords";
+// import { createNewkeywords } from "@/actions/addKeywords";
 import { toast } from "sonner";
-import { getDbLiveKeywordData } from "@/actions/keywordTracking";
+// import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 const schema = z.object({
   name: z.string().min(1, "Campaign name is required"),
@@ -104,14 +104,18 @@ const DialogForm = (campaignId: any) => {
       });
 
       if (!res.ok) throw new Error("Failed to create keywords");
+      if (!res.ok) throw new Error("Failed to create keywords");
+      console.log(res);
 
       const response = await res.json();
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
       // }
-      console.log(response, "Response from API");
+      console.log(response.addedKeywords, "Response from API");
 
-      // await campaignId?.showAddedKeyword(response?.data);
+      await campaignId?.showAddedKeyword(
+        response?.addedKeywords
+      );
       // Optionally, you can log the response or handle it as needed
       // console.log("Submitted:", response);
       toast.success(response?.message);

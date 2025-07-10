@@ -36,6 +36,7 @@ import CustomButton from "@/components/ui/CustomButton";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { FaCircleCheck } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 // import { getTrackingData } from "@/actions/keywordTracking";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
@@ -50,6 +51,7 @@ interface CampaignTabsProps {
 
 export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
   const { startLoading, stopLoading } = useLoader();
+  const router = useRouter();
 
   const form = useForm<CampaignFormType>({
     resolver: zodResolver(campaignSchema),
@@ -248,9 +250,11 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
 
       if (response?.success) {
         const campaign = await getUserCampaign();
-        console.log(campaign, "from on submit");
+        // console.log(campaign, "from on submit");
+        const campaignId = response.campaign._id;
 
-        //
+        router.push(`/dashboard/${campaignId}`);
+
         toast("Campaign created successfully");
         form.reset();
         setKeywords([]);
@@ -485,71 +489,66 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
 
               <div className="w-full gap-1 flex flex-col md:flex-nowrap flex-wrap ">
                 <div className="flex w-full gap-6">
-
-
-                <div className="flex-1  flex flex-col justify-start items-start">
-                  
-                  <Controller
-                    name="searchLocation"
-                    control={form.control}
-                    render={({ field }) => (
-                      <DropDownList
-                        showArrow={false}
-                        listData={location}
-                        icon={
-                          <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                        }
-                        listName="Search Location"
-                        value={field.value}
-                        onChange={async (selected) => {
-                          field.onChange(selected?.value);
-
-                          if (selected?.value) {
-                            await fetchCitiesByCountry(selected.value);
+                  <div className="flex-1  flex flex-col justify-start items-start">
+                    <Controller
+                      name="searchLocation"
+                      control={form.control}
+                      render={({ field }) => (
+                        <DropDownList
+                          showArrow={false}
+                          listData={location}
+                          icon={
+                            <MdOutlineLocationOn className="text-blue-500 text-xl" />
                           }
-                        }}
-                        className={`${form.formState.errors.searchLocation?.message && "border-red-500 animate-shake "}`}
-                        
-                        // errorMessage={
-                        //   form.formState.errors.searchLocation?.message
-                        // }
-                      />
-                    )}
-                  />
-                </div>
+                          listName="Search Location"
+                          value={field.value}
+                          onChange={async (selected) => {
+                            field.onChange(selected?.value);
 
+                            if (selected?.value) {
+                              await fetchCitiesByCountry(selected.value);
+                            }
+                          }}
+                          className={`${form.formState.errors.searchLocation?.message && "border-red-500 animate-shake "}`}
 
-                <div className="flex-1 flex justify-start items-start">
-                 
+                          // errorMessage={
+                          //   form.formState.errors.searchLocation?.message
+                          // }
+                        />
+                      )}
+                    />
+                  </div>
 
-                  <Controller
-                    name="volumeLocation"
-                    control={form.control}
-                    render={({ field }) => (
-                      <DropDownList
-                        showArrow={false}
-                        listData={volumeLocationOptions}
-                        icon={
-                          <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                        }
-                        listName="Volume Location"
-                        value={field.value}
-                        onChange={(selected) => field.onChange(selected?.value)}
-                        errorMessage={
-                          form.formState.errors.volumeLocation?.message
-                        }
-                      />
-                    )}
-                  />
+                  <div className="flex-1 flex justify-start items-start">
+                    <Controller
+                      name="volumeLocation"
+                      control={form.control}
+                      render={({ field }) => (
+                        <DropDownList
+                          showArrow={false}
+                          listData={volumeLocationOptions}
+                          icon={
+                            <MdOutlineLocationOn className="text-blue-500 text-xl" />
+                          }
+                          listName="Volume Location"
+                          value={field.value}
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                          errorMessage={
+                            form.formState.errors.volumeLocation?.message
+                          }
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
+                <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.searchLocation?.message}
                 </div>
-                <div className="w-full text-sm text-red-500">{form.formState.errors.searchLocation?.message}</div>
-                
               </div>
 
-
-                      
-                {/* ----- */}
+              {/* ----- */}
               <Controller
                 name="SearchEngine"
                 control={form.control}

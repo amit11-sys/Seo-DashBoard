@@ -25,17 +25,17 @@ type TablebodyItems = {
   status: number;
   keyword: string;
   location: string;
-  intent: string;
+  // intent: string;
   start: string;
   page: string;
   Group_Rank: string;
   Absolute_Rank: string;
-  oneDay: string;
+
   sevenDays: string;
-  thirtyDays: string;
+
   life: string;
-  comp: string;
-  sv: string;
+
+  // sv: string;
   date: string;
   rankingUrl: string;
 };
@@ -57,23 +57,21 @@ interface LiveKeywordComponentProps {
     LiveKeywordDbData?: any[];
   };
   campaignId: string;
+ 
 }
 
 const LiveKeywordComponent = ({
   campaignLiveKeywordsData,
   campaignId,
+
 }: LiveKeywordComponentProps) => {
-  // console.log(
-  //   campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData,
-  //   "real data in table compo"
-  // );
   const [tableBody, setTableBody] = useState<any[]>([]);
 
   const tableHeader: Tableitems[] = [
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
     { key: "keyword", label: "Keyword" },
     { key: "location", label: "Location" },
-    { key: "intent", label: "Intent" },
+    // { key: "intent", label: "Intent" },
     { key: "start", label: "Start" },
     { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
     {
@@ -87,12 +85,12 @@ const LiveKeywordComponent = ({
       label: "Group-Rank",
       icon: <FcGoogle className="inline mr-1" />,
     },
-    { key: "one_day", label: "1 Day" },
+    // { key: "one_day", label: "1 Day" },
     { key: "seven_days", label: "7 Days" },
-    { key: "thirty_days", label: "30 Days" },
+    // { key: "thirty_days", label: "30 Days" },
     { key: "life", label: "Life" },
-    { key: "comp", label: "Comp" },
-    { key: "sv", label: "SV" },
+    // { key: "comp", label: "Comp" },
+    // { key: "sv", label: "SV" },
     { key: "date", label: "Date" },
     { key: "ranking_url", label: "Ranking URL" },
     { key: "edit", label: "Edit keyword" },
@@ -106,7 +104,7 @@ const LiveKeywordComponent = ({
     }
   }, [campaignLiveKeywordsData]);
   console.log(campaignLiveKeywordsData, "use effect data");
-  
+
   const keywordTableData = async () => {
     if (campaignLiveKeywordsData.LiveKeywordDbData) {
       const data = campaignLiveKeywordsData.LiveKeywordDbData.map(
@@ -116,17 +114,17 @@ const LiveKeywordComponent = ({
           keywordId: item.keywordId,
           keyword: item.keyword,
           location: item.location_name,
-          intent: "C",
+          // intent: "C",
           start: String(item.rank_group),
           page: Math.ceil(item.rank_absolute / 10).toString(),
           Absolute_Rank: String(item.rank_absolute),
           Group_Rank: String(item.rank_group),
-          oneDay: "1",
-          sevenDays: "98",
-          thirtyDays: "-",
-          life: "-1",
-          comp: "0",
-          sv: "0",
+          // oneDay: "1",
+          sevenDays: "-",
+          // thirtyDays: "-",
+          life: String(item.rank_group),
+          // comp: "0",
+          // sv: "0",
           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "short",
@@ -139,26 +137,26 @@ const LiveKeywordComponent = ({
       setTableBody(data);
     }
   };
-console.log(tableBody);
+  console.log(tableBody);
 
   const showAddedKeyword = (newItem: any) => {
-    console.log(newItem, "showadded ok hai");
+    // console.log(newItem, "showadded ok hai");
 
     if (newItem && newItem.length > 0) {
       const mappedItems = newItem.map((item: any) => ({
         keyword: item.keyword,
         location: item.location_name,
-        intent: "C",
+        // intent: "C",
         start: String(item.rank_group),
         page: Math.ceil(item.rank_absolute / 10).toString(),
         Absolute_Rank: String(item.rank_absolute),
         Group_Rank: String(item.rank_group),
-        oneDay: "1",
-        sevenDays: "98",
-        thirtyDays: "-",
-        life: "-1",
-        comp: "0",
-        sv: "0",
+        // oneDay: "1",
+        sevenDays: "-",
+        // thirtyDays: "-",
+        life: String(item.rank_absolute),
+        // comp: "0",
+        // sv: "0",
         date: new Date(item.createdAt).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "short",
@@ -178,6 +176,7 @@ console.log(tableBody);
         <LiveKeyTrakingHeader
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
+         
         />
       </div>
 
@@ -187,6 +186,7 @@ console.log(tableBody);
           tableHeader={tableHeader}
           tableData={tableBody}
           campaignId={campaignId}
+          showAddedKeyword={showAddedKeyword}
         />
       </div>
     </div>

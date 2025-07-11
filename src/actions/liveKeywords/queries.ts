@@ -54,14 +54,14 @@ export const getLiveData = async (
 
       })
     );
-console.log(payload,"livekeywordspayload")
+// console.log(payload,"livekeywordspayload")
 
     const responses: KeywordResponse[] = [];
 
     for (const item of payload) {
-      //  `${process.env.NEXT_PUBLIC_API_URL}${"serp/google/organic/live/advanced"}`,
+     
       const res = await fetch(
-        "https://api.dataforseo.com/v3/serp/google/organic/live/advanced",  
+        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,  
         {
           method: "POST",
           headers: {

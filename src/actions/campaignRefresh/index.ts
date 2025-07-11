@@ -1,9 +1,7 @@
-import { refreshCampaign } from "./queries"
-interface campaignId {
-    campaignId:string
-}
-export const getRefreshCampaign=async (campaignId:campaignId)=>{
-  const NewRefreshCampaign= await refreshCampaign(campaignId)
+import { refreshAddedKeywords } from "./queries"
+
+export const getRefreshCampaign=async (campaignId:string)=>{
+  const NewRefreshCampaign= await refreshAddedKeywords(campaignId)
  
   return NewRefreshCampaign
 }

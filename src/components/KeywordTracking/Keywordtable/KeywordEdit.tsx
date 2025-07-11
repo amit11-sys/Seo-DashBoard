@@ -36,12 +36,18 @@ const editKeywordsSchema = z.object({
 });
 
 interface EditKeywordsProps {
-  campaignId: string,
-  defaultData?: any, // for editing existing values
-   keywordId:string,
+  campaignId: string;
+  defaultData?: any; // for editing existing values
+  keywordId: string;
+  showAddedKeyword: any;
 }
 
-const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) => {
+const EditKeywords = ({
+  campaignId,
+  defaultData,
+  keywordId,
+  showAddedKeyword,
+}: EditKeywordsProps) => {
   const form = useForm<z.infer<typeof editKeywordsSchema>>({
     resolver: zodResolver(editKeywordsSchema),
     defaultValues: {
@@ -58,24 +64,30 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
   });
 
   const [tagsInput, setTagsInput] = useState("");
-  const [keywords, setKeywords] = useState<string[]>(defaultData?.keywords || "");
+  const [keywords, setKeywords] = useState<string[]>(
+    defaultData?.keywords || ""
+  );
   const [keywordError, setKeywordError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if ((e.key === "Enter" || e.key === "," || e.key === " ") && tagsInput.trim()) {
+    if (
+      (e.key === "Enter" || e.key === "," || e.key === " ") &&
+      tagsInput.trim()
+    ) {
       e.preventDefault();
       const trimmed = tagsInput.trim();
       if (!keywords.includes(trimmed)) {
-        setKeywords(prev => [...prev, trimmed]);
+        setKeywords((prev) => [...prev, trimmed]);
       }
       setTagsInput("");
     } else if (e.key === "Backspace" && !tagsInput && keywords.length) {
-      setKeywords(prev => prev.slice(0, -1));
+      setKeywords((prev) => prev.slice(0, -1));
     }
   };
 
   const removeKeyword = (index: number) => {
-    setKeywords(prev => prev.filter((_, i) => i !== index));
+    setKeywords((prev) => prev.filter((_, i) => i !== index));
   };
 
   const onSubmit = async () => {
@@ -90,51 +102,118 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
 
     const payload = {
       ...form.getValues(),
-      
+
       campaignId,
       keywordId,
     };
 
-
-    console.log(payload,"edit")
-      try {
-        const Response = await createUpdateKeywordById(payload)
-        
+    console.log(payload, "edit");
+    try {
+      const Response = await createUpdateKeywordById(payload);
 
       if (!Response) throw new Error("Update failed");
-
+      console.log(Response.tracking);
+      //   await showAddedKeyword(
+      //  Response.tracking
+      // );
       toast.success("Keywords updated successfully");
+      form.reset({
+        url: "",
+        keywordTag: "",
+        searchLocation: "",
+        language: "",
+        SearchEngine: "",
+        serpType: "",
+        deviceType: "",
+        volumeLocation: "",
+        keywords: "",
+      });
 
+      setOpen(false);
       // Optional: form.reset(); or refresh logic
     } catch (error) {
       console.error("Edit Error:", error);
       toast.error("Failed to update keywords");
     }
-     
-    // try {
-    //   const res = await fetch("/api/edit-keywords", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(payload),
-    //   });
-
-    //   const result = await res.json();
-
-    //   if (!res.ok) throw new Error(result.error || "Update failed");
-
-    //   toast.success("Keywords updated successfully");
-
-    //   // Optional: form.reset(); or refresh logic
-    // } catch (error) {
-    //   console.error("Edit Error:", error);
-    //   toast.error("Failed to update keywords");
-    // }
-
-  
   };
-
+  const languages = [
+  "English",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Dutch",
+  "Russian",
+  "Japanese",
+  "Korean",
+  "Chinese (Simplified)",
+  "Chinese (Traditional)",
+  "Arabic",
+  "Hindi",
+  "Bengali",
+  "Urdu",
+  "Turkish",
+  "Polish",
+  "Vietnamese",
+  "Thai",
+  "Hebrew",
+  "Swedish",
+  "Norwegian",
+  "Danish",
+  "Finnish",
+  "Greek",
+  "Hungarian",
+  "Czech",
+  "Romanian",
+  "Slovak",
+  "Indonesian",
+  "Malay",
+  "Filipino",
+  "Ukrainian",
+  "Bulgarian",
+  "Serbian",
+  "Croatian",
+  "Lithuanian",
+  "Latvian",
+  "Estonian",
+  "Persian",
+  "Swahili",
+  "Catalan",
+  "Slovenian",
+  "Icelandic",
+  "Welsh",
+  "Irish",
+  "Basque",
+  "Galician",
+  "Albanian",
+  "Macedonian",
+];
+const countries = [
+  "United States",
+  "Canada",
+  "New Zealand",
+  "United Kingdom",
+  "Australia",
+  "India",
+  "Germany",
+  "France",
+  "Japan",
+  "China",
+  "Brazil",
+  "South Africa",
+  "Russia",
+  "Italy",
+  "Spain",
+  "Netherlands",
+  "Mexico",
+  "United Arab Emirates",
+  "Turkey",
+  "South Korea",
+  "Indonesia"
+];
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
         <HiOutlineKey className="text-xl text-blue-600 cursor-pointer" />
       </DialogTrigger>
@@ -177,8 +256,10 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
                 control={form.control}
                 render={({ field }) => (
                   <DropDownList
-                    listData={["USA", "Canada", "New Zealand"]}
-                    icon={<MdOutlineLocationOn className="text-blue-500 text-xl" />}
+                    listData={countries}
+                    icon={
+                      <MdOutlineLocationOn className="text-blue-500 text-xl" />
+                    }
                     listName="Search Location"
                     value={field.value}
                     onChange={(selected) => field.onChange(selected?.value)}
@@ -192,7 +273,9 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
                 render={({ field }) => (
                   <DropDownList
                     listData={["Toronto", "OK"]}
-                    icon={<MdOutlineLocationOn className="text-blue-500 text-xl" />}
+                    icon={
+                      <MdOutlineLocationOn className="text-blue-500 text-xl" />
+                    }
                     listName="Volume Location"
                     value={field.value}
                     onChange={(selected) => field.onChange(selected?.value)}
@@ -204,8 +287,10 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
                 control={form.control}
                 render={({ field }) => (
                   <DropDownList
-                    listData={["English", "French"]}
-                    icon={<LiaLanguageSolid className="text-blue-500 text-xl" />}
+                    listData={languages}
+                    icon={
+                      <LiaLanguageSolid className="text-blue-500 text-xl" />
+                    }
                     listName="Language"
                     value={field.value}
                     onChange={(selected) => field.onChange(selected?.value)}
@@ -215,8 +300,8 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
               />
             </div>
 
-           <div className="space-y-4">
-                <Controller
+            <div className="space-y-4">
+              <Controller
                 name="keywords"
                 control={form.control}
                 render={({ field }) => (
@@ -227,7 +312,9 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
                   />
                 )}
               />
-              {keywordError && <p className="text-red-500 text-sm">{keywordError}</p>}
+              {keywordError && (
+                <p className="text-red-500 text-sm">{keywordError}</p>
+              )}
 
               <Controller
                 name="SearchEngine"
@@ -248,7 +335,9 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
                 render={({ field }) => (
                   <DropDownList
                     listData={["organic", "paid"]}
-                    icon={<LiaSearchLocationSolid className="text-blue-500 text-xl" />}
+                    icon={
+                      <LiaSearchLocationSolid className="text-blue-500 text-xl" />
+                    }
                     listName="SERP Type"
                     value={field.value}
                     onChange={(selected) => field.onChange(selected?.value)}
@@ -261,15 +350,16 @@ const EditKeywords = ({ campaignId, defaultData, keywordId }:EditKeywordsProps) 
                 render={({ field }) => (
                   <DropDownList
                     listData={["desktop", "mobile"]}
-                    icon={<MdOutlineDevices className="text-blue-500 text-xl" />}
+                    icon={
+                      <MdOutlineDevices className="text-blue-500 text-xl" />
+                    }
                     listName="Device Type"
                     value={field.value}
                     onChange={(selected) => field.onChange(selected?.value)}
                   />
                 )}
               />
-            </div> 
-           
+            </div>
           </div>
 
           <div className="mt-6 flex justify-start">

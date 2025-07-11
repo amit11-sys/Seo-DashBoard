@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,12 +22,14 @@ interface DeleteConfirmProps {
 }
 
 const DeleteConfirm = ({ keywordId, campaignId, keyword }: DeleteConfirmProps) => {
+  const [open, setOpen] = useState(false);
   const handleDelete = async (id: string) => {
     try {
       const res = await deleteKeywordData({ keywordId: id, campaignId });
 
       if (res.success) {
         toast.success("Keyword deleted successfully");
+            setOpen(false); 
       } else {
         toast.error(res.error || "Failed to delete keyword");
       }
@@ -36,9 +38,10 @@ const DeleteConfirm = ({ keywordId, campaignId, keyword }: DeleteConfirmProps) =
       console.error(err);
     }
   };
+  
 
   return (
-    <Dialog>
+   <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="p-2 text-red-600 rounded-full hover:bg-red-200">
         <MdDelete className="text-xl" />
       </DialogTrigger>

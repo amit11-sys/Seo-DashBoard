@@ -5,7 +5,7 @@ const KeywordTrackingSchema = new mongoose.Schema(
     type: { type: String }, // "organic"
     location_code: { type: Number }, // 2124
     language_code: { type: String }, // "en"
-    url: { type: String }, // "https://www.handonawhiteboard.com/locations/toronto"
+    url: { type: String }, // 
     rank_group: { type: Number }, // 2
     rank_absolute: { type: Number },
     keyword: { type: String },

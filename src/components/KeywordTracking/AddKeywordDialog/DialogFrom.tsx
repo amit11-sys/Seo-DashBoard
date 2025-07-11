@@ -57,6 +57,7 @@ const DialogForm = (campaignId: any) => {
   const [tagsInput, setTagsInput] = useState("");
   const [Keywords, setKeywords] = useState<string[]>([]);
   const [keywordError, setKeywordError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (
@@ -120,27 +121,106 @@ const DialogForm = (campaignId: any) => {
       // console.log("Submitted:", response);
       toast.success(response?.message);
 
-      // form.reset({
-      //   url: "",
-      //   keywordTag: "",
-      //   searchLocation: "",
-      //   language: "",
-      //   SearchEngine: "",
-      //   serpType: "",
-      //   deviceType: "",
-      //   volumeLocation: "",
-      //   keywords: [],
-      // });
+      form.reset({
+        url: "",
+        keywordTag: "",
+        searchLocation: "",
+        language: "",
+        SearchEngine: "",
+        serpType: "",
+        deviceType: "",
+        volumeLocation: "",
+        keywords: [],
+      });
 
       setKeywords([]);
+          setOpen(false); 
       // await getDbLiveKeywordData(campaignId.campaignId)
     } catch (error) {
       console.error("Submission Error:", error);
     }
   };
+  const languages = [
+  "English",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Dutch",
+  "Russian",
+  "Japanese",
+  "Korean",
+  "Chinese (Simplified)",
+  "Chinese (Traditional)",
+  "Arabic",
+  "Hindi",
+  "Bengali",
+  "Urdu",
+  "Turkish",
+  "Polish",
+  "Vietnamese",
+  "Thai",
+  "Hebrew",
+  "Swedish",
+  "Norwegian",
+  "Danish",
+  "Finnish",
+  "Greek",
+  "Hungarian",
+  "Czech",
+  "Romanian",
+  "Slovak",
+  "Indonesian",
+  "Malay",
+  "Filipino",
+  "Ukrainian",
+  "Bulgarian",
+  "Serbian",
+  "Croatian",
+  "Lithuanian",
+  "Latvian",
+  "Estonian",
+  "Persian",
+  "Swahili",
+  "Catalan",
+  "Slovenian",
+  "Icelandic",
+  "Welsh",
+  "Irish",
+  "Basque",
+  "Galician",
+  "Albanian",
+  "Macedonian",
+];
+const countries = [
+  "United States",
+  "Canada",
+  "New Zealand",
+  "United Kingdom",
+  "Australia",
+  "India",
+  "Germany",
+  "France",
+  "Japan",
+  "China",
+  "Brazil",
+  "South Africa",
+  "Russia",
+  "Italy",
+  "Spain",
+  "Netherlands",
+  "Mexico",
+  "United Arab Emirates",
+  "Turkey",
+  "South Korea",
+  "Indonesia"
+];
+
+
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white px-5 py-4 rounded-full text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105">
         Add Keywords
       </DialogTrigger>
@@ -183,7 +263,7 @@ const DialogForm = (campaignId: any) => {
                 control={form.control}
                 render={({ field }) => (
                   <DropDownList
-                    listData={["USA", "Canada", "New zealand"]}
+                    listData={countries}
                     icon={
                       <MdOutlineLocationOn className="text-blue-500 text-xl" />
                     }
@@ -215,7 +295,7 @@ const DialogForm = (campaignId: any) => {
                 control={form.control}
                 render={({ field }) => (
                   <DropDownList
-                    listData={["English", "French"]}
+                    listData={languages}
                     icon={
                       <LiaLanguageSolid className="text-blue-500 text-xl" />
                     }

@@ -22,7 +22,8 @@ export const fetchLievKeyword = async (url: string) => {
 
   try {
     const res = await fetch(
-      'https://api.dataforseo.com/v3/serp/google/organic/live/regular',
+     
+       `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/regular"}`,
       {
         method: "POST",
         headers: {

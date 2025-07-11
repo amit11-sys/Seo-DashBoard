@@ -14,13 +14,13 @@ export default async function WebLayout({ children }: Props) {
   console.log(userkeywordData)
   const Convertedcampaign =
     campaign?.campaign?.map((c) => ({
-      _id: c._id.toString(),
-      campaignName: c.campaignName.toString(),
-      projectUrl: c.projectUrl.toString(),
-      userId: c.userId.toString(),
-      createdAt: c.createdAt.toString(),
-      updatedAt: c.updatedAt.toString(),
-      __v: c.__v,
+      _id: c?._id?.toString(),
+      campaignName: c?.campaignName?.toString(),
+      projectUrl: c?.projectUrl?.toString(),
+      userId: c?.userId?.toString(),
+      createdAt: c?.createdAt?.toString(),
+      updatedAt: c?.updatedAt?.toString(),
+      __v: c?.__v,
     })) || [];
     
 

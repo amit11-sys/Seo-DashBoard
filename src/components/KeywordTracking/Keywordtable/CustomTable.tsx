@@ -477,7 +477,7 @@
 
 "use client";
 
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BsGlobe } from "react-icons/bs";
 import { FaEdit } from "react-icons/fa";
@@ -518,6 +518,10 @@ interface CustomTableProps {
 const CustomTable = ({ tableHeader, tableData, campaignId }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
+
+  useEffect(() => {
+    setTableValues(tableData);
+  }, [tableData]);
 
   const handleStartClick = (index: number) => {
     setEditableRowIndex(index);

@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import CustomTrackingCard from "@/components/KeywordTracking/CustomTrackingCard";
 import TrackingChart from "@/components/Chart/TrackingChart";
 import DropDownList from "@/components/DropDownList";
@@ -99,37 +99,47 @@ const LiveKeywordComponent = ({
   ];
 
   // let tableBody: TablebodyItems[] = [];
-
-  if (campaignLiveKeywordsData.LiveKeywordDbData) {
-    campaignLiveKeywordsData.LiveKeywordDbData.map(
-      (item: any) => ({
-        // select: false,
-        status: item.status,
-        keywordId: item.keywordId,
-        keyword: item.keyword,
-        location: item.location_name,
-        intent: "C",
-        start: String(item.rank_group),
-        page: Math.ceil(item.rank_absolute / 10).toString(),
-        Absolute_Rank: String(item.rank_absolute),
-        Group_Rank: String(item.rank_group),
-        oneDay: "1",
-        sevenDays: "98",
-        thirtyDays: "-",
-        life: "-1",
-        comp: "0",
-        sv: "0",
-        date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "2-digit",
-        }),
-        rankingUrl: item.url,
-        // rankingUrl: new URL(item.url) || "/",
-      })
-    );
-    // setTableBody(mappedItems);
-  }
+  useEffect(() => {
+    // console.log(campaignLiveKeywordsData, "use effect");
+    if (campaignLiveKeywordsData) {
+      keywordTableData();
+    }
+  }, [campaignLiveKeywordsData]);
+  console.log(campaignLiveKeywordsData, "use effect data");
+  
+  const keywordTableData = async () => {
+    if (campaignLiveKeywordsData.LiveKeywordDbData) {
+      const data = campaignLiveKeywordsData.LiveKeywordDbData.map(
+        (item: any) => ({
+          // select: false,
+          status: item.status,
+          keywordId: item.keywordId,
+          keyword: item.keyword,
+          location: item.location_name,
+          intent: "C",
+          start: String(item.rank_group),
+          page: Math.ceil(item.rank_absolute / 10).toString(),
+          Absolute_Rank: String(item.rank_absolute),
+          Group_Rank: String(item.rank_group),
+          oneDay: "1",
+          sevenDays: "98",
+          thirtyDays: "-",
+          life: "-1",
+          comp: "0",
+          sv: "0",
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item.url,
+          // rankingUrl: new URL(item.url) || "/",
+        })
+      );
+      setTableBody(data);
+    }
+  };
+console.log(tableBody);
 
   const showAddedKeyword = (newItem: any) => {
     console.log(newItem, "showadded ok hai");

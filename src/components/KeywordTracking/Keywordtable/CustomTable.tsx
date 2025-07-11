@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
@@ -15,10 +13,9 @@ interface TableHeaderitems {
   icon?: ReactNode;
 }
 interface TablebodyItems {
-
   keyword: string;
-  keywordId:string;
-  status : number;
+  keywordId: string;
+  status: number;
   location: string;
   // intent: string;
   start: string;
@@ -38,16 +35,22 @@ interface CustomTableProps {
   tableHeader: TableHeaderitems[];
   tableData: TablebodyItems[];
   campaignId: string;
-  showAddedKeyword:any
+  showAddedKeyword: any;
+  setTableBody: React.Dispatch<React.SetStateAction<TablebodyItems[]>>;
 }
-
-const CustomTable = ({ tableHeader, tableData, campaignId,showAddedKeyword }: CustomTableProps) => {
+const CustomTable = ({
+  tableHeader,
+  tableData,
+  campaignId,
+  showAddedKeyword,
+  setTableBody,
+}: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
-  const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
+  // const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
 
-  useEffect(() => {
-    setTableValues(tableData);
-  }, [tableData]);
+  // useEffect(() => {
+  //   setTableValues(tableData);
+  // }, [tableData]);
 
   const handleStartClick = (index: number) => {
     setEditableRowIndex(index);
@@ -58,7 +61,7 @@ const CustomTable = ({ tableHeader, tableData, campaignId,showAddedKeyword }: Cu
     index: number
   ) => {
     const newValue = e.target.value;
-    setTableValues((prev) =>
+    setTableBody((prev) =>
       prev.map((row, rowIndex) =>
         rowIndex === index ? { ...row, start: newValue } : row
       )
@@ -75,9 +78,14 @@ const CustomTable = ({ tableHeader, tableData, campaignId,showAddedKeyword }: Cu
         <thead>
           <tr className="sticky top-0 bg-gradient-to-r bg-gray-300 text-black">
             {tableHeader.map((header, id) => (
-              <th key={id} className="px-4 py-2 text-center text-sm font-medium">
+              <th
+                key={id}
+                className="px-4 py-2 text-center text-sm font-medium"
+              >
                 <div className="flex items-center justify-center gap-1">
-                  {header.icon && <span className="text-xl">{header.icon}</span>}
+                  {header.icon && (
+                    <span className="text-xl">{header.icon}</span>
+                  )}
                   {header.label}
                 </div>
               </th>
@@ -86,16 +94,20 @@ const CustomTable = ({ tableHeader, tableData, campaignId,showAddedKeyword }: Cu
         </thead>
 
         <tbody>
-          {tableValues.map((data, rowIndex) => {
-              // console.log(data,"inside loop data table")
-                    const  keywordId = data.keywordId
+          {tableData.map((data, rowIndex) => {
+            // console.log(data,"inside loop data table")
+            const keywordId = data.keywordId;
             return (
-             
-              <tr key={rowIndex} className="hover:bg-indigo-50 transition-colors">
-                <td className="text-center border font-medium p-3">{data.keyword}</td>
+              <tr
+                key={rowIndex}
+                className="hover:bg-indigo-50 transition-colors"
+              >
+                <td className="text-center border font-medium p-3">
+                  {data.keyword}
+                </td>
                 <td className="text-center border p-3">{data.location}</td>
                 {/* <td className="text-center border p-3">{data.intent}</td> */}
-  
+
                 <td
                   className="text-center border cursor-pointer p-3"
                   onClick={() => handleStartClick(rowIndex)}
@@ -118,7 +130,7 @@ const CustomTable = ({ tableHeader, tableData, campaignId,showAddedKeyword }: Cu
                     </span>
                   )}
                 </td>
-  
+
                 <td className="text-center border p-3">{data.page}</td>
                 <td className="text-center border p-3">{data.Absolute_Rank}</td>
                 <td className="text-center border p-3">{data.Group_Rank}</td>
@@ -145,11 +157,12 @@ const CustomTable = ({ tableHeader, tableData, campaignId,showAddedKeyword }: Cu
                   <div className="flex justify-center items-center gap-2">
                     <KeywordEdit
                       campaignId={campaignId}
-                     keywordId={keywordId}
-                     showAddedKeyword={showAddedKeyword}
+                      keywordId={keywordId}
+                      showAddedKeyword={showAddedKeyword}
+                      setTableBody={setTableBody}
                       defaultData={{
                         url: data.rankingUrl,
-                        keywordTag:'',
+                        keywordTag: "",
                         searchLocation: data.location,
                         volumeLocation: "",
                         language: "English",
@@ -161,18 +174,15 @@ const CustomTable = ({ tableHeader, tableData, campaignId,showAddedKeyword }: Cu
                     />
                     <DeleteConfirm
                       campaignId={campaignId}
-                         keywordId={keywordId}
+                      keywordId={keywordId}
                       keyword={data.keyword}
-                     
+                      setTableBody={setTableBody}
                     />
                   </div>
                 </td>
               </tr>
-            )
-            
-          }
-
-          )}
+            );
+          })}
         </tbody>
       </table>
     </div>

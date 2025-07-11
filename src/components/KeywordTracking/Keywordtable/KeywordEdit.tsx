@@ -22,6 +22,7 @@ import { NewCustomInput } from "@/components/NewCustomInput";
 import DropDownList from "../../DropDownList";
 import { toast } from "sonner";
 import { createUpdateKeywordById } from "@/actions/keyword";
+import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 const editKeywordsSchema = z.object({
   url: z.string().url("Invalid URL"),
@@ -40,6 +41,7 @@ interface EditKeywordsProps {
   defaultData?: any; // for editing existing values
   keywordId: string;
   showAddedKeyword: any;
+  setTableBody:any
 }
 
 const EditKeywords = ({
@@ -47,6 +49,7 @@ const EditKeywords = ({
   defaultData,
   keywordId,
   showAddedKeyword,
+  setTableBody, // Optional: if you want to update the table body after editing
 }: EditKeywordsProps) => {
   const form = useForm<z.infer<typeof editKeywordsSchema>>({
     resolver: zodResolver(editKeywordsSchema),
@@ -110,7 +113,36 @@ const EditKeywords = ({
     console.log(payload, "edit");
     try {
       const Response = await createUpdateKeywordById(payload);
-
+ const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
+      let data: any = [];
+      if (campaignLiveKeywordsData.LiveKeywordDbData) {
+        data = campaignLiveKeywordsData.LiveKeywordDbData.map((item: any) => ({
+          // select: false,
+          status: item.status,
+          keywordId: item.keywordId,
+          keyword: item.keyword,
+          location: item.location_name,
+          // intent: "C",
+          start: String(item.rank_group),
+          page: Math.ceil(item.rank_absolute / 10).toString(),
+          Absolute_Rank: String(item.rank_absolute),
+          Group_Rank: String(item.rank_group),
+          // oneDay: "1",
+          sevenDays: "-",
+          // thirtyDays: "-",
+          life: String(item.rank_group),
+          // comp: "0",
+          // sv: "0",
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item.url,
+          // rankingUrl: new URL(item.url) || "/",
+        }));
+      }
+      setTableBody(data);
       if (!Response) throw new Error("Update failed");
       console.log(Response.tracking);
       //   await showAddedKeyword(

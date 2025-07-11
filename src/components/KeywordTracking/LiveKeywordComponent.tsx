@@ -103,7 +103,7 @@ const LiveKeywordComponent = ({
       keywordTableData();
     }
   }, [campaignLiveKeywordsData]);
-  console.log(campaignLiveKeywordsData, "use effect data");
+  // console.log(campaignLiveKeywordsData, "use effect data");
 
   const keywordTableData = async () => {
     if (campaignLiveKeywordsData.LiveKeywordDbData) {
@@ -137,7 +137,7 @@ const LiveKeywordComponent = ({
       setTableBody(data);
     }
   };
-  console.log(tableBody);
+  // console.log(tableBody);
 
   const showAddedKeyword = (newItem: any) => {
     // console.log(newItem, "showadded ok hai");
@@ -187,6 +187,7 @@ const LiveKeywordComponent = ({
           tableData={tableBody}
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
+          setTableBody={setTableBody}
         />
       </div>
     </div>

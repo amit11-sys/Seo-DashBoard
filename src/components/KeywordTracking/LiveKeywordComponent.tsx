@@ -1,5 +1,5 @@
-'use client'
-import React, { ReactNode } from "react";
+"use client";
+import React, { ReactNode, useState } from "react";
 import CustomTrackingCard from "@/components/KeywordTracking/CustomTrackingCard";
 import TrackingChart from "@/components/Chart/TrackingChart";
 import DropDownList from "@/components/DropDownList";
@@ -21,8 +21,8 @@ type Tableitems = {
 
 type TablebodyItems = {
   // select: boolean;
-  keywordId:string;
-  status:number
+  keywordId: string;
+  status: number;
   keyword: string;
   location: string;
   intent: string;
@@ -67,6 +67,7 @@ const LiveKeywordComponent = ({
   //   campaignLiveKeywordsData.campaignLiveKeywordsData.LiveKeywordDbData,
   //   "real data in table compo"
   // );
+  const [tableBody, setTableBody] = useState<any[]>([]);
 
   const tableHeader: Tableitems[] = [
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
@@ -80,7 +81,7 @@ const LiveKeywordComponent = ({
       label: "Absolute-Rank",
       icon: <FcGoogle className="inline mr-1" />,
     },
-   
+
     {
       key: "Group-Rank",
       label: "Group-Rank",
@@ -97,85 +98,89 @@ const LiveKeywordComponent = ({
     { key: "edit", label: "Edit keyword" },
   ];
 
-  let tableBody: TablebodyItems[] = [];
+  // let tableBody: TablebodyItems[] = [];
 
   if (campaignLiveKeywordsData.LiveKeywordDbData) {
-    tableBody = campaignLiveKeywordsData.LiveKeywordDbData.map((item: any) => ({
-      // select: false,
-      status: item.status,
-      keywordId:item.keywordId,
-      keyword: item.keyword,
-      location: item.location_name,
-      intent: "C",
-      start: String(item.rank_group),
-      page: Math.ceil(item.rank_absolute / 10).toString(),
-      Absolute_Rank: String(item.rank_absolute),
-      Group_Rank: String(item.rank_group),
-      oneDay: "1",
-      sevenDays: "98",
-      thirtyDays: "-",
-      life: "-1",
-      comp: "0",
-      sv: "0",
-      date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "2-digit",
-      }),
-      rankingUrl: item.url,
-      // rankingUrl: new URL(item.url) || "/",
-    }));
+    campaignLiveKeywordsData.LiveKeywordDbData.map(
+      (item: any) => ({
+        // select: false,
+        status: item.status,
+        keywordId: item.keywordId,
+        keyword: item.keyword,
+        location: item.location_name,
+        intent: "C",
+        start: String(item.rank_group),
+        page: Math.ceil(item.rank_absolute / 10).toString(),
+        Absolute_Rank: String(item.rank_absolute),
+        Group_Rank: String(item.rank_group),
+        oneDay: "1",
+        sevenDays: "98",
+        thirtyDays: "-",
+        life: "-1",
+        comp: "0",
+        sv: "0",
+        date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit",
+        }),
+        rankingUrl: item.url,
+        // rankingUrl: new URL(item.url) || "/",
+      })
+    );
+    // setTableBody(mappedItems);
   }
 
   const showAddedKeyword = (newItem: any) => {
-    console.log(newItem,"showadded ok hai");
-    
-     if (newItem && newItem.length > 0) {
-  tableBody = newItem.map((item: any) => ({
-      // select: false,
-      keyword: item.keyword,
-      location: item.location_name,
-      intent: "C",
-      start: String(item.rank_group),
-      page: Math.ceil(item.rank_absolute / 10).toString(),
-      Absolute_Rank: String(item.rank_absolute),
-      Group_Rank: String(item.rank_group),
-      oneDay: "1",
-      sevenDays: "98",
-      thirtyDays: "-",
-      life: "-1",
-      comp: "0",
-      sv: "0",
-      date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "2-digit",
-      }),
-      rankingUrl: item.url,
-      // rankingUrl: new URL(item.url) || "/",
-    }));
-  }
-};
-console.log(tableBody, 'tableBody');
+    console.log(newItem, "showadded ok hai");
+
+    if (newItem && newItem.length > 0) {
+      const mappedItems = newItem.map((item: any) => ({
+        keyword: item.keyword,
+        location: item.location_name,
+        intent: "C",
+        start: String(item.rank_group),
+        page: Math.ceil(item.rank_absolute / 10).toString(),
+        Absolute_Rank: String(item.rank_absolute),
+        Group_Rank: String(item.rank_group),
+        oneDay: "1",
+        sevenDays: "98",
+        thirtyDays: "-",
+        life: "-1",
+        comp: "0",
+        sv: "0",
+        date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit",
+        }),
+        rankingUrl: item.url,
+      }));
+
+      setTableBody((prev) => [...prev, ...mappedItems]);
+    }
+  };
 
   return (
     <div className="w-full min-h-[80vh] text-gray-100 py-8 space-y-12">
       {/* Header */}
       <div className="my-14  backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
-        <LiveKeyTrakingHeader campaignId={campaignId} showAddedKeyword={showAddedKeyword} />
+        <LiveKeyTrakingHeader
+          campaignId={campaignId}
+          showAddedKeyword={showAddedKeyword}
+        />
       </div>
 
       {/* Filter & Table Section */}
       <div className="backdrop-blur-md   rounded-xl p-6 ">
-        <CustomTable tableHeader={tableHeader} tableData={tableBody}  campaignId={campaignId} />
+        <CustomTable
+          tableHeader={tableHeader}
+          tableData={tableBody}
+          campaignId={campaignId}
+        />
       </div>
     </div>
   );
 };
 
 export default LiveKeywordComponent;
-
-
-
-
-

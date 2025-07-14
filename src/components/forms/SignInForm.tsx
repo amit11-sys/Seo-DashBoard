@@ -39,17 +39,17 @@ export default function SignInForm() {
     startLoading();
     try {
       const user = await getLoggedInUser(values);
-        console.log(user)
       if (user?.success) {
         toast.success("Login Successful");
 
-        const campaignId =user.campaignId
-      
+        const campaignId = user?.campaignId
 
-        
-        // console.log(campaignId[0])
-
-        router.push(`/dashboard/${campaignId}`);
+        if (campaignId) {
+          router.push(`/dashboard/${campaignId}`);
+        }
+        else {
+          router.push(`/add-campaign`);
+        }
 
       } else {
         toast.error(user?.error || "Invalid credentials");

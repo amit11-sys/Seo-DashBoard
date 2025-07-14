@@ -1,9 +1,9 @@
 "use client"
-import AnalyticsChart from "@/components/Chart/GoogleChart";
+// import AnalyticsChart from "@/components/Chart/GoogleChart";
 import { useEffect, useState } from "react";
 // import { useSearchParams } from "react-router-dom";
 import googledata from "@/lib/googleData.json";
-import chartData from "@/lib/chartdata.json";
+// import chartData from "@/lib/chartdata.json";
 import SearchConsoleHead from "./SearchConsoleHead";
 // import { getTrackingData } from "@/actions/keywordTracking";
 
@@ -54,13 +54,13 @@ const SearchConsoleData = () => {
     <div>
       {/* <h1 className="text-4xl p-4 text-center">Google Search Console</h1> */}
       <SearchConsoleHead/>
-      <AnalyticsChart
+      {/* <AnalyticsChart
         // analyticData={searchConsoleGraphData}
         analyticData={chartData}
         tableData={searchConsoleTableData}
         setDimension={setDimension}
         dimension={dimension}
-      />
+      /> */}
     </div>
   );
 };

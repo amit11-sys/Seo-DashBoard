@@ -129,13 +129,13 @@ export const verifyUser = async (formData: any) => {
     if (accessToken) {
       cookies().set("accessToken", accessToken, {
         // httpOnly: true,
-        secure: true,
+        // secure: true,
       });
     }
     if (refreshToken) {
       cookies().set("refreshToken", refreshToken, {
         // httpOnly: true,
-        secure: true,
+        // secure: true,
       });
     }
     const campaignId = campaign[0]?._id;

@@ -11,14 +11,14 @@ import BlueButton from "../ui/CustomButton";
 import { MdDashboard } from "react-icons/md";
 
 type Props = {
-  setIsCollapsed: (isCollapsed: boolean) => void;
-  isCollapsed: boolean;
+  // setIsCollapsed: (isCollapsed: boolean) => void;
+  // isCollapsed: boolean;
 };
 
-export default function Header({ setIsCollapsed, isCollapsed }: Props) {
-  const handleToggle = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+export default function Header() {
+  // const handleToggle = () => {
+  //   setIsCollapsed(!isCollapsed);
+  // };
   const router = useRouter();
   const onLogout = async () => {
     const logout = await logoutUser();
@@ -36,22 +36,17 @@ export default function Header({ setIsCollapsed, isCollapsed }: Props) {
             <div className="relative flex h-16 items-center justify-between">
               <div className="flex  gap-4">
                 <button
-                  onClick={() => handleToggle()}
+                  // onClick={() => handleToggle()}
                   className="flex text-white  h-10 w-10 transform items-center justify-center rounded-md ring-1 ring-white/10 transition-colors duration-200 ease-in-out hover:bg-white/10"
                 >
-                  {isCollapsed ? (
+             
                     <>
                       {
                         <LuPanelLeftOpen className="hidden h-10 w-10 md:block" />
                       }
                       <LuPanelLeftClose className="block h-10 w-10 md:hidden" />
                     </>
-                  ) : (
-                    <>
-                      <LuPanelLeftClose className="hidden h-10 w-10 md:block" />
-                      <LuPanelLeftOpen className="block h-10 w-10 md:hidden" />
-                    </>
-                  )}
+             
                 </button>
                 <div
                   // className="flex flex-shrink-0 items-center transition-all duration-200 transform hover:scale-105 hover:from-[#d65d2d] cursor-pointer hover:to-[#FE7743] bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white py-4 px-4 rounded-full bg-[#335488]">

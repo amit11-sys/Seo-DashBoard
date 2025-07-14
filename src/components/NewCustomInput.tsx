@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { HiEye, HiEyeOff } from "react-icons/hi";
+// import { HiEye, HiEyeOff } from "react-icons/hi";
 
 interface InputProps extends React.ComponentProps<"input"> {
   icon?: React.ReactNode;
@@ -41,7 +41,7 @@ const NewCustomInput = React.forwardRef<HTMLInputElement, InputProps>(
             onClick={() => setShowPassword((prev) => !prev)}
             className="text-xl text-muted-foreground focus:outline-none"
           >
-            {showPassword ? <HiEyeOff /> : <HiEye />}
+            {/* {showPassword ? <HiEyeOff /> : <HiEye />} */}
           </button>
         )}
 

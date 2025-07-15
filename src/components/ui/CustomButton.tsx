@@ -1,4 +1,4 @@
-import React, {FC} from "react";
+import React from "react";
 
 // Define prop types for BlueButton
 interface CustomButton {

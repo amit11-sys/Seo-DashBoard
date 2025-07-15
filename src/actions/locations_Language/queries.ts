@@ -25,24 +25,28 @@ export const getLocation_language = async () => {
         }
       );
       const locationData = await res.json();
-     
-      const allLanguages: string[] = [];
-      const allLocations: string[] = [];
-      locationData.tasks.forEach((data: any) => {
-        data.result.forEach((allData: any) => {
-          allLocations.push(
-            allData.location_name.charAt(0).toUpperCase() +
-              allData.location_name.slice(1).toLowerCase()
-          );
+    //  console.log(locationData.tasks,"location api")
+   const allLocations: { locationName: string; locationCode: number }[] = [];
+const allLanguages: string[] = [];
 
-          allData.available_languages.forEach((langdata: any) => {
-            allLanguages.push( 
-              langdata.language_name.charAt(0).toUpperCase() +
-                langdata.language_name.slice(1).toLowerCase()
-            );
-          });
-        });
-      });
+locationData.tasks.forEach((task: any) => {
+  task.result.forEach((loc: any) => {
+    allLocations.push({
+      locationName: loc.location_name.charAt(0).toUpperCase() + loc.location_name.slice(1).toLowerCase(),
+      locationCode: loc.location_code
+    });
+
+    loc.available_languages.forEach((lang: any) => {
+      allLanguages.push(
+        lang.language_name.charAt(0).toUpperCase() + lang.language_name.slice(1).toLowerCase()
+      );
+    });
+  });
+});
+
+// console.log(allLocations);
+// console.log(allLanguages);
+
 
       if (!res.ok) {
         const errorBody = await res.text();

@@ -12,6 +12,7 @@ import { Checkbox } from "@radix-ui/react-checkbox";
 import LiveKeyTrakingHeader from "@/components/KeywordTracking/LiveKeyTrakingHeader";
 import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 import { log, table } from "console";
+import KeywordTextArea from "../KeywordTextArea";
 
 type Tableitems = {
   key: string;
@@ -190,6 +191,10 @@ const LiveKeywordComponent = ({
           setTableBody={setTableBody}
         />
       </div>
+
+
+
+      
     </div>
   );
 };

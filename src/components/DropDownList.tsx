@@ -263,9 +263,9 @@ interface OptionType {
 
 interface DropDownListProps {
   icon?: React.ReactNode;
-  listData?: string[];
+  listData?: any;
   listName?: string;
-  value?: string;
+  value?: any;
   showArrow?: boolean;
   showSwitch?: boolean;
   switchName?: string;
@@ -287,10 +287,22 @@ const DropDownList = ({
   className
 }: DropDownListProps) => {
 
-  const options: OptionType[] = listData.map((item) => ({
-    value: item.toLowerCase(),
-    label: item,
-  }));
+ const options: OptionType[] = listData.map((item: any) => {
+  if (typeof item === "string") {
+    return {
+      value: item,
+      label: item.charAt(0).toUpperCase() + item.slice(1).toLowerCase(),
+    };
+  } else if (typeof item === "object" && item !== null) {
+    return {
+      value: item.locationCode?.toString() || "",
+      label: item.locationName || "",
+    };
+  } else {
+    return { value: "", label: "" };
+  }
+});
+
 
   const customComponents = {
     IndicatorSeparator: () => null,

@@ -5,6 +5,7 @@ import Keyword from "@/lib/models/keyword.model";
 import User from "@/lib/models/user.model";
 import { getUserCampaign } from "../campaign";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
+import { getLocation_languageData } from "../locations_Language";
 const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
 const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
 
@@ -53,7 +54,7 @@ interface compaigntype {
 }
 interface KeywordPayload {
   keyword: string;
-  location_name: string;
+  location_code: number;
   language_name: string;
 }
 
@@ -77,7 +78,6 @@ export const saveMultipleKeyword = async (
       return { error: "Unauthorized" };
     }
 
-  
     const addKeyword = await Promise.all(
       formData?.keyword?.map(async (singleKeyword: string) => {
         const { keywords, ...rest } = formData;
@@ -90,27 +90,27 @@ export const saveMultipleKeyword = async (
       })
     );
 
-    console.log(addKeyword,"campgin kewywords")
+    console.log(addKeyword, "campgin kewywords");
 
     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
 
     const payload: KeywordPayload[] = addKeyword.map((keywordObj: any) => ({
       keyword: keywordObj.keywords,
-      location_name:
-        keywordObj.searchLocation.charAt(0).toUpperCase() +
-        keywordObj.searchLocation.slice(1).toLowerCase(),
+      location_code: Number(keywordObj.searchLocationCode),
+
       language_name:
         keywordObj.language.charAt(0).toUpperCase() +
         keywordObj.language.slice(1).toLowerCase(),
       target: keywordObj.url,
+      device: keywordObj.deviceType,
+      se_domain: keywordObj.SearchEngine,
     }));
 
-    console.log(payload,"payload compaign")
+    console.log(payload, "payload compaign");
 
     const responses: KeywordResponse[] = [];
 
     for (const item of payload) {
-    
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
         {
@@ -136,31 +136,43 @@ export const saveMultipleKeyword = async (
       }
     }
 
-    console.log(responses,"comapgin response")
+    // console.log(responses,"comapgin response")
+
     const createdRecords: any[] = [];
+    const res = await getLocation_languageData();
+    const locationData = res?.allLocations;
 
     responses.forEach((item: any) => {
-      // console.log(item?.response?.tasks, "response a gyea task");
+      console.log(item?.response?.tasks, "response a gyea task");
 
       item?.response?.tasks?.forEach((task: any) => {
         const keyword = task?.data?.keyword;
-
         const results = task?.result?.flatMap((data: any) => {
+          console.log(task?.result, "locations check");
+
+          // const location_name =
           // Find the matching keyword document
           const matchedKeyword = addKeyword.find(
             (addDataKeyword) => addDataKeyword.keywords === keyword
           );
+          const matchLangName = locationData?.find((lang) => {
+            return lang.locationCode === data?.location_code;
+          });
 
+          console.log(matchedKeyword, "during capmaign match data");
           return [
             {
               type: task?.data?.se_type,
               location_code: data?.location_code || 2124,
               language_code: data?.language_code || "en",
-              location_name: task?.data?.location_name || "",
+              location_name: matchLangName?.locationName || "",
               url: task?.data?.target || "no ranking",
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: keyword || "",
+              // SearchEngine:  task?.data?.se_domain,
+              // language: task?.data?.language_name, // "en"
+              // deviceType:task?.data?.device,
               campaignId: campaign?._id,
               keywordId: matchedKeyword._id,
             },
@@ -222,6 +234,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     }
 
     const { keywordId, campaignId } = updatedData;
+    // console.log(updatedData,"edit data backend")
 
     // ✅ Update keyword document
     const updatedKeyword = await Keyword.findByIdAndUpdate(
@@ -229,7 +242,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
       { $set: updatedData },
       { new: true }
     );
-
+    console.log(updatedKeyword,"updated keywoerds")
     if (!updatedKeyword) {
       return { error: "Keyword not found" };
     }
@@ -238,11 +251,14 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     const payload = [
       {
         keyword: updatedKeyword.keywords,
-        location_name: capitalize(updatedKeyword.searchLocation),
+        location_code: updatedKeyword.searchLocationCode,
         language_name: capitalize(updatedKeyword.language),
         target: updatedKeyword.url,
+        device: updatedKeyword.deviceType,
+        se_domain: updatedKeyword.SearchEngine,
       },
     ];
+    console.log(payload,"edit uploaded payload")
 
     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
     const responses: any[] = [];
@@ -268,19 +284,25 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
       });
     }
 
+    console.log(responses,"edit response")
+
     // ✅ Parse response and generate tracking data
     const createdRecords: any[] = [];
-
+     const res = await getLocation_languageData();
+    const locationData = res?.allLocations;
     responses.forEach((item) => {
       item?.response?.tasks?.forEach((task: any) => {
         const keyword = task?.data?.keyword;
-
+        
         task?.result?.forEach((data: any) => {
+           const matchLangName = locationData?.find((lang) => {
+            return lang.locationCode === data?.location_code;
+          })
           createdRecords.push({
             type: task?.data?.se_type,
             location_code: data?.location_code || 2124,
             language_code: data?.language_code || "en",
-            location_name: task?.data?.location_name || "",
+            location_name: matchLangName?.locationName || "",
             url: task?.data?.target || "no ranking",
             rank_group: data?.items?.[0]?.rank_group || 0,
             rank_absolute: data?.items?.[0]?.rank_absolute || 0,
@@ -295,6 +317,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     // ✅ Optional: Clear previous tracking records for this keyword
     await KeywordTracking.deleteMany({ keywordId: updatedKeyword._id });
 
+    console.log(createdRecords,"edit created records")
     // ✅ Save new tracking data
     const addedTracking = await KeywordTracking.insertMany(createdRecords);
 

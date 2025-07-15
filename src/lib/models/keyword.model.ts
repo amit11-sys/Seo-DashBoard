@@ -9,13 +9,15 @@ const keywordSchema = new mongoose.Schema(
     keywordTag: { type: String },
     language: { type: String },
     name: { type: String },
-    searchLocation: { type: String },
+    searchLocationCode: { type: String },
+
     serpType: { type: String },
     url: { type: String },
-    volumeLocation: { type: String },
+    volumeLocationCode: { type: String },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     CampaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
     keywordId: { type: String },
+
     status: {
       type: Number,
 

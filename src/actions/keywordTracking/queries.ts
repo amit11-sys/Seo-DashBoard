@@ -85,7 +85,7 @@ export const getUserKeywordData = async (newCompaignId: any) => {
       return { error: "Unauthorized" };
     }
     // console.log(user);
-    // console.log(newCompaignId,"newkeywordCampaign")
+    console.log(newCompaignId,"newkeywordCampaign")
     const campaignKeywords = await Keyword.find({
       CampaignId: newCompaignId?.CampaignId,
     });

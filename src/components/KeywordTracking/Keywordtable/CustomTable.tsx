@@ -1,11 +1,10 @@
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { BsGlobe } from "react-icons/bs";
-import { FaEdit } from "react-icons/fa";
 import KeywordEdit from "./KeywordEdit";
 import DeleteConfirm from "./KeywordDel";
+
+import { getTrackingData } from "@/actions/keywordTracking";
 
 interface TableHeaderitems {
   key: string;
@@ -46,6 +45,23 @@ const CustomTable = ({
   setTableBody,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
+
+  const [keywordDbData, setkeywordDbData] = useState<any>([]);
+  useEffect(() => {
+    const FetchKeyWordsDb = async () => {
+      const CampaignId = campaignId;
+      try {
+        const res = await getTrackingData({ CampaignId });
+        // console.log(campaignId)
+        const data = res.campaignKeywords;
+        setkeywordDbData(data);
+      } catch (error) {
+        console.log(error, "DB DATA NOT FOUND");
+      }
+    };
+    FetchKeyWordsDb();
+  }, []);
+  console.log(keywordDbData,"keyworddb data")
   // const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
 
   // useEffect(() => {
@@ -95,8 +111,18 @@ const CustomTable = ({
 
         <tbody>
           {tableData.map((data, rowIndex) => {
-            // console.log(data,"inside loop data table")
             const keywordId = data.keywordId;
+
+            // Find the matching keyword data from keywordDbData by campaignId and keywordId
+            const matchedKeywordData = keywordDbData.find(
+              (item: {  _id: string }) =>{
+                  console.log(item,"macted")
+                return (item._id === keywordId)
+
+              }
+            );
+            console.log(matchedKeywordData,"match keywords")
+
             return (
               <tr
                 key={rowIndex}
@@ -106,8 +132,8 @@ const CustomTable = ({
                   {data.keyword}
                 </td>
                 <td className="text-center border p-3">{data.location}</td>
-                {/* <td className="text-center border p-3">{data.intent}</td> */}
 
+                {/* Editable Start Field */}
                 <td
                   className="text-center border cursor-pointer p-3"
                   onClick={() => handleStartClick(rowIndex)}
@@ -134,13 +160,10 @@ const CustomTable = ({
                 <td className="text-center border p-3">{data.page}</td>
                 <td className="text-center border p-3">{data.Absolute_Rank}</td>
                 <td className="text-center border p-3">{data.Group_Rank}</td>
-                {/* <td className="text-center border p-3">{data.oneDay}</td> */}
                 <td className="text-center border p-3">{data.sevenDays}</td>
-                {/* <td className="text-center border p-3">{data.thirtyDays}</td> */}
                 <td className="text-center border p-3">{data.life}</td>
-                {/* <td className="text-center border p-3">{data.comp}</td> */}
-                {/* <td className="text-center border p-3">{data.sv}</td> */}
                 <td className="text-center border p-3">{data.date}</td>
+
                 <td className="text-center border p-3">
                   <div className="flex justify-center items-center">
                     <a
@@ -153,6 +176,7 @@ const CustomTable = ({
                     </a>
                   </div>
                 </td>
+
                 <td className="text-center border p-3">
                   <div className="flex justify-center items-center gap-2">
                     <KeywordEdit
@@ -161,17 +185,22 @@ const CustomTable = ({
                       showAddedKeyword={showAddedKeyword}
                       setTableBody={setTableBody}
                       defaultData={{
-                        url: data.rankingUrl,
-                        keywordTag: "",
-                        searchLocation: data.location,
-                        volumeLocation: "",
-                        language: "English",
-                        SearchEngine: "US (google.com)",
-                        serpType: "organic",
-                        deviceType: "desktop",
+                        url: matchedKeywordData?.url,
+                        keywordTag: matchedKeywordData?.keywordTag ,
+                        searchLocationCode:
+                          matchedKeywordData?.searchLocationCode ,
+                        volumeLocationCode:
+                          matchedKeywordData?.volumeLocationCode ,
+                        language: matchedKeywordData?.language,
+                        SearchEngine:
+                          matchedKeywordData?.SearchEngine,
+                        serpType: matchedKeywordData?.serpType ,
+                        deviceType: matchedKeywordData?.deviceType ,
                         keywords: [data.keyword],
+                       
                       }}
                     />
+
                     <DeleteConfirm
                       campaignId={campaignId}
                       keywordId={keywordId}

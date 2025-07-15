@@ -13,14 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BlueButton from "@/components/ui/CustomButton";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { string, z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { campaignSchema } from "@/lib/zod";
 import { useLoader } from "@/hooks/useLoader";
 import { toast } from "sonner";
@@ -30,19 +24,19 @@ import { HiMiniTag } from "react-icons/hi2";
 import { MdOutlineDevices, MdOutlineLocationOn } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
-import axios from "axios";
 import { NewCustomInput } from "../NewCustomInput";
 import CustomButton from "@/components/ui/CustomButton";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { FaCircleCheck } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import KeywordTextArea from "../KeywordTextArea";
 // import { getTrackingData } from "@/actions/keywordTracking";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 interface LocationAndLanguageType {
-  allLanguages: string[];
-  allLocations: string[];
+  allLanguages: any;
+  allLocations: any;
 }
 
 interface CampaignTabsProps {
@@ -61,16 +55,17 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
       keywordTag: "",
       keyword: [],
       SearchEngine: "",
-      searchLocation: "",
-      volumeLocation: "",
+      searchLocationCode: "",
+      volumeLocationCode: "",
       language: "",
       serpType: "",
       deviceType: "",
     },
   });
-
+  // console.log(location_and_language,"luange and locations")
   const [tagsInput, settagsInput] = useState("");
   const [Keywords, setKeywords] = useState<string[]>([]);
+  const [KeywordsText, setKeywordsText] = useState<any>("");
   const [campaignValid, setCampaignValid] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
   const [language, setLanguage] = useState<string[]>([]);
@@ -81,36 +76,36 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
     []
   );
 
-  const fetchCitiesByCountry = async (country: string) => {
-    if (!country) {
-      setVolumeLocationOptions([]);
-      return;
-    }
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_COUNTRIESNOW_URL}countries/cities`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ country }),
-        }
-      );
+  // const fetchCitiesByCountry = async (country: string) => {
+  //   if (!country) {
+  //     setVolumeLocationOptions([]);
+  //     return;
+  //   }
+  //   try {
+  //     const res = await fetch(
+  //       `${process.env.NEXT_PUBLIC_COUNTRIESNOW_URL}countries/cities`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ country }),
+  //       }
+  //     );
 
-      const data = await res.json();
-      // console.log();
+  //     const data = await res.json();
+  //     // console.log();
 
-      if (data) {
-        // const stateData = data.data.states.map((state: any) => state?.name);
-        setVolumeLocationOptions(data.data);
-      } else {
-        setVolumeLocationOptions([]);
-        toast.error("No cities found for selected country.");
-      }
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-      toast.error("Failed to fetch cities.");
-    }
-  };
+  //     if (data) {
+  //       // const stateData = data.data.states.map((state: any) => state?.name);
+  //       setVolumeLocationOptions(data.data);
+  //     } else {
+  //       setVolumeLocationOptions([]);
+  //       toast.error("No cities found for selected country.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching cities:", error);
+  //     toast.error("Failed to fetch cities.");
+  //   }
+  // };
 
   // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
   // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
@@ -120,25 +115,25 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
     setLocation(location_and_language.allLocations);
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (
-      (e.key === "Enter" || e.key === "," || e.key === " ") &&
-      tagsInput.trim()
-    ) {
-      e.preventDefault();
-      const trimmed = tagsInput.trim();
-      if (!Keywords.includes(trimmed)) {
-        setKeywords((prev) => [...prev, trimmed]);
-      }
-      settagsInput("");
-    } else if (e.key === "Backspace" && !tagsInput && Keywords.length) {
-      setKeywords((prev) => prev.slice(0, -1));
-    }
-  };
+  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (
+  //     (e.key === "Enter" || e.key === "," || e.key === " ") &&
+  //     tagsInput.trim()
+  //   ) {
+  //     e.preventDefault();
+  //     const trimmed = tagsInput.trim();
+  //     if (!Keywords.includes(trimmed)) {
+  //       setKeywords((prev) => [...prev, trimmed]);
+  //     }
+  //     settagsInput("");
+  //   } else if (e.key === "Backspace" && !tagsInput && Keywords.length) {
+  //     setKeywords((prev) => prev.slice(0, -1));
+  //   }
+  // };
 
-  const removeKeyword = (index: number) => {
-    setKeywords((prev) => prev.filter((_, i) => i !== index));
-  };
+  // const removeKeyword = (index: number) => {
+  //   setKeywords((prev) => prev.filter((_, i) => i !== index));
+  // };
 
   const handleCampaignSubmit = async () => {
     const values = form.getValues();
@@ -242,7 +237,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
       keyword: Keywords,
     };
 
-    console.log(payload);
+    console.log(payload, "pyaload of caompgin form");
 
     startLoading();
     try {
@@ -271,6 +266,103 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
       stopLoading();
     }
   };
+  const handleKeywordChange = (keywords: string[], rawText: string) => {
+    setKeywordsText(rawText);
+    setKeywords(keywords);
+  };
+  const googleDomains: string[] = [
+    "google.com",
+    "google.com.au",
+    "google.co.uk",
+    "google.ca",
+    "google.co.in",
+    "google.de",
+    "google.fr",
+    "google.it",
+    "google.es",
+    "google.com.br",
+    "google.com.mx",
+    "google.co.jp",
+    "google.com.hk",
+    "google.cn",
+    "google.ru",
+    "google.com.tr",
+    "google.com.sa",
+    "google.co.za",
+    "google.nl",
+    "google.be",
+    "google.se",
+    "google.no",
+    "google.dk",
+    "google.fi",
+    "google.ch",
+    "google.at",
+    "google.pl",
+    "google.cz",
+    "google.hu",
+    "google.gr",
+    "google.pt",
+    "google.ie",
+    "google.co.kr",
+    "google.com.sg",
+    "google.co.id",
+    "google.com.my",
+    "google.co.th",
+    "google.com.vn",
+    "google.com.ph",
+    "google.ae",
+    "google.com.eg",
+    "google.com.ar",
+    "google.cl",
+    "google.com.co",
+    "google.com.pe",
+    "google.com.uy",
+    "google.com.ve",
+    "google.com.ng",
+    "google.com.gh",
+    "google.com.pk",
+    "google.com.bd",
+    "google.lk",
+    "google.com.np",
+    "google.co.il",
+    "google.com.qa",
+    "google.com.kw",
+    "google.com.om",
+    "google.kz",
+    "google.com.tw",
+    "google.com.ua",
+    "google.co.nz",
+    "google.com.lb",
+    "google.com.mt",
+    "google.is",
+    "google.li",
+    "google.ee",
+    "google.lv",
+    "google.lt",
+    "google.hr",
+    "google.rs",
+    "google.ba",
+    "google.mk",
+    "google.al",
+    "google.ge",
+    "google.am",
+    "google.com.cy",
+    "google.md",
+    "google.by",
+    "google.mn",
+    "google.com.kh",
+    "google.la",
+    "google.com.mm",
+    "google.com.bn",
+    "google.com.fj",
+    "google.vu",
+    "google.fm",
+    "google.ws",
+    "google.to",
+    "google.as",
+    "google.co.ck",
+    "google.com.sb",
+  ];
 
   // console.log(form.formState.errors.keyword?.message);
 
@@ -443,7 +535,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                   {form.formState.errors.keyword?.message}
                 </p> */}
 
-                <div
+                {/* <div
                   className={`multipleKeyword border ${keywordError && "border-red-400"}  p-2 rounded w-full max-w-xl`}
                 >
                   <div className="flex flex-wrap gap-2">
@@ -466,7 +558,16 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                       className="flex-1 bg-transparent p-1 outline-none"
                     />
                   </div>
-                </div>
+                </div> */}
+                <KeywordTextArea
+                  value={KeywordsText}
+                  onChange={handleKeywordChange}
+                  placeholder="Enter keywords separated by comma or new line"
+                />
+                 <div>
+        <h3 className="font-semibold">Processed Keywords Array:</h3>
+        <pre className="bg-gray-100 text-black p-2 rounded">{JSON.stringify(Keywords, null, 2)}</pre>
+      </div>
                 {keywordError && (
                   <p className="text-red-500 text-sm mt-1">{keywordError}</p>
                 )}
@@ -491,6 +592,21 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                 <div className="flex w-full gap-6">
                   <div className="flex-1  flex flex-col justify-start items-start">
                     <Controller
+                      name="searchLocationCode"
+                      control={form.control}
+                      render={({ field }) => (
+                        <DropDownList
+                          listData={location}
+                          icon={<FcGoogle className=" text-xl" />}
+                          listName="Search Location"
+                          value={field.value}
+                          onChange={(selected) =>
+                            field.onChange(selected?.value)
+                          }
+                        />
+                      )}
+                    />
+                    {/* <Controller
                       name="searchLocation"
                       control={form.control}
                       render={({ field }) => (
@@ -502,13 +618,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                           }
                           listName="Search Location"
                           value={field.value}
-                          onChange={async (selected) => {
-                            field.onChange(selected?.value);
-
-                            if (selected?.value) {
-                              await fetchCitiesByCountry(selected.value);
-                            }
-                          }}
+                        onChange={(selected) => field.onChange(selected?.value)}
                           className={`${form.formState.errors.searchLocation?.message && "border-red-500 animate-shake "}`}
 
                           // errorMessage={
@@ -516,17 +626,17 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                           // }
                         />
                       )}
-                    />
+                    /> */}
                   </div>
 
                   <div className="flex-1 flex justify-start items-start">
                     <Controller
-                      name="volumeLocation"
+                      name="volumeLocationCode"
                       control={form.control}
                       render={({ field }) => (
                         <DropDownList
                           showArrow={false}
-                          listData={volumeLocationOptions}
+                          listData={location}
                           icon={
                             <MdOutlineLocationOn className="text-blue-500 text-xl" />
                           }
@@ -536,7 +646,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                             field.onChange(selected?.value)
                           }
                           errorMessage={
-                            form.formState.errors.volumeLocation?.message
+                            form.formState.errors.volumeLocationCode?.message
                           }
                         />
                       )}
@@ -544,7 +654,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                   </div>
                 </div>
                 <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.searchLocation?.message}
+                  {form.formState.errors.searchLocationCode?.message}
                 </div>
               </div>
 
@@ -554,7 +664,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                 control={form.control}
                 render={({ field }) => (
                   <DropDownList
-                    listData={["US (google.com)", "NL (google.com)"]}
+                    listData={googleDomains}
                     icon={<FcGoogle className=" text-xl" />}
                     listName="us (google.com)"
                     value={field.value}
@@ -584,7 +694,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                   control={form.control}
                   render={({ field }) => (
                     <DropDownList
-                      listData={["organic", "paid"]}
+                      listData={["organic + local", "organic", "Local"]}
                       icon={
                         <LiaSearchLocationSolid className="text-blue-500 text-xl" />
                       }

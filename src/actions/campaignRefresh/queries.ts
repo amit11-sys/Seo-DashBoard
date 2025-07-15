@@ -4,6 +4,7 @@ import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import { QRCode } from "antd";
+import { getLocation_languageData } from "../locations_Language";
 const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
 const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
 
@@ -15,8 +16,9 @@ interface compaigntype {
 }
 interface KeywordPayload {
   keyword: string;
-  location_name: string;
+  location_code: number;
   language_name: string;
+  target: string;
 }
 
 interface KeywordResponse {
@@ -27,7 +29,7 @@ interface KeywordResponse {
 interface ErrorResponse {
   error: string;
 }
-export const refreshAddedKeywords = async (campaignId:string) => {
+export const refreshAddedKeywords = async (campaignId: string) => {
   try {
     await connectToDB();
 
@@ -36,31 +38,31 @@ export const refreshAddedKeywords = async (campaignId:string) => {
       return { error: "Unauthorized" };
     }
     // console.log(user);
-    console.log(campaignId,"refresh id")
+    console.log(campaignId, "refresh id");
 
     const refreshCampaign = await Keyword.find({ CampaignId: campaignId });
 
-    console.log(refreshCampaign,"refreshed db data")
+    console.log(refreshCampaign, "refreshed db data");
     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
 
     const payload: KeywordPayload[] = refreshCampaign.map(
       (keywordObj: any) => ({
         keyword: keywordObj.keywords,
-        location_name:
-          keywordObj.searchLocation.charAt(0).toUpperCase() +
-          keywordObj.searchLocation.slice(1).toLowerCase(),
+        location_code: Number(keywordObj.searchLocationCode),
+
         language_name:
           keywordObj.language.charAt(0).toUpperCase() +
           keywordObj.language.slice(1).toLowerCase(),
         target: keywordObj.url,
+        device: keywordObj.deviceType,
+        se_domain: keywordObj.SearchEngine,
       })
     );
 
-    console.log(payload ,"refresh payload")
+    console.log(payload, "refresh payload");
     const responses: KeywordResponse[] = [];
 
     for (const item of payload) {
-       
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
         {
@@ -85,9 +87,10 @@ export const refreshAddedKeywords = async (campaignId:string) => {
         responses.push({ keyword: item.keyword, response: result });
       }
     }
-console.log(responses,"refresh response Api")
+    console.log(responses, "refresh response Api");
     const createdRecords: any[] = [];
-
+    const res = await getLocation_languageData();
+    const locationData = res?.allLocations;
     responses.forEach((item: any) => {
       // console.log(item?.response?.tasks, "response a gyea task");
 
@@ -99,13 +102,16 @@ console.log(responses,"refresh response Api")
           const matchedKeyword = refreshCampaign.find(
             (addDataKeyword) => addDataKeyword.keywords === keyword
           );
+          const matchLangName = locationData?.find((lang) => {
+            return lang.locationCode === data?.location_code;
+          });
 
           return [
             {
               type: task?.data?.se_type,
               location_code: data?.location_code || 2124,
               language_code: data?.language_code || "en",
-              location_name: task?.data?.location_name || "",
+              location_name: matchLangName?.locationName || "",
               url: task?.data?.target || "no ranking",
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,

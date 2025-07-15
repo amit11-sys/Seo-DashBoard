@@ -3,9 +3,10 @@ import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import { getDbLiveKeywordData } from "../keywordTracking";
+import { getLocation_languageData } from "../locations_Language";
 interface KeywordPayload {
   keyword: string;
-  location_name: string;
+  location_code: number;
   language_name: string;
 }
 interface KeywordResponse {
@@ -26,9 +27,9 @@ export const addkeywords = async (formData: any) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-    console.log(formData, "formdata");
+    // console.log(formData, "formdata");
     const campaignId = formData?.campaignId?.campaignId; // ✅ FIXED
-    console.log(campaignId, "formdat id");
+    // console.log(campaignId, "formdat id");
     const { keywords, ...rest } = formData;
 
     const newAddKeyword = await Promise.all(
@@ -46,15 +47,17 @@ export const addkeywords = async (formData: any) => {
     // const
     const payload: KeywordPayload[] = newAddKeyword.map((keywordObj: any) => ({
       keyword: keywordObj.keywords,
-      location_name:
-        keywordObj.searchLocation.charAt(0).toUpperCase() +
-        keywordObj.searchLocation.slice(1).toLowerCase(),
+      location_code:Number(keywordObj.searchLocationCode),
+       
       language_name:
         keywordObj.language.charAt(0).toUpperCase() +
         keywordObj.language.slice(1).toLowerCase(),
       target: keywordObj.url,
+    device:keywordObj.deviceType,
+       se_domain:keywordObj.SearchEngine
+
     }));
-    console.log(payload, "new payload");
+    // console.log(payload, "new payload");
     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
     const responses: any = [];
     for (const item of payload) {
@@ -84,9 +87,12 @@ export const addkeywords = async (formData: any) => {
       }
     }
 
-    console.log(responses.response, "response a gyea ");
+    // console.log(responses.response, "response a gyea ");
 
     const createdRecords: any[] = [];
+const res = await getLocation_languageData();
+          const locationData = res?.allLocations;
+     
 
    responses.forEach((item: any) => {
   // console.log(item?.response?.tasks, "response a gyea task");
@@ -99,14 +105,16 @@ export const addkeywords = async (formData: any) => {
       const matchedKeyword = newAddKeyword.find(
         (addDataKeyword) => addDataKeyword.keywords === keyword
       );
-
-     
-
+       const matchLangName = locationData?.find((lang) => {
+            return lang.locationCode === data?.location_code
+          
+          })
+      
       return [{
         type: task?.data?.se_type,
         location_code: data?.location_code || 2124,
         language_code: data?.language_code || "en",
-        location_name: task?.data?.location_name || "",
+        location_name: matchLangName?.locationName || "",
         url: task?.data?.target || "no ranking",
         rank_group: data?.items?.[0]?.rank_group || 0,
         rank_absolute: data?.items?.[0]?.rank_absolute || 0,
@@ -123,12 +131,12 @@ export const addkeywords = async (formData: any) => {
 });
 
 
-    console.log(createdRecords, "all records pushed ✅");
+    // console.log(createdRecords, "all records pushed ✅");
 
-    console.log(createdRecords, "one keyword add");
+    // console.log(createdRecords, "one keyword add");
 
     const addedKeywords = await KeywordTracking.insertMany(createdRecords);
-    console.log(addedKeywords,"return keywrods")
+    // console.log(addedKeywords,"return keywrods")
 
     return {
       success: true,

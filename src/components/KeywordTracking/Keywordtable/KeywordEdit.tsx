@@ -469,7 +469,7 @@ const EditKeywords = ({
                     }
                     listName="Search Location"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                     errorMessage={
                       form.formState.errors.searchLocationCode?.message
                     }
@@ -487,7 +487,7 @@ const EditKeywords = ({
                     }
                     listName="Volume Location"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                   />
                 )}
               />
@@ -502,7 +502,7 @@ const EditKeywords = ({
                     }
                     listName="Language"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                     errorMessage={form.formState.errors.language?.message}
                   />
                 )}
@@ -534,7 +534,7 @@ const EditKeywords = ({
                     icon={<FcGoogle className="text-xl" />}
                     listName="Search Engine"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                   />
                 )}
               />
@@ -549,7 +549,7 @@ const EditKeywords = ({
                     }
                     listName="SERP Type"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                   />
                 )}
               />
@@ -564,7 +564,7 @@ const EditKeywords = ({
                     }
                     listName="Device Type"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                   />
                 )}
               />

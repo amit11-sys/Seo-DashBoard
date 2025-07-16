@@ -442,7 +442,7 @@ const countries = [
                     }
                     listName="Search Location"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                     errorMessage={form.formState.errors.searchLocationCode?.message}
                   />
                 )}
@@ -458,7 +458,7 @@ const countries = [
                     }
                     listName="volume Location"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                     errorMessage={form.formState.errors.volumeLocationCode?.message}
                   />
                 )}
@@ -474,7 +474,7 @@ const countries = [
                     }
                     listName="Language"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                     errorMessage={form.formState.errors.language?.message}
                   />
                 )}
@@ -524,7 +524,7 @@ const countries = [
                     icon={<FcGoogle className=" text-xl" />}
                     listName="Search Engine"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                   />
                 )}
               />
@@ -539,7 +539,7 @@ const countries = [
                     }
                     listName="SERP Type"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                   />
                 )}
               />
@@ -554,7 +554,7 @@ const countries = [
                     }
                     listName="Device Type"
                     value={field.value}
-                    onChange={(selected) => field.onChange(selected?.value)}
+                    onChange={(selected:any) => field.onChange(selected?.value)}
                   />
                 )}
               />

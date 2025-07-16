@@ -36,7 +36,7 @@ export const campaignSchema = z.object({
       "Campaign Name should not be empty and should be at least 3 characters long",
   }),
   url: z.string().url({ message: "Please enter a valid URL" }),
-  searchLocationCode: z.string().min(1, { message: "Search Location is required" }),
+  searchLocationCode: z.number().min(1, { message: "Search Location is required" }),
   keywordTag: z.string().optional(),
   SearchEngine: z.string().optional(),
   // keyword: z.string().min(1, { message: "Please provide at least one keyword" }),
@@ -44,7 +44,7 @@ export const campaignSchema = z.object({
     z.string().min(1, { message: "Please provide at least one keyword" })
   ),
 
-  volumeLocationCode: z.string().optional(),
+  volumeLocationCode: z.number().optional(),
   language: z.string().min(1, { message: "Language is required" }),
   serpType: z.string().optional(),
   deviceType: z.string().optional(),

@@ -15,7 +15,7 @@ interface TablebodyItems {
   keyword: string;
   keywordId: string;
   status: number;
-  location: string;
+  // location: string;
   // intent: string;
   start: string;
   page: string;
@@ -25,8 +25,8 @@ interface TablebodyItems {
   sevenDays: string;
   // thirtyDays: string;
   life: string;
-  // comp: string;
-  // sv: string;
+  comp: any;
+ sv:any
   date: string;
   rankingUrl: string;
 }
@@ -112,7 +112,7 @@ const CustomTable = ({
         <tbody>
           {tableData.map((data, rowIndex) => {
             const keywordId = data.keywordId;
-
+              console.log(data,"tablebody data")
             // Find the matching keyword data from keywordDbData by campaignId and keywordId
             const matchedKeywordData = keywordDbData.find(
               (item: {  _id: string }) =>{
@@ -131,8 +131,8 @@ const CustomTable = ({
                 <td className="text-center border font-medium p-3">
                   {data.keyword}
                 </td>
-                <td className="text-center border p-3">{data.location}</td>
-
+                {/* <td className="text-center border p-3">{data.location}</td> */}
+                 {/* <td className="text-center border p-3">{data.intent}</td> */}
                 {/* Editable Start Field */}
                 <td
                   className="text-center border cursor-pointer p-3"
@@ -162,6 +162,8 @@ const CustomTable = ({
                 <td className="text-center border p-3">{data.Group_Rank}</td>
                 <td className="text-center border p-3">{data.sevenDays}</td>
                 <td className="text-center border p-3">{data.life}</td>
+                <td className="text-center text-black border p-3">{data.comp}</td>
+                <td className="text-center text-black border p-3">{data.sv}</td>
                 <td className="text-center border p-3">{data.date}</td>
 
                 <td className="text-center border p-3">

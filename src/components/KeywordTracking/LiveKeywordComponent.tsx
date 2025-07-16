@@ -35,8 +35,8 @@ type TablebodyItems = {
   sevenDays: string;
 
   life: string;
-
-  // sv: string;
+   comp:any 
+  sv: any;
   date: string;
   rankingUrl: string;
 };
@@ -71,7 +71,7 @@ const LiveKeywordComponent = ({
   const tableHeader: Tableitems[] = [
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
     { key: "keyword", label: "Keyword" },
-    { key: "location", label: "Location" },
+    // { key: "location", label: "Location" },
     // { key: "intent", label: "Intent" },
     { key: "start", label: "Start" },
     { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
@@ -90,8 +90,8 @@ const LiveKeywordComponent = ({
     { key: "seven_days", label: "7 Days" },
     // { key: "thirty_days", label: "30 Days" },
     { key: "life", label: "Life" },
-    // { key: "comp", label: "Comp" },
-    // { key: "sv", label: "SV" },
+    { key: "comp", label: "Comp" },
+    { key: "sv", label: "SV" },
     { key: "date", label: "Date" },
     { key: "ranking_url", label: "Ranking URL" },
     { key: "edit", label: "Edit keyword" },
@@ -114,7 +114,7 @@ const LiveKeywordComponent = ({
           status: item.status,
           keywordId: item.keywordId,
           keyword: item.keyword,
-          location: item.location_name,
+          // location: item.location_name,
           // intent: "C",
           start: String(item.rank_group),
           page: Math.ceil(item.rank_absolute / 10).toString(),
@@ -124,8 +124,8 @@ const LiveKeywordComponent = ({
           sevenDays: "-",
           // thirtyDays: "-",
           life: String(item.rank_group),
-          // comp: "0",
-          // sv: "0",
+          comp: item.competition ||  "0",
+         sv:item.searchVolumn || "No",
           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "short",
@@ -146,7 +146,7 @@ const LiveKeywordComponent = ({
     if (newItem && newItem.length > 0) {
       const mappedItems = newItem.map((item: any) => ({
         keyword: item.keyword,
-        location: item.location_name,
+        // location: item.location_name,
         // intent: "C",
         start: String(item.rank_group),
         page: Math.ceil(item.rank_absolute / 10).toString(),
@@ -156,8 +156,8 @@ const LiveKeywordComponent = ({
         sevenDays: "-",
         // thirtyDays: "-",
         life: String(item.rank_absolute),
-        // comp: "0",
-        // sv: "0",
+        comp: item.competition ||  "0",
+        sv:item.searchVolumn || "No",
         date: new Date(item.createdAt).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "short",

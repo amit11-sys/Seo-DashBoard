@@ -3,7 +3,7 @@ import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
-import mongoose from "mongoose";
+
 
 export const createKeywordTracking = async (keywordData: any) => {
   try {

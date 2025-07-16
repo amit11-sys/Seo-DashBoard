@@ -305,20 +305,21 @@ export const fetchDBLocation = async (query: string) => {
     if (!user) return { error: "Unauthorized" };
 
     // Case-insensitive search in MongoDB for partial match
-    console.log(query,"fetch quary")
-
+    // console.log(query,"fetch quary")
+    // console.log('calling database with query:', query);
+    
     const matchedLocations = await Location.find({
-      locationName: { $regex: query, $options: "i" }
-    })
+      locationName: { $regex: `^${query}`, $options: "i" }
+    }).limit(50);
     // .select("locationName locationCode -_id"); // Select only required fields
 
-    console.log(matchedLocations,"matchloactins in fetch")
+    // console.log(matchedLocations,"matchloactins in fetch")
 
     if (!matchedLocations.length) {
       return { error: "No matching locations found" };
     }
 
-    console.log(matchedLocations, "Filtered locations from DB");
+    // console.log(matchedLocations, "Filtered locations from DB");
 
     return { allLocations: matchedLocations };
   } catch (error) {

@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition,
+  useMemo,
+} from "react";
 import {
   Card,
   CardContent,
@@ -31,11 +37,12 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import KeywordTextArea from "../KeywordTextArea";
+import debounce from "lodash.debounce";
 // import { getLocationData } from "@/actions/locations_Language";
 
 import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
-import { debounce } from "@/lib/Constant";
 import { getfetchDBLocation } from "@/actions/locations_Language";
+import { log } from "console";
 
 // import { getTrackingData } from "@/actions/keywordTracking";
 
@@ -51,9 +58,9 @@ interface CampaignTabsProps {
 
 export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
   const { startLoading, stopLoading } = useLoader();
-  const [searchText, setSearchText] = useState("");
-  const [locations, setLocations] = useState<string[]>([]);
-  const [languages, setLanguages] = useState<string[]>([]);
+  // const [searchText, setSearchText] = useState("");
+  // const [locations, setLocations] = useState<string[]>([]);
+  // const [languages, setLanguages] = useState<string[]>([]);
   const router = useRouter();
 
   function CountrySelector() {}
@@ -61,6 +68,41 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
     console.log("Selected country:", option);
   };
 
+  //  const [query, setQuery] = useState('');
+  // const [results, setResults] = useState<any>([]);
+  // const [isPending, startTransition] = useTransition();
+
+  // const debouncedFetch = debounce((q: string) => {
+  //   startTransition(() => {
+  //     getfetchDBLocation(q).then(setResults).catch(console.error);
+  //   });
+  // }, 300);
+
+  // useEffect(() => {
+  //   if (query.trim().length > 1) debouncedFetch(query);
+  //   return () => debouncedFetch.cancel();
+  // }, [query]);
+
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any>([]);
+  const [isPending, startTransition] = useTransition();
+
+  // ✅ Memoize debounced function so it survives re-renders
+  const debouncedFetch = useMemo(() => {
+    return debounce((q: string) => {
+      startTransition(() => {
+        getfetchDBLocation(q).then(setResults).catch(console.error);
+      });
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    if (query.trim().length > 1) debouncedFetch(query);
+    return () => {
+      debouncedFetch.cancel();
+    };
+  }, [query, debouncedFetch]);
+  // console.log("Results:", results, "Query:", query);
   const form = useForm<CampaignFormType>({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
@@ -378,27 +420,24 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
     "google.com.sb",
   ];
 
+  //   const fetchSuggestions = useCallback(
+  //   debounce(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     const query = e.target.value;
+  //     if (!query || query.length < 3) return;
 
-//   const fetchSuggestions = useCallback(
-//   debounce(async (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const query = e.target.value;
-//     if (!query || query.length < 3) return;
-
-//     try {
-//       const res = await getfetchDBLocation(query);
-//       console.log(res, "fetched locations");
-//       // setLocations(res?.allLocations)
-//     } catch (error) {
-//       console.error("Failed to fetch DB for location", error);
-//     }
-//   }, 1000),
-//   []
-// );
-
+  //     try {
+  //       const res = await getfetchDBLocation(query);
+  //       console.log(res, "fetched locations");
+  //       // setLocations(res?.allLocations)
+  //     } catch (error) {
+  //       console.error("Failed to fetch DB for location", error);
+  //     }
+  //   }, 1000),
+  //   []
+  // );
 
   // console.log(form.formState.errors.keyword?.message);
 
-  
   return (
     <Form {...form}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -574,61 +613,30 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                         control={form.control}
                         render={({ field }) => (
                           <input
-                            {...field}
-                            type="text"
-                            placeholder="Search for specialty or subspecialty..."
-                            className="w-full px-2 py-3 border-2 rounded-xl text-base transition-all duration-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 border-gray-200 hover:border-gray-300"
-                            autoComplete="off"
-                            onChange={(e) => {
-                              field.onChange(e);
-                              // fetchSuggestions(e); // debounced call
-                            }}
+                           {...field}
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            className="border px-3 py-2 w-full"
+                            placeholder="Search for location"
                           />
                         )}
                       />
-
-                      {form.formState.errors?.searchLocationCode && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {form.formState.errors?.searchLocationCode?.message}
-                        </p>
+                      {isPending && <p>Loading...</p>}
+                      {results.length > 0 && (
+                        <ul>
+                          {results.map((loc: any) => {
+                            console.log("Location:", loc);
+                            return (
+                              <li
+                                key={loc._id}
+                                // onClick={() => onSelect(loc.location_name)}
+                              >
+                                {loc.locationName}
+                              </li>
+                            );
+                          })}
+                        </ul>
                       )}
-
-                      {/* do not touch is below comments  */}
-                      {/* locations?.length > 0 && (
-                <ul
-                  className="absolute z-10 bg-white border w-full mt-1 rounded shadow text-sm max-h-60 overflow-auto"
-                  role="listbox"
-                >
-                  {locations.map((item: any) => (
-                    <li
-                      key={item._id}
-                      onMouseDown={() => {
-                        // setShouldShowSuggestions(false); // prevent re-fetch
-
-                        setValue(
-                          "specialty",
-                          item.speciality && item.sub_specialty
-                            ? `${item.speciality} - ${item.sub_specialty}`
-                            : item.speciality || ""
-                        );
-                        setValue("sub_speciality", item.sub_specialty || "");
-                        setValue("specialty_raw", item.speciality || "");
-
-                        setSpecialities([]); // hide list
-
-                        // Re-enable backend fetch after short delay
-                        // setTimeout(() => setShouldShowSuggestions(true), 300);
-                      }}
-                      className="p-2 hover:bg-gray-100 cursor-pointer"
-                      role="option"
-                    >
-                      {item.speciality && item.sub_specialty
-                        ? `${item.speciality} - ${item.sub_specialty}`
-                        : item.speciality || ""}
-                    </li>
-                  ))}
-                </ul>
-              )} */}
                     </div>
                     {/* <Controller
                       name="searchLocationCode"

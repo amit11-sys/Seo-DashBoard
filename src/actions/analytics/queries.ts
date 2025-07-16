@@ -1,6 +1,6 @@
 export const fetchLievKeyword = async (url: string) => {
-  const username = process.env.DATAFORSEO_USERNAME!;
-  const password = process.env.DATAFORSEO_PASSWORD!;
+  const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME!;
+  const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD!;
 
   const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
   const post_array = [];

@@ -269,7 +269,9 @@ interface DropDownListProps {
   showArrow?: boolean;
   showSwitch?: boolean;
   switchName?: string;
-  onChange?: (selected: SingleValue<OptionType>) => void | Promise<void>;
+  // onChange?: (selected: SingleValue<OptionType>) => void | Promise<void>;
+  onChange?: any;
+
   errorMessage?: string;
   className?:string;
 }

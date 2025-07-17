@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import KeywordTextArea from "@/components/KeywordTextArea";
 import debounce from "lodash.debounce";
 import { getfetchDBLocation } from "@/actions/locations_Language";
+import { useLoader } from "@/hooks/useLoader";
 // import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 // const schema = z.object({
@@ -42,6 +43,7 @@ interface compaignid {
   campaignId: string;
 }
 const DialogForm = (campaignId: any) => {
+    const { startLoading, stopLoading } = useLoader();
   const form = useForm({
     resolver: zodResolver(addKeywordsSchema),
     defaultValues: {
@@ -137,6 +139,7 @@ const DialogForm = (campaignId: any) => {
     };
 
     console.log(payload, "add kewywords front end data payloadd");
+    startLoading()
     try {
       const res = await fetch("/api/add-keywords", {
         method: "POST",
@@ -175,6 +178,7 @@ const DialogForm = (campaignId: any) => {
 
       setKeywords([]);
       setOpen(false);
+      stopLoading()
       // await getDbLiveKeywordData(campaignId.campaignId)
     } catch (error) {
       console.error("Submission Error:", error);

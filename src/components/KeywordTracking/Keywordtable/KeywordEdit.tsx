@@ -28,6 +28,7 @@ import {
 } from "@/actions/keywordTracking";
 import debounce from "lodash.debounce";
 import { getfetchDBLocation } from "@/actions/locations_Language";
+import { useLoader } from "@/hooks/useLoader";
 
 const editKeywordsSchema = z.object({
   url: z.string().url("Invalid URL"),
@@ -56,6 +57,7 @@ const EditKeywords = ({
   showAddedKeyword,
   setTableBody, // Optional: if you want to update the table body after editing
 }: EditKeywordsProps) => {
+    const { startLoading, stopLoading } = useLoader();
   const form = useForm<z.infer<typeof editKeywordsSchema>>({
     resolver: zodResolver(editKeywordsSchema),
   });
@@ -156,6 +158,7 @@ const EditKeywords = ({
     };
 
     console.log(payload, "edit");
+    startLoading()
     try {
       const Response = await createUpdateKeywordById(payload);
       const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
@@ -205,6 +208,7 @@ const EditKeywords = ({
         volumeLocationCode: 0,
         keywords: "",
       });
+       stopLoading()
 
       setOpen(false);
       // Optional: form.reset(); or refresh logic

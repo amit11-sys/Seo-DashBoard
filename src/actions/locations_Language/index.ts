@@ -2,11 +2,11 @@
 
 import { fetchDBLocation, fetchLocation, getLocation_language } from "./queries";
 
-export const getLocation_languageData = async () => {
-  const getLocationData = await getLocation_language();
+// export const getLocation_languageData = async () => {
+//   const getLocationData = await getLocation_language();
 
-  return getLocationData;
-};
+//   return getLocationData;
+// };
 export const getDbLocationData = async () => {
   const getLocationData = await fetchLocation();
 

@@ -16,7 +16,7 @@ interface TablebodyItems {
   keywordId: string;
   status: number;
   // location: string;
-  // intent: string;
+  intent: string;
   start: string;
   page: string;
   Absolute_Rank: string;
@@ -45,7 +45,7 @@ const CustomTable = ({
   setTableBody,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
-
+console.log(tableData,"table data")
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
   useEffect(() => {
     const FetchKeyWordsDb = async () => {
@@ -132,7 +132,7 @@ const CustomTable = ({
                   {data.keyword}
                 </td>
                 {/* <td className="text-center border p-3">{data.location}</td> */}
-                 {/* <td className="text-center border p-3">{data.intent}</td> */}
+                 <td className="text-center border p-3">{data.intent}</td>
                 {/* Editable Start Field */}
                 <td
                   className="text-center border cursor-pointer p-3"

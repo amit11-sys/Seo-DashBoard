@@ -35,7 +35,7 @@ type TablebodyItems = {
   sevenDays: string;
 
   life: string;
-   comp:any 
+  comp: any;
   sv: any;
   date: string;
   rankingUrl: string;
@@ -55,16 +55,14 @@ interface LiveKeywordComponentProps {
     success?: boolean;
     message?: string;
     error?: string;
-    LiveKeywordDbData?: any[];
+    newLiveKeywordDbData?: any[];
   };
   campaignId: string;
- 
 }
 
 const LiveKeywordComponent = ({
   campaignLiveKeywordsData,
   campaignId,
-
 }: LiveKeywordComponentProps) => {
   const [tableBody, setTableBody] = useState<any[]>([]);
 
@@ -72,7 +70,7 @@ const LiveKeywordComponent = ({
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
     { key: "keyword", label: "Keyword" },
     // { key: "location", label: "Location" },
-    // { key: "intent", label: "Intent" },
+    { key: "intent", label: "Intent" },
     { key: "start", label: "Start" },
     { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
     {
@@ -107,33 +105,37 @@ const LiveKeywordComponent = ({
   // console.log(campaignLiveKeywordsData, "use effect data");
 
   const keywordTableData = async () => {
-    if (campaignLiveKeywordsData.LiveKeywordDbData) {
-      const data = campaignLiveKeywordsData.LiveKeywordDbData.map(
-        (item: any) => ({
-          // select: false,
-          status: item.status,
-          keywordId: item.keywordId,
-          keyword: item.keyword,
-          // location: item.location_name,
-          // intent: "C",
-          start: String(item.rank_group),
-          page: Math.ceil(item.rank_absolute / 10).toString(),
-          Absolute_Rank: String(item.rank_absolute),
-          Group_Rank: String(item.rank_group),
-          // oneDay: "1",
-          sevenDays: "-",
-          // thirtyDays: "-",
-          life: String(item.rank_group),
-          comp: item.competition ||  "0",
-         sv:item.searchVolumn || "No",
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item.url,
-          // rankingUrl: new URL(item.url) || "/",
-        })
+    if (campaignLiveKeywordsData.newLiveKeywordDbData) {
+      const data = campaignLiveKeywordsData.newLiveKeywordDbData.map(
+        
+        (item: any) => {
+          console.log(item,"inside live keyword components ")
+          return {
+            // select: false,
+            status: item.status,
+            keywordId: item.keywordId,
+            keyword: item.keyword,
+            // location: item.location_name.locationName.locationName,
+            intent: item.intent || "",
+            start: String(item.rank_group),
+            page: Math.ceil(item.rank_absolute / 10).toString(),
+            Absolute_Rank: String(item.rank_absolute),
+            Group_Rank: String(item.rank_group),
+            // oneDay: "1",
+            sevenDays: "-",
+            // thirtyDays: "-",
+            life: String(item.rank_group),
+            comp: item.competition || 0,
+            sv: item.searchVolumn || 0,
+            date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "2-digit",
+            }),
+            rankingUrl: item.url,
+            // rankingUrl: new URL(item.url) || "/",
+          };
+        }
       );
       setTableBody(data);
     }
@@ -146,8 +148,8 @@ const LiveKeywordComponent = ({
     if (newItem && newItem.length > 0) {
       const mappedItems = newItem.map((item: any) => ({
         keyword: item.keyword,
-        // location: item.location_name,
-        // intent: "C",
+        //  location: item?.location_name?.locationName?.locationName,
+         intent: item.intent || "",
         start: String(item.rank_group),
         page: Math.ceil(item.rank_absolute / 10).toString(),
         Absolute_Rank: String(item.rank_absolute),
@@ -156,8 +158,8 @@ const LiveKeywordComponent = ({
         sevenDays: "-",
         // thirtyDays: "-",
         life: String(item.rank_absolute),
-        comp: item.competition ||  "0",
-        sv:item.searchVolumn || "No",
+        comp: item.competition || 0,
+        sv: item.searchVolumn || 0,
         date: new Date(item.createdAt).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "short",
@@ -177,7 +179,6 @@ const LiveKeywordComponent = ({
         <LiveKeyTrakingHeader
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
-         
         />
       </div>
 
@@ -191,10 +192,6 @@ const LiveKeywordComponent = ({
           setTableBody={setTableBody}
         />
       </div>
-
-
-
-      
     </div>
   );
 };

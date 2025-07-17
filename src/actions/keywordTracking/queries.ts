@@ -3,7 +3,7 @@ import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
-
+import Location from "@/lib/models/Location.model";
 
 export const createKeywordTracking = async (keywordData: any) => {
   try {
@@ -85,7 +85,7 @@ export const getUserKeywordData = async (newCompaignId: any) => {
       return { error: "Unauthorized" };
     }
     // console.log(user);
-    console.log(newCompaignId,"newkeywordCampaign")
+    console.log(newCompaignId, "newkeywordCampaign");
     const campaignKeywords = await Keyword.find({
       CampaignId: newCompaignId?.CampaignId,
     });
@@ -119,12 +119,27 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     // }
     // console.log(user);
     // console.log(newCompaignId,"newkeywordCampaign")
-    const LiveKeywordDbData = await KeywordTracking.find({
-      campaignId: newCompaignId,
-      status: 1,
-    });
 
-    // console.log(campaignKeywords,"fromkeywordtracking")
+
+  const LiveKeywordDbData = await KeywordTracking.find({
+  campaignId: newCompaignId,
+  status: 1,
+});
+console.log(LiveKeywordDbData,"live datat from db to table")
+
+//  add location in data 
+const newLiveKeywordDbData = await Promise.all(
+  LiveKeywordDbData.map(async (item) => {
+    const locationName = await fetchDBlocationData(item.location_code);
+    console.log(item,"location map")
+    return {
+      ...item._doc, 
+      location_name: locationName || '', 
+    };
+  })
+);
+
+console.log(newLiveKeywordDbData,"realdata");
 
     if (!LiveKeywordDbData) {
       return { error: "Error while getting LiveKeywordDbData" };
@@ -133,7 +148,41 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     return {
       success: true,
       message: "LiveKeywordDbData Successfully Found",
-      LiveKeywordDbData,
+      newLiveKeywordDbData,
+      // locationName,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+
+export const fetchDBlocationData = async (locationcode: number) => {
+  try {
+    await connectToDB();
+
+    // const user = await getUserFromToken();
+    // if (!user) {
+    //   return { error: "Unauthorized" };
+    // }
+    // console.log(user);
+    // console.log(newCompaignId,"newkeywordCampaign")
+    const locationName = await Location.findOne({
+      locationCode: locationcode,
+    });
+
+    // console.log(campaignKeywords,"fromkeywordtracking")
+
+    if (!locationName) {
+      return { error: "Error while getting locationName" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "locationName Successfully Found",
+      locationName,
     };
     // }
   } catch (error) {

@@ -1,6 +1,6 @@
 "use server";
 
-import {  deleteKeywordById, saveMultipleKeyword, updateKeywordById } from "./queries";
+import {  deleteKeywordById,  saveMultipleKeyword, updateKeywordById } from "./queries";
 
 // export const addKeyword=async (keyword:{})=>{
 //     const addKeyword= await saveKeyword(keyword)
@@ -39,3 +39,22 @@ export const deleteKeywordData = async (deletedData:any) => {
   const deleteKeyworddata = await deleteKeywordById(deletedData);
   return deleteKeyworddata;
 };
+interface compaigntype {
+  _id: string;
+}
+// export const getVolumnRank = async (KeywordData:any) => {
+//   // console.log(keyword,"rttdt");
+
+//   const volumnRankData = await volumnRank(KeywordData);
+//   return volumnRankData;
+// };
+// export const getRankIntent = async (KeywordData:any) => {
+//   // console.log(keyword,"rttdt");
+
+//   const rankIntentData = await rankIntent(KeywordData);
+//   return rankIntentData;
+// };
+// export const getKewordRank = async (KeywordData:any) => {
+//   const kewordRankData = await kewordRank(KeywordData);
+//   return kewordRankData;
+// };

@@ -38,28 +38,28 @@ export const campaignSchema = z.object({
   url: z.string().url({ message: "Please enter a valid URL" }),
   searchLocationCode: z.number().min(1, { message: "Search Location is required" }),
   keywordTag: z.string().optional(),
-  SearchEngine: z.string().optional(),
+  SearchEngine: z.string().min(1, { message: "Search Engine is required" }),
   // keyword: z.string().min(1, { message: "Please provide at least one keyword" }),
   keyword: z.array(
     z.string().min(1, { message: "Please provide at least one keyword" })
   ),
 
-  volumeLocationCode: z.number().optional(),
+  volumeLocationCode: z.number().min(1, { message: "Search volumn Location is required" }),
   language: z.string().min(1, { message: "Language is required" }),
   serpType: z.string().optional(),
-  deviceType: z.string().optional(),
+  deviceType: z.string().min(1, { message: "DeviceType is required" }),
 });
 
 export const addKeywordsSchema = z.object({
   url: z.string().url({ message: "Please enter a valid URL" }),
-  searchLocationCode: z.string().min(1, { message: "Search Location is required" }),
+  searchLocationCode: z.number().min(1, { message: "Search Location is required" }),
   keywordTag: z.string().optional(),
   SearchEngine: z.string().optional(),
   keywords: z.array(
     z.string().min(1, { message: "Please provide at least one keyword" })
   ),
-  volumeLocationCode: z.string().optional(),
+  volumeLocationCode: z.number().optional(),
   language: z.string().min(1, { message: "Language is required" }),
   serpType: z.string().optional(),
-  deviceType: z.string().optional(),
+  deviceType: z.string().min(1, { message: "DeviceType is required" }),
 });

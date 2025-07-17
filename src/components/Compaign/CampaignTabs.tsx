@@ -56,7 +56,7 @@ interface CampaignTabsProps {
   location_and_language: LocationAndLanguageType;
 }
 
-export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
+export function CampaignTabs() {
   const { startLoading, stopLoading } = useLoader();
   // const [searchText, setSearchText] = useState("");
   // const [locations, setLocations] = useState<string[]>([]);
@@ -184,10 +184,10 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
   // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
   // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
 
-  useEffect(() => {
-    setLanguage(location_and_language.allLanguages);
-    setLocation(location_and_language.allLocations);
-  }, []);
+  // useEffect(() => {
+  //   setLanguage(location_and_language.allLanguages);
+  //   setLocation(location_and_language.allLocations);
+  // }, []);
 
   const onHandleVolumn = (countryCode: number) => {};
   const handleCampaignSubmit = async () => {
@@ -543,14 +543,17 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                               setQuery(e.target.value);
                               field.onChange(e.target.value); // Update form state
                             }}
-                            className="border px-3 py-2 w-full"
+                            className=" w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm "
                             placeholder="Search for location"
                           />
                         )}
                       />
-                      {isPending && <p>Loading...</p>}
+
                       {results.length > 0 && (
-                        <ul className="absolute bg-white border border-gray-300 z-10 w-full">
+                        <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
+                          {isPending && (
+                            <p className="text-green-500">Loading...</p>
+                          )}
                           {results.map((loc: any) => {
                             console.log("Location:", loc);
                             return (
@@ -564,7 +567,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                                   setQuery(loc.locationName); // Update input with selected location
                                   setResults([]); // Clear results after selection
                                 }}
-                                className="cursor-pointer hover:bg-gray-100 p-2"
+                                className="cursor-pointer hover:bg-gray-100 border border-gray-200 p-2"
                               >
                                 {loc.locationName}
                               </li>
@@ -572,45 +575,10 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                           })}
                         </ul>
                       )}
+                      <div className="w-full text-sm text-red-500">
+                        {form.formState.errors.searchLocationCode?.message}
+                      </div>
                     </div>
-                    {/* <Controller
-                      name="searchLocationCode"
-                      control={form.control}
-                      render={({ field }) => (
-                        <DropDownList
-                          listData={countries}
-                          icon={<FcGoogle className=" text-xl" />}
-                          listName="Search Location"
-                          value={field.value}
-                           onChange={(selected: any) =>
-                            field.onChange(selected?.value)
-                          }
-                        />
-
-                      
-                      )}
-                    />
-                    {/* <Controller
-                      name="searchLocation"
-                      control={form.control}
-                      render={({ field }) => (
-                        <DropDownList
-                          showArrow={false}
-                          listData={location}
-                          icon={
-                            <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                          }
-                          listName="Search Location"
-                          value={field.value}
-                        onChange={(selected) => field.onChange(selected?.value)}
-                          className={`${form.formState.errors.searchLocation?.message && "border-red-500 animate-shake "}`}
-
-                          // errorMessage={
-                          //   form.formState.errors.searchLocation?.message
-                          // }
-                        />
-                      )}
-                    /> */}
                   </div>
 
                   <div className="flex-1 flex justify-start items-start">
@@ -626,14 +594,20 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                               setVolumnQuery(e.target.value);
                               field.onChange(e.target.value);
                             }}
-                            className="border px-3 py-2 w-full"
-                            placeholder="Search for location"
+                            className="w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm"
+                            placeholder="Search for Volume location"
                           />
                         )}
                       />
-                      {isPendingvolumndata && <p>Loading...</p>}
+                       <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.volumeLocationCode?.message}
+                </div>
+
                       {VolumeLocation.length > 0 && (
-                        <ul className="absolute bg-white border border-gray-300 z-10 w-full">
+                        <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
+                          {isPendingvolumndata && (
+                            <p className="text-green-500">Loading...</p>
+                          )}
                           {VolumeLocation.map((loc: any) => (
                             <li
                               key={loc._id}
@@ -655,9 +629,7 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                     </div>
                   </div>
                 </div>
-                <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.searchLocationCode?.message}
-                </div>
+               
               </div>
 
               {/* ----- */}
@@ -676,6 +648,9 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                   />
                 )}
               />
+               <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.SearchEngine?.message}
+                </div>
               <Controller
                 name="language"
                 control={form.control}
@@ -695,40 +670,47 @@ export function CampaignTabs({ location_and_language }: CampaignTabsProps) {
                 )}
               />
               <div className="w-full gap-5 flex md:flex-nowrap flex-wrap   items-center">
-                <Controller
-                  name="serpType"
-                  control={form.control}
-                  render={({ field }) => (
-                    <DropDownList
-                      listData={["organic + local", "organic", "Local"]}
-                      icon={
-                        <LiaSearchLocationSolid className="text-blue-500 text-xl" />
-                      }
-                      listName="SERP Type"
-                      value={field.value}
-                      onChange={(selected: any) =>
-                        field.onChange(selected?.value)
-                      }
-                    />
-                  )}
-                />
-                <Controller
-                  name="deviceType"
-                  control={form.control}
-                  render={({ field }) => (
-                    <DropDownList
-                      listData={["desktop", "mobile"]}
-                      icon={
-                        <MdOutlineDevices className="text-blue-500 text-xl" />
-                      }
-                      listName="Device Type"
-                      value={field.value}
-                      onChange={(selected: any) =>
-                        field.onChange(selected?.value)
-                      }
-                    />
-                  )}
-                />
+                <div className="flex-1">
+                  <Controller
+                    name="serpType"
+                    control={form.control}
+                    render={({ field }) => (
+                      <DropDownList
+                        listData={["organic + local", "organic", "Local"]}
+                        icon={
+                          <LiaSearchLocationSolid className="text-blue-500 text-xl" />
+                        }
+                        listName="SERP Type"
+                        value={field.value}
+                        onChange={(selected: any) =>
+                          field.onChange(selected?.value)
+                        }
+                      />
+                    )}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Controller
+                    name="deviceType"
+                    control={form.control}
+                    render={({ field }) => (
+                      <DropDownList
+                        listData={["desktop", "mobile"]}
+                        icon={
+                          <MdOutlineDevices className="text-blue-500 text-xl" />
+                        }
+                        listName="Device Type"
+                        value={field.value}
+                        onChange={(selected: any) =>
+                          field.onChange(selected?.value)
+                        }
+                      />
+                    )}
+                  />
+                  <div className="w-full text-sm text-red-500">
+                    {form.formState.errors.deviceType?.message}
+                  </div>
+                </div>
               </div>
             </Card>
           </motion.div>

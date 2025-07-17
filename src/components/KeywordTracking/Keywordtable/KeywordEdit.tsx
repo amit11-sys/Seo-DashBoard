@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState, useTransition } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,16 +26,18 @@ import {
   getDbLiveKeywordData,
   getTrackingData,
 } from "@/actions/keywordTracking";
+import debounce from "lodash.debounce";
+import { getfetchDBLocation } from "@/actions/locations_Language";
 
 const editKeywordsSchema = z.object({
   url: z.string().url("Invalid URL"),
   keywordTag: z.string().optional(),
-  searchLocationCode: z.string().min(1, "Location is required"),
-  volumeLocationCode: z.string().optional(),
+  searchLocationCode: z.number().min(1, "Location is required"),
+  volumeLocationCode: z.number().min(1, "Location is required"),
   language: z.string().min(1, "Language is required"),
-  SearchEngine: z.string().optional(),
+  SearchEngine: z.string().min(1, "Search engine is required"),
   serpType: z.string().optional(),
-  deviceType: z.string().optional(),
+  deviceType: z.string().min(1, "Device type is required"),
   keywords: z.string().min(1, "Enter at least one keyword"),
 });
 
@@ -55,8 +57,7 @@ const EditKeywords = ({
   setTableBody, // Optional: if you want to update the table body after editing
 }: EditKeywordsProps) => {
   const form = useForm<z.infer<typeof editKeywordsSchema>>({
-    resolver: zodResolver(editKeywordsSchema)
-    
+    resolver: zodResolver(editKeywordsSchema),
   });
   console.log(defaultData, "defaultttt");
   const [tagsInput, setTagsInput] = useState("");
@@ -65,6 +66,42 @@ const EditKeywords = ({
   );
   const [keywordError, setKeywordError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [volumnQuery, setVolumnQuery] = useState("");
+  const [results, setResults] = useState<any>([]);
+  const [VolumeLocation, setVolumeLocation] = useState<any>([]);
+  const [isPending, startTransition] = useTransition();
+  const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
+
+  // ✅ Memoize debounced function so it survives re-renders
+  const debouncedFetch = useMemo(() => {
+    return debounce((q: string) => {
+      startTransition(() => {
+        getfetchDBLocation(q).then(setResults).catch(console.error);
+      });
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    if (query.trim().length > 1) debouncedFetch(query);
+    return () => {
+      debouncedFetch.cancel();
+    };
+  }, [query, debouncedFetch]);
+  const debouncedFetchvolumn = useMemo(() => {
+    return debounce((q: string) => {
+      startTransitionVolumndata(() => {
+        getfetchDBLocation(q).then(setVolumeLocation).catch(console.error);
+      });
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    if (volumnQuery.trim().length > 1) debouncedFetchvolumn(volumnQuery);
+    return () => {
+      debouncedFetchvolumn.cancel();
+    };
+  }, [volumnQuery, debouncedFetchvolumn]);
 
   useEffect(() => {
     form.reset({
@@ -123,14 +160,14 @@ const EditKeywords = ({
       const Response = await createUpdateKeywordById(payload);
       const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
       let data: any = [];
-      if (campaignLiveKeywordsData.LiveKeywordDbData) {
-        data = campaignLiveKeywordsData.LiveKeywordDbData.map((item: any) => ({
+      if (campaignLiveKeywordsData.newLiveKeywordDbData) {
+        data = campaignLiveKeywordsData.newLiveKeywordDbData.map((item: any) => ({
           // select: false,
           status: item.status,
           keywordId: item.keywordId,
           keyword: item.keyword,
           location: item.location_name,
-          // intent: "C",
+          intent: item.intent || "C",
           start: String(item.rank_group),
           page: Math.ceil(item.rank_absolute / 10).toString(),
           Absolute_Rank: String(item.rank_absolute),
@@ -139,8 +176,8 @@ const EditKeywords = ({
           sevenDays: "-",
           // thirtyDays: "-",
           life: String(item.rank_group),
-          // comp: "0",
-          // sv: "0",
+          comp: item.competition || "0",
+          sv: item.searchVolumn || "0",
           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "short",
@@ -160,12 +197,12 @@ const EditKeywords = ({
       form.reset({
         url: "",
         keywordTag: "",
-        searchLocationCode: "",
+        searchLocationCode: 0,
         language: "",
         SearchEngine: "",
         serpType: "",
         deviceType: "",
-        volumeLocationCode: "",
+        volumeLocationCode: 0,
         keywords: "",
       });
 
@@ -458,7 +495,7 @@ const EditKeywords = ({
                   />
                 )}
               />
-              <Controller
+              {/* <Controller
                 name="searchLocationCode"
                 control={form.control}
                 render={({ field }) => (
@@ -475,8 +512,54 @@ const EditKeywords = ({
                     }
                   />
                 )}
-              />
-              <Controller
+              /> */}
+              <div className="relative">
+                <Controller
+                  name="searchLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      value={query}
+                      onChange={(e) => {
+                        setQuery(e.target.value);
+                        field.onChange(e.target.value); // Update form state
+                      }}
+                      className=" w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm "
+                      placeholder="Search for location"
+                    />
+                  )}
+                />
+
+                {results.length > 0 && (
+                  <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
+                    {isPending && <p className="text-green-500">Loading...</p>}
+                    {results.map((loc: any) => {
+                      console.log("Location:", loc);
+                      return (
+                        <li
+                          key={loc._id}
+                          onClick={() => {
+                            form.setValue(
+                              "searchLocationCode",
+                              loc.locationCode
+                            );
+                            setQuery(loc.locationName); // Update input with selected location
+                            setResults([]); // Clear results after selection
+                          }}
+                          className="cursor-pointer hover:bg-gray-100 border border-gray-200 p-2"
+                        >
+                          {loc.locationName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.searchLocationCode?.message}
+                </div>
+              </div>
+              {/* <Controller
                 name="volumeLocationCode"
                 control={form.control}
                 render={({ field }) => (
@@ -487,10 +570,54 @@ const EditKeywords = ({
                     }
                     listName="Volume Location"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                   />
                 )}
-              />
+              /> */}
+              <div className="relative">
+                <Controller
+                  name="volumeLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      value={volumnQuery}
+                      onChange={(e) => {
+                        setVolumnQuery(e.target.value);
+                        field.onChange(e.target.value);
+                      }}
+                      className="w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm"
+                      placeholder="Search for Volume location"
+                    />
+                  )}
+                />
+                <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.volumeLocationCode?.message}
+                </div>
+
+                {VolumeLocation.length > 0 && (
+                  <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
+                    {isPendingvolumndata && (
+                      <p className="text-green-500">Loading...</p>
+                    )}
+                    {VolumeLocation.map((loc: any) => (
+                      <li
+                        key={loc._id}
+                        onClick={() => {
+                          form.setValue("volumeLocationCode", loc.locationCode);
+                          setVolumnQuery(loc.locationName);
+                          setVolumeLocation([]);
+                        }}
+                        className="cursor-pointer hover:bg-gray-100 p-2"
+                      >
+                        {loc.locationName}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <Controller
                 name="language"
                 control={form.control}
@@ -502,7 +629,9 @@ const EditKeywords = ({
                     }
                     listName="Language"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                     errorMessage={form.formState.errors.language?.message}
                   />
                 )}
@@ -534,7 +663,9 @@ const EditKeywords = ({
                     icon={<FcGoogle className="text-xl" />}
                     listName="Search Engine"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                   />
                 )}
               />
@@ -549,7 +680,9 @@ const EditKeywords = ({
                     }
                     listName="SERP Type"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                   />
                 )}
               />
@@ -564,7 +697,9 @@ const EditKeywords = ({
                     }
                     listName="Device Type"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                   />
                 )}
               />

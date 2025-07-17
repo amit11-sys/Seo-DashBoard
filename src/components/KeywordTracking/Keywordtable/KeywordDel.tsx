@@ -56,8 +56,8 @@ const DeleteConfirm = ({
       if (res.success) {
           const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
       let data: any = [];
-      if (campaignLiveKeywordsData.LiveKeywordDbData) {
-        data = campaignLiveKeywordsData.LiveKeywordDbData.map((item: any) => ({
+      if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+        data = campaignLiveKeywordsData?.newLiveKeywordDbData.map((item: any) => ({
           // select: false,
           status: item.status,
           keywordId: item.keywordId,

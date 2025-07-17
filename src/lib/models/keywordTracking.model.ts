@@ -12,7 +12,10 @@ const KeywordTrackingSchema = new mongoose.Schema(
     keyword: { type: String },
     location_name: { type: String }, // 3
      searchVolumn: { type: Number },
+     intent:{ type: String },
      competition: { type: Number },
+     start:{ type: Number },
+    //  competition: { type: Number },
     //  intent: { type: String },
     // SearchEngine:{ type: String },
     // language :  { type: String }, // "en"

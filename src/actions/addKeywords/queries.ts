@@ -3,7 +3,8 @@ import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import { getDbLiveKeywordData } from "../keywordTracking";
-import { getLocation_languageData } from "../locations_Language";
+// import { getLocation_languageData } from "../locations_Language";
+import { getKewordRank, getRankIntent, getVolumnRank } from "../keyword/queries";
 interface KeywordPayload {
   keyword: string;
   location_code: number;
@@ -43,175 +44,68 @@ export const addkeywords = async (formData: any) => {
       })
     );
 
-    // console.log(newAddKeyword,"response for id")
-    // const
-    // const payload: KeywordPayload[] = newAddKeyword.map((keywordObj: any) => ({
-    //   keyword: keywordObj.keywords,
-    //   location_code:Number(keywordObj.searchLocationCode),
-       
-    //   language_name:
-    //     keywordObj.language.charAt(0).toUpperCase() +
-    //     keywordObj.language.slice(1).toLowerCase(),
-    //   target: keywordObj.url,
-    // device:keywordObj.deviceType,
-    //    se_domain:keywordObj.SearchEngine
+    console.log(newAddKeyword,"newAddKeyword in add")
 
-    // }));
-      const rankPayload: KeywordPayload[] = newAddKeyword.map((keywordObj: any) => ({
-      keyword: keywordObj.keywords,
-      location_code: Number(keywordObj.searchLocationCode),
-      language_name: keywordObj.language,
-      target: keywordObj.url,
-      device: keywordObj.deviceType,
-      se_domain: keywordObj.SearchEngine,
-    }));
-    const volumnPayload = newAddKeyword.map((keywordObj: any) => ({
-      keywords: [keywordObj.keywords],
-      location_code: Number(keywordObj.volumeLocationCode),
-      language_name: keywordObj.language,
-      target: keywordObj.url,
-      device: keywordObj.deviceType,
-      se_domain: keywordObj.SearchEngine,
-    }));
+const rankdata = await getKewordRank(newAddKeyword)
+    const VolumnData = await getVolumnRank(newAddKeyword)
+    const intentData = await getRankIntent(newAddKeyword)
 
-    // console.log(payload, "new payload");
-    const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    console.log(rankdata?.rankResponses,"rankdata add")
+    console.log(VolumnData?.volumnResponses,"volumn data add")
+    console.log(intentData?.intentResponses,"intent data add")
 
+const finalData = rankdata && 'rankResponses' in rankdata
+  ? rankdata?.rankResponses?.map((rankItem: any) => {
+    console.log(rankItem,"rankItem in add")
+      const task = rankItem?.response?.tasks?.[0];
+      const data = task?.result?.[0];
+      const keyword = data?.keyword;
 
-      const rankResponses: KeywordResponse[] = [];
-    const volumnResponses: KeywordResponse[] = [];
-
-     for (const item of rankPayload) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${basicAuth}`,
-          },
-          body: JSON.stringify([item]),
-        }
+      const matchedKeyword = newAddKeyword.find((k:any) => k.keywords?.toLowerCase() === keyword?.toLowerCase());
+          console.log(matchedKeyword,"matchedKeyword in add")
+      // Get corresponding volume data for this keyword
+      const volumnResponse = VolumnData?.volumnResponses?.find(v => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase());
+      const volumeItem = volumnResponse?.response?.tasks?.[0]?.result?.find((v: any) =>
+        v.keyword?.toLowerCase() === keyword?.toLowerCase()
       );
+      const matchSearchVolumn = volumeItem?.search_volume ?? 0;
+       const matchcompetition = volumeItem?.competition ?? 0;
 
-      if (!res.ok) {
-        const errorBody = await res.text();
-        console.error(
-          `Request failed for ${item.keyword}: ${res.status} - ${errorBody}`
-        );
-        rankResponses.push({ keyword: item.keyword, response: null });
-      } else {
-        const result = await res.json();
+      // Get corresponding intent data for this keyword
+      const intentResponse = intentData?.intentResponses?.find(i => i.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase());
+      const intentItem = intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find((i: any) =>{
+          console.log(i,"inside intemt items add")
+       return  i.keyword?.toLowerCase() === keyword?.toLowerCase()
 
-        rankResponses.push({ keyword: item.keyword, response: result });
       }
-    }
-    for (const item of volumnPayload) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"keywords_data/google/search_volume/live"}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${basicAuth}`,
-          },
-          body: JSON.stringify([item]),
-        }
       );
+       console.log(intentResponse?.response?.tasks[0].result[0],"intent itmes in add task")
+      console.log(intentItem,"intent item itmes add")
+      const matchIntent = intentItem?.keyword_intent?.label ?? '';
 
-      if (!res.ok) {
-        const errorBody = await res.text();
-        console.error(
-          `Request failed for ${item.keywords}: ${res.status} - ${errorBody}`
-        );
-        volumnResponses.push({ keyword: item.keywords, response: null });
-      } else {
-        const result = await res.json();
-
-        volumnResponses.push({ keyword: item.keywords, response: result });
-      }
-    }
-    // console.log(responses.response, "response a gyea ");
-
-    const createdRecords: any[] = [];
-const res = await getLocation_languageData();
-          const locationData = res?.allLocations;
      
 
- volumnResponses.forEach((vol) => {
-      rankResponses.forEach((item: any) => {
-        console.log(item?.response?.tasks, "response a gyea task");
+      return {
+        type: task?.data?.se_type,
+        location_code: data?.location_code || 2124,
+        language_code: data?.language_code || "en",
+       
+        url: task?.data?.target?.trim() || "no ranking",
+        rank_group: data?.items?.[0]?.rank_group || 0,
+        rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+        keyword: keyword || "",
+        searchVolumn: matchSearchVolumn,
+        intent: matchIntent,
+         competition:matchcompetition,
+        campaignId: campaignId,
+        keywordId: matchedKeyword?._id,
+         start:  data?.items?.[0]?.rank_group || 0,
+      };
+    })
+  : [];
 
-        item?.response?.tasks?.forEach((task: any) => {
-          const keyword = task?.data?.keyword;
-
-          const results = task?.result?.flatMap((data: any) => {
-            console.log(task?.result, "locations check");
-
-            // Find the matching keyword document
-            const matchedKeyword = newAddKeyword.find(
-              (newAddKeyword) => newAddKeyword.keywords === keyword
-            );
-
-            const matchLangName = locationData?.find(
-              (lang) => lang.locationCode === data?.location_code
-            );
-
-            // Find the corresponding search volume for the keyword and location
-            const matchSearchVolumn =
-              vol?.response?.tasks?.flatMap((vTask: any) =>
-                vTask?.result?.filter(
-                  (volData: any) =>
-                    volData.keyword === keyword &&
-                    volData.location_code === data?.location_code
-                )
-              )[0]?.search_volume || 0;
-            const matchcompetition =
-              vol?.response?.tasks?.flatMap((vTask: any) =>
-                vTask?.result?.filter(
-                  (volData: any) =>
-                    volData.keyword === keyword &&
-                    volData.location_code === data?.location_code
-                )
-              )[0]?.competition || 0;
-
-            console.log(matchedKeyword, "during campaign match data");
-
-            return [
-              {
-                type: task?.data?.se_type,
-                location_code: data?.location_code || 2124,
-                language_code: data?.language_code || "en",
-                location_name: matchLangName?.locationName || "",
-                url: task?.data?.target || "no ranking",
-                rank_group: data?.items?.[0]?.rank_group || 0,
-                rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-                keyword: keyword || "",
-                searchVolumn: matchSearchVolumn,
-                competition: matchcompetition,
-                // SearchEngine:  task?.data?.se_domain,
-                // language: task?.data?.language_name,
-                // deviceType:task?.data?.device,
-                campaignId: campaignId,
-                keywordId: matchedKeyword?._id,
-              },
-            ];
-          });
-
-          if (results?.length) {
-            createdRecords.push(...results);
-          }
-        });
-      });
-    });
-
-
-    // console.log(createdRecords, "all records pushed ✅");
-
-    // console.log(createdRecords, "one keyword add");
-
-    const addedKeywords = await KeywordTracking.insertMany(createdRecords);
-    // console.log(addedKeywords,"return keywrods")
+    const addedKeywords = await KeywordTracking.insertMany(finalData);
+    console.log(addedKeywords,"return keywrods add")
 
     return {
       success: true,

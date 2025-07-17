@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState, useTransition } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,8 @@ import { addKeywordsSchema } from "@/lib/zod";
 // import { createNewkeywords } from "@/actions/addKeywords";
 import { toast } from "sonner";
 import KeywordTextArea from "@/components/KeywordTextArea";
+import debounce from "lodash.debounce";
+import { getfetchDBLocation } from "@/actions/locations_Language";
 // import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 // const schema = z.object({
@@ -45,12 +47,12 @@ const DialogForm = (campaignId: any) => {
     defaultValues: {
       url: "",
       keywordTag: "",
-      searchLocationCode: "",
+      searchLocationCode: 0,
       language: "",
       SearchEngine: "",
       serpType: "",
       deviceType: "",
-      volumeLocationCode: "",
+      volumeLocationCode: 0,
       keywords: [],
     },
   });
@@ -60,6 +62,43 @@ const DialogForm = (campaignId: any) => {
   const [KeywordsText, setKeywordsText] = useState<any>("");
   const [keywordError, setKeywordError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+
+  const [query, setQuery] = useState("");
+  const [volumnQuery, setVolumnQuery] = useState("");
+  const [results, setResults] = useState<any>([]);
+  const [VolumeLocation, setVolumeLocation] = useState<any>([]);
+  const [isPending, startTransition] = useTransition();
+  const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
+
+  // ✅ Memoize debounced function so it survives re-renders
+  const debouncedFetch = useMemo(() => {
+    return debounce((q: string) => {
+      startTransition(() => {
+        getfetchDBLocation(q).then(setResults).catch(console.error);
+      });
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    if (query.trim().length > 1) debouncedFetch(query);
+    return () => {
+      debouncedFetch.cancel();
+    };
+  }, [query, debouncedFetch]);
+  const debouncedFetchvolumn = useMemo(() => {
+    return debounce((q: string) => {
+      startTransitionVolumndata(() => {
+        getfetchDBLocation(q).then(setVolumeLocation).catch(console.error);
+      });
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    if (volumnQuery.trim().length > 1) debouncedFetchvolumn(volumnQuery);
+    return () => {
+      debouncedFetchvolumn.cancel();
+    };
+  }, [volumnQuery, debouncedFetchvolumn]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (
@@ -97,7 +136,7 @@ const DialogForm = (campaignId: any) => {
       campaignId,
     };
 
-    console.log(payload,"add kewywords front end data payloadd")
+    console.log(payload, "add kewywords front end data payloadd");
     try {
       const res = await fetch("/api/add-keywords", {
         method: "POST",
@@ -117,9 +156,7 @@ const DialogForm = (campaignId: any) => {
       // }
       console.log(response.addedKeywords, "Response from API");
 
-      await campaignId?.showAddedKeyword(
-        response?.addedKeywords
-      );
+      await campaignId?.showAddedKeyword(response?.addedKeywords);
       // Optionally, you can log the response or handle it as needed
       // console.log("Submitted:", response);
       toast.success(response?.message);
@@ -127,270 +164,269 @@ const DialogForm = (campaignId: any) => {
       form.reset({
         url: "",
         keywordTag: "",
-        searchLocationCode: "",
+        searchLocationCode: 0,
         language: "",
         SearchEngine: "",
         serpType: "",
         deviceType: "",
-        volumeLocationCode: "",
+        volumeLocationCode: 0,
         keywords: [],
       });
 
       setKeywords([]);
-          setOpen(false); 
+      setOpen(false);
       // await getDbLiveKeywordData(campaignId.campaignId)
     } catch (error) {
       console.error("Submission Error:", error);
     }
   };
 
-   const handleKeywordChange = (keywords: string[], rawText: string) => {
+  const handleKeywordChange = (keywords: string[], rawText: string) => {
     setKeywordsText(rawText);
     setKeywords(keywords);
   };
-   const languages = [
-  "English",
-  "Spanish",
-  "French",
-  "German",
-  "Italian",
-  "Portuguese",
-  "Dutch",
-  "Russian",
-  "Japanese",
-  "Korean",
-  "Chinese (Simplified)",
-  "Chinese (Traditional)",
-  "Arabic",
-  "Hindi",
-  "Bengali",
-  "Urdu",
-  "Turkish",
-  "Polish",
-  "Vietnamese",
-  "Thai",
-  "Hebrew",
-  "Swedish",
-  "Norwegian",
-  "Danish",
-  "Finnish",
-  "Greek",
-  "Hungarian",
-  "Czech",
-  "Romanian",
-  "Slovak",
-  "Indonesian",
-  "Malay",
-  "Filipino",
-  "Ukrainian",
-  "Bulgarian",
-  "Serbian",
-  "Croatian",
-  "Lithuanian",
-  "Latvian",
-  "Estonian",
-  "Persian",
-  "Swahili",
-  "Catalan",
-  "Slovenian",
-  "Icelandic",
-  "Welsh",
-  "Irish",
-  "Basque",
-  "Galician",
-  "Albanian",
-  "Macedonian",
-];
-const countries = [
-  { locationName: 'Albania', locationCode: 2008 },
-  { locationName: 'Algeria', locationCode: 2012 },
-  { locationName: 'Angola', locationCode: 2024 },
-  { locationName: 'Azerbaijan', locationCode: 2031 },
-  { locationName: 'Argentina', locationCode: 2032 },
-  { locationName: 'Australia', locationCode: 2036 },
-  { locationName: 'Austria', locationCode: 2040 },
-  { locationName: 'Bahrain', locationCode: 2048 },
-  { locationName: 'Bangladesh', locationCode: 2050 },
-  { locationName: 'Armenia', locationCode: 2051 },
-  { locationName: 'Belgium', locationCode: 2056 },
-  { locationName: 'Bolivia', locationCode: 2068 },
-  { locationName: 'Bosnia and herzegovina', locationCode: 2070 },
-  { locationName: 'Brazil', locationCode: 2076 },
-  { locationName: 'Bulgaria', locationCode: 2100 },
-  { locationName: 'Myanmar (burma)', locationCode: 2104 },
-  { locationName: 'Cambodia', locationCode: 2116 },
-  { locationName: 'Cameroon', locationCode: 2120 },
-  { locationName: 'Canada', locationCode: 2124 },
-  { locationName: 'Sri lanka', locationCode: 2144 },
-  { locationName: 'Chile', locationCode: 2152 },
-  { locationName: 'Taiwan', locationCode: 2158 },
-  { locationName: 'Colombia', locationCode: 2170 },
-  { locationName: 'Costa rica', locationCode: 2188 },
-  { locationName: 'Croatia', locationCode: 2191 },
-  { locationName: 'Cyprus', locationCode: 2196 },
-  { locationName: 'Czechia', locationCode: 2203 },
-  { locationName: 'Denmark', locationCode: 2208 },
-  { locationName: 'Ecuador', locationCode: 2218 },
-  { locationName: 'El salvador', locationCode: 2222 },
-  { locationName: 'Estonia', locationCode: 2233 },
-  { locationName: 'Finland', locationCode: 2246 },
-  { locationName: 'France', locationCode: 2250 },
-  { locationName: 'Germany', locationCode: 2276 },
-  { locationName: 'Ghana', locationCode: 2288 },
-  { locationName: 'Greece', locationCode: 2300 },
-  { locationName: 'Guatemala', locationCode: 2320 },
-  { locationName: 'Hong kong', locationCode: 2344 },
-  { locationName: 'Hungary', locationCode: 2348 },
-  { locationName: 'India', locationCode: 2356 },
-  { locationName: 'Indonesia', locationCode: 2360 },
-  { locationName: 'Ireland', locationCode: 2372 },
-  { locationName: 'Israel', locationCode: 2376 },
-  { locationName: 'Italy', locationCode: 2380 },
-  { locationName: "Cote d'ivoire", locationCode: 2384 },
-  { locationName: 'Japan', locationCode: 2392 },
-  { locationName: 'Kazakhstan', locationCode: 2398 },
-  { locationName: 'Jordan', locationCode: 2400 },
-  { locationName: 'Kenya', locationCode: 2404 },
-  { locationName: 'South korea', locationCode: 2410 },
-  { locationName: 'Latvia', locationCode: 2428 },
-  { locationName: 'Lithuania', locationCode: 2440 },
-  { locationName: 'Malaysia', locationCode: 2458 },
-  { locationName: 'Malta', locationCode: 2470 },
-  { locationName: 'Mexico', locationCode: 2484 },
-  { locationName: 'Monaco', locationCode: 2492 },
-  { locationName: 'Moldova', locationCode: 2498 },
-  { locationName: 'Morocco', locationCode: 2504 },
-  { locationName: 'Netherlands', locationCode: 2528 },
-  { locationName: 'New zealand', locationCode: 2554 },
-  { locationName: 'Nicaragua', locationCode: 2558 },
-  { locationName: 'Nigeria', locationCode: 2566 },
-  { locationName: 'Norway', locationCode: 2578 },
-  { locationName: 'Pakistan', locationCode: 2586 },
-  { locationName: 'Panama', locationCode: 2591 },
-  { locationName: 'Paraguay', locationCode: 2600 },
-  { locationName: 'Peru', locationCode: 2604 },
-  { locationName: 'Philippines', locationCode: 2608 },
-  { locationName: 'Poland', locationCode: 2616 },
-  { locationName: 'Portugal', locationCode: 2620 },
-  { locationName: 'Romania', locationCode: 2642 },
-  { locationName: 'Saudi arabia', locationCode: 2682 },
-  { locationName: 'Senegal', locationCode: 2686 },
-  { locationName: 'Serbia', locationCode: 2688 },
-  { locationName: 'Singapore', locationCode: 2702 },
-  { locationName: 'Slovakia', locationCode: 2703 },
-  { locationName: 'Vietnam', locationCode: 2704 },
-  { locationName: 'Slovenia', locationCode: 2705 },
-  { locationName: 'South africa', locationCode: 2710 },
-  { locationName: 'Spain', locationCode: 2724 },
-  { locationName: 'Sweden', locationCode: 2752 },
-  { locationName: 'Switzerland', locationCode: 2756 },
-  { locationName: 'Thailand', locationCode: 2764 },
-  { locationName: 'United arab emirates', locationCode: 2784 },
-  { locationName: 'Tunisia', locationCode: 2788 },
-  { locationName: 'Turkiye', locationCode: 2792 },
-  { locationName: 'Ukraine', locationCode: 2804 },
-  { locationName: 'North macedonia', locationCode: 2807 },
-  { locationName: 'Egypt', locationCode: 2818 },
-  { locationName: 'United kingdom', locationCode: 2826 },
-  { locationName: 'United states', locationCode: 2840 },
-  { locationName: 'Burkina faso', locationCode: 2854 },
-  { locationName: 'Uruguay', locationCode: 2858 },
-  { locationName: 'Venezuela', locationCode: 2862 }
-];
+  const languages = [
+    "English",
+    "Spanish",
+    "French",
+    "German",
+    "Italian",
+    "Portuguese",
+    "Dutch",
+    "Russian",
+    "Japanese",
+    "Korean",
+    "Chinese (Simplified)",
+    "Chinese (Traditional)",
+    "Arabic",
+    "Hindi",
+    "Bengali",
+    "Urdu",
+    "Turkish",
+    "Polish",
+    "Vietnamese",
+    "Thai",
+    "Hebrew",
+    "Swedish",
+    "Norwegian",
+    "Danish",
+    "Finnish",
+    "Greek",
+    "Hungarian",
+    "Czech",
+    "Romanian",
+    "Slovak",
+    "Indonesian",
+    "Malay",
+    "Filipino",
+    "Ukrainian",
+    "Bulgarian",
+    "Serbian",
+    "Croatian",
+    "Lithuanian",
+    "Latvian",
+    "Estonian",
+    "Persian",
+    "Swahili",
+    "Catalan",
+    "Slovenian",
+    "Icelandic",
+    "Welsh",
+    "Irish",
+    "Basque",
+    "Galician",
+    "Albanian",
+    "Macedonian",
+  ];
+  const countries = [
+    { locationName: "Albania", locationCode: 2008 },
+    { locationName: "Algeria", locationCode: 2012 },
+    { locationName: "Angola", locationCode: 2024 },
+    { locationName: "Azerbaijan", locationCode: 2031 },
+    { locationName: "Argentina", locationCode: 2032 },
+    { locationName: "Australia", locationCode: 2036 },
+    { locationName: "Austria", locationCode: 2040 },
+    { locationName: "Bahrain", locationCode: 2048 },
+    { locationName: "Bangladesh", locationCode: 2050 },
+    { locationName: "Armenia", locationCode: 2051 },
+    { locationName: "Belgium", locationCode: 2056 },
+    { locationName: "Bolivia", locationCode: 2068 },
+    { locationName: "Bosnia and herzegovina", locationCode: 2070 },
+    { locationName: "Brazil", locationCode: 2076 },
+    { locationName: "Bulgaria", locationCode: 2100 },
+    { locationName: "Myanmar (burma)", locationCode: 2104 },
+    { locationName: "Cambodia", locationCode: 2116 },
+    { locationName: "Cameroon", locationCode: 2120 },
+    { locationName: "Canada", locationCode: 2124 },
+    { locationName: "Sri lanka", locationCode: 2144 },
+    { locationName: "Chile", locationCode: 2152 },
+    { locationName: "Taiwan", locationCode: 2158 },
+    { locationName: "Colombia", locationCode: 2170 },
+    { locationName: "Costa rica", locationCode: 2188 },
+    { locationName: "Croatia", locationCode: 2191 },
+    { locationName: "Cyprus", locationCode: 2196 },
+    { locationName: "Czechia", locationCode: 2203 },
+    { locationName: "Denmark", locationCode: 2208 },
+    { locationName: "Ecuador", locationCode: 2218 },
+    { locationName: "El salvador", locationCode: 2222 },
+    { locationName: "Estonia", locationCode: 2233 },
+    { locationName: "Finland", locationCode: 2246 },
+    { locationName: "France", locationCode: 2250 },
+    { locationName: "Germany", locationCode: 2276 },
+    { locationName: "Ghana", locationCode: 2288 },
+    { locationName: "Greece", locationCode: 2300 },
+    { locationName: "Guatemala", locationCode: 2320 },
+    { locationName: "Hong kong", locationCode: 2344 },
+    { locationName: "Hungary", locationCode: 2348 },
+    { locationName: "India", locationCode: 2356 },
+    { locationName: "Indonesia", locationCode: 2360 },
+    { locationName: "Ireland", locationCode: 2372 },
+    { locationName: "Israel", locationCode: 2376 },
+    { locationName: "Italy", locationCode: 2380 },
+    { locationName: "Cote d'ivoire", locationCode: 2384 },
+    { locationName: "Japan", locationCode: 2392 },
+    { locationName: "Kazakhstan", locationCode: 2398 },
+    { locationName: "Jordan", locationCode: 2400 },
+    { locationName: "Kenya", locationCode: 2404 },
+    { locationName: "South korea", locationCode: 2410 },
+    { locationName: "Latvia", locationCode: 2428 },
+    { locationName: "Lithuania", locationCode: 2440 },
+    { locationName: "Malaysia", locationCode: 2458 },
+    { locationName: "Malta", locationCode: 2470 },
+    { locationName: "Mexico", locationCode: 2484 },
+    { locationName: "Monaco", locationCode: 2492 },
+    { locationName: "Moldova", locationCode: 2498 },
+    { locationName: "Morocco", locationCode: 2504 },
+    { locationName: "Netherlands", locationCode: 2528 },
+    { locationName: "New zealand", locationCode: 2554 },
+    { locationName: "Nicaragua", locationCode: 2558 },
+    { locationName: "Nigeria", locationCode: 2566 },
+    { locationName: "Norway", locationCode: 2578 },
+    { locationName: "Pakistan", locationCode: 2586 },
+    { locationName: "Panama", locationCode: 2591 },
+    { locationName: "Paraguay", locationCode: 2600 },
+    { locationName: "Peru", locationCode: 2604 },
+    { locationName: "Philippines", locationCode: 2608 },
+    { locationName: "Poland", locationCode: 2616 },
+    { locationName: "Portugal", locationCode: 2620 },
+    { locationName: "Romania", locationCode: 2642 },
+    { locationName: "Saudi arabia", locationCode: 2682 },
+    { locationName: "Senegal", locationCode: 2686 },
+    { locationName: "Serbia", locationCode: 2688 },
+    { locationName: "Singapore", locationCode: 2702 },
+    { locationName: "Slovakia", locationCode: 2703 },
+    { locationName: "Vietnam", locationCode: 2704 },
+    { locationName: "Slovenia", locationCode: 2705 },
+    { locationName: "South africa", locationCode: 2710 },
+    { locationName: "Spain", locationCode: 2724 },
+    { locationName: "Sweden", locationCode: 2752 },
+    { locationName: "Switzerland", locationCode: 2756 },
+    { locationName: "Thailand", locationCode: 2764 },
+    { locationName: "United arab emirates", locationCode: 2784 },
+    { locationName: "Tunisia", locationCode: 2788 },
+    { locationName: "Turkiye", locationCode: 2792 },
+    { locationName: "Ukraine", locationCode: 2804 },
+    { locationName: "North macedonia", locationCode: 2807 },
+    { locationName: "Egypt", locationCode: 2818 },
+    { locationName: "United kingdom", locationCode: 2826 },
+    { locationName: "United states", locationCode: 2840 },
+    { locationName: "Burkina faso", locationCode: 2854 },
+    { locationName: "Uruguay", locationCode: 2858 },
+    { locationName: "Venezuela", locationCode: 2862 },
+  ];
   const googleDomains: string[] = [
-  "google.com",
-  "google.com.au",
-  "google.co.uk",
-  "google.ca",
-  "google.co.in",
-  "google.de",
-  "google.fr",
-  "google.it",
-  "google.es",
-  "google.com.br",
-  "google.com.mx",
-  "google.co.jp",
-  "google.com.hk",
-  "google.cn",
-  "google.ru",
-  "google.com.tr",
-  "google.com.sa",
-  "google.co.za",
-  "google.nl",
-  "google.be",
-  "google.se",
-  "google.no",
-  "google.dk",
-  "google.fi",
-  "google.ch",
-  "google.at",
-  "google.pl",
-  "google.cz",
-  "google.hu",
-  "google.gr",
-  "google.pt",
-  "google.ie",
-  "google.co.kr",
-  "google.com.sg",
-  "google.co.id",
-  "google.com.my",
-  "google.co.th",
-  "google.com.vn",
-  "google.com.ph",
-  "google.ae",
-  "google.com.eg",
-  "google.com.ar",
-  "google.cl",
-  "google.com.co",
-  "google.com.pe",
-  "google.com.uy",
-  "google.com.ve",
-  "google.com.ng",
-  "google.com.gh",
-  "google.com.pk",
-  "google.com.bd",
-  "google.lk",
-  "google.com.np",
-  "google.co.il",
-  "google.com.qa",
-  "google.com.kw",
-  "google.com.om",
-  "google.kz",
-  "google.com.tw",
-  "google.com.ua",
-  "google.co.nz",
-  "google.com.lb",
-  "google.com.mt",
-  "google.is",
-  "google.li",
-  "google.ee",
-  "google.lv",
-  "google.lt",
-  "google.hr",
-  "google.rs",
-  "google.ba",
-  "google.mk",
-  "google.al",
-  "google.ge",
-  "google.am",
-  "google.com.cy",
-  "google.md",
-  "google.by",
-  "google.mn",
-  "google.com.kh",
-  "google.la",
-  "google.com.mm",
-  "google.com.bn",
-  "google.com.fj",
-  "google.vu",
-  "google.fm",
-  "google.ws",
-  "google.to",
-  "google.as",
-  "google.co.ck",
-  "google.com.sb"
-];
-
+    "google.com",
+    "google.com.au",
+    "google.co.uk",
+    "google.ca",
+    "google.co.in",
+    "google.de",
+    "google.fr",
+    "google.it",
+    "google.es",
+    "google.com.br",
+    "google.com.mx",
+    "google.co.jp",
+    "google.com.hk",
+    "google.cn",
+    "google.ru",
+    "google.com.tr",
+    "google.com.sa",
+    "google.co.za",
+    "google.nl",
+    "google.be",
+    "google.se",
+    "google.no",
+    "google.dk",
+    "google.fi",
+    "google.ch",
+    "google.at",
+    "google.pl",
+    "google.cz",
+    "google.hu",
+    "google.gr",
+    "google.pt",
+    "google.ie",
+    "google.co.kr",
+    "google.com.sg",
+    "google.co.id",
+    "google.com.my",
+    "google.co.th",
+    "google.com.vn",
+    "google.com.ph",
+    "google.ae",
+    "google.com.eg",
+    "google.com.ar",
+    "google.cl",
+    "google.com.co",
+    "google.com.pe",
+    "google.com.uy",
+    "google.com.ve",
+    "google.com.ng",
+    "google.com.gh",
+    "google.com.pk",
+    "google.com.bd",
+    "google.lk",
+    "google.com.np",
+    "google.co.il",
+    "google.com.qa",
+    "google.com.kw",
+    "google.com.om",
+    "google.kz",
+    "google.com.tw",
+    "google.com.ua",
+    "google.co.nz",
+    "google.com.lb",
+    "google.com.mt",
+    "google.is",
+    "google.li",
+    "google.ee",
+    "google.lv",
+    "google.lt",
+    "google.hr",
+    "google.rs",
+    "google.ba",
+    "google.mk",
+    "google.al",
+    "google.ge",
+    "google.am",
+    "google.com.cy",
+    "google.md",
+    "google.by",
+    "google.mn",
+    "google.com.kh",
+    "google.la",
+    "google.com.mm",
+    "google.com.bn",
+    "google.com.fj",
+    "google.vu",
+    "google.fm",
+    "google.ws",
+    "google.to",
+    "google.as",
+    "google.co.ck",
+    "google.com.sb",
+  ];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -431,7 +467,7 @@ const countries = [
                   />
                 )}
               />
-              <Controller
+              {/* <Controller
                 name="searchLocationCode"
                 control={form.control}
                 render={({ field }) => (
@@ -446,8 +482,55 @@ const countries = [
                     errorMessage={form.formState.errors.searchLocationCode?.message}
                   />
                 )}
-              />
-              <Controller
+              /> */}
+              <div className="relative">
+                <Controller
+                  name="searchLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      value={query}
+                      onChange={(e) => {
+                        setQuery(e.target.value);
+                        field.onChange(e.target.value); // Update form state
+                       
+                      }}
+                      className=" w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm "
+                      placeholder="Search for location"
+                    />
+                  )}
+                />
+
+                {results.length > 0 && (
+                  <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
+                    {isPending && <p className="text-green-500">Loading...</p>}
+                    {results.map((loc: any) => {
+                      console.log("Location:", loc);
+                      return (
+                        <li
+                          key={loc._id}
+                          onClick={() => {
+                            form.setValue(
+                              "searchLocationCode",
+                              loc.locationCode
+                            );
+                            setQuery(loc.locationName); // Update input with selected location
+                            setResults([]); // Clear results after selection
+                          }}
+                          className="cursor-pointer hover:bg-gray-100 border border-gray-200 p-2"
+                        >
+                          {loc.locationName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.searchLocationCode?.message}
+                </div>
+              </div>
+              {/* <Controller
                 name="volumeLocationCode"
                 control={form.control}
                 render={({ field }) => (
@@ -458,11 +541,59 @@ const countries = [
                     }
                     listName="volume Location"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
-                    errorMessage={form.formState.errors.volumeLocationCode?.message}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
+                    errorMessage={
+                      form.formState.errors.volumeLocationCode?.message
+                    }
                   />
                 )}
-              />
+              /> */}
+
+              <div className="relative">
+                <Controller
+                  name="volumeLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      value={volumnQuery}
+                      onChange={(e) => {
+                        setVolumnQuery(e.target.value);
+                        field.onChange(e.target.value);
+                      }}
+                      className="w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm"
+                      placeholder="Search for Volume location"
+                    />
+                  )}
+                />
+                <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.volumeLocationCode?.message}
+                </div>
+
+                {VolumeLocation.length > 0 && (
+                  <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
+                    {isPendingvolumndata && (
+                      <p className="text-green-500">Loading...</p>
+                    )}
+                    {VolumeLocation.map((loc: any) => (
+                      <li
+                        key={loc._id}
+                        onClick={() => {
+                          form.setValue("volumeLocationCode", loc.locationCode);
+                          setVolumnQuery(loc.locationName);
+                          setVolumeLocation([]);
+                        }}
+                        className="cursor-pointer hover:bg-gray-100 p-2"
+                      >
+                        {loc.locationName}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
               <Controller
                 name="language"
                 control={form.control}
@@ -474,7 +605,9 @@ const countries = [
                     }
                     listName="Language"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                     errorMessage={form.formState.errors.language?.message}
                   />
                 )}
@@ -506,11 +639,11 @@ const countries = [
                   />
                 </div>
               </div> */}
-                 <KeywordTextArea
-                  value={KeywordsText}
-                  onChange={handleKeywordChange}
-                  placeholder="Enter keywords separated by comma or new line"
-                />
+              <KeywordTextArea
+                value={KeywordsText}
+                onChange={handleKeywordChange}
+                placeholder="Enter keywords separated by comma or new line"
+              />
               {keywordError && (
                 <p className="text-red-500 text-sm">{keywordError}</p>
               )}
@@ -524,7 +657,9 @@ const countries = [
                     icon={<FcGoogle className=" text-xl" />}
                     listName="Search Engine"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                   />
                 )}
               />
@@ -539,7 +674,9 @@ const countries = [
                     }
                     listName="SERP Type"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                   />
                 )}
               />
@@ -554,7 +691,9 @@ const countries = [
                     }
                     listName="Device Type"
                     value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
                   />
                 )}
               />

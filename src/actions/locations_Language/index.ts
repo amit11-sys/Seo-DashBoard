@@ -1,6 +1,6 @@
 "use server";
 
-import { fetchDBLocation, fetchLocation, getLocation_language } from "./queries";
+import { fetchDBLocation, fetchLocation, getlanguage } from "./queries";
 
 // export const getLocation_languageData = async () => {
 //   const getLocationData = await getLocation_language();
@@ -16,5 +16,10 @@ export const getfetchDBLocation = async (quary:string) => {
   const getLocationData = await fetchDBLocation(quary);
   
   return getLocationData?.allLocations || [];
+};
+export const getlanguageData = async () => {
+  const getLocationData = await getlanguage();
+  
+  return getLocationData
 };
 

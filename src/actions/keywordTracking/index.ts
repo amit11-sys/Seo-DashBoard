@@ -1,4 +1,4 @@
-import { createKeywordTracking, DbLiveKeywordData, getUserKeywordData } from "./queries";
+import { createKeywordTracking, DbLiveKeywordData, getStartData, getUserKeywordData } from "./queries";
 
 export const createNewKeywordTrackingData = async (keywordData: any) => {
   console.log(keywordData,"ok")
@@ -16,4 +16,8 @@ export const getTrackingData=async (newCompaignId:any)=>{
 export const getDbLiveKeywordData=async (newCompaignId:string)=>{
   const DbKeywordData= await DbLiveKeywordData(newCompaignId) 
   return DbKeywordData
+}
+export const updateStartDB =async (keywordId: string, newStartData: number)=>{
+  const updatedData= await getStartData(keywordId,newStartData) 
+  return updatedData
 }

@@ -61,10 +61,11 @@ export const refreshAddedKeywords = async (campaignId: string) => {
             console.log(rankItem, "rankItem in add");
             const task = rankItem?.response?.tasks?.[0];
             const data = task?.result?.[0];
+             const newKeyword = rankItem?.keyword
             const keyword = data?.keyword;
 
             const matchedKeyword = refreshCampaign.find(
-              (k: any) => k.keywords?.toLowerCase() === keyword?.toLowerCase()
+              (k: any) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
             );
             console.log(matchedKeyword, "matchedKeyword in add");
             // Get corresponding volume data for this keyword
@@ -100,13 +101,13 @@ export const refreshAddedKeywords = async (campaignId: string) => {
 
             return {
               type: task?.data?.se_type,
-              location_code: data?.location_code || 2124,
+              location_code: matchedKeyword?.searchLocationCode || 2124,
               language_code: data?.language_code || "en",
               // location_name: matchLangName?.locationName || "",
               url: task?.data?.target?.trim() || "no ranking",
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-              keyword: keyword || "",
+              keyword: newKeyword || "",
               searchVolumn: matchSearchVolumn,
               intent: matchIntent,
               competition: matchcompetition,

@@ -4,7 +4,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import KeywordEdit from "./KeywordEdit";
 import DeleteConfirm from "./KeywordDel";
 
-import { getTrackingData } from "@/actions/keywordTracking";
+import { getTrackingData, updateStartDB } from "@/actions/keywordTracking";
 
 interface TableHeaderitems {
   key: string;
@@ -15,7 +15,7 @@ interface TablebodyItems {
   keyword: string;
   keywordId: string;
   status: number;
-  // location: string;
+  location: string;
   intent: string;
   start: string;
   page: string;
@@ -72,11 +72,14 @@ console.log(tableData,"table data")
     setEditableRowIndex(index);
   };
 
-  const handleStartChange = (
+  const handleStartChange =async (
     e: React.ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
+    keywordId:string
   ) => {
-    const newValue = e.target.value;
+    const newValue =e.target.value
+      const startValue = Number(newValue)
+    const startRespomse = await updateStartDB(keywordId,startValue)
     setTableBody((prev) =>
       prev.map((row, rowIndex) =>
         rowIndex === index ? { ...row, start: newValue } : row
@@ -86,6 +89,7 @@ console.log(tableData,"table data")
 
   const handleBlur = () => {
     setEditableRowIndex(null);
+  
   };
 
   return (
@@ -131,7 +135,7 @@ console.log(tableData,"table data")
                 <td className="text-center border font-medium p-3">
                   {data.keyword}
                 </td>
-                {/* <td className="text-center border p-3">{data.location}</td> */}
+                <td className="text-center border p-3">{data.location}</td>
                  <td className="text-center border p-3">{data.intent}</td>
                 {/* Editable Start Field */}
                 <td
@@ -142,7 +146,7 @@ console.log(tableData,"table data")
                     <input
                       type="text"
                       value={data.start}
-                      onChange={(e) => handleStartChange(e, rowIndex)}
+                      onChange={(e) => handleStartChange(e, rowIndex,keywordId)}
                       onBlur={handleBlur}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleBlur();

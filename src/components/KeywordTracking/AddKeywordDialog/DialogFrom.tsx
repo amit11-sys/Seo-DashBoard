@@ -26,7 +26,7 @@ import { addKeywordsSchema } from "@/lib/zod";
 import { toast } from "sonner";
 import KeywordTextArea from "@/components/KeywordTextArea";
 import debounce from "lodash.debounce";
-import { getfetchDBLocation } from "@/actions/locations_Language";
+import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
 // import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
@@ -71,6 +71,7 @@ const DialogForm = (campaignId: any) => {
   const [VolumeLocation, setVolumeLocation] = useState<any>([]);
   const [isPending, startTransition] = useTransition();
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
+  const [languages, setLanguages] = useState<string[]>([]);
 
   // ✅ Memoize debounced function so it survives re-renders
   const debouncedFetch = useMemo(() => {
@@ -102,25 +103,24 @@ const DialogForm = (campaignId: any) => {
     };
   }, [volumnQuery, debouncedFetchvolumn]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (
-      (e.key === "Enter" || e.key === "," || e.key === " ") &&
-      tagsInput.trim()
-    ) {
-      e.preventDefault();
-      const trimmed = tagsInput.trim();
-      if (!Keywords.includes(trimmed)) {
-        setKeywords((prev) => [...prev, trimmed]);
-      }
-      setTagsInput("");
-    } else if (e.key === "Backspace" && !tagsInput && Keywords.length) {
-      setKeywords((prev) => prev.slice(0, -1));
-    }
-  };
+  useEffect(()=>{
+const fetchlanguage = async  ()=>{
 
-  const removeKeyword = (index: number) => {
-    setKeywords((prev) => prev.filter((_, i) => i !== index));
-  };
+  try {
+
+    const data = await getlanguageData()
+    
+    const langdata = data?.allLanguages
+    setLanguages(langdata ?? []);
+    
+  } catch (error) {
+    console.log(error,"language error")
+    
+  }
+}
+fetchlanguage()
+
+},[])
 
   const onSubmit = async () => {
     const isValid = await form.trigger();
@@ -151,7 +151,7 @@ const DialogForm = (campaignId: any) => {
 
       if (!res.ok) throw new Error("Failed to create keywords");
       if (!res.ok) throw new Error("Failed to create keywords");
-      console.log(res);
+      console.log(res,"res addd");
 
       const response = await res.json();
       // if (!response.success) {
@@ -161,7 +161,7 @@ const DialogForm = (campaignId: any) => {
 
       await campaignId?.showAddedKeyword(response?.addedKeywords);
       // Optionally, you can log the response or handle it as needed
-      // console.log("Submitted:", response);
+      console.log("Submitted:", response);
       toast.success(response?.message);
 
       form.reset({
@@ -189,155 +189,8 @@ const DialogForm = (campaignId: any) => {
     setKeywordsText(rawText);
     setKeywords(keywords);
   };
-  const languages = [
-    "English",
-    "Spanish",
-    "French",
-    "German",
-    "Italian",
-    "Portuguese",
-    "Dutch",
-    "Russian",
-    "Japanese",
-    "Korean",
-    "Chinese (Simplified)",
-    "Chinese (Traditional)",
-    "Arabic",
-    "Hindi",
-    "Bengali",
-    "Urdu",
-    "Turkish",
-    "Polish",
-    "Vietnamese",
-    "Thai",
-    "Hebrew",
-    "Swedish",
-    "Norwegian",
-    "Danish",
-    "Finnish",
-    "Greek",
-    "Hungarian",
-    "Czech",
-    "Romanian",
-    "Slovak",
-    "Indonesian",
-    "Malay",
-    "Filipino",
-    "Ukrainian",
-    "Bulgarian",
-    "Serbian",
-    "Croatian",
-    "Lithuanian",
-    "Latvian",
-    "Estonian",
-    "Persian",
-    "Swahili",
-    "Catalan",
-    "Slovenian",
-    "Icelandic",
-    "Welsh",
-    "Irish",
-    "Basque",
-    "Galician",
-    "Albanian",
-    "Macedonian",
-  ];
-  const countries = [
-    { locationName: "Albania", locationCode: 2008 },
-    { locationName: "Algeria", locationCode: 2012 },
-    { locationName: "Angola", locationCode: 2024 },
-    { locationName: "Azerbaijan", locationCode: 2031 },
-    { locationName: "Argentina", locationCode: 2032 },
-    { locationName: "Australia", locationCode: 2036 },
-    { locationName: "Austria", locationCode: 2040 },
-    { locationName: "Bahrain", locationCode: 2048 },
-    { locationName: "Bangladesh", locationCode: 2050 },
-    { locationName: "Armenia", locationCode: 2051 },
-    { locationName: "Belgium", locationCode: 2056 },
-    { locationName: "Bolivia", locationCode: 2068 },
-    { locationName: "Bosnia and herzegovina", locationCode: 2070 },
-    { locationName: "Brazil", locationCode: 2076 },
-    { locationName: "Bulgaria", locationCode: 2100 },
-    { locationName: "Myanmar (burma)", locationCode: 2104 },
-    { locationName: "Cambodia", locationCode: 2116 },
-    { locationName: "Cameroon", locationCode: 2120 },
-    { locationName: "Canada", locationCode: 2124 },
-    { locationName: "Sri lanka", locationCode: 2144 },
-    { locationName: "Chile", locationCode: 2152 },
-    { locationName: "Taiwan", locationCode: 2158 },
-    { locationName: "Colombia", locationCode: 2170 },
-    { locationName: "Costa rica", locationCode: 2188 },
-    { locationName: "Croatia", locationCode: 2191 },
-    { locationName: "Cyprus", locationCode: 2196 },
-    { locationName: "Czechia", locationCode: 2203 },
-    { locationName: "Denmark", locationCode: 2208 },
-    { locationName: "Ecuador", locationCode: 2218 },
-    { locationName: "El salvador", locationCode: 2222 },
-    { locationName: "Estonia", locationCode: 2233 },
-    { locationName: "Finland", locationCode: 2246 },
-    { locationName: "France", locationCode: 2250 },
-    { locationName: "Germany", locationCode: 2276 },
-    { locationName: "Ghana", locationCode: 2288 },
-    { locationName: "Greece", locationCode: 2300 },
-    { locationName: "Guatemala", locationCode: 2320 },
-    { locationName: "Hong kong", locationCode: 2344 },
-    { locationName: "Hungary", locationCode: 2348 },
-    { locationName: "India", locationCode: 2356 },
-    { locationName: "Indonesia", locationCode: 2360 },
-    { locationName: "Ireland", locationCode: 2372 },
-    { locationName: "Israel", locationCode: 2376 },
-    { locationName: "Italy", locationCode: 2380 },
-    { locationName: "Cote d'ivoire", locationCode: 2384 },
-    { locationName: "Japan", locationCode: 2392 },
-    { locationName: "Kazakhstan", locationCode: 2398 },
-    { locationName: "Jordan", locationCode: 2400 },
-    { locationName: "Kenya", locationCode: 2404 },
-    { locationName: "South korea", locationCode: 2410 },
-    { locationName: "Latvia", locationCode: 2428 },
-    { locationName: "Lithuania", locationCode: 2440 },
-    { locationName: "Malaysia", locationCode: 2458 },
-    { locationName: "Malta", locationCode: 2470 },
-    { locationName: "Mexico", locationCode: 2484 },
-    { locationName: "Monaco", locationCode: 2492 },
-    { locationName: "Moldova", locationCode: 2498 },
-    { locationName: "Morocco", locationCode: 2504 },
-    { locationName: "Netherlands", locationCode: 2528 },
-    { locationName: "New zealand", locationCode: 2554 },
-    { locationName: "Nicaragua", locationCode: 2558 },
-    { locationName: "Nigeria", locationCode: 2566 },
-    { locationName: "Norway", locationCode: 2578 },
-    { locationName: "Pakistan", locationCode: 2586 },
-    { locationName: "Panama", locationCode: 2591 },
-    { locationName: "Paraguay", locationCode: 2600 },
-    { locationName: "Peru", locationCode: 2604 },
-    { locationName: "Philippines", locationCode: 2608 },
-    { locationName: "Poland", locationCode: 2616 },
-    { locationName: "Portugal", locationCode: 2620 },
-    { locationName: "Romania", locationCode: 2642 },
-    { locationName: "Saudi arabia", locationCode: 2682 },
-    { locationName: "Senegal", locationCode: 2686 },
-    { locationName: "Serbia", locationCode: 2688 },
-    { locationName: "Singapore", locationCode: 2702 },
-    { locationName: "Slovakia", locationCode: 2703 },
-    { locationName: "Vietnam", locationCode: 2704 },
-    { locationName: "Slovenia", locationCode: 2705 },
-    { locationName: "South africa", locationCode: 2710 },
-    { locationName: "Spain", locationCode: 2724 },
-    { locationName: "Sweden", locationCode: 2752 },
-    { locationName: "Switzerland", locationCode: 2756 },
-    { locationName: "Thailand", locationCode: 2764 },
-    { locationName: "United arab emirates", locationCode: 2784 },
-    { locationName: "Tunisia", locationCode: 2788 },
-    { locationName: "Turkiye", locationCode: 2792 },
-    { locationName: "Ukraine", locationCode: 2804 },
-    { locationName: "North macedonia", locationCode: 2807 },
-    { locationName: "Egypt", locationCode: 2818 },
-    { locationName: "United kingdom", locationCode: 2826 },
-    { locationName: "United states", locationCode: 2840 },
-    { locationName: "Burkina faso", locationCode: 2854 },
-    { locationName: "Uruguay", locationCode: 2858 },
-    { locationName: "Venezuela", locationCode: 2862 },
-  ];
+
+ 
   const googleDomains: string[] = [
     "google.com",
     "google.com.au",

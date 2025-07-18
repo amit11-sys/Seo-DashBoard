@@ -19,6 +19,7 @@ export const createCampaign = async (formData: any) => {
     await addMultipleKeyword(formData, campaign);
 
     const newCompaignId = campaign?.campaign?._id;
+    console.log(newCompaignId,"nreeeeeee")
 
     await getTrackingData(newCompaignId);
 

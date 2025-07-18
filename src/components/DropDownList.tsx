@@ -293,7 +293,7 @@ const DropDownList = ({
   if (typeof item === "string") {
     return {
       value: item,
-      label: item.charAt(0).toUpperCase() + item.slice(1).toLowerCase(),
+      label: item?.charAt(0).toUpperCase() + item.slice(1).toLowerCase(),
     };
   } else if (typeof item === "object" && item !== null) {
     return {

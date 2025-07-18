@@ -41,7 +41,7 @@ import debounce from "lodash.debounce";
 // import { getLocationData } from "@/actions/locations_Language";
 
 import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
-import { getfetchDBLocation } from "@/actions/locations_Language";
+import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
 import { log } from "console";
 
 // import { getTrackingData } from "@/actions/keywordTracking";
@@ -56,11 +56,12 @@ interface CampaignTabsProps {
   location_and_language: LocationAndLanguageType;
 }
 
+
 export function CampaignTabs() {
   const { startLoading, stopLoading } = useLoader();
   // const [searchText, setSearchText] = useState("");
   // const [locations, setLocations] = useState<string[]>([]);
-  // const [languages, setLanguages] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>([]);
   const router = useRouter();
 
   function CountrySelector() {}
@@ -119,7 +120,24 @@ export function CampaignTabs() {
       debouncedFetchvolumn.cancel();
     };
   }, [volumnQuery, debouncedFetchvolumn]);
+useEffect(()=>{
+const fetchlanguage = async  ()=>{
 
+  try {
+
+    const data = await getlanguageData()
+   
+    const langdata = data?.allLanguages
+    setLanguages(langdata ?? []);
+    
+  } catch (error) {
+    console.log(error,"language error")
+    
+  }
+}
+fetchlanguage()
+
+},[])
   // console.log("Results:", results, "Query:", query);
   const form = useForm<CampaignFormType>({
     resolver: zodResolver(campaignSchema),
@@ -656,7 +674,7 @@ export function CampaignTabs() {
                 control={form.control}
                 render={({ field }) => (
                   <DropDownList
-                    listData={["English"]}
+                    listData={languages}
                     icon={
                       <LiaLanguageSolid className="text-blue-500 text-xl" />
                     }

@@ -8,7 +8,7 @@ const Loader = () => {
   if (!loading) return null; // Don't render if not loading
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[999]">
       <div className="flex-col gap-4 w-full flex items-center justify-center">
      
 <div className="flex-col gap-4 w-full flex items-center justify-center">

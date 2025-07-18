@@ -27,7 +27,7 @@ import {
   getTrackingData,
 } from "@/actions/keywordTracking";
 import debounce from "lodash.debounce";
-import { getfetchDBLocation } from "@/actions/locations_Language";
+import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
 
 const editKeywordsSchema = z.object({
@@ -74,7 +74,7 @@ const EditKeywords = ({
   const [VolumeLocation, setVolumeLocation] = useState<any>([]);
   const [isPending, startTransition] = useTransition();
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
-
+const [languages, setLanguages] = useState<string[]>([]);
   // ✅ Memoize debounced function so it survives re-renders
   const debouncedFetch = useMemo(() => {
     return debounce((q: string) => {
@@ -104,7 +104,23 @@ const EditKeywords = ({
       debouncedFetchvolumn.cancel();
     };
   }, [volumnQuery, debouncedFetchvolumn]);
+useEffect(()=>{
+const fetchlanguage = async  ()=>{
 
+  try {
+
+    const data = await getlanguageData()
+    const langdata = data?.allLanguages
+    setLanguages(langdata ?? []);
+    
+  } catch (error) {
+    console.log(error,"language error")
+    
+  }
+}
+fetchlanguage()
+
+},[])
   useEffect(() => {
     form.reset({
       url: defaultData?.url || "",
@@ -164,38 +180,45 @@ const EditKeywords = ({
       const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
       let data: any = [];
       if (campaignLiveKeywordsData.newLiveKeywordDbData) {
-        data = campaignLiveKeywordsData.newLiveKeywordDbData.map((item: any) => ({
-          // select: false,
-          status: item.status,
-          keywordId: item.keywordId,
-          keyword: item.keyword,
-          location: item.location_name,
-          intent: item.intent || "C",
-          start: String(item.rank_group),
-          page: Math.ceil(item.rank_absolute / 10).toString(),
-          Absolute_Rank: String(item.rank_absolute),
-          Group_Rank: String(item.rank_group),
-          // oneDay: "1",
-          sevenDays: "-",
-          // thirtyDays: "-",
-          life: String(item.rank_group),
-          comp: item.competition || "0",
-          sv: item.searchVolumn || "0",
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item.url,
-          // rankingUrl: new URL(item.url) || "/",
-        }));
+        data = campaignLiveKeywordsData.newLiveKeywordDbData.map((item: any) => {
+            console.log(item?.location_name?.locationName,"newLiveKeywordDbData inside new location name")
+        return  ({
+          
+           // select: false,
+           status: item.status,
+           keywordId: item.keywordId,
+           keyword: item.keyword,
+           location: item?.location_name?.locationName?.locationName,
+           intent: item.intent || "",
+           start: String(item.start),
+           page: Math.ceil(item.rank_absolute / 10).toString(),
+           Absolute_Rank: String(item.rank_absolute),
+           Group_Rank: String(item.rank_group),
+           // oneDay: "1",
+           sevenDays: "-",
+           // thirtyDays: "-",
+           life: String(item.rank_group),
+           comp: item.competition || "0",
+           sv: item.searchVolumn || "0",
+           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+             day: "2-digit",
+             month: "short",
+             year: "2-digit",
+           }),
+           rankingUrl: item.url,
+           // rankingUrl: new URL(item.url) || "/",
+         })
+
+        }
+      
+      );
       }
       setTableBody(data);
       if (!Response) throw new Error("Update failed");
-      console.log(Response.tracking);
-      //   await showAddedKeyword(
-      //  Response.tracking
-      // );
+      console.log(Response.tracking,"tracking");
+        await showAddedKeyword(
+       Response.tracking
+      );
       toast.success("Keywords updated successfully");
       form.reset({
         url: "",
@@ -217,59 +240,7 @@ const EditKeywords = ({
       toast.error("Failed to update keywords");
     }
   };
-  const languages = [
-    "English",
-    "Spanish",
-    "French",
-    "German",
-    "Italian",
-    "Portuguese",
-    "Dutch",
-    "Russian",
-    "Japanese",
-    "Korean",
-    "Chinese (Simplified)",
-    "Chinese (Traditional)",
-    "Arabic",
-    "Hindi",
-    "Bengali",
-    "Urdu",
-    "Turkish",
-    "Polish",
-    "Vietnamese",
-    "Thai",
-    "Hebrew",
-    "Swedish",
-    "Norwegian",
-    "Danish",
-    "Finnish",
-    "Greek",
-    "Hungarian",
-    "Czech",
-    "Romanian",
-    "Slovak",
-    "Indonesian",
-    "Malay",
-    "Filipino",
-    "Ukrainian",
-    "Bulgarian",
-    "Serbian",
-    "Croatian",
-    "Lithuanian",
-    "Latvian",
-    "Estonian",
-    "Persian",
-    "Swahili",
-    "Catalan",
-    "Slovenian",
-    "Icelandic",
-    "Welsh",
-    "Irish",
-    "Basque",
-    "Galician",
-    "Albanian",
-    "Macedonian",
-  ];
+ 
   const countries = [
     { locationName: "Albania", locationCode: 2008 },
     { locationName: "Algeria", locationCode: 2012 },

@@ -55,16 +55,6 @@ export const createKeywordTracking = async (keywordData: any) => {
       message: "KeywordTrackingData Successfully created",
       KeywordTrackingData,
     };
-
-    // if (createdRecords.length === 0) {
-    //   return { error: "Error while creating KeywordTrackingData" };
-    // }
-
-    // return {
-    //   success: true,
-    //   message: "KeywordTrackingData Successfully created",
-    //   KeywordTrackingData: createdRecords,
-    // };
   } catch (error) {
     console.log(error);
 
@@ -120,26 +110,38 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     // console.log(user);
     // console.log(newCompaignId,"newkeywordCampaign")
 
+    const LiveKeywordDbData = await KeywordTracking.find({
+      campaignId: newCompaignId,
+      status: 1,
+    });
+    console.log(LiveKeywordDbData, "live datat from db to table");
 
-  const LiveKeywordDbData = await KeywordTracking.find({
-  campaignId: newCompaignId,
-  status: 1,
-});
-console.log(LiveKeywordDbData,"live datat from db to table")
-
-//  add location in data 
-const newLiveKeywordDbData = await Promise.all(
+    //  add location in data
+    // const newLiveKeywordDbData = await Promise.all(
+    //   LiveKeywordDbData.map(async (item) => {
+    //     const locationName = await fetchDBlocationData(item.location_code);
+    //     console.log(item, "location map");
+    //     return {
+    //       ...item,
+    //       location_name: locationName || "",
+    //     };
+    //   })
+    // );
+    const newLiveKeywordDbData = await Promise.all(
   LiveKeywordDbData.map(async (item) => {
     const locationName = await fetchDBlocationData(item.location_code);
-    console.log(item,"location map")
+    console.log(item, "location map");
+
+    const plainItem = item.toObject();  // convert to plain JS object
+
     return {
-      ...item._doc, 
-      location_name: locationName || '', 
+      ...plainItem,
+      location_name: locationName || "",
     };
   })
 );
 
-console.log(newLiveKeywordDbData,"realdata");
+    console.log(newLiveKeywordDbData, "realdata");
 
     if (!LiveKeywordDbData) {
       return { error: "Error while getting LiveKeywordDbData" };
@@ -185,6 +187,38 @@ export const fetchDBlocationData = async (locationcode: number) => {
       locationName,
     };
     // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+export const getStartData = async (
+  keywordId: string,
+  newStartData: number
+) => {
+  try {
+    await connectToDB();
+    console.log(keywordId,newStartData,"data for start update") // 6879e81b47ed1758549aef75 2 data for start update
+    
+   
+ 
+ const startUpdatedData = await KeywordTracking.findOneAndUpdate(
+    { keywordId: keywordId },
+    { $set: { start: newStartData } },
+    { new: true }
+  );
+  console.log(startUpdatedData, "start updated data");
+
+    if (!keywordId) {
+      return { error: "Error while getting keywordId" };
+    }
+
+    return {
+      success: true,
+      message: "Start Successfully updated",
+      startUpdatedData,
+    };
   } catch (error) {
     console.log(error);
 

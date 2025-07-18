@@ -26,7 +26,7 @@ interface TablebodyItems {
   // thirtyDays: string;
   life: string;
   comp: any;
- sv:any
+  sv: any;
   date: string;
   rankingUrl: string;
 }
@@ -45,8 +45,9 @@ const CustomTable = ({
   setTableBody,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
-console.log(tableData,"table data")
+  console.log(tableData, "table data");
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
+  const [defaultData, setDefaultData] = useState<any>([]);
   useEffect(() => {
     const FetchKeyWordsDb = async () => {
       const CampaignId = campaignId;
@@ -61,7 +62,7 @@ console.log(tableData,"table data")
     };
     FetchKeyWordsDb();
   }, []);
-  console.log(keywordDbData,"keyworddb data")
+  console.log(keywordDbData, "keyworddb data");
   // const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
 
   // useEffect(() => {
@@ -72,14 +73,14 @@ console.log(tableData,"table data")
     setEditableRowIndex(index);
   };
 
-  const handleStartChange =async (
+  const handleStartChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number,
-    keywordId:string
+    keywordId: string
   ) => {
-    const newValue =e.target.value
-      const startValue = Number(newValue)
-    const startRespomse = await updateStartDB(keywordId,startValue)
+    const newValue = e.target.value;
+    const startValue = Number(newValue);
+    const startRespomse = await updateStartDB(keywordId, startValue);
     setTableBody((prev) =>
       prev.map((row, rowIndex) =>
         rowIndex === index ? { ...row, start: newValue } : row
@@ -89,8 +90,16 @@ console.log(tableData,"table data")
 
   const handleBlur = () => {
     setEditableRowIndex(null);
-  
   };
+
+  const addEditkeywordsData = async (data : any)=>{
+
+    
+
+
+
+
+  }
 
   return (
     <div className="w-full shadow-lg text-black rounded-md mt-4 max-h-96 overflow-x-auto relative">
@@ -114,110 +123,119 @@ console.log(tableData,"table data")
         </thead>
 
         <tbody>
-          {tableData.map((data, rowIndex) => {
-            const keywordId = data.keywordId;
-              console.log(data,"tablebody data")
-            // Find the matching keyword data from keywordDbData by campaignId and keywordId
-            const matchedKeywordData = keywordDbData.find(
-              (item: {  _id: string }) =>{
-                  console.log(item,"macted")
-                return (item._id === keywordId)
+          {tableData.length === 0 ? (
+            <tr>
+              <td colSpan={15} className="text-center text-gray-500 py-6">
+                No keyword data found
+              </td>
+            </tr>
+          ) : (
+            tableData.map((data, rowIndex) => {
+              const keywordId = data.keywordId;
 
-              }
-            );
-            console.log(matchedKeywordData,"match keywords")
+              const matchedKeywordData = keywordDbData.find(
+                (item: { _id: string }) => item._id === keywordId
+              );
 
-            return (
-              <tr
-                key={rowIndex}
-                className="hover:bg-indigo-50 transition-colors"
-              >
-                <td className="text-center border font-medium p-3">
-                  {data.keyword}
-                </td>
-                <td className="text-center border p-3">{data.location}</td>
-                 <td className="text-center border p-3">{data.intent}</td>
-                {/* Editable Start Field */}
-                <td
-                  className="text-center border cursor-pointer p-3"
-                  onClick={() => handleStartClick(rowIndex)}
+              return (
+                <tr
+                  key={rowIndex}
+                  className="hover:bg-indigo-50 transition-colors"
                 >
-                  {editableRowIndex === rowIndex ? (
-                    <input
-                      type="text"
-                      value={data.start}
-                      onChange={(e) => handleStartChange(e, rowIndex,keywordId)}
-                      onBlur={handleBlur}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleBlur();
-                      }}
-                      className="w-14 px-2 text-black text-center rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      autoFocus
-                    />
-                  ) : (
-                    <span className="font-semibold text-indigo-600">
-                      {data.start}
-                    </span>
-                  )}
-                </td>
+                  <td className="text-center border font-medium p-3">
+                    {data.keyword}
+                  </td>
+                  <td className="text-center border p-3">{data.location}</td>
+                  <td className="text-center border p-3">{data.intent}</td>
 
-                <td className="text-center border p-3">{data.page}</td>
-                <td className="text-center border p-3">{data.Absolute_Rank}</td>
-                <td className="text-center border p-3">{data.Group_Rank}</td>
-                <td className="text-center border p-3">{data.sevenDays}</td>
-                <td className="text-center border p-3">{data.life}</td>
-                <td className="text-center text-black border p-3">{data.comp}</td>
-                <td className="text-center text-black border p-3">{data.sv}</td>
-                <td className="text-center border p-3">{data.date}</td>
+                  <td
+                    className="text-center border cursor-pointer p-3"
+                    onClick={() => handleStartClick(rowIndex)}
+                  >
+                    {editableRowIndex === rowIndex ? (
+                      <input
+                        type="text"
+                        value={data.start}
+                        onChange={(e) =>
+                          handleStartChange(e, rowIndex, keywordId)
+                        }
+                        onBlur={handleBlur}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleBlur();
+                        }}
+                        className="w-14 px-2 text-black text-center rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="font-semibold text-indigo-600">
+                        {data.start}
+                      </span>
+                    )}
+                  </td>
 
-                <td className="text-center border p-3">
-                  <div className="flex justify-center items-center">
-                    <a
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                      href={data.rankingUrl}
-                    >
-                      View
-                    </a>
-                  </div>
-                </td>
+                  <td className="text-center border p-3">{data.page}</td>
+                  <td className="text-center border p-3">
+                    {data.Absolute_Rank}
+                  </td>
+                  <td className="text-center border p-3">{data.Group_Rank}</td>
+                  <td className="text-center border p-3">{data.sevenDays}</td>
+                  <td className="text-center border p-3">{data.life}</td>
+                  <td className="text-center text-black border p-3">
+                    {data.comp}
+                  </td>
+                  <td className="text-center text-black border p-3">
+                    {data.sv}
+                  </td>
+                  <td className="text-center border p-3">{data.date}</td>
 
-                <td className="text-center border p-3">
-                  <div className="flex justify-center items-center gap-2">
-                    <KeywordEdit
-                      campaignId={campaignId}
-                      keywordId={keywordId}
-                      showAddedKeyword={showAddedKeyword}
-                      setTableBody={setTableBody}
-                      defaultData={{
-                        url: matchedKeywordData?.url,
-                        keywordTag: matchedKeywordData?.keywordTag ,
-                        searchLocationCode:
-                          matchedKeywordData?.searchLocationCode ,
-                        volumeLocationCode:
-                          matchedKeywordData?.volumeLocationCode ,
-                        language: matchedKeywordData?.language,
-                        SearchEngine:
-                          matchedKeywordData?.SearchEngine,
-                        serpType: matchedKeywordData?.serpType ,
-                        deviceType: matchedKeywordData?.deviceType ,
-                        keywords: [data.keyword],
-                       
-                      }}
-                    />
+                  <td className="text-center border p-3">
+                    <div className="flex justify-center items-center">
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                        href={data.rankingUrl}
+                      >
+                        View
+                      </a>
+                    </div>
+                  </td>
 
-                    <DeleteConfirm
-                      campaignId={campaignId}
-                      keywordId={keywordId}
-                      keyword={data.keyword}
-                      setTableBody={setTableBody}
-                    />
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+                  <td className="text-center border p-3">
+                    <div className="flex justify-center items-center gap-2">
+                      <KeywordEdit
+                        campaignId={campaignId}
+                        keywordId={keywordId}
+                        addEditkeywordsData={addEditkeywordsData}
+                        showAddedKeyword={showAddedKeyword}
+                        setTableBody={setTableBody}
+                        defaultData={{
+                          url: matchedKeywordData?.url || "",
+                          keywordTag: matchedKeywordData?.keywordTag || "",
+                          searchLocationCode:
+                            matchedKeywordData?.searchLocationCode || "",
+                          volumeLocationCode:
+                            matchedKeywordData?.volumeLocationCode || "",
+                          language: matchedKeywordData?.language || "",
+                          SearchEngine: matchedKeywordData?.SearchEngine || "",
+                          serpType: matchedKeywordData?.serpType || "",
+                          deviceType: matchedKeywordData?.deviceType || "",
+                          keywords: [data.keyword],
+                        }}
+                      />
+
+                      <DeleteConfirm
+                        campaignId={campaignId}
+                        keywordId={keywordId}
+                        keyword={data.keyword}
+                        setTableBody={setTableBody}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>

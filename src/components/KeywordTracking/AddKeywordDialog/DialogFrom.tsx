@@ -26,8 +26,12 @@ import { addKeywordsSchema } from "@/lib/zod";
 import { toast } from "sonner";
 import KeywordTextArea from "@/components/KeywordTextArea";
 import debounce from "lodash.debounce";
-import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
+import {
+  getfetchDBLocation,
+  getlanguageData,
+} from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
+import { getfetchDBlocationData } from "@/actions/keywordTracking";
 // import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 // const schema = z.object({
@@ -39,11 +43,13 @@ import { useLoader } from "@/hooks/useLoader";
 //   serpType: z.string().optional(),
 //   deviceType: z.string().optional(),
 // });
-interface compaignid {
+interface DialogFormProps {
   campaignId: string;
+  showAddedKeyword: (keywords: string[]) => void;
 }
-const DialogForm = (campaignId: any) => {
-    const { startLoading, stopLoading } = useLoader();
+
+const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
+  const { startLoading, stopLoading } = useLoader();
   const form = useForm({
     resolver: zodResolver(addKeywordsSchema),
     defaultValues: {
@@ -103,24 +109,19 @@ const DialogForm = (campaignId: any) => {
     };
   }, [volumnQuery, debouncedFetchvolumn]);
 
-  useEffect(()=>{
-const fetchlanguage = async  ()=>{
+  useEffect(() => {
+    const fetchlanguage = async () => {
+      try {
+        const data = await getlanguageData();
 
-  try {
-
-    const data = await getlanguageData()
-    
-    const langdata = data?.allLanguages
-    setLanguages(langdata ?? []);
-    
-  } catch (error) {
-    console.log(error,"language error")
-    
-  }
-}
-fetchlanguage()
-
-},[])
+        const langdata = data?.allLanguages;
+        setLanguages(langdata ?? []);
+      } catch (error) {
+        console.log(error, "language error");
+      }
+    };
+    fetchlanguage();
+  }, []);
 
   const onSubmit = async () => {
     const isValid = await form.trigger();
@@ -139,7 +140,7 @@ fetchlanguage()
     };
 
     console.log(payload, "add kewywords front end data payloadd");
-    startLoading()
+    startLoading();
     try {
       const res = await fetch("/api/add-keywords", {
         method: "POST",
@@ -151,15 +152,27 @@ fetchlanguage()
 
       if (!res.ok) throw new Error("Failed to create keywords");
       if (!res.ok) throw new Error("Failed to create keywords");
-      console.log(res,"res addd");
+      console.log(res, "res addd");
 
       const response = await res.json();
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
       // }
       console.log(response.addedKeywords, "Response from API");
+      console.log(form.getValues("searchLocationCode"), "cod location");
+      const matchlocation = await getfetchDBlocationData(
+        form.getValues("searchLocationCode")
+      );
 
-      await campaignId?.showAddedKeyword(response?.addedKeywords);
+      if (response?.addedKeywords && matchlocation?.locationName) {
+        const modifiedKeywords = response.addedKeywords.map((item: {}) => ({
+          ...item,
+          location_name: matchlocation.locationName.locationName, // <- direct string
+        }));
+
+        await showAddedKeyword(modifiedKeywords);
+      }
+
       // Optionally, you can log the response or handle it as needed
       console.log("Submitted:", response);
       toast.success(response?.message);
@@ -177,8 +190,11 @@ fetchlanguage()
       });
 
       setKeywords([]);
+      setQuery(""); 
+      setVolumnQuery("");
+      setKeywordsText(""); 
       setOpen(false);
-      stopLoading()
+      stopLoading();
       // await getDbLiveKeywordData(campaignId.campaignId)
     } catch (error) {
       console.error("Submission Error:", error);
@@ -190,7 +206,6 @@ fetchlanguage()
     setKeywords(keywords);
   };
 
- 
   const googleDomains: string[] = [
     "google.com",
     "google.com.au",
@@ -351,7 +366,6 @@ fetchlanguage()
                       onChange={(e) => {
                         setQuery(e.target.value);
                         field.onChange(e.target.value); // Update form state
-                       
                       }}
                       className=" w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm "
                       placeholder="Search for location"
@@ -363,7 +377,6 @@ fetchlanguage()
                   <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
                     {isPending && <p className="text-green-500">Loading...</p>}
                     {results.map((loc: any) => {
-                      console.log("Location:", loc);
                       return (
                         <li
                           key={loc._id}

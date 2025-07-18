@@ -27,9 +27,9 @@ export default async function WebLayout({ children }: Props) {
 
   return (
     <div className="flex flex-row">
-      <SidebarWrapper />
-      <div className="flex-flex-col w-full">
-        <Header />
+      
+      <div className="w-full">
+       
         {children}
       </div>
     </div>

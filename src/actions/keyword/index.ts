@@ -14,19 +14,20 @@ export const addMultipleKeyword = async (formData: {},campaign:any) => {
   return addKeyword;
 };
 type KeywordUpdateData = {
-  keywords?: string; // changed from string to string[]
-  SearchEngine?: string;
-  deviceType?: string;
+  url: string;
+  searchLocationCode: number;
   keywordTag?: string;
-  language?: string;
-  searchLocation?: string;
+  SearchEngine?: string;
+  keywords: string; // changed from string[] to string
+  volumeLocationCode?: number;
+  language: string;
   serpType?: string;
-  url?: string;
-  volumeLocation?: string;
-  campaignId?: string; // optional: handle if needed
-  keywordId:string;
-
+  deviceType: string;
+  campaignId: string;
+  keywordId: string;
 };
+
+
 export const createUpdateKeywordById = async (updatedDataform:KeywordUpdateData) => {
   // console.log(keyword,"rttdt");
 

@@ -47,7 +47,7 @@ export default function SidebarWrapper({
     <>
       <div
         className={cn(
-          "h-screen border-r border-muted transition-all duration-300 ease-in-out",
+          "h-screen border-r  z-40 fixed pt-20   bg-white border-muted transition-all duration-300 ease-in-out",
           isCollapsed ? "w-16" : "w-0 md:w-64",
         )}
       >

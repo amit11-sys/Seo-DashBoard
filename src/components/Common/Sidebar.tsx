@@ -6,9 +6,7 @@ import {
   FaUsers, // Users
 } from "react-icons/fa";
 
-
 import { useCampaignData } from "@/app/context/CampaignContext";
-
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -39,7 +37,17 @@ const Sidebar = ({ isCollapsed }: SidebarProps) => {
             label: "",
             icon: FaUsers,
 
-            dropdownItems: organizeData,
+            dropdownItems:
+              campaignData?.length > 0
+                ? organizeData
+                : [
+                    {
+                      title: "No campaigns",
+                      href: "#",
+                      label: "",
+                      icon: FaMinus,
+                    },
+                  ],
           },
         ]}
       />

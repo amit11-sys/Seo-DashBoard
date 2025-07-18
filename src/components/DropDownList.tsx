@@ -373,7 +373,7 @@ const DropDownList = ({
               value={options.find((option) => option.value === value)}
               options={options}
               placeholder={listName || "Select..."}
-              className="react-select-container"
+              className="react-select-container text-sm"
               classNamePrefix="react-select"
               styles={customStyles}
               components={customComponents}

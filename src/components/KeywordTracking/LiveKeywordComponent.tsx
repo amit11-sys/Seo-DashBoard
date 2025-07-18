@@ -14,6 +14,7 @@ import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 import { log, table } from "console";
 import KeywordTextArea from "../KeywordTextArea";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
+import Header from "../Common/Header";
 
 type Tableitems = {
   key: string;
@@ -108,33 +109,33 @@ const LiveKeywordComponent = ({
   const keywordTableData = async () => {
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const data = campaignLiveKeywordsData.newLiveKeywordDbData.map(
-        (item: any) =>  ({
-        keyword: item?.keyword || "",
-        keywordId: item.keywordId,
-         location: item?.location_name?.locationName?.locationName|| "", 
-         intent: item?.intent || "",
-        start: item?.rank_group || 0,
-        page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-        Absolute_Rank: item?.rank_absolute || 0,
-        Group_Rank: item?.rank_group || 0,
-        // oneDay: "1",
-        sevenDays: "-",
-        // thirtyDays: "-",
-        life: item?.rank_absolute || 0,
-        comp: item?.competition || 0,
-        sv: item?.searchVolumn || 0,
-        date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "2-digit",
-        }),
-        rankingUrl: item?.url || "",
-      })
+        (item: any) => ({
+          keyword: item?.keyword || "",
+          keywordId: item.keywordId,
+          location: item?.location_name?.locationName?.locationName || "",
+          intent: item?.intent || "",
+          start: item?.start || 0,
+          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+          Absolute_Rank: item?.rank_absolute || 0,
+          Group_Rank: item?.rank_group || 0,
+          // oneDay: "1",
+          sevenDays: "-",
+          // thirtyDays: "-",
+          life: item?.rank_absolute || 0,
+          comp: item?.competition || 0,
+          sv: item?.searchVolumn || 0,
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item?.url || "",
+        })
       );
       setTableBody(data);
     }
   };
-  console.log(tableBody,"table body");
+  console.log(tableBody, "table body");
 
   // const showAddedKeyword = async (newItem: any) => {
   //   // console.log(newItem, "showadded ok hai");
@@ -170,44 +171,43 @@ const LiveKeywordComponent = ({
 
   //   // }
   // };
-   const showAddedKeyword = (newItem: any) => {
-    // console.log(newItem, "showadded ok hai");
-
+  const showAddedKeyword = (newItem: any) => {
     if (newItem && newItem.length > 0) {
-      const mappedItems = newItem.map((item: any) => 
-        
-        ({
-        keyword: item?.keyword || "",
-         location: item?.location_name?.locationName?.locationName|| "", 
-         intent: item?.intent || "",
-         keywordId: item.keywordId,
-        start: item?.rank_group || 0,
-        page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-        Absolute_Rank: item?.rank_absolute || 0,
-        Group_Rank: item?.rank_group || 0,
-        // oneDay: "1",
-        sevenDays: "-",
-        // thirtyDays: "-",
-        life: item?.rank_absolute || 0,
-        comp: item?.competition || 0,
-        sv: item?.searchVolumn || 0,
-        date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "2-digit",
-        }),
-        rankingUrl: item?.url || "",
-      })
-    
-    );
+      const mappedItems = newItem.map((item: any) => {
+
+        console.log(item, "new added dataa");
+        return {
+          keyword: item?.keyword || "",
+        //  location: item?.location_code?.toString() || "",
+          location: item?.location_name || "",
+          // location: item?.location_name?.locationName?.locationName || "",
+          intent: item?.intent || "",
+          keywordId: item.keywordId,
+          start: item?.start || 0,
+          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+          Absolute_Rank: item?.rank_absolute || 0,
+          Group_Rank: item?.rank_group || 0,
+          // oneDay: "1",
+          sevenDays: "-",
+          // thirtyDays: "-",
+          life: item?.rank_absolute || 0,
+          comp: item?.competition || 0,
+          sv: item?.searchVolumn || 0,
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item?.url || "",
+        };
+      });
 
       setTableBody((prev) => [...prev, ...mappedItems]);
     }
   };
 
-
   return (
-    <div className="w-full min-h-[80vh] text-gray-100 py-8 space-y-12">
+    <div className="w-full min-h-[80vh]  text-gray-100  space-y-12">
       {/* Header */}
       <div className="my-14  backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader

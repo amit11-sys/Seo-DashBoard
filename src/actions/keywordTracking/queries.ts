@@ -130,7 +130,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     const newLiveKeywordDbData = await Promise.all(
   LiveKeywordDbData.map(async (item) => {
     const locationName = await fetchDBlocationData(item.location_code);
-    console.log(item, "location map");
+    // console.log(item, "location map");
 
     const plainItem = item.toObject();  // convert to plain JS object
 
@@ -151,6 +151,67 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
       success: true,
       message: "LiveKeywordDbData Successfully Found",
       newLiveKeywordDbData,
+      // locationName,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+export const LiveKeywordDatabyKeyID = async (keywordId: string) => {
+  try {
+    await connectToDB();
+
+    // const user = await getUserFromToken();
+    // if (!user) {
+    //   return { error: "Unauthorized" };
+    // }
+    // console.log(user);
+    // console.log(newCompaignId,"newkeywordCampaign")
+
+    const signleKeywordDbData = await KeywordTracking.find({
+      keywordId: keywordId,
+      status: 1,
+    });
+    console.log(signleKeywordDbData, "edit updq table data");
+
+    //  add location in data
+    // const newLiveKeywordDbData = await Promise.all(
+    //   LiveKeywordDbData.map(async (item) => {
+    //     const locationName = await fetchDBlocationData(item.location_code);
+    //     console.log(item, "location map");
+    //     return {
+    //       ...item,
+    //       location_name: locationName || "",
+    //     };
+    //   })
+    // );
+    const singleEditLiveKeywordDbData = await Promise.all(
+  signleKeywordDbData.map(async (item) => {
+    const locationName = await fetchDBlocationData(item.location_code);
+    // console.log(item, "location map");
+
+    const plainItem = item.toObject();  // convert to plain JS object
+
+    return {
+      ...plainItem,
+      location_name: locationName || "",
+    };
+  })
+);
+
+    console.log(singleEditLiveKeywordDbData, "edit data");
+
+    if (!signleKeywordDbData) {
+      return { error: "Error while getting LiveKeywordDbData" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "LiveKeywordDbData Successfully Found",
+      singleEditLiveKeywordDbData,
       // locationName,
     };
     // }

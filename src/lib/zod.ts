@@ -63,3 +63,15 @@ export const addKeywordsSchema = z.object({
   serpType: z.string().optional(),
   deviceType: z.string().min(1, { message: "DeviceType is required" }),
 });
+export const editKeywordsSchema = z.object({
+  url: z.string().url({ message: "Please enter a valid URL" }),
+  searchLocationCode: z.number().min(1, { message: "Search Location is required" }),
+  keywordTag: z.string().optional(),
+  SearchEngine: z.string().optional(),
+  // keywords: z.array( z.string().min(1, { message: "Please provide at least one keyword" })),
+  keywords: z.string().min(1, { message: "Please provide at least one keyword" }),
+  volumeLocationCode: z.number().optional(),
+  language: z.string().min(1, { message: "Language is required" }),
+  serpType: z.string().optional(),
+  deviceType: z.string().min(1, { message: "DeviceType is required" }),
+});

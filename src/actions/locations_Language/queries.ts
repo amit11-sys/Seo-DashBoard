@@ -28,7 +28,7 @@ export const getlanguage = async () => {
         }
       );
       const langData = await res.json();
-       console.log(langData?.tasks[0]?.result[0]?.available_languages[0].language_name,"location api")
+      //  console.log(langData?.tasks[0]?.result[0]?.available_languages[0].language_name,"location api")
       // const allLocations: { locationName: string; locationCode: number }[] = [];
       const allLanguages: string[] = [];
 

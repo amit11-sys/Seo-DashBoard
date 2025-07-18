@@ -28,8 +28,8 @@ export const addkeywords = async (formData: any) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-    // console.log(formData, "formdata");
-    const campaignId = formData?.campaignId?.campaignId; // ✅ FIXED
+    console.log(formData, "formdata addd");
+    const campaignId = formData?.campaignId; // ✅ FIXED
     // console.log(campaignId, "formdat id");
     const { keywords, ...rest } = formData;
 

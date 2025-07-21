@@ -87,8 +87,8 @@
       deviceType: "",
     },
   });
-    console.log(defaultData, "defaultttt");
-  console.log(typeof form.getValues().keywords, form.getValues().keywords,"lokking");
+    // console.log(defaultData, "defaultttt");
+  // console.log(typeof form.getValues().keywords, form.getValues().keywords,"lokking");
 
 
     const [tagsInput, setTagsInput] = useState("");

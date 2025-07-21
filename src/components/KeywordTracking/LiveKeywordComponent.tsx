@@ -105,7 +105,18 @@ const LiveKeywordComponent = ({
     }
   }, [campaignLiveKeywordsData]);
   // console.log(campaignLiveKeywordsData, "use effect data");
+const now = Date.now(); // gives current timestamp in ms
 
+const readableDate = new Date(now).toLocaleString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+});
+
+console.log(readableDate,"realtime date"); 
   const keywordTableData = async () => {
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const data = campaignLiveKeywordsData.newLiveKeywordDbData.map(

@@ -1,6 +1,7 @@
 "use server";
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
+import Campaign from "@/lib/models/campaign.model";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import Location from "@/lib/models/Location.model";
@@ -280,6 +281,40 @@ export const getStartData = async (
       message: "Start Successfully updated",
       startUpdatedData,
     };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+
+// used for dashboard heading click function
+export const firstCompaignData = async () => {
+  try {
+    await connectToDB();
+
+    // const user = await getUserFromToken();
+    // if (!user) {
+    //   return { error: "Unauthorized" };
+    // }
+    // console.log(user);
+    // console.log(newCompaignId,"newkeywordCampaign")
+    const firstCompagin = await Campaign.findOne()
+    console.log(firstCompagin,"first compaign")
+     
+
+    // console.log(campaignKeywords,"fromkeywordtracking")
+
+    if (!firstCompagin) {
+      return { error: "Error while getting First compaign" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "First Compaign Successfully Found",
+      firstCompagin,
+    };
+    // }
   } catch (error) {
     console.log(error);
 

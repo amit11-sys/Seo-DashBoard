@@ -10,7 +10,7 @@ const keywordSchema = new mongoose.Schema(
     language: { type: String },
     name: { type: String },
     searchLocationCode: { type: String },
-
+    date : { type: String },
     serpType: { type: String },
     url: { type: String },
     volumeLocationCode: { type: String },

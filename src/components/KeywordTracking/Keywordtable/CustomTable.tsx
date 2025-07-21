@@ -133,7 +133,7 @@ const CustomTable = ({
             tableData.map((data, rowIndex) => {
               const keywordId = data.keywordId;
 
-              const matchedKeywordData = keywordDbData.find(
+              const matchedKeywordData = keywordDbData?.find(
                 (item: { _id: string }) => item._id === keywordId
               );
 

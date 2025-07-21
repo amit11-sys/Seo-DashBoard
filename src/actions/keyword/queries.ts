@@ -1,5 +1,6 @@
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { getUserFromToken } from "@/app/utils/auth";
+import { defaultSearchVolume } from "@/lib/Constant";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 // import User from "@/lib/models/user.model";
@@ -1152,41 +1153,41 @@ type KeywordUpdateData = {
   keywordId: string;
 };
 export const deleteKeywordById = async (deletedData: { keywordId: string }) => {
-        try {
-          await connectToDB();
-      
-          const user = await getUserFromToken();
-          if (!user) {
-            return { error: "Unauthorized" };
-          }
-      
-          const { keywordId } = deletedData;
-          console.log(keywordId, "delet id");
-      
-          // ✅ Update keyword document status to 2 (soft delete)
-          const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
-            { keywordId },
-            { $set: { status: 2 } },
-            { new: true }
-          );
-      
-          console.log(modifiedStatusKeyword, "status del");
-      
-          if (!modifiedStatusKeyword) {
-            return { error: "Keyword delete failed" };
-          }
-      
-          return {
-            success: true,
-            message: "Keyword deleted successfully",
-          };
-        } catch (error: any) {
-          console.error("Delete failed:", error);
-          return {
-            error: "Internal Server Error",
-          };
-        }
-      };
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const { keywordId } = deletedData;
+    console.log(keywordId, "delet id");
+
+    // ✅ Update keyword document status to 2 (soft delete)
+    const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
+      { keywordId },
+      { $set: { status: 2 } },
+      { new: true }
+    );
+
+    console.log(modifiedStatusKeyword, "status del");
+
+    if (!modifiedStatusKeyword) {
+      return { error: "Keyword delete failed" };
+    }
+
+    return {
+      success: true,
+      message: "Keyword deleted successfully",
+    };
+  } catch (error: any) {
+    console.error("Delete failed:", error);
+    return {
+      error: "Internal Server Error",
+    };
+  }
+};
 export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
   try {
     await connectToDB();
@@ -1197,8 +1198,8 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     }
 
     const { keywordId, campaignId } = updatedData;
-    console.log(updatedData,"edit data backend")  
-    console.log(keywordId,campaignId,"idsies")
+    console.log(updatedData, "edit data backend");
+    console.log(keywordId, campaignId, "idsies");
 
     // Update keyword document
     const updatedKeyword = await Keyword.findByIdAndUpdate(
@@ -1207,7 +1208,6 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
       { new: true }
     );
 
-
     console.log(updatedKeyword, "updated keywoerds");
     if (!updatedKeyword) {
       return { error: "Keyword not found" };
@@ -1215,11 +1215,11 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     console.log(updatedKeyword, ";updatedKeyword");
 
     const rankdata = await getKewordRank([updatedKeyword]);
-    const VolumnData = await getVolumnRank([updatedKeyword]);
+    // const VolumnData = await getVolumnRank([updatedKeyword]);
     const intentData = await getRankIntent([updatedKeyword]);
 
     console.log(rankdata?.rankResponses, "rankdata");
-    console.log(VolumnData?.volumnResponses, "volumn data");
+    // console.log(VolumnData?.volumnResponses, "volumn data");
     console.log(intentData?.intentResponses, "intent data");
 
     // const finalData =
@@ -1278,7 +1278,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     //         };
     //       })
     //     : [];
-const finalData =
+    const finalData =
       rankdata && "rankResponses" in rankdata
         ? rankdata?.rankResponses?.map((rankItem: any) => {
             console.log(rankItem, "rankItem");
@@ -1292,15 +1292,15 @@ const finalData =
             );
             console.log(matchedKeyword, "matchedKeyword");
             // Get corresponding volume data for this keyword
-            const volumnResponse = VolumnData?.volumnResponses?.find(
-              (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
-            );
-            const volumeItem =
-              volumnResponse?.response?.tasks?.[0]?.result?.find(
-                (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
-              );
-            const matchSearchVolumn = volumeItem?.search_volume ?? 0;
-            const matchcompetition = volumeItem?.competition ?? 0;
+            // const volumnResponse = VolumnData?.volumnResponses?.find(
+            //   (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+            // );
+            // const volumeItem =
+            //   volumnResponse?.response?.tasks?.[0]?.result?.find(
+            //     (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
+            //   );
+            // const matchSearchVolumn = volumeItem?.search_volume ?? 0;
+            // const matchcompetition = volumeItem?.competition ?? 0;
 
             // Get corresponding intent data for this keyword
             const intentResponse = intentData?.intentResponses?.find(
@@ -1328,9 +1328,9 @@ const finalData =
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: newKeyword || "",
-              searchVolumn: matchSearchVolumn || 0,
+              searchVolumn:defaultSearchVolume,
               intent: matchIntent || "",
-              competition: matchcompetition || 0,
+              competition: 0,
               campaignId: campaignId || "",
               keywordId: matchedKeyword?._id || "",
               // start: data?.items?.[0]?.rank_group || 0,
@@ -1338,8 +1338,7 @@ const finalData =
           })
         : [];
 
-
-            const data = finalData?.[0]
+    const data = finalData?.[0];
     const addedTracking = await KeywordTracking.findOneAndUpdate(
       { keywordId: keywordId },
       { $set: data },
@@ -1357,7 +1356,6 @@ const finalData =
     console.error("Update failed:", error);
     return {
       error: "Internal Server Error",
-      
     };
   }
 };
@@ -1373,14 +1371,36 @@ export const saveMultipleKeyword = async (
       return { error: "Unauthorized" };
     }
 
+    // const addKeyword = await Promise.all(
+    //   formData?.keyword?.map(async (singleKeyword: string) => {
+    //     const { keywords, ...rest } = formData;
+    //     return await Keyword.create({
+    //       ...rest,
+    //       keywords: singleKeyword,
+    //       userId: user?.id,
+    //       CampaignId: campaign?._id,
+    //     });
+    //   })
+    // );
+
     const addKeyword = await Promise.all(
       formData?.keyword?.map(async (singleKeyword: string) => {
         const { keywords, ...rest } = formData;
+
+        const now = new Date();
+        // const formattedDate = now.toLocaleDateString("en-GB", {
+        //   day: "2-digit",
+        //   month: "short",
+        //   year: "numeric",
+        // });
+
         return await Keyword.create({
           ...rest,
           keywords: singleKeyword,
           userId: user?.id,
           CampaignId: campaign?._id,
+        
+          date: now, // custom field formatted
         });
       })
     );

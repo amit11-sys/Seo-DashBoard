@@ -9,6 +9,9 @@ import { FaPlus, FaPowerOff } from "react-icons/fa6";
 
 import BlueButton from "../ui/CustomButton";
 import { MdDashboard } from "react-icons/md";
+import { useEffect, useState } from "react";
+import { getUserCampaign } from "@/actions/campaign";
+import { getfirstCompaignData } from "@/actions/keywordTracking";
 
 type Props = {
   // setIsCollapsed: (isCollapsed: boolean) => void;
@@ -19,6 +22,7 @@ export default function Header() {
   // const handleToggle = () => {
   //   setIsCollapsed(!isCollapsed);
   // };
+  const [FirstCompaign, setFirstCompaign] = useState("");
   const router = useRouter();
   const onLogout = async () => {
     const logout = await logoutUser();
@@ -27,6 +31,18 @@ export default function Header() {
       toast("Logout Successfully");
     }
   };
+  useEffect(() => {
+    const fetchFirstCampaign = async () => {
+      try {
+        const fetchCompaigns = await getfirstCompaignData();
+        console.log(fetchCompaigns?.firstCompagin?._id, "first fetch");
+        setFirstCompaign(fetchCompaigns?.firstCompagin?._id);
+      } catch (error) {
+        console.log(error, "failed to fetch compaign nav header");
+      }
+    };
+    fetchFirstCampaign();
+  }, []);
 
   return (
     <>
@@ -51,9 +67,8 @@ export default function Header() {
                 >
                   <Link
                     className="flex justify-center items-center gap-4"
-                    href="/dashboard"
+                    href={`/dashboard/${FirstCompaign}`}
                   >
-                    {" "}
                     <MdDashboard />
                     ANALYTICS-DASHBOARD
                   </Link>

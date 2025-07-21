@@ -1,15 +1,61 @@
-"use server"
+"use server";
 
-import { saveKeyword, saveMultipleKeyword } from "./queries"
+import {  deleteKeywordById,  saveMultipleKeyword, updateKeywordById } from "./queries";
 
-export const addKeyword=async (keyword:string)=>{
-    const addKeyword= await saveKeyword(keyword)
-    return addKeyword
+// export const addKeyword=async (keyword:{})=>{
+//     const addKeyword= await saveKeyword(keyword)
+//     return addKeyword
+// }
+
+export const addMultipleKeyword = async (formData: {},campaign:any) => {
+  // console.log(keyword,"rttdt");
+
+  const addKeyword = await saveMultipleKeyword(formData,campaign?.campaign);
+  return addKeyword;
+};
+type KeywordUpdateData = {
+  url: string;
+  searchLocationCode: number;
+  keywordTag?: string;
+  SearchEngine?: string;
+  keywords: string; // changed from string[] to string
+  volumeLocationCode?: number;
+  language: string;
+  serpType?: string;
+  deviceType: string;
+  campaignId: string;
+  keywordId: string;
+};
+
+
+export const createUpdateKeywordById = async (updatedDataform:KeywordUpdateData) => {
+  // console.log(keyword,"rttdt");
+
+  const updatedData = await updateKeywordById(updatedDataform);
+  return updatedData;
+};
+export const deleteKeywordData = async (deletedData:any) => {
+  // console.log(keyword,"rttdt");
+
+  const deleteKeyworddata = await deleteKeywordById(deletedData);
+  return deleteKeyworddata;
+};
+interface compaigntype {
+  _id: string;
 }
+// export const getVolumnRank = async (KeywordData:any) => {
+//   // console.log(keyword,"rttdt");
 
-export const addMultipleKeyword=async (keyword:[])=>{
-    console.log(keyword);
-    
-    const addKeyword=await saveMultipleKeyword(keyword);
-    return addKeyword
-}
+//   const volumnRankData = await volumnRank(KeywordData);
+//   return volumnRankData;
+// };
+// export const getRankIntent = async (KeywordData:any) => {
+//   // console.log(keyword,"rttdt");
+
+//   const rankIntentData = await rankIntent(KeywordData);
+//   return rankIntentData;
+// };
+// export const getKewordRank = async (KeywordData:any) => {
+//   const kewordRankData = await kewordRank(KeywordData);
+//   return kewordRankData;
+// };

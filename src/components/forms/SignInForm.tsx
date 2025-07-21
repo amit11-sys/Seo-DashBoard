@@ -3,8 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { signInSchema, signUpSchema } from "@/lib/zod";
-import { Button } from "@/components/ui/button";
+import { signInSchema } from "@/lib/zod";
 import { toast } from "sonner";
 import {
   Form,
@@ -14,15 +13,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { createUser, getLoggedInUser } from "@/actions/user";
-import { useLoader } from "@/hooks/useLoader";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+import { getLoggedInUser } from "@/actions/user";
+import { useLoader } from "@/hooks/useLoader";
+import { NewCustomInput } from "../NewCustomInput";
+import CustomButton from "../ui/CustomButton";
+import { motion } from "framer-motion";
+// import { getUserCampaign } from "@/actions/campaign";
 
 export default function SignInForm() {
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
+
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -31,62 +35,100 @@ export default function SignInForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof signInSchema>) {
-    startLoading(); // ✅ Start loading
-
+  const onSubmit = async (values: z.infer<typeof signInSchema>) => {
+    startLoading();
     try {
       const user = await getLoggedInUser(values);
-
       if (user?.success) {
-        router.push("/");
-        toast("Login Successfully");
+        toast.success("Login Successful");
+
+        const campaignId = user?.campaignId
+
+        if (campaignId) {
+          router.push(`/dashboard/${campaignId}`);
+        }
+        else {
+          router.push(`/add-campaign`);
+        }
+
       } else {
-        toast(user?.error);
+        toast.error(user?.error || "Invalid credentials");
       }
     } catch (error) {
-      toast("Something went wrong");
+      toast.error("Something went wrong");
     } finally {
       stopLoading();
     }
-  }
-
+  };
 
   return (
-    <Form {...form}>
-      <h1 className="text-xl text-center font-semibold">SIGN IN</h1>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <motion.div
+      initial={{ opacity: 1, y: 30, scale: 0.8 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{
+        type: "spring",
+        stiffness: 80,
+        damping: 15,
+        duration: 0.6,
+      }}
+      className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl"
+    >
+      <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+        Sign In
+      </h1>
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Link href="/forgot-password" className="text-sm text-right text-blue-600">Forgot Password</Link>
-        <div className="flex flex-col items-center justify-between">
-          <Button type="submit" className="text-center">Submit</Button>
-        </div>
-      </form>
-    </Form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <NewCustomInput placeholder="Enter your email" {...field} />
+                </FormControl>
+                <FormMessage className="error-msg" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <NewCustomInput
+                    placeholder="Enter your password"
+                    showPasswordToggle={true}
+                    type="password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className="error-msg" />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-between items-center text-sm">
+            <Link
+              href="/forgot-password"
+              className="text-[#182E57] hover:underline"
+            >
+              Forgot Password?
+            </Link>
+            <Link href="/sign-up" className="text-[#182E57] hover:underline">
+              Don&apos;t have an account? Sign up
+            </Link>
+          </div>
+
+          <div className="pt-4 flex justify-center">
+            <CustomButton type="submit" buttonName="Submit" />
+          </div>
+        </form>
+      </Form>
+    </motion.div>
   );
 }

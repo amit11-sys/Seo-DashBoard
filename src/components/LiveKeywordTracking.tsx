@@ -4,14 +4,10 @@ import { getLiveKeywordData } from "@/actions/analytics";
 import { useQuery } from "@tanstack/react-query";
 
 const LiveKeywordTracking = () => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const {refetch } = useQuery({
     queryKey: ["keyworTracking"],
     queryFn: () => getLiveKeywordData("siding-minnesota.com"), enabled:false
   });
-// console.log(data);
-
-//   if (isLoading) return <div>Loading...</div>;
-//   if (error instanceof Error) return <div>Error: {error.message}</div>;
 
   return (
     <div>

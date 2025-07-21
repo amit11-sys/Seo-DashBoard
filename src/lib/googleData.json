@@ -1,0 +1,1192 @@
+{
+    "analyticData": [
+        {
+            "keys": [
+                "ind"
+            ],
+            "clicks": 19,
+            "impressions": 368,
+            "ctr": 0.051630434782608696,
+            "position": 39.32608695652174
+        },
+        {
+            "keys": [
+                "usa"
+            ],
+            "clicks": 2,
+            "impressions": 3798,
+            "ctr": 0.000526592943654555,
+            "position": 56.27619799894681
+        },
+        {
+            "keys": [
+                "fra"
+            ],
+            "clicks": 1,
+            "impressions": 41,
+            "ctr": 0.024390243902439025,
+            "position": 48.78048780487805
+        },
+        {
+            "keys": [
+                "hrv"
+            ],
+            "clicks": 1,
+            "impressions": 3,
+            "ctr": 0.3333333333333333,
+            "position": 14.333333333333334
+        },
+        {
+            "keys": [
+                "ago"
+            ],
+            "clicks": 0,
+            "impressions": 10,
+            "ctr": 0,
+            "position": 54.2
+        },
+        {
+            "keys": [
+                "alb"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 59
+        },
+        {
+            "keys": [
+                "are"
+            ],
+            "clicks": 0,
+            "impressions": 9,
+            "ctr": 0,
+            "position": 45.77777777777778
+        },
+        {
+            "keys": [
+                "arg"
+            ],
+            "clicks": 0,
+            "impressions": 74,
+            "ctr": 0,
+            "position": 46.63513513513514
+        },
+        {
+            "keys": [
+                "arm"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 62
+        },
+        {
+            "keys": [
+                "atg"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 43
+        },
+        {
+            "keys": [
+                "aus"
+            ],
+            "clicks": 0,
+            "impressions": 30,
+            "ctr": 0,
+            "position": 50.666666666666664
+        },
+        {
+            "keys": [
+                "aut"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 37.75
+        },
+        {
+            "keys": [
+                "aze"
+            ],
+            "clicks": 0,
+            "impressions": 9,
+            "ctr": 0,
+            "position": 53.333333333333336
+        },
+        {
+            "keys": [
+                "bel"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 57
+        },
+        {
+            "keys": [
+                "bfa"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 61
+        },
+        {
+            "keys": [
+                "bgd"
+            ],
+            "clicks": 0,
+            "impressions": 109,
+            "ctr": 0,
+            "position": 52.11926605504587
+        },
+        {
+            "keys": [
+                "bgr"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 52.2
+        },
+        {
+            "keys": [
+                "bhr"
+            ],
+            "clicks": 0,
+            "impressions": 10,
+            "ctr": 0,
+            "position": 52.3
+        },
+        {
+            "keys": [
+                "bhs"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 56.57142857142857
+        },
+        {
+            "keys": [
+                "bih"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 56.25
+        },
+        {
+            "keys": [
+                "blr"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 48.6
+        },
+        {
+            "keys": [
+                "bol"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 45
+        },
+        {
+            "keys": [
+                "bra"
+            ],
+            "clicks": 0,
+            "impressions": 940,
+            "ctr": 0,
+            "position": 49.05531914893617
+        },
+        {
+            "keys": [
+                "brb"
+            ],
+            "clicks": 0,
+            "impressions": 8,
+            "ctr": 0,
+            "position": 42.875
+        },
+        {
+            "keys": [
+                "brn"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 40
+        },
+        {
+            "keys": [
+                "can"
+            ],
+            "clicks": 0,
+            "impressions": 104,
+            "ctr": 0,
+            "position": 51.06730769230769
+        },
+        {
+            "keys": [
+                "che"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 41.42857142857143
+        },
+        {
+            "keys": [
+                "chl"
+            ],
+            "clicks": 0,
+            "impressions": 21,
+            "ctr": 0,
+            "position": 54.23809523809524
+        },
+        {
+            "keys": [
+                "chn"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 52.25
+        },
+        {
+            "keys": [
+                "civ"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 41
+        },
+        {
+            "keys": [
+                "cog"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 28
+        },
+        {
+            "keys": [
+                "col"
+            ],
+            "clicks": 0,
+            "impressions": 27,
+            "ctr": 0,
+            "position": 49.22222222222222
+        },
+        {
+            "keys": [
+                "cri"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 38.5
+        },
+        {
+            "keys": [
+                "cyp"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 71.5
+        },
+        {
+            "keys": [
+                "cze"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 52
+        },
+        {
+            "keys": [
+                "deu"
+            ],
+            "clicks": 0,
+            "impressions": 79,
+            "ctr": 0,
+            "position": 53.11392405063291
+        },
+        {
+            "keys": [
+                "dnk"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 58.8
+        },
+        {
+            "keys": [
+                "dom"
+            ],
+            "clicks": 0,
+            "impressions": 12,
+            "ctr": 0,
+            "position": 70.66666666666667
+        },
+        {
+            "keys": [
+                "dza"
+            ],
+            "clicks": 0,
+            "impressions": 16,
+            "ctr": 0,
+            "position": 45.4375
+        },
+        {
+            "keys": [
+                "ecu"
+            ],
+            "clicks": 0,
+            "impressions": 24,
+            "ctr": 0,
+            "position": 53.166666666666664
+        },
+        {
+            "keys": [
+                "egy"
+            ],
+            "clicks": 0,
+            "impressions": 14,
+            "ctr": 0,
+            "position": 50.214285714285715
+        },
+        {
+            "keys": [
+                "esp"
+            ],
+            "clicks": 0,
+            "impressions": 37,
+            "ctr": 0,
+            "position": 46.08108108108108
+        },
+        {
+            "keys": [
+                "est"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 35
+        },
+        {
+            "keys": [
+                "fin"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 43.57142857142857
+        },
+        {
+            "keys": [
+                "fji"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 48
+        },
+        {
+            "keys": [
+                "gab"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 63.5
+        },
+        {
+            "keys": [
+                "gbr"
+            ],
+            "clicks": 0,
+            "impressions": 392,
+            "ctr": 0,
+            "position": 53.38775510204081
+        },
+        {
+            "keys": [
+                "grc"
+            ],
+            "clicks": 0,
+            "impressions": 3,
+            "ctr": 0,
+            "position": 75.33333333333333
+        },
+        {
+            "keys": [
+                "gtm"
+            ],
+            "clicks": 0,
+            "impressions": 3,
+            "ctr": 0,
+            "position": 56.333333333333336
+        },
+        {
+            "keys": [
+                "guy"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 42.75
+        },
+        {
+            "keys": [
+                "hkg"
+            ],
+            "clicks": 0,
+            "impressions": 10,
+            "ctr": 0,
+            "position": 55.5
+        },
+        {
+            "keys": [
+                "hnd"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 53
+        },
+        {
+            "keys": [
+                "hti"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 42
+        },
+        {
+            "keys": [
+                "hun"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 56.2
+        },
+        {
+            "keys": [
+                "idn"
+            ],
+            "clicks": 0,
+            "impressions": 117,
+            "ctr": 0,
+            "position": 51.56410256410256
+        },
+        {
+            "keys": [
+                "irl"
+            ],
+            "clicks": 0,
+            "impressions": 10,
+            "ctr": 0,
+            "position": 49
+        },
+        {
+            "keys": [
+                "irn"
+            ],
+            "clicks": 0,
+            "impressions": 18,
+            "ctr": 0,
+            "position": 44.05555555555556
+        },
+        {
+            "keys": [
+                "irq"
+            ],
+            "clicks": 0,
+            "impressions": 113,
+            "ctr": 0,
+            "position": 50.469026548672566
+        },
+        {
+            "keys": [
+                "isr"
+            ],
+            "clicks": 0,
+            "impressions": 23,
+            "ctr": 0,
+            "position": 55.82608695652174
+        },
+        {
+            "keys": [
+                "ita"
+            ],
+            "clicks": 0,
+            "impressions": 46,
+            "ctr": 0,
+            "position": 54.93478260869565
+        },
+        {
+            "keys": [
+                "jam"
+            ],
+            "clicks": 0,
+            "impressions": 8,
+            "ctr": 0,
+            "position": 52.75
+        },
+        {
+            "keys": [
+                "jor"
+            ],
+            "clicks": 0,
+            "impressions": 44,
+            "ctr": 0,
+            "position": 54.72727272727273
+        },
+        {
+            "keys": [
+                "jpn"
+            ],
+            "clicks": 0,
+            "impressions": 54,
+            "ctr": 0,
+            "position": 54.44444444444444
+        },
+        {
+            "keys": [
+                "kaz"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 52.75
+        },
+        {
+            "keys": [
+                "ken"
+            ],
+            "clicks": 0,
+            "impressions": 6,
+            "ctr": 0,
+            "position": 49.666666666666664
+        },
+        {
+            "keys": [
+                "kgz"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 56.5
+        },
+        {
+            "keys": [
+                "khm"
+            ],
+            "clicks": 0,
+            "impressions": 3,
+            "ctr": 0,
+            "position": 60.666666666666664
+        },
+        {
+            "keys": [
+                "kna"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 31
+        },
+        {
+            "keys": [
+                "kor"
+            ],
+            "clicks": 0,
+            "impressions": 55,
+            "ctr": 0,
+            "position": 51.85454545454545
+        },
+        {
+            "keys": [
+                "kwt"
+            ],
+            "clicks": 0,
+            "impressions": 3,
+            "ctr": 0,
+            "position": 53.333333333333336
+        },
+        {
+            "keys": [
+                "lao"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 64
+        },
+        {
+            "keys": [
+                "lbn"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 32
+        },
+        {
+            "keys": [
+                "lby"
+            ],
+            "clicks": 0,
+            "impressions": 3,
+            "ctr": 0,
+            "position": 80
+        },
+        {
+            "keys": [
+                "lca"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 25
+        },
+        {
+            "keys": [
+                "lka"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 32
+        },
+        {
+            "keys": [
+                "ltu"
+            ],
+            "clicks": 0,
+            "impressions": 13,
+            "ctr": 0,
+            "position": 45
+        },
+        {
+            "keys": [
+                "lva"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 43.8
+        },
+        {
+            "keys": [
+                "mar"
+            ],
+            "clicks": 0,
+            "impressions": 33,
+            "ctr": 0,
+            "position": 49.878787878787875
+        },
+        {
+            "keys": [
+                "mda"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 56
+        },
+        {
+            "keys": [
+                "mex"
+            ],
+            "clicks": 0,
+            "impressions": 59,
+            "ctr": 0,
+            "position": 47.66101694915254
+        },
+        {
+            "keys": [
+                "mkd"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 50
+        },
+        {
+            "keys": [
+                "mmr"
+            ],
+            "clicks": 0,
+            "impressions": 20,
+            "ctr": 0,
+            "position": 49.2
+        },
+        {
+            "keys": [
+                "mng"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 65.75
+        },
+        {
+            "keys": [
+                "mys"
+            ],
+            "clicks": 0,
+            "impressions": 71,
+            "ctr": 0,
+            "position": 48.61971830985915
+        },
+        {
+            "keys": [
+                "nga"
+            ],
+            "clicks": 0,
+            "impressions": 2,
+            "ctr": 0,
+            "position": 54
+        },
+        {
+            "keys": [
+                "nic"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 45
+        },
+        {
+            "keys": [
+                "nld"
+            ],
+            "clicks": 0,
+            "impressions": 44,
+            "ctr": 0,
+            "position": 48.02272727272727
+        },
+        {
+            "keys": [
+                "nor"
+            ],
+            "clicks": 0,
+            "impressions": 9,
+            "ctr": 0,
+            "position": 42.888888888888886
+        },
+        {
+            "keys": [
+                "npl"
+            ],
+            "clicks": 0,
+            "impressions": 38,
+            "ctr": 0,
+            "position": 44.1578947368421
+        },
+        {
+            "keys": [
+                "nzl"
+            ],
+            "clicks": 0,
+            "impressions": 8,
+            "ctr": 0,
+            "position": 44.125
+        },
+        {
+            "keys": [
+                "omn"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 49
+        },
+        {
+            "keys": [
+                "pak"
+            ],
+            "clicks": 0,
+            "impressions": 102,
+            "ctr": 0,
+            "position": 49.088235294117645
+        },
+        {
+            "keys": [
+                "pan"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 46.75
+        },
+        {
+            "keys": [
+                "per"
+            ],
+            "clicks": 0,
+            "impressions": 23,
+            "ctr": 0,
+            "position": 50.26086956521739
+        },
+        {
+            "keys": [
+                "phl"
+            ],
+            "clicks": 0,
+            "impressions": 101,
+            "ctr": 0,
+            "position": 51.06930693069307
+        },
+        {
+            "keys": [
+                "pol"
+            ],
+            "clicks": 0,
+            "impressions": 13,
+            "ctr": 0,
+            "position": 58.92307692307692
+        },
+        {
+            "keys": [
+                "pri"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 54.2
+        },
+        {
+            "keys": [
+                "prt"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 44.6
+        },
+        {
+            "keys": [
+                "pry"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 60.42857142857143
+        },
+        {
+            "keys": [
+                "pse"
+            ],
+            "clicks": 0,
+            "impressions": 6,
+            "ctr": 0,
+            "position": 54.333333333333336
+        },
+        {
+            "keys": [
+                "qat"
+            ],
+            "clicks": 0,
+            "impressions": 6,
+            "ctr": 0,
+            "position": 48.833333333333336
+        },
+        {
+            "keys": [
+                "rou"
+            ],
+            "clicks": 0,
+            "impressions": 18,
+            "ctr": 0,
+            "position": 59.388888888888886
+        },
+        {
+            "keys": [
+                "rus"
+            ],
+            "clicks": 0,
+            "impressions": 121,
+            "ctr": 0,
+            "position": 54.87603305785124
+        },
+        {
+            "keys": [
+                "sau"
+            ],
+            "clicks": 0,
+            "impressions": 168,
+            "ctr": 0,
+            "position": 50.583333333333336
+        },
+        {
+            "keys": [
+                "sen"
+            ],
+            "clicks": 0,
+            "impressions": 5,
+            "ctr": 0,
+            "position": 46.6
+        },
+        {
+            "keys": [
+                "sgp"
+            ],
+            "clicks": 0,
+            "impressions": 7,
+            "ctr": 0,
+            "position": 56
+        },
+        {
+            "keys": [
+                "slv"
+            ],
+            "clicks": 0,
+            "impressions": 6,
+            "ctr": 0,
+            "position": 52.166666666666664
+        },
+        {
+            "keys": [
+                "som"
+            ],
+            "clicks": 0,
+            "impressions": 3,
+            "ctr": 0,
+            "position": 46.666666666666664
+        },
+        {
+            "keys": [
+                "srb"
+            ],
+            "clicks": 0,
+            "impressions": 6,
+            "ctr": 0,
+            "position": 61.5
+        },
+        {
+            "keys": [
+                "sur"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 45
+        },
+        {
+            "keys": [
+                "svk"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 50
+        },
+        {
+            "keys": [
+                "svn"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 58
+        },
+        {
+            "keys": [
+                "swe"
+            ],
+            "clicks": 0,
+            "impressions": 8,
+            "ctr": 0,
+            "position": 44.875
+        },
+        {
+            "keys": [
+                "syc"
+            ],
+            "clicks": 0,
+            "impressions": 4,
+            "ctr": 0,
+            "position": 49
+        },
+        {
+            "keys": [
+                "syr"
+            ],
+            "clicks": 0,
+            "impressions": 8,
+            "ctr": 0,
+            "position": 53.875
+        },
+        {
+            "keys": [
+                "tgo"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 42
+        },
+        {
+            "keys": [
+                "tha"
+            ],
+            "clicks": 0,
+            "impressions": 37,
+            "ctr": 0,
+            "position": 46.86486486486486
+        },
+        {
+            "keys": [
+                "tto"
+            ],
+            "clicks": 0,
+            "impressions": 13,
+            "ctr": 0,
+            "position": 47.46153846153846
+        },
+        {
+            "keys": [
+                "tun"
+            ],
+            "clicks": 0,
+            "impressions": 18,
+            "ctr": 0,
+            "position": 46.611111111111114
+        },
+        {
+            "keys": [
+                "tur"
+            ],
+            "clicks": 0,
+            "impressions": 64,
+            "ctr": 0,
+            "position": 53.125
+        },
+        {
+            "keys": [
+                "twn"
+            ],
+            "clicks": 0,
+            "impressions": 18,
+            "ctr": 0,
+            "position": 48.44444444444444
+        },
+        {
+            "keys": [
+                "uga"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 48
+        },
+        {
+            "keys": [
+                "ukr"
+            ],
+            "clicks": 0,
+            "impressions": 34,
+            "ctr": 0,
+            "position": 58.911764705882355
+        },
+        {
+            "keys": [
+                "ury"
+            ],
+            "clicks": 0,
+            "impressions": 10,
+            "ctr": 0,
+            "position": 38.8
+        },
+        {
+            "keys": [
+                "uzb"
+            ],
+            "clicks": 0,
+            "impressions": 13,
+            "ctr": 0,
+            "position": 50.38461538461539
+        },
+        {
+            "keys": [
+                "vct"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 24
+        },
+        {
+            "keys": [
+                "ven"
+            ],
+            "clicks": 0,
+            "impressions": 25,
+            "ctr": 0,
+            "position": 56.96
+        },
+        {
+            "keys": [
+                "vir"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 42
+        },
+        {
+            "keys": [
+                "vnm"
+            ],
+            "clicks": 0,
+            "impressions": 138,
+            "ctr": 0,
+            "position": 53.108695652173914
+        },
+        {
+            "keys": [
+                "yem"
+            ],
+            "clicks": 0,
+            "impressions": 1,
+            "ctr": 0,
+            "position": 40
+        },
+        {
+            "keys": [
+                "zaf"
+            ],
+            "clicks": 0,
+            "impressions": 43,
+            "ctr": 0,
+            "position": 55.325581395348834
+        },
+        {
+            "keys": [
+                "zzz"
+            ],
+            "clicks": 0,
+            "impressions": 15,
+            "ctr": 0,
+            "position": 55.666666666666664
+        }
+    ]
+}

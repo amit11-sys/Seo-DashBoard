@@ -15,5 +15,3 @@ export function debounce<T extends (...args: any[]) => void>(fn: T, delay: numbe
 
   return debounced;
 }
-
-export const defaultSearchVolume=0;

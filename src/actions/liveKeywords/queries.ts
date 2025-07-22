@@ -45,11 +45,11 @@ export const getLiveData = async (
       (keywordObj: any) => ({
         keyword: keywordObj?.keywords,
         location_name:
-          keywordObj?.searchLocation?.charAt(0).toUpperCase() +
-          keywordObj.searchLocation?.slice(1).toLowerCase(),
+          keywordObj?.searchLocation.charAt(0).toUpperCase() +
+          keywordObj?.searchLocation.slice(1).toLowerCase(),
         language_name:
-          keywordObj?.language?.charAt(0).toUpperCase() +
-          keywordObj.language?.slice(1).toLowerCase(),
+          keywordObj?.language.charAt(0).toUpperCase() +
+          keywordObj?.language.slice(1).toLowerCase(),
           target: keywordObj?.url,
 
       })

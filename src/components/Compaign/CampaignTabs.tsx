@@ -43,6 +43,7 @@ import debounce from "lodash.debounce";
 import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
 import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
 import { log } from "console";
+import GoogleSignIn from "../GoogleConsole/GoogleIntegration/GoogleSignIn";
 
 // import { getTrackingData } from "@/actions/keywordTracking";
 
@@ -437,7 +438,7 @@ fetchlanguage()
         </TabsList>
 
         <TabsContent
-          className=" pt-10 flex justify-center items-center"
+          className=" pt-10 flex flex-col justify-center items-center"
           value="account"
         >
           <motion.div
@@ -500,6 +501,7 @@ fetchlanguage()
               </CardFooter>
             </Card>
           </motion.div>
+          <GoogleSignIn/>
         </TabsContent>
 
         <TabsContent className="flex flex-col gap-5" value="keywords">

@@ -87,9 +87,9 @@
       deviceType: "",
     },
   });
-    // console.log(defaultData, "defaultttt");
-  // console.log(typeof form.getValues().keywords, form.getValues().keywords,"lokking");
-
+    console.log(defaultData, "defaultttt");
+  console.log(typeof form.getValues().keywords, form.getValues().keywords,"lokking");
+const searchLoc = form.watch("searchLocationCode")
 
     const [tagsInput, setTagsInput] = useState("");
     const [keywords, setKeywords] = useState<string>("");
@@ -110,6 +110,7 @@
         });
       }, 300);
     }, []);
+console.log(searchLoc);
 
     useEffect(() => {
       if (query.trim().length > 1) debouncedFetch(query);
@@ -148,6 +149,8 @@
   fetchlanguage()
 
   },[])
+  console.log(defaultData);
+  
     useEffect(() => {
     if (defaultData) {
       form.reset({
@@ -202,13 +205,15 @@
 
     const onSubmit = async () => {
       const keywordInput = form.getValues("keywords");
-  if (!keywordInput || keywordInput.trim() === "") {
+       console.log("okokoko",form.getValues())
+       console.log("keywodsINput",keywordInput)
+  if (!keywordInput || keywordInput[0].trim() === "") {
     setKeywordError("Please enter at least one keyword.");
     return;
   } else {
     setKeywordError(null);
   }
-      console.log("okokoko",form.getValues())
+     
       if (!keywordInput) return;
 
       const payload = {
@@ -225,33 +230,33 @@
         const Response = await createUpdateKeywordById(payload);
         const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
         let data: any = [];
-        if (campaignLiveKeywordsData.newLiveKeywordDbData) {
-          data = campaignLiveKeywordsData.newLiveKeywordDbData.map((item: any) => {
+        if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+          data = campaignLiveKeywordsData?.newLiveKeywordDbData.map((item: any) => {
               console.log(item?.location_name?.locationName,"newLiveKeywordDbData inside new location name")
           return  ({
             
             // select: false,
-            status: item.status,
-            keywordId: item.keywordId,
-            keyword: item.keyword,
+            status: item?.status,
+            keywordId: item?.keywordId,
+            keyword: item?.keyword,
             location: item?.location_name?.locationName?.locationName,
-            intent: item.intent || "",
-            start: String(item.start),
-            page: Math.ceil(item.rank_absolute / 10).toString(),
-            Absolute_Rank: String(item.rank_absolute),
-            Group_Rank: String(item.rank_group),
+            intent: item?.intent || "",
+            start: String(item?.start),
+            page: Math.ceil(item?.rank_absolute / 10).toString(),
+            Absolute_Rank: String(item?.rank_absolute),
+            Group_Rank: String(item?.rank_group),
             // oneDay: "1",
             sevenDays: "-",
             // thirtyDays: "-",
-            life: String(item.rank_group),
-            comp: item.competition || "0",
-            sv: item.searchVolumn || "0",
+            life: String(item?.rank_group),
+            comp: item?.competition || "0",
+            sv: item?.searchVolumn || "0",
             date: new Date(item.createdAt).toLocaleDateString("en-GB", {
               day: "2-digit",
               month: "short",
               year: "2-digit",
             }),
-            rankingUrl: item.url,
+            rankingUrl: item?.url,
             // rankingUrl: new URL(item.url) || "/",
           })
 

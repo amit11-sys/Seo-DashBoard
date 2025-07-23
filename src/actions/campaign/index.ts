@@ -3,10 +3,10 @@
 import { getCampaign, newCampaign } from "./queries";
 import { addMultipleKeyword } from "../keyword";
 import {
-  createNewKeywordTrackingData,
+  // createNewKeywordTrackingData,
   getTrackingData,
 } from "../keywordTracking";
-import { getKeywordLiveData } from "../liveKeywords";
+// import { getKeywordLiveData } from "../liveKeywords";
 
 export const createCampaign = async (formData: any) => {
   console.log(formData);
@@ -18,34 +18,34 @@ export const createCampaign = async (formData: any) => {
     // await addMultipleKeyword(formData?.keywords)
     await addMultipleKeyword(formData, campaign);
 
-    const newCompaignId = campaign?.campaign?._id;
-    console.log(newCompaignId,"nreeeeeee")
+    // const newCompaignId = campaign?.campaign?._id;
+    // console.log(newCompaignId,"nreeeeeee")
 
-    await getTrackingData(newCompaignId);
+    // await getTrackingData(newCompaignId);
 
-    const liveKeywordsDataAPI = await getKeywordLiveData(newCompaignId);
+    // const liveKeywordsDataAPI = await getKeywordLiveData(newCompaignId);
 
     // console.log(JSON.stringify(liveKeywordsDataAPI, null, 2), "liveKeywordsDataAPI");
 
-    if (Array.isArray(liveKeywordsDataAPI)) {
-      const keywordData = liveKeywordsDataAPI.map((item) => {
-        const tasks = item?.response?.tasks || [];
+    // if (Array.isArray(liveKeywordsDataAPI)) {
+    //   const keywordData = liveKeywordsDataAPI.map((item) => {
+    //     const tasks = item?.response?.tasks || [];
 
-        return {
-          keyword: item?.keyword, // use lowercase for consistency
-          response: tasks, // pass the array of tasks
-          campaignId: newCompaignId, // keep _id as is (ObjectId)
-        };
-      });
+    //     return {
+    //       keyword: item?.keyword, // use lowercase for consistency
+    //       response: tasks, // pass the array of tasks
+    //       campaignId: newCompaignId, // keep _id as is (ObjectId)
+    //     };
+    //   });
 
-      const dbResult = await createNewKeywordTrackingData(keywordData);
+    //   // const dbResult = await createNewKeywordTrackingData(keywordData);
 
       
-      console.log(dbResult, "Tracking DB Result");
+    //   // console.log(dbResult, "Tracking DB Result");
 
-    } else {
-      console.error("Invalid response format:", liveKeywordsDataAPI);
-    }
+    // } else {
+    //   console.error("Invalid response format:", liveKeywordsDataAPI);
+    // }
 
 
   }

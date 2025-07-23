@@ -92,14 +92,26 @@ const CustomTable = ({
     setEditableRowIndex(null);
   };
 
-  const addEditkeywordsData = async (data : any)=>{
+ const addEditkeywordsData = async (data: any) => {
+  console.log(data, "default function");
 
-    
+  // Transform and set default data
+  const transformed = data.map((item: any) => ({
+    url: item.url || "",
+    keywordTag: item.keywordTag || "",
+    searchLocationCode: item.searchLocationCode || "",
+    volumeLocationCode: item.volumeLocationCode || "",
+    language: item.language || "",
+    SearchEngine: item.SearchEngine || "",
+    serpType: item.serpType || "",
+    deviceType: item.deviceType || "",
+    keywords: item.keywords, 
+  }));
 
+  // Example: Set only first one (or you can pass entire array)
+  setDefaultData(transformed[0]);
+};
 
-
-
-  }
 
   return (
     <div className="w-full shadow-lg text-black rounded-md mt-4 max-h-96 overflow-x-auto relative">
@@ -142,14 +154,14 @@ const CustomTable = ({
                   key={rowIndex}
                   className="hover:bg-indigo-50 transition-colors"
                 >
-                  <td className="text-center border font-medium p-3">
+                  <td className="text-center text-[12px] border font-medium p-3">
                     {data.keyword}
                   </td>
-                  <td className="text-center border p-3">{data.location}</td>
-                  <td className="text-center border p-3">{data.intent}</td>
+                  <td className="text-center text-[12px] border p-3">{data.location}</td>
+                  <td className="text-center text-[12px] border p-3">{data.intent}</td>
 
                   <td
-                    className="text-center border cursor-pointer p-3"
+                    className="text-center text-[12px] border cursor-pointer p-3"
                     onClick={() => handleStartClick(rowIndex)}
                   >
                     {editableRowIndex === rowIndex ? (
@@ -173,22 +185,22 @@ const CustomTable = ({
                     )}
                   </td>
 
-                  <td className="text-center border p-3">{data.page}</td>
+                  <td className="text-center text-[12px] border p-3">{data.page}</td>
                   <td className="text-center border p-3">
                     {data.Absolute_Rank}
                   </td>
-                  <td className="text-center border p-3">{data.Group_Rank}</td>
-                  <td className="text-center border p-3">{data.sevenDays}</td>
-                  <td className="text-center border p-3">{data.life}</td>
-                  <td className="text-center text-black border p-3">
+                  <td className="text-center text-[12px] border p-3">{data.Group_Rank}</td>
+                  <td className="text-center text-[12px] border p-3">{data.sevenDays}</td>
+                  <td className="text-center text-[12px] border p-3">{data.life}</td>
+                  <td className="text-center text-[12px] text-black border p-3">
                     {data.comp}
                   </td>
-                  <td className="text-center text-black border p-3">
+                  <td className="text-center text-[12px] text-black border p-3">
                     {data.sv}
                   </td>
-                  <td className="text-center border p-3">{data.date}</td>
+                  <td className="text-center text-[12px] border p-3">{data.date}</td>
 
-                  <td className="text-center border p-3">
+                  <td className="text-center text-[12px] border p-3">
                     <div className="flex justify-center items-center">
                       <a
                         target="_blank"
@@ -201,7 +213,7 @@ const CustomTable = ({
                     </div>
                   </td>
 
-                  <td className="text-center border p-3">
+                  <td className="text-center text-[12px] border p-3">
                     <div className="flex justify-center items-center gap-2">
                       <KeywordEdit
                         campaignId={campaignId}
@@ -209,19 +221,20 @@ const CustomTable = ({
                         addEditkeywordsData={addEditkeywordsData}
                         showAddedKeyword={showAddedKeyword}
                         setTableBody={setTableBody}
-                        defaultData={{
-                          url: matchedKeywordData?.url || "",
-                          keywordTag: matchedKeywordData?.keywordTag || "",
-                          searchLocationCode:
-                            matchedKeywordData?.searchLocationCode || "",
-                          volumeLocationCode:
-                            matchedKeywordData?.volumeLocationCode || "",
-                          language: matchedKeywordData?.language || "",
-                          SearchEngine: matchedKeywordData?.SearchEngine || "",
-                          serpType: matchedKeywordData?.serpType || "",
-                          deviceType: matchedKeywordData?.deviceType || "",
-                          keywords: [data.keyword],
-                        }}
+                        // defaultData={{
+                        //   url: matchedKeywordData?.url || "",
+                        //   keywordTag: matchedKeywordData?.keywordTag || "",
+                        //   searchLocationCode:
+                        //     matchedKeywordData?.searchLocationCode || "",
+                        //   volumeLocationCode:
+                        //     matchedKeywordData?.volumeLocationCode || "",
+                        //   language: matchedKeywordData?.language || "",
+                        //   SearchEngine: matchedKeywordData?.SearchEngine || "",
+                        //   serpType: matchedKeywordData?.serpType || "",
+                        //   deviceType: matchedKeywordData?.deviceType || "",
+                        //   keywords: [data.keyword],
+                        // }}
+                        defaultData={defaultData}
                       />
 
                       <DeleteConfirm

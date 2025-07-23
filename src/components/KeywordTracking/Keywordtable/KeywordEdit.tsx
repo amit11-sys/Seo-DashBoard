@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { createUpdateKeywordById } from "@/actions/keyword";
 import {
   getDbLiveKeywordData,
+  getEditDataFetchDb,
+  getfetchDBlocationData,
   getTrackingData,
 } from "@/actions/keywordTracking";
 import debounce from "lodash.debounce";
@@ -95,11 +97,7 @@ const EditKeywords = ({
     },
   });
   console.log(defaultData, "defaultttt");
-  console.log(
-    typeof form.getValues().keywords,
-    form.getValues().keywords,
-    "lokking"
-  );
+ 
   const searchLoc = form.watch("searchLocationCode");
 
   const [tagsInput, setTagsInput] = useState("");
@@ -182,9 +180,9 @@ const EditKeywords = ({
     }
   }, [defaultData, form]);
 
-  const editclick = async () => {
-    await addEditkeywordsData(keywordId);
-  };
+  // const editclick = async () => {
+
+  // };
 
   // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
   //   if (
@@ -207,7 +205,7 @@ const EditKeywords = ({
   // };
 
   const onSubmit = async () => {
-    const keywordInput = form.watch("keywords");
+    const keywordInput = form.getValues("keywords");
     console.log("okokoko", form.getValues());
     console.log("keywodsINput", keywordInput);
     if (!keywordInput || keywordInput[0].trim() === "") {
@@ -221,16 +219,13 @@ const EditKeywords = ({
 
     const payload = {
       ...form.getValues(),
-      keywords: keywordInput,
+
       campaignId,
       keywordId,
     };
 
-    const updatedPayload = {
-      ...payload,
-      keywords: payload.keywords,
-    };
-    console.log(updatedPayload, "uploadted payload");
+    console.log(payload, "edit");
+
     startLoading();
     try {
       const Response = await createUpdateKeywordById(payload);
@@ -274,9 +269,10 @@ const EditKeywords = ({
       setTableBody(data);
       if (!Response) throw new Error("Update failed");
       // console.log(Response.tracking,"tracking");
-      await showAddedKeyword(Response.tracking);
 
-      await addEditkeywordsData(Response.tracking);
+      // await addEditkeywordsData(Response.tracking);
+
+      await showAddedKeyword(Response.tracking);
 
       toast.success("Keywords updated successfully");
       form.reset({
@@ -393,11 +389,32 @@ const EditKeywords = ({
     "google.co.ck",
     "google.com.sb",
   ];
+  const onEdithandler = async (keywordId: string) => {
+    const defaultData = await getEditDataFetchDb(keywordId);
+    console.log(defaultData, "data default");
+    const locationCode = Number(defaultData.keywordsData.searchLocationCode);
+    console.log(locationCode, "location code");
+    const matchlocation = await getfetchDBlocationData(locationCode);
+    console.log(matchlocation, "match locations");
+
+    const modifiedKeywords = [defaultData?.keywordsData].map((item: {}) => ({
+      ...item,
+      location_name: matchlocation?.locationName?.locationName,
+    }));
+
+    addEditkeywordsData(modifiedKeywords);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <HiOutlineKey className="text-xl text-blue-600 cursor-pointer" />
+      <DialogTrigger asChild>
+        <button
+          onClick={() => {
+            onEdithandler(keywordId);
+          }}
+        >
+          <HiOutlineKey className="text-xl text-blue-600 cursor-pointer" />
+        </button>
       </DialogTrigger>
 
       <DialogContent className="max-w-4xl border-none shadow-2xl bg-white p-6">
@@ -577,22 +594,16 @@ const EditKeywords = ({
             </div>
 
             <div className="space-y-4">
-              {/* <Controller
-                  name="keywords"
-                  control={form.control}
-                  render={({ field }) => (
-                    <NewCustomInput
-                      icon={<TbTag className="text-blue-500" />}
-                      placeholder="Keywords"
-                      {...field}
-                    />
-                  )}
-                /> */}
-              <input
-                type="text"
-                {...form.register("keywords")}
-                placeholder="Keywords"
-                className="input-class"
+              <Controller
+                name="keywords"
+                control={form.control}
+                render={({ field }) => (
+                  <NewCustomInput
+                    icon={<TbTag className="text-blue-500" />}
+                    placeholder="Keywords"
+                    {...field}
+                  />
+                )}
               />
               {keywordError && (
                 <p className="text-red-500 text-sm">{keywordError}</p>

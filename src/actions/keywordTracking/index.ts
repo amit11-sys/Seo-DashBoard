@@ -1,13 +1,13 @@
-import { createKeywordTracking, DbLiveKeywordData, fetchDBlocationData, firstCompaignData, getStartData, getUserKeywordData, LiveKeywordDatabyKeyID } from "./queries";
+import { createKeywordTracking, DbLiveKeywordData, editDataFetchDb, fetchDBlocationData, firstCompaignData, getStartData, getUserKeywordData, LiveKeywordDatabyKeyID } from "./queries";
 
-export const createNewKeywordTrackingData = async (keywordData: any) => {
-  console.log(keywordData,"ok")
+// export const createNewKeywordTrackingData = async (keywordData: any) => {
+//   console.log(keywordData,"ok")
   
-  const KeywordTracking = await createKeywordTracking(keywordData);
+//   const KeywordTracking = await createKeywordTracking(keywordData);
 
-  // console.log(KeywordTracking,"from index")
-  return KeywordTracking;
-};
+//   // console.log(KeywordTracking,"from index")
+//   return KeywordTracking;
+// };
 
 export const getTrackingData=async (newCompaignId:any)=>{
   const getKeywordData= await getUserKeywordData(newCompaignId) 
@@ -31,5 +31,9 @@ export const getLiveKeywordDatabyKeyID =async (keywordId: string)=>{
 }
 export const getfirstCompaignData =async ()=>{
   const data= await firstCompaignData() 
+  return data
+}
+export const getEditDataFetchDb =async (keywordId:string)=>{
+  const data= await editDataFetchDb(keywordId) 
   return data
 }

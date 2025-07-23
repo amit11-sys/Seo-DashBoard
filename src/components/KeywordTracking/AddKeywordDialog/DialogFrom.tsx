@@ -172,6 +172,7 @@ const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
 
         await showAddedKeyword(modifiedKeywords);
       }
+    
 
       // Optionally, you can log the response or handle it as needed
       console.log("Submitted:", response);

@@ -321,3 +321,35 @@ export const firstCompaignData = async () => {
     return { error: "Internal Server Error." };
   }
 };
+export const editDataFetchDb = async (keywordId:string) => {
+  try {
+    await connectToDB();
+
+    // const user = await getUserFromToken();
+    // if (!user) {
+    //   return { error: "Unauthorized" };
+    // }
+    // console.log(user);
+    // console.log(newCompaignId,"newkeywordCampaign")
+   const keywordsData = await Keyword.findOne({ _id: keywordId });
+    
+     
+
+    // console.log(campaignKeywords,"fromkeywordtracking")
+
+    if (!keywordsData) {
+      return { error: "Error while getting fetch keyword" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "data Successfully Found",
+      keywordsData,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};

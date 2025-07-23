@@ -1197,8 +1197,9 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     }
 
     const { keywordId, campaignId } = updatedData;
-    console.log(updatedData,"edit data backend")  
+    console.log(updatedData,"edit data backend new")  
     console.log(keywordId,campaignId,"idsies")
+    console.log(updatedData,"edit form data ")
 
     // Update keyword document
     const updatedKeyword = await Keyword.findByIdAndUpdate(

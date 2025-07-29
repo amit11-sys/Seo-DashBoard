@@ -1,4 +1,4 @@
-import { getUserKeywordData,getLiveData } from "./queries"
+import { getUserKeywordData } from "./queries"
 
 
 export const UserKeywordData=async ()=>{

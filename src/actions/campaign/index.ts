@@ -25,7 +25,7 @@ export const createCampaign = async (formData: any) => {
 
     // const liveKeywordsDataAPI = await getKeywordLiveData(newCompaignId);
 
-    // console.log(JSON.stringify(liveKeywordsDataAPI, null, 2), "liveKeywordsDataAPI");
+    // // console.log(JSON.stringify(liveKeywordsDataAPI, null, 2), "liveKeywordsDataAPI");
 
     // if (Array.isArray(liveKeywordsDataAPI)) {
     //   const keywordData = liveKeywordsDataAPI.map((item) => {
@@ -41,7 +41,7 @@ export const createCampaign = async (formData: any) => {
     //   // const dbResult = await createNewKeywordTrackingData(keywordData);
 
       
-    //   // console.log(dbResult, "Tracking DB Result");
+    //   console.log(dbResult, "Tracking DB Result");
 
     // } else {
     //   console.error("Invalid response format:", liveKeywordsDataAPI);

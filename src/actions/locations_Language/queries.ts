@@ -28,6 +28,7 @@ export const getlanguage = async () => {
         }
       );
       const langData = await res.json();
+      
       //  console.log(langData?.tasks[0]?.result[0]?.available_languages[0].language_name,"location api")
       // const allLocations: { locationName: string; locationCode: number }[] = [];
       const allLanguages: string[] = [];
@@ -41,9 +42,10 @@ export const getlanguage = async () => {
        
 task?.result?.forEach((loc: any) => {
           loc?.available_languages?.forEach((lang: any) => {
+            
             allLanguages.push(
-              lang?.language_name?.charAt(0).toUpperCase() +
-                lang?.language_name?.slice(1).toLowerCase()
+              lang?.language_name
+               
             );
           });
         });
@@ -172,10 +174,12 @@ export const fetchLocation = async () => {
 
       // Then process each location
       filteredData.forEach((loc: any) => {
+        console.log(loc, "locooo"); 
         allLocations.push({
           locationName:
-            loc.location_name.charAt(0).toUpperCase() +
-            loc.location_name.slice(1).toLowerCase(),
+            loc.location_name,
+            // loc.location_name.charAt(0).toUpperCase() +
+            // loc.location_name.slice(1).toLowerCase(),
           locationCode: loc.location_code,
         });
 

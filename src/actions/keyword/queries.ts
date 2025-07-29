@@ -1152,41 +1152,41 @@ type KeywordUpdateData = {
   keywordId: string;
 };
 export const deleteKeywordById = async (deletedData: { keywordId: string }) => {
-        try {
-          await connectToDB();
-      
-          const user = await getUserFromToken();
-          if (!user) {
-            return { error: "Unauthorized" };
-          }
-      
-          const { keywordId } = deletedData;
-          console.log(keywordId, "delet id");
-      
-          // ✅ Update keyword document status to 2 (soft delete)
-          const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
-            { keywordId },
-            { $set: { status: 2 } },
-            { new: true }
-          );
-      
-          console.log(modifiedStatusKeyword, "status del");
-      
-          if (!modifiedStatusKeyword) {
-            return { error: "Keyword delete failed" };
-          }
-      
-          return {
-            success: true,
-            message: "Keyword deleted successfully",
-          };
-        } catch (error: any) {
-          console.error("Delete failed:", error);
-          return {
-            error: "Internal Server Error",
-          };
-        }
-      };
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const { keywordId } = deletedData;
+    console.log(keywordId, "delet id");
+
+    // ✅ Update keyword document status to 2 (soft delete)
+    const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
+      { keywordId },
+      { $set: { status: 2 } },
+      { new: true }
+    );
+
+    console.log(modifiedStatusKeyword, "status del");
+
+    if (!modifiedStatusKeyword) {
+      return { error: "Keyword delete failed" };
+    }
+
+    return {
+      success: true,
+      message: "Keyword deleted successfully",
+    };
+  } catch (error: any) {
+    console.error("Delete failed:", error);
+    return {
+      error: "Internal Server Error",
+    };
+  }
+};
 export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
   try {
     await connectToDB();
@@ -1208,18 +1208,17 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
       { new: true }
     );
 
-
     console.log(updatedKeyword, "updated keywoerds");
     if (!updatedKeyword) {
       return { error: "Keyword not found" };
     }
-    console.log(updatedKeyword, ";updatedKeyword");
+    console.log(updatedKeyword, ";updated keywoerds");
 
     const rankdata = await getKewordRank([updatedKeyword]);
     const VolumnData = await getVolumnRank([updatedKeyword]);
     const intentData = await getRankIntent([updatedKeyword]);
 
-    console.log(rankdata?.rankResponses, "rankdata");
+    console.log(rankdata?.rankResponses , "rankdata");
     console.log(VolumnData?.volumnResponses, "volumn data");
     console.log(intentData?.intentResponses, "intent data");
 
@@ -1279,7 +1278,8 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     //         };
     //       })
     //     : [];
-const finalData =
+    
+    const finalData =
       rankdata && "rankResponses" in rankdata
         ? rankdata?.rankResponses?.map((rankItem: any) => {
             console.log(rankItem, "rankItem");
@@ -1325,7 +1325,7 @@ const finalData =
               location_code: matchedKeyword?.searchLocationCode || 2124,
               language_code: data?.language_code || "en",
               // location_name: matchLangName?.locationName || "",
-               url:data?.items?.[0]?.url.trim() || "no ranking",
+              url: data?.items?.[0]?.url.trim() || "no ranking",
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: newKeyword || "",
@@ -1339,8 +1339,7 @@ const finalData =
           })
         : [];
 
-
-            const data = finalData?.[0]
+    const data = finalData?.[0];
     const addedTracking = await KeywordTracking.findOneAndUpdate(
       { keywordId: keywordId },
       { $set: data },
@@ -1358,7 +1357,6 @@ const finalData =
     console.error("Update failed:", error);
     return {
       error: "Internal Server Error",
-      
     };
   }
 };
@@ -1442,7 +1440,7 @@ export const saveMultipleKeyword = async (
               location_code: matchedKeyword?.searchLocationCode || 2124,
               language_code: data?.language_code || "en",
               // location_name: matchLangName?.locationName || "",
-              url:data?.items?.[0]?.url.trim() || "no ranking",
+              url: data?.items?.[0]?.url.trim() || "no ranking",
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: newKeyword || "",

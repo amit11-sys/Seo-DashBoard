@@ -1,4 +1,4 @@
-import { getUserKeywordData,getLiveData } from "./queries"
+import { getUserKeywordData } from "./queries"
 
 
 export const UserKeywordData=async ()=>{
@@ -9,7 +9,7 @@ interface campaignId {
 CampaignId:string
 
 }
-export const getKeywordLiveData=async (CampaignId:string)=>{
-  const NewgetLiveData= await getLiveData(CampaignId)
-  return NewgetLiveData
-}
+// export const getKeywordLiveData=async (CampaignId:string)=>{
+//   const NewgetLiveData= await getLiveData(CampaignId)
+//   return NewgetLiveData
+// }

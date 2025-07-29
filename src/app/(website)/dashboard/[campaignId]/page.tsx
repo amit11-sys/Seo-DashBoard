@@ -1,8 +1,7 @@
 import {
-  createNewKeywordTrackingData,
   getDbLiveKeywordData,
 } from "@/actions/keywordTracking";
-import { getKeywordLiveData } from "@/actions/liveKeywords";
+// import { getKeywordLiveData } from "@/actions/liveKeywords";
 import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 // import { getLocation_languageData } from "@/actions/locations_Language";
@@ -22,38 +21,7 @@ export default async function DashboardDetails({
 
   console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData in page");
 
-  // if (
-  //   !location_and_language ||
-  //   location_and_language.error ||
-  //   !location_and_language.allLanguages ||
-  //   !location_and_language.allLocations
-  // ) {
-  //   return <div>Error loading location and language data</div>;
-  // }
-
-  // const { allLanguages, allLocations } = location_and_language;
-
-  // await getDbLiveKeywordData(campaignId)
-  //   const liveKeywordsDataAPI = await getKeywordLiveData(campaignId);
-  //   console.log(JSON.stringify(liveKeywordsDataAPI), "liveKeywordsDataAPI");
-
-  // if (Array.isArray(liveKeywordsDataAPI)) {
-  //  const keywordData = liveKeywordsDataAPI.map((item) => {
-  //   return {
-  //     Keyword: item?.keyword,
-  //     Response: item?.response?.[0]?.tasks || [], // Fix: access tasks from first response item
-  //     CampaignId:campaignId,
-  //   };
-  // });
-
-  // console.log(keywordData,"arry")
-
-  //   const FetchKeyWordsDb = await createNewKeywordTrackingData(keywordData);
-  //   console.log(FetchKeyWordsDb,"db DAta")
-
-  // } else {
-  //   console.error("Error:", liveKeywordsDataAPI.error);
-  // }
+ 
 
   return (
     

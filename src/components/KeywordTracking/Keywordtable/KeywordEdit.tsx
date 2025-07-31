@@ -96,7 +96,7 @@ const EditKeywords = ({
       deviceType: "",
     },
   });
-  console.log(defaultData, "defaultttt");
+  // console.log(defaultData, "defaultttt");
  
   const searchLoc = form.watch("searchLocationCode");
 
@@ -119,7 +119,7 @@ const EditKeywords = ({
       });
     }, 300);
   }, []);
-  console.log(searchLoc);
+  // console.log(searchLoc);
 
   useEffect(() => {
     if (query.trim().length > 1) debouncedFetch(query);
@@ -153,7 +153,7 @@ const EditKeywords = ({
     };
     fetchlanguage();
   }, []);
-  console.log(defaultData);
+  // console.log(defaultData);
 
   useEffect(() => {
     if (defaultData) {
@@ -206,8 +206,8 @@ const EditKeywords = ({
 
   const onSubmit = async () => {
     const keywordInput = form.getValues("keywords");
-    console.log("okokoko", form.getValues());
-    console.log("keywodsINput", keywordInput);
+    // console.log("okokoko", form.getValues());
+    // console.log("keywodsINput", keywordInput);
     if (!keywordInput || keywordInput[0].trim() === "") {
       setKeywordError("Please enter at least one keyword.");
       return;
@@ -224,7 +224,7 @@ const EditKeywords = ({
       keywordId,
     };
 
-    console.log(payload, "edit");
+    // console.log(payload, "edit");
 
     startLoading();
     try {
@@ -234,10 +234,10 @@ const EditKeywords = ({
       if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
         data = campaignLiveKeywordsData?.newLiveKeywordDbData.map(
           (item: any) => {
-            console.log(
-              item?.location_name?.locationName,
-              "newLiveKeywordDbData inside new location name"
-            );
+            // console.log(
+            //   item?.location_name?.locationName,
+            //   "newLiveKeywordDbData inside new location name"
+            // );
             return {
               // select: false,
               status: item?.status,
@@ -391,11 +391,11 @@ const EditKeywords = ({
   ];
   const onEdithandler = async (keywordId: string) => {
     const defaultData = await getEditDataFetchDb(keywordId);
-    console.log(defaultData, "data default");
+    // console.log(defaultData, "data default");
     const locationCode = Number(defaultData.keywordsData.searchLocationCode);
-    console.log(locationCode, "location code");
+    // console.log(locationCode, "location code");
     const matchlocation = await getfetchDBlocationData(locationCode);
-    console.log(matchlocation, "match locations");
+    // console.log(matchlocation, "match locations");
 
     const modifiedKeywords = [defaultData?.keywordsData].map((item: {}) => ({
       ...item,

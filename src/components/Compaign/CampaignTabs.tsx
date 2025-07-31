@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useTransition,
-  useMemo,
-} from "react";
+import { useState, useEffect, useTransition, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -38,14 +32,12 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import KeywordTextArea from "../KeywordTextArea";
 import debounce from "lodash.debounce";
-// import { getLocationData } from "@/actions/locations_Language";
 
-import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
-import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
-import { log } from "console";
-// import GoogleSignIn from "../GoogleConsole/GoogleIntegration/GoogleSignIn";
-
-// import { getTrackingData } from "@/actions/keywordTracking";
+import { OptionType } from "@/components/AutocompleteInput";
+import {
+  getfetchDBLocation,
+  getlanguageData,
+} from "@/actions/locations_Language";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 interface LocationAndLanguageType {
@@ -57,34 +49,10 @@ interface CampaignTabsProps {
   location_and_language: LocationAndLanguageType;
 }
 
-
 export function CampaignTabs() {
   const { startLoading, stopLoading } = useLoader();
-  // const [searchText, setSearchText] = useState("");
-  // const [locations, setLocations] = useState<string[]>([]);
-  const [languages, setLanguages] = useState<string[]>([]);
   const router = useRouter();
-
-  function CountrySelector() {}
-  const handleCountrySelect = (option: OptionType) => {
-    console.log("Selected country:", option);
-  };
-
-  //  const [query, setQuery] = useState('');
-  // const [results, setResults] = useState<any>([]);
-  // const [isPending, startTransition] = useTransition();
-
-  // const debouncedFetch = debounce((q: string) => {
-  //   startTransition(() => {
-  //     getfetchDBLocation(q).then(setResults).catch(console.error);
-  //   });
-  // }, 300);
-
-  // useEffect(() => {
-  //   if (query.trim().length > 1) debouncedFetch(query);
-  //   return () => debouncedFetch.cancel();
-  // }, [query]);
-
+  const [languages, setLanguages] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [volumnQuery, setVolumnQuery] = useState("");
   const [results, setResults] = useState<any>([]);
@@ -121,24 +89,19 @@ export function CampaignTabs() {
       debouncedFetchvolumn.cancel();
     };
   }, [volumnQuery, debouncedFetchvolumn]);
-useEffect(()=>{
-const fetchlanguage = async  ()=>{
+  useEffect(() => {
+    const fetchlanguage = async () => {
+      try {
+        const data = await getlanguageData();
 
-  try {
-
-    const data = await getlanguageData()
-   
-    const langdata = data?.allLanguages
-    setLanguages(langdata ?? []);
-    
-  } catch (error) {
-    console.log(error,"language error")
-    
-  }
-}
-fetchlanguage()
-
-},[])
+        const langdata = data?.allLanguages;
+        setLanguages(langdata ?? []);
+      } catch (error) {
+        console.log(error, "language error");
+      }
+    };
+    fetchlanguage();
+  }, []);
   // console.log("Results:", results, "Query:", query);
   const form = useForm<CampaignFormType>({
     resolver: zodResolver(campaignSchema),
@@ -156,89 +119,31 @@ fetchlanguage()
     },
   });
   // console.log(location_and_language,"luange and locations")
-  const [tagsInput, settagsInput] = useState("");
   const [Keywords, setKeywords] = useState<string[]>([]);
   const [KeywordsText, setKeywordsText] = useState<any>("");
   const [campaignValid, setCampaignValid] = useState(false);
   const [activeTab, setActiveTab] = useState("account");
-  const [language, setLanguage] = useState<string[]>([]);
-  const [location, setLocation] = useState<string[]>([]);
   const { setCampaignData } = useCampaignData();
   const [keywordError, setKeywordError] = useState<string | null>(null);
-  const [volumeLocationOptions, setVolumeLocationOptions] = useState<string[]>(
-    []
-  );
 
-  // const fetchCitiesByCountry = async (country: string) => {
-  //   if (!country) {
-  //     setVolumeLocationOptions([]);
-  //     return;
-  //   }
-  //   try {
-  //     const res = await fetch(
-  //       `${process.env.NEXT_PUBLIC_COUNTRIESNOW_URL}countries/cities`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ country }),
-  //       }
-  //     );
-
-  //     const data = await res.json();
-  //     // console.log();
-
-  //     if (data) {
-  //       // const stateData = data.data.states.map((state: any) => state?.name);
-  //       setVolumeLocationOptions(data.data);
-  //     } else {
-  //       setVolumeLocationOptions([]);
-  //       toast.error("No cities found for selected country.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching cities:", error);
-  //     toast.error("Failed to fetch cities.");
-  //   }
-  // };
-
-  // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
-  // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
-
-  // useEffect(() => {
-  //   setLanguage(location_and_language.allLanguages);
-  //   setLocation(location_and_language.allLocations);
-  // }, []);
-
-  const onHandleVolumn = (countryCode: number) => {};
   const handleCampaignSubmit = async () => {
     const values = form.getValues();
     console.log(values);
 
     const isValid = await form.trigger(["name", "url"]);
-
-    // if (!isValid) {
-    //   if (form.formState.errors.keyword) {
-    //     toast.error(form.formState.errors.name.message || "Please provide Name.");
-    //   }
-    //   if (form.formState.errors.searchLocation) {
-    //     toast.error(form.formState.errors.url.message || "Please select a url.");
-    //   }
-
-    //   return;
-    // }
-
     if (!isValid) return;
 
     setCampaignValid(true);
     toast("Campaign Info validated!");
     setActiveTab("keywords");
   };
-  const keywords = Keywords;
+  // const keywords = Keywords;
 
   const onFinalSubmit = async () => {
     const values = form.getValues();
     const isValid = await form.trigger();
 
-    if (keywords.length === 0) {
+    if (Keywords?.length === 0) {
       setKeywordError("Please enter at least one keyword.");
       return;
     } else {
@@ -254,7 +159,7 @@ fetchlanguage()
       // searchLocationCode:
     };
 
-    console.log(payload, "pyaload of caompgin form");
+    // console.log(payload, "pyaload of caompgin form");
 
     startLoading();
     try {
@@ -619,9 +524,9 @@ fetchlanguage()
                           />
                         )}
                       />
-                       <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.volumeLocationCode?.message}
-                </div>
+                      <div className="w-full text-sm text-red-500">
+                        {form.formState.errors.volumeLocationCode?.message}
+                      </div>
 
                       {VolumeLocation.length > 0 && (
                         <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
@@ -649,7 +554,6 @@ fetchlanguage()
                     </div>
                   </div>
                 </div>
-               
               </div>
 
               {/* ----- */}
@@ -668,9 +572,9 @@ fetchlanguage()
                   />
                 )}
               />
-               <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.SearchEngine?.message}
-                </div>
+              <div className="w-full text-sm text-red-500">
+                {form.formState.errors.SearchEngine?.message}
+              </div>
               <Controller
                 name="language"
                 control={form.control}

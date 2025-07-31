@@ -35,7 +35,7 @@ export default function Header() {
     const fetchFirstCampaign = async () => {
       try {
         const fetchCompaigns = await getfirstCompaignData();
-        console.log(fetchCompaigns?.firstCompagin?._id, "first fetch");
+        // console.log(fetchCompaigns?.firstCompagin?._id, "first fetch");
         setFirstCompaign(fetchCompaigns?.firstCompagin?._id);
       } catch (error) {
         console.log(error, "failed to fetch compaign nav header");

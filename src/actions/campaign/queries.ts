@@ -1,4 +1,3 @@
-"use server";
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Campaign from "@/lib/models/campaign.model";

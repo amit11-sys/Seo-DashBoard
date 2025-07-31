@@ -43,7 +43,7 @@ export const refreshAddedKeywords = async (campaignId: string) => {
       return { error: "Unauthorized" };
     }
     // console.log(user);
-    console.log(campaignId, "refresh id");
+    // console.log(campaignId, "refresh id");
 
     const refreshCampaign = await Keyword.find({ CampaignId: campaignId });
 
@@ -51,14 +51,14 @@ export const refreshAddedKeywords = async (campaignId: string) => {
     const VolumnData = await getVolumnRank(refreshCampaign);
     const intentData = await getRankIntent(refreshCampaign);
 
-    console.log(rankdata?.rankResponses, "rankdata add");
-    console.log(VolumnData?.volumnResponses, "volumn data add");
-    console.log(intentData?.intentResponses, "intent data add");
+    // console.log(rankdata?.rankResponses, "rankdata add");
+    // console.log(VolumnData?.volumnResponses, "volumn data add");
+    // console.log(intentData?.intentResponses, "intent data add");
 
     const finalData =
       rankdata && "rankResponses" in rankdata
         ? rankdata?.rankResponses?.map((rankItem: any) => {
-            console.log(rankItem, "rankItem in add");
+            // console.log(rankItem, "rankItem in add");
             const task = rankItem?.response?.tasks?.[0];
             const data = task?.result?.[0];
              const newKeyword = rankItem?.keyword
@@ -67,7 +67,7 @@ export const refreshAddedKeywords = async (campaignId: string) => {
             const matchedKeyword = refreshCampaign.find(
               (k: any) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
             );
-            console.log(matchedKeyword, "matchedKeyword in add");
+            // console.log(matchedKeyword, "matchedKeyword in add");
             // Get corresponding volume data for this keyword
             const volumnResponse = VolumnData?.volumnResponses?.find(
               (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
@@ -86,15 +86,15 @@ export const refreshAddedKeywords = async (campaignId: string) => {
             const intentItem =
               intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find(
                 (i: any) => {
-                  console.log(i, "inside intemt items add");
+                  // console.log(i, "inside intemt items add");
                   return i.keyword?.toLowerCase() === keyword?.toLowerCase();
                 }
               );
-            console.log(
-              intentResponse?.response?.tasks[0].result[0],
-              "intent itmes in add task"
-            );
-            console.log(intentItem, "intent item itmes add");
+            // console.log(
+            //   intentResponse?.response?.tasks[0].result[0],
+            //   "intent itmes in add task"
+            // );
+            // console.log(intentItem, "intent item itmes add");
             const matchIntent = intentItem?.keyword_intent?.label ?? "";
 
             // const matchLangName = locationData?.find(loc => loc.location_code === data?.location_code);
@@ -119,7 +119,7 @@ export const refreshAddedKeywords = async (campaignId: string) => {
 
     const updatedRecords = await KeywordTracking.insertMany(finalData);
 
-    console.log("refresh All records updated:", updatedRecords);
+    // console.log("refresh All records updated:", updatedRecords);
 
     if (!refreshCampaign) {
       return { error: "Error while refreshing keyword" };

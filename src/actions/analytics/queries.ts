@@ -40,7 +40,7 @@ export const fetchLievKeyword = async (url: string) => {
     }
 
     const data = await res.json();
-    console.log(data?.tasks[0]?.result, "output");
+    // console.log(data?.tasks[0]?.result, "output");
 
     return data?.tasks || [];
   } catch (err: any) {

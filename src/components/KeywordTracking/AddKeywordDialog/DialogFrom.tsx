@@ -139,7 +139,7 @@ const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
       campaignId,
     };
 
-    console.log(payload, "add kewywords front end data payloadd");
+    // console.log(payload, "add kewywords front end data payloadd");
     startLoading();
     try {
       const res = await fetch("/api/add-keywords", {
@@ -152,14 +152,14 @@ const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
 
       if (!res.ok) throw new Error("Failed to create keywords");
       if (!res.ok) throw new Error("Failed to create keywords");
-      console.log(res, "res addd");
+      // console.log(res, "res addd");
 
       const response = await res.json();
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
       // }
-      console.log(response.addedKeywords, "Response from API");
-      console.log(form.getValues("searchLocationCode"), "cod location");
+      // console.log(response.addedKeywords, "Response from API");
+      // console.log(form.getValues("searchLocationCode"), "cod location");
       const matchlocation = await getfetchDBlocationData(
         form.getValues("searchLocationCode")
       );
@@ -175,7 +175,7 @@ const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
     
 
       // Optionally, you can log the response or handle it as needed
-      console.log("Submitted:", response);
+      // console.log("Submitted:", response);
       toast.success(response?.message);
 
       form.reset({

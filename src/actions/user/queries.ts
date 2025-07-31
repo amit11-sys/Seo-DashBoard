@@ -108,7 +108,7 @@ export const verifyUser = async (formData: any) => {
 
     // Check if the user exists
     const user = await User.findOne({ email });
-    console.log(user, "user-Data");
+    // console.log(user, "user-Data");
     if (!user) {
       return { error: "User does not exist." };
     }

@@ -57,7 +57,7 @@ export default function AutocompleteInput({
       {showDropdown && options.length > 0 && (
         <Card className="absolute w-full max-h-60 overflow-y-auto z-10">
           {options.map((opt, idx) =>{
-              console.log(opt,"options in autocmpt")
+              // console.log(opt,"options in autocmpt")
             return(
   <div
               key={idx}

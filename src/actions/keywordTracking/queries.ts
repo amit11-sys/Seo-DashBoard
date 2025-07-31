@@ -17,7 +17,7 @@ export const createKeywordTracking = async (keywordData: any) => {
       return { error: "Unauthorized" };
     }
 
-    console.log(keywordData, "createlivedata");
+    // console.log(keywordData, "createlivedata");
 
     const createdRecords: any[] = [];
     //  console.log(keywordData,"new")
@@ -46,7 +46,7 @@ export const createKeywordTracking = async (keywordData: any) => {
       createdRecords.push(record);
     });
 
-    console.log(createdRecords, "orignal");
+    // console.log(createdRecords, "orignal");
 
     const KeywordTrackingData =
       await KeywordTracking.insertMany(createdRecords);
@@ -76,7 +76,7 @@ export const getUserKeywordData = async (newCompaignId: any) => {
       return { error: "Unauthorized" };
     }
     // console.log(user);
-    console.log(newCompaignId, "newkeywordCampaign");
+    // console.log(newCompaignId, "newkeywordCampaign");
     const campaignKeywords = await Keyword.find({
       CampaignId: newCompaignId?.CampaignId,
     });
@@ -115,7 +115,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
       campaignId: newCompaignId,
       status: 1,
     });
-    console.log(LiveKeywordDbData, "live datat from db to table");
+    // console.log(LiveKeywordDbData, "live datat from db to table");
 
     //  add location in data
     // const newLiveKeywordDbData = await Promise.all(
@@ -142,7 +142,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
   })
 );
 
-    console.log(newLiveKeywordDbData, "realdata");
+    // console.log(newLiveKeywordDbData, "realdata");
 
     if (!LiveKeywordDbData) {
       return { error: "Error while getting LiveKeywordDbData" };
@@ -203,7 +203,7 @@ export const LiveKeywordDatabyKeyID = async (keywordId: string) => {
   })
 );
 
-    console.log(singleEditLiveKeywordDbData, "edit data");
+    // console.log(singleEditLiveKeywordDbData, "edit data");
 
     if (!signleKeywordDbData) {
       return { error: "Error while getting LiveKeywordDbData" };
@@ -261,7 +261,7 @@ export const getStartData = async (
 ) => {
   try {
     await connectToDB();
-    console.log(keywordId,newStartData,"data for start update") // 6879e81b47ed1758549aef75 2 data for start update
+    // console.log(keywordId,newStartData,"data for start update") // 6879e81b47ed1758549aef75 2 data for start update
     
    
  
@@ -270,7 +270,7 @@ export const getStartData = async (
     { $set: { start: newStartData } },
     { new: true }
   );
-  console.log(startUpdatedData, "start updated data");
+  // console.log(startUpdatedData, "start updated data");
 
     if (!keywordId) {
       return { error: "Error while getting keywordId" };
@@ -300,7 +300,7 @@ export const firstCompaignData = async () => {
     // console.log(user);
     // console.log(newCompaignId,"newkeywordCampaign")
     const firstCompagin = await Campaign.findOne()
-    console.log(firstCompagin,"first compaign")
+    // console.log(firstCompagin,"first compaign")
      
 
     // console.log(campaignKeywords,"fromkeywordtracking")

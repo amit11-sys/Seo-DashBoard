@@ -45,7 +45,7 @@ const CustomTable = ({
   setTableBody,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
-  console.log(tableData, "table data");
+  // console.log(tableData, "table data");
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
   const [defaultData, setDefaultData] = useState<any>([]);
   useEffect(() => {
@@ -62,7 +62,7 @@ const CustomTable = ({
     };
     FetchKeyWordsDb();
   }, []);
-  console.log(keywordDbData, "keyworddb data");
+  // console.log(keywordDbData, "keyworddb data");
   // const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
 
   // useEffect(() => {
@@ -93,7 +93,7 @@ const CustomTable = ({
   };
 
  const addEditkeywordsData = async (data: any) => {
-  console.log(data, "default function");
+  // console.log(data, "default function");
 
   // Transform and set default data
   const transformed = data.map((item: any) => ({

@@ -170,11 +170,11 @@ export const fetchLocation = async () => {
           country_iso_code: item.country_iso_code.toUpperCase(),
         }));
 
-      console.log(filteredData, "filtered country data");
+      // console.log(filteredData, "filtered country data");
 
       // Then process each location
       filteredData.forEach((loc: any) => {
-        console.log(loc, "locooo"); 
+        // console.log(loc, "locooo"); 
         allLocations.push({
           locationName:
             loc.location_name,
@@ -193,11 +193,11 @@ export const fetchLocation = async () => {
       });
     });
 
-    console.log(allLocations, "data locations");
+    // console.log(allLocations, "data locations");
 
     const locationsDbData = await Location.insertMany(allLocations);
 
-    console.log(locationsDbData, "Db data loaction in backend");
+    // console.log(locationsDbData, "Db data loaction in backend");
 
     return { allLocations };
   } catch (error) {

@@ -7,7 +7,7 @@ import {  deleteKeywordById,  saveMultipleKeyword, updateKeywordById } from "./q
 //     return addKeyword
 // }
 
-export const addMultipleKeyword = async (formData: {},campaign:any) => {
+export const addMultipleKeyword = async (formData: any,campaign:any) => {
   // console.log(keyword,"rttdt");
 
   const addKeyword = await saveMultipleKeyword(formData,campaign?.campaign);

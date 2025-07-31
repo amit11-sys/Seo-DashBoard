@@ -19,7 +19,7 @@ export default async function DashboardDetails({
   const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
   // const location_and_language = await getLocation_languageData();
 
-  console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData in page");
+  // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData in page");
 
  
 

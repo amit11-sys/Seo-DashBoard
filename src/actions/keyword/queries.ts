@@ -924,7 +924,7 @@ export const getKewordRank = async (KeywordData: any) => {
       }
     }
 
-    console.log(rankResponses?.length>0 && rankResponses[0]?.response?.tasks, "rank response", rankResponses?.length>0 && rankResponses[0]?.response?.tasks?.result);
+    // console.log(rankResponses?.length>0 && rankResponses[0]?.response?.tasks, "rank response", rankResponses?.length>0 && rankResponses[0]?.response?.tasks?.result);
 
     // const res = await getLocation_languageData();
     // const locationData = res?.allLocations;
@@ -1390,7 +1390,7 @@ export const saveMultipleKeyword = async (
     // const VolumnData = await getVolumnRank(addKeyword);
     // const intentData = await getRankIntent(addKeyword);
 
-    // console.log(rankdata?.rankResponses, "rankdata");
+    console.log(rankdata?.rankResponses, "rankdata");
     // console.log(VolumnData?.volumnResponses, "volumn data");
     // console.log(intentData?.intentResponses, "intent data");
 

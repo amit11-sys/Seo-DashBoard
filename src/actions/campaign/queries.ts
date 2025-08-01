@@ -36,6 +36,7 @@ export const newCampaign = async (formData: any) => {
     return {
       success: true,
       message: "Campaign Created successfully",
+      campaign
     };
     // }
   } catch (error) {

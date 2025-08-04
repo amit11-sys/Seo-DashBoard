@@ -91,7 +91,7 @@ const { loading, startLoading, stopLoading } = useLoader();
             key={idx}
             className="w-10 h-10  rounded-full bg-gray-100 hover:bg-gray-200 shadow-sm flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer"
           >
-            <button onClick={item.onClick}  className={`text-xl ${item.color}`}>{item.icon}</button>
+            <button title="Refresh" onClick={item.onClick}  className={`text-xl ${item.color}`}>{item.icon}</button>
           </div>
         ))}
         

@@ -2,6 +2,8 @@
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Campaign from "@/lib/models/campaign.model";
+import Keyword from "@/lib/models/keyword.model";
+import KeywordTracking from "@/lib/models/keywordTracking.model";
 import User from "@/lib/models/user.model";
 
 export const newCampaign = async (formData: any) => {
@@ -36,7 +38,7 @@ export const newCampaign = async (formData: any) => {
     return {
       success: true,
       message: "Campaign Created successfully",
-      campaign
+      campaign,
     };
     // }
   } catch (error) {
@@ -55,8 +57,12 @@ export const getCampaign = async () => {
       return { error: "Unauthorized" };
     }
     // console.log(user);
-    
-    const campaign = await Campaign.find({ userId: user?.id });
+
+    // const campaign = await Campaign.find({ userId: user?.id });
+    const campaign = await Campaign.find({
+      userId: user?.id,
+      status: 1,
+    });
     if (!campaign) {
       return { error: "Error while getting campaign" };
     }
@@ -64,7 +70,7 @@ export const getCampaign = async () => {
     return {
       success: true,
       message: "Campaign Successfully Found",
-      campaign
+      campaign,
     };
     // }
   } catch (error) {
@@ -73,3 +79,87 @@ export const getCampaign = async () => {
     return { error: "Internal Server Error." };
   }
 };
+
+export const deleteCampaign = async (CompaignId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+    console.log(CompaignId, "CompaignId delete");
+
+    const compaignDataDelete = await Campaign.findByIdAndUpdate({_id:CompaignId}, {
+      status: 2,
+    });
+
+    const KeywordTrackingDataDelete = await KeywordTracking.findOne(
+      { campaignId: CompaignId },
+      { status: 2 }
+    );
+
+    const KeywordDataDelete = await Keyword.findOne(
+      { CampaignId: CompaignId },
+      { status: 2 }
+    );
+
+    
+
+    if (!CompaignId) {
+      return { error: " Not Find Id Error while deleting campaign" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "Campaign Successfully Deleted",
+      compaignDataDelete,
+      KeywordTrackingDataDelete,
+      KeywordDataDelete,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+export const archivedCampaign = async (CompaignId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+    console.log(CompaignId, "CompaignId delete");
+
+    
+
+    const KeywordTrackingDataDelete = await KeywordTracking.find(
+      { status: 2}
+    );
+
+   
+
+    
+
+    if (!CompaignId) {
+      return { error: " Not Find Id Error while deleting campaign" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "Campaign Successfully Deleted",
+      // compaignDataDelete,
+      KeywordTrackingDataDelete,
+      // KeywordDataDelete,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+

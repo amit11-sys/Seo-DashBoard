@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic';
 import React from "react";
 import TabsComponents from "@/components/Compaign/TabsComponents";
-import Header from "@/components/Common/Header";
+// import Header from "@/components/Common/Navbar";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
+import Navbar from "@/components/Common/Navbar";
 
 const AddCamapign = async () => {
 
@@ -43,7 +44,7 @@ const AddCamapign = async () => {
      <section className="relative h-screen flex flex-col overflow-hidden">
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 right-0 z-50">
-        <Header />
+        <Navbar />
       </div>
 
       {/* Below header layout: flex-row with sidebar and content */}

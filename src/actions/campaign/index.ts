@@ -1,6 +1,6 @@
 "use server";
 
-import { getCampaign, newCampaign } from "./queries";
+import { deleteCampaign, getCampaign, newCampaign } from "./queries";
 import { addMultipleKeyword } from "../keyword";
 import {
   // createNewKeywordTrackingData,
@@ -58,4 +58,9 @@ export const getUserCampaign = async () => {
   const campaign = await getCampaign();
 
   return campaign;
+};
+
+export const getdeleteCampaign = async (CompaignId: string) => {
+  const data = await deleteCampaign(CompaignId);
+  return data;
 };

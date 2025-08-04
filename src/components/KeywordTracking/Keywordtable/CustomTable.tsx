@@ -114,18 +114,18 @@ const CustomTable = ({
 
 
   return (
-    <div className="w-full shadow-lg text-black rounded-md mt-4 max-h-96 overflow-x-auto relative">
+    <div className="w-full shadow-lg text-black rounded-md  max-h-[700px] overflow-x-auto relative">
       <table className="min-w-[1000px] w-full table-auto">
         <thead>
-          <tr className="sticky top-0 bg-gradient-to-r bg-gray-300 text-black">
+          <tr className="sticky  top-0 bg-gradient-to-r bg-gray-200  text-black">
             {tableHeader.map((header, id) => (
               <th
                 key={id}
-                className="px-4 py-2 text-center text-sm font-medium"
+                className="py-3 px-1 text-center text-sm font-medium"
               >
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex  items-center text-sm justify-center gap-1">
                   {header.icon && (
-                    <span className="text-xl">{header.icon}</span>
+                    <span className="text-sm">{header.icon}</span>
                   )}
                   {header.label}
                 </div>
@@ -154,14 +154,17 @@ const CustomTable = ({
                   key={rowIndex}
                   className="hover:bg-indigo-50 transition-colors"
                 >
-                  <td className="text-center text-[12px] border font-medium p-3">
+                  <td
+                    className="text-center text-[14px] text-wrap min-w-[200px]  border  p-1"
+                    title={data.keyword}
+                  >
                     {data.keyword}
                   </td>
-                  <td className="text-center text-[12px] border p-3">{data.location}</td>
+                  <td className="text-center text-[12px] border  min-w-[50px] p-1">{data.location}</td>
                   <td className="text-center text-[12px] border p-3">{data.intent}</td>
 
                   <td
-                    className="text-center text-[12px] border cursor-pointer p-3"
+                    className="text-center text-[12px] border cursor-pointer p-1"
                     onClick={() => handleStartClick(rowIndex)}
                   >
                     {editableRowIndex === rowIndex ? (
@@ -185,22 +188,22 @@ const CustomTable = ({
                     )}
                   </td>
 
-                  <td className="text-center text-[12px] border p-3">{data.page}</td>
-                  <td className="text-center border p-3">
+                  <td className="text-center text-[12px] border p-1">{data.page}</td>
+                  <td className="text-center text-[12px] border p-3">
                     {data.Absolute_Rank}
                   </td>
-                  <td className="text-center text-[12px] border p-3">{data.Group_Rank}</td>
-                  <td className="text-center text-[12px] border p-3">{data.sevenDays}</td>
-                  <td className="text-center text-[12px] border p-3">{data.life}</td>
-                  <td className="text-center text-[12px] text-black border p-3">
+                  <td className="text-center text-[12px] border p-1">{data.Group_Rank}</td>
+                  <td className="text-center text-[12px] border p-1">{data.sevenDays}</td>
+                  <td className="text-center text-[12px] border p-1">{data.life}</td>
+                  {/* <td className="text-center text-[12px] text-black border p-1">
                     {data.comp}
-                  </td>
-                  <td className="text-center text-[12px] text-black border p-3">
+                  </td> */}
+                  {/* <td className="text-center text-[12px] text-black border p-1">
                     {data.sv}
-                  </td>
-                  <td className="text-center text-[12px] border p-3">{data.date}</td>
+                  </td> */}
+                  <td className="text-center text-[12px] border text-nowrap p-1">{data.date}</td>
 
-                  <td className="text-center text-[12px] border p-3">
+                  <td className="text-center text-[12px] border p-1">
                     <div className="flex justify-center items-center">
                       <a
                         target="_blank"
@@ -213,7 +216,7 @@ const CustomTable = ({
                     </div>
                   </td>
 
-                  <td className="text-center text-[12px] border p-3">
+                  <td className="text-center text-[12px] border p-1">
                     <div className="flex justify-center items-center gap-2">
                       <KeywordEdit
                         campaignId={campaignId}

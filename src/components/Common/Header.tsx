@@ -1,97 +1,160 @@
 "use client";
-import { LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { logoutUser } from "@/actions/user";
+import { getdeleteCampaign } from "@/actions/campaign";
+import { useLoader } from "@/hooks/useLoader";
+import React, { useState } from "react";
+import { FaTrashAlt, FaFilePdf, FaArchive } from "react-icons/fa";
 import { toast } from "sonner";
-
-import { FaPlus, FaPowerOff } from "react-icons/fa6";
-
-import BlueButton from "../ui/CustomButton";
-import { MdDashboard } from "react-icons/md";
-import { useEffect, useState } from "react";
-import { getUserCampaign } from "@/actions/campaign";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { getfirstCompaignData } from "@/actions/keywordTracking";
 
-type Props = {
-  // setIsCollapsed: (isCollapsed: boolean) => void;
-  // isCollapsed: boolean;
-};
 
-export default function Header() {
-  // const handleToggle = () => {
-  //   setIsCollapsed(!isCollapsed);
-  // };
-  const [FirstCompaign, setFirstCompaign] = useState("");
+interface HeaderProps {
+  campaignId: string;
+}
+
+const Header: React.FC<HeaderProps> = ({ campaignId }) => {
+  const { startLoading, stopLoading } = useLoader();
+  const [openDelete, setOpenDelete] = useState(false);
+  const [openArchive, setOpenArchive] = useState(false);
   const router = useRouter();
-  const onLogout = async () => {
-    const logout = await logoutUser();
-    if (logout) {
-      router.push("/sign-in");
-      toast("Logout Successfully");
+
+  const handleCompaignDelete = async () => {
+    setOpenDelete(false);
+    startLoading();
+    try {
+      const DeletedCampaignData = await getdeleteCampaign(campaignId);
+
+      if (!DeletedCampaignData) {
+        console.error("Failed to delete campaign:", DeletedCampaignData);
+        toast.error("Failed to delete campaign");
+        stopLoading();
+        return;
+      }
+      const firstCompaignData = await getfirstCompaignData();
+
+      toast.success(DeletedCampaignData.message);
+      router.push(`/dashboard/${firstCompaignData?.firstCompagin?._id}`);
+    } catch (error) {
+      toast.error("Something went wrong while deleting the campaign");
+    } finally {
+      stopLoading();
     }
   };
-  useEffect(() => {
-    const fetchFirstCampaign = async () => {
-      try {
-        const fetchCompaigns = await getfirstCompaignData();
-        console.log(fetchCompaigns?.firstCompagin?._id, "first fetch");
-        setFirstCompaign(fetchCompaigns?.firstCompagin?._id);
-      } catch (error) {
-        console.log(error, "failed to fetch compaign nav header");
+  const handleCompaignArchived = async (campaignId: string) => {
+    setOpenArchive(false);
+    startLoading();
+    try {
+      const DeletedCampaignData = await getdeleteCampaign(campaignId);
+
+      if (!DeletedCampaignData) {
+        console.error("Failed to delete campaign:", DeletedCampaignData);
+        toast.error("Failed to delete campaign");
+        stopLoading();
+        return;
       }
-    };
-    fetchFirstCampaign();
-  }, []);
+      const firstCompaignData = await getfirstCompaignData();
+
+      toast.success(DeletedCampaignData.message);
+      router.push(`/dashboard/${firstCompaignData?.firstCompagin?._id}`);
+    } catch (error) {
+      toast.error("Something went wrong while deleting the campaign");
+    } finally {
+      stopLoading();
+    }
+  };
 
   return (
-    <>
-      <div className=" z-50 fixed top-0 left-0 bg-[#273F4F] shadow w-full ">
-        <nav className=" px-5 py-2 shadow w-full mr-10 ">
-          <div className="w-full">
-            <div className="relative flex h-16 items-center justify-between">
-              <div className="flex  gap-4">
-                <button
-                  // onClick={() => handleToggle()}
-                  className="flex text-white  h-10 w-10 transform items-center justify-center rounded-md ring-1 ring-white/10 transition-colors duration-200 ease-in-out hover:bg-white/10"
-                >
-                  <>
-                    {<LuPanelLeftOpen className="hidden h-10 w-10 md:block" />}
-                    <LuPanelLeftClose className="block h-10 w-10 md:hidden" />
-                  </>
-                </button>
-                <div
-                  // className="flex flex-shrink-0 items-center transition-all duration-200 transform hover:scale-105 hover:from-[#d65d2d] cursor-pointer hover:to-[#FE7743] bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white py-4 px-4 rounded-full bg-[#335488]">
+    <header className="flex items-center justify-between p-2 shadow-md rounded-md">
+      <div className="flex items-center space-x-4 ml-auto">
+        <button
+          title="Download PDF"
+          className="flex items-center text-red-400 px-3 py-1.5 rounded transition"
+        >
+          <FaFilePdf className=" text-2xl" />
+        </button>
 
-                  className="flex  items-center  text-white text-3xl transition-all duration-200 transform hover:scale-105 "
-                >
-                  <Link
-                    className="flex justify-center items-center gap-4"
-                    href={`/dashboard/${FirstCompaign}`}
-                  >
-                    <MdDashboard />
-                    ANALYTICS-DASHBOARD
-                  </Link>
-                </div>
-              </div>
+        {/* Dialog Trigger for archive */}
+        <Dialog open={openArchive} onOpenChange={setOpenArchive}>
+          <DialogTrigger asChild>
+            <button
+              title="Archive Campaign"
+              className="flex items-center text-gray-600 px-4 py-2 rounded transition"
+            >
+              <FaArchive className="text-2xl" />
+            </button>
+          </DialogTrigger>
 
-              <div className="flex justify-center items-center gap-5">
-                <BlueButton
-                  icon={<FaPlus />}
-                  onClick={() => router.push("/add-campaign")}
-                  buttonName="ADD CAMPAIGN"
-                />
+          <DialogContent className="bg-white flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Archive Campaign?</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to archive this campaign? You can restore
+                it later.
+              </DialogDescription>
+            </DialogHeader>
 
-                <BlueButton
-                  icon={<FaPowerOff />}
-                  onClick={onLogout}
-                  buttonName="LOG OUT"
-                />
-              </div>
-            </div>
-          </div>
-        </nav>
+            <DialogFooter className="mt-4">
+              <Button variant="ghost" onClick={() => setOpenArchive(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  handleCompaignArchived(campaignId); // 👈 call your archive logic here
+                  setOpenArchive(false); // close dialog after action
+                }}
+              >
+                Archive
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Trigger for delete */}
+        <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+          <DialogTrigger asChild>
+            <button
+              title="Delete Campaign"
+              className="flex items-center text-red-700 px-4 py-2 rounded transition"
+            >
+              <FaTrashAlt className=" text-2xl" />
+            </button>
+          </DialogTrigger>
+
+          {/* delete dialog */}
+
+          <DialogContent className="bg-white flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Delete Campaign?</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this campaign? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter className="mt-4">
+              <Button variant="ghost" onClick={() => setOpenDelete(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleCompaignDelete}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-    </>
+    </header>
   );
-}
+};
+
+export default Header;

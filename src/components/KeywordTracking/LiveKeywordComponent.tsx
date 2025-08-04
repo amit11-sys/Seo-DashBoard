@@ -14,7 +14,7 @@ import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 import { log, table } from "console";
 import KeywordTextArea from "../KeywordTextArea";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
-import Header from "../Common/Header";
+import Header from "../Common/Navbar";
 
 type Tableitems = {
   key: string;
@@ -43,11 +43,13 @@ type TablebodyItems = {
   rankingUrl: string;
 };
 
-type CardDataProp = {
-  title: string;
-  data?: string[];
-  type?: string;
-};
+interface CustomTrackingCardProps {
+  cardData: {
+    title: string;
+    data: { title: string; data: number; }[];
+    type?: string;
+  };
+}
 
 interface campaignId {
   campaignId: any;
@@ -67,6 +69,15 @@ const LiveKeywordComponent = ({
   campaignId,
 }: LiveKeywordComponentProps) => {
   const [tableBody, setTableBody] = useState<any[]>([]);
+  const [cardCounts, setCardCounts] = useState({
+  top3: 0,
+  top10: 0,
+  top20: 0,
+  top30: 0,
+  top100: 0,
+});
+console.log(cardCounts, "cardCounts");
+
 
   const tableHeader: Tableitems[] = [
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
@@ -77,25 +88,26 @@ const LiveKeywordComponent = ({
     { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
     {
       key: "Absolute-Rank",
-      label: "Absolute-Rank",
+      label: "A-Rank",
       icon: <FcGoogle className="inline mr-1" />,
     },
 
     {
       key: "Group-Rank",
-      label: "Group-Rank",
+      label: "G-Rank",
       icon: <FcGoogle className="inline mr-1" />,
     },
     // { key: "one_day", label: "1 Day" },
     { key: "seven_days", label: "7 Days" },
     // { key: "thirty_days", label: "30 Days" },
     { key: "life", label: "Life" },
-    { key: "comp", label: "Comp" },
-    { key: "sv", label: "SV" },
+    // { key: "comp", label: "Comp" },
+    // { key: "sv", label: "SV" },
     { key: "date", label: "Date" },
     { key: "ranking_url", label: "Ranking URL" },
     { key: "edit", label: "Edit keyword" },
   ];
+  // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
 
   // let tableBody: TablebodyItems[] = [];
   useEffect(() => {
@@ -106,35 +118,77 @@ const LiveKeywordComponent = ({
   }, [campaignLiveKeywordsData]);
   // console.log(campaignLiveKeywordsData, "use effect data");
 
+  // const keywordTableData = async () => {
+  //   if (campaignLiveKeywordsData.newLiveKeywordDbData) {
+  //     const data = campaignLiveKeywordsData.newLiveKeywordDbData.map(
+  //       (item: any) => ({
+  //         keyword: item?.keyword || "",
+  //         keywordId: item.keywordId,
+  //         location: item?.location_name?.locationName?.locationName || "",
+  //         intent: item?.intent || "",
+  //         start: item?.start || 0,
+  //         page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+  //         Absolute_Rank: item?.rank_absolute || 0,
+  //         Group_Rank: item?.rank_group || 0,
+  //         // oneDay: "1",
+  //         sevenDays: "-",
+  //         // thirtyDays: "-",
+  //         life: item?.rank_absolute || 0,
+  //         comp: item?.competition || 0,
+  //         sv: item?.searchVolumn || 0,
+  //         date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+  //           day: "2-digit",
+  //           month: "short",
+  //           year: "2-digit",
+  //         }),
+  //         rankingUrl: item?.url || "",
+  //       })
+  //     );
+  //     setTableBody(data);
+  //   }
+  // };
   const keywordTableData = async () => {
-    if (campaignLiveKeywordsData.newLiveKeywordDbData) {
-      const data = campaignLiveKeywordsData.newLiveKeywordDbData.map(
-        (item: any) => ({
-          keyword: item?.keyword || "",
-          keywordId: item.keywordId,
-          location: item?.location_name?.locationName?.locationName || "",
-          intent: item?.intent || "",
-          start: item?.start || 0,
-          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-          Absolute_Rank: item?.rank_absolute || 0,
-          Group_Rank: item?.rank_group || 0,
-          // oneDay: "1",
-          sevenDays: "-",
-          // thirtyDays: "-",
-          life: item?.rank_absolute || 0,
-          comp: item?.competition || 0,
-          sv: item?.searchVolumn || 0,
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item?.url || "",
-        })
-      );
-      setTableBody(data);
-    }
-  };
+  if (campaignLiveKeywordsData.newLiveKeywordDbData) {
+    const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
+
+    let top3 = 0, top10 = 0, top20 = 0, top30 = 0, top100 = 0;
+
+    const data = rawData.map((item: any) => {
+      const rankGroup = item?.rank_group || 0;
+
+      if (rankGroup > 0 && rankGroup <= 3) top3++;
+      if (rankGroup > 0 && rankGroup <= 10) top10++;
+      if (rankGroup > 0 && rankGroup <= 20) top20++;
+      if (rankGroup > 0 && rankGroup <= 30) top30++;
+      if (rankGroup > 0 && rankGroup <= 100) top100++;
+
+      return {
+        keyword: item?.keyword || "",
+        keywordId: item.keywordId,
+        location: item?.location_name?.locationName?.locationName || "",
+        intent: item?.intent || "",
+        start: item?.start || 0,
+        page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+        Absolute_Rank: item?.rank_absolute || 0,
+        Group_Rank: item?.rank_group || 0,
+        sevenDays: "-",
+        life: item?.rank_absolute || 0,
+        comp: item?.competition || 0,
+        sv: item?.searchVolumn || 0,
+        date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit",
+        }),
+        rankingUrl: item?.url || "",
+      };
+    });
+
+    setTableBody(data);
+    setCardCounts({ top3, top10, top20, top30, top100 });
+  }
+};
+
   console.log(tableBody, "table body");
 
   // const showAddedKeyword = async (newItem: any) => {
@@ -206,18 +260,82 @@ const LiveKeywordComponent = ({
     }
   };
 
+
+const cardData = {
+  title: "keywords",
+  data: [
+    {
+      title: "Keywords Up",
+      data: tableBody?.length,
+      id: 1,
+    },
+    {
+      title: "In Top 3",
+      data: cardCounts.top3,
+      id: 2,
+    },
+    {
+      title: "In Top 10",
+      data: cardCounts.top10,
+      id: 3,
+    },
+    {
+      title: "In Top 20",
+      data: cardCounts.top20,
+      id: 4,
+    },
+    {
+      title: "In Top 30",
+      data: cardCounts.top30,
+      id: 5,
+    },
+    {
+      title: "In Top 100",
+      data: cardCounts.top100,
+      id: 6,
+    },
+  ],
+  type: "card",
+};
+
+console.log(cardData,"cardData");
+
+  
+
   return (
-    <div className="w-full min-h-[80vh]  text-gray-100  space-y-12">
+    <div className="w-full min-h-[80vh]  text-gray-100">
       {/* Header */}
-      <div className="my-14  backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
+      <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
         />
       </div>
+      <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">
+
+      <div  className="flex justify-evenly items-center gap-5 w-full">
+        {
+          cardData?.data?.map((item: any) => {
+            console.log(item, "item");
+
+            return (
+              <div key={item.id}>
+
+                <CustomTrackingCard title={item?.title } data={item?.data} />
+              </div>)
+          }
+            
+          )
+        }
+      </div>
+      {/* <div className="w-[60%]">
+        <TrackingChart/>
+      </div> */}
+      </div>
+     
 
       {/* Filter & Table Section */}
-      <div className="backdrop-blur-md rounded-xl p-6 ">
+      <div className="rounded-xl p-6 ">
         <CustomTable
           tableHeader={tableHeader}
           tableData={tableBody}

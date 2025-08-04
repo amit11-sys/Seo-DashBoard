@@ -47,11 +47,11 @@ export const addkeywords = async (formData: any) => {
     console.log(newAddKeyword,"newAddKeyword in add")
 
 const rankdata = await getKewordRank(newAddKeyword)
-    const VolumnData = await getVolumnRank(newAddKeyword)
+    // const VolumnData = await getVolumnRank(newAddKeyword)
     const intentData = await getRankIntent(newAddKeyword)
 
     console.log(rankdata?.rankResponses,"rankdata add")
-    console.log(VolumnData?.volumnResponses,"volumn data add")
+    // console.log(VolumnData?.volumnResponses,"volumn data add")
     console.log(intentData?.intentResponses,"intent data add")
 
 // const finalData = rankdata && 'rankResponses' in rankdata
@@ -118,15 +118,15 @@ const finalData =
             );
             console.log(matchedKeyword, "matchedKeyword");
             // Get corresponding volume data for this keyword
-            const volumnResponse = VolumnData?.volumnResponses?.find(
-              (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
-            );
-            const volumeItem =
-              volumnResponse?.response?.tasks?.[0]?.result?.find(
-                (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
-              );
-            const matchSearchVolumn = volumeItem?.search_volume ?? 0;
-            const matchcompetition = volumeItem?.competition ?? 0;
+            // const volumnResponse = VolumnData?.volumnResponses?.find(
+            //   (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+            // );
+            // const volumeItem =
+            //   volumnResponse?.response?.tasks?.[0]?.result?.find(
+            //     (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
+            //   );
+            // const matchSearchVolumn = volumeItem?.search_volume ?? 0;
+            // const matchcompetition = volumeItem?.competition ?? 0;
 
             // Get corresponding intent data for this keyword
             const intentResponse = intentData?.intentResponses?.find(
@@ -154,9 +154,11 @@ const finalData =
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: newKeyword || "",
-              searchVolumn: matchSearchVolumn,
+              // searchVolumn: matchSearchVolumn,
+              searchVolumn: 0,
               intent: matchIntent,
-              competition: matchcompetition,
+              // competition: matchcompetition,
+              competition: 0,
               campaignId: campaignId,
               keywordId: matchedKeyword?._id,
               start: data?.items?.[0]?.rank_group || 0,

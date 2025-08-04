@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Header from "@/components/Common/Header";
+import Header from "@/components/Common/Navbar";
 import Sidebar from "@/components/Common/Sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ export default function SidebarWrapper({
     <>
       <div
         className={cn(
-          "h-screen border-r  z-40 fixed pt-20   bg-white border-muted transition-all duration-300 ease-in-out",
+          "h-screen border-r  z-40 fixed pt-20   bg-white shadow-lg border-muted transition-all duration-300 ease-in-out",
           isCollapsed ? "w-16" : "w-0 md:w-64",
         )}
       >

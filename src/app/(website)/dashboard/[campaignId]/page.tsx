@@ -1,6 +1,7 @@
 import {
   getDbLiveKeywordData,
 } from "@/actions/keywordTracking";
+import Navbar from "@/components/Common/Navbar";
 // import { getKeywordLiveData } from "@/actions/liveKeywords";
 import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
@@ -28,19 +29,22 @@ export default async function DashboardDetails({
   <section className="relative h-screen flex flex-col overflow-hidden">
      
       <div className="fixed top-0 left-0 right-0 z-50">
-        <Header />
+        {/* <Header /> */}
+        <Navbar/>
+
       </div>
 
     
       <div className="flex flex-1 pt-[80px] overflow-hidden">
        
-        <aside className="w-[250px] bg-[#1E2A38] h-full fixed left-0 top-[20px] z-40">
+        <aside className="w-[250px]   h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper />
         </aside>
 
      
-        <main className="ml-[250px] flex-1 overflow-y-auto bg-slate-100 p-4">
+        <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
           {/* <SearchAnalytics /> */}
+          <Header  campaignId={campaignId} />
           <LiveKeywordComponent
             campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}

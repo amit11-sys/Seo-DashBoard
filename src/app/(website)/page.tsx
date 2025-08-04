@@ -46,7 +46,7 @@ export default function Home() {
     <>
       <div className="w-screen relative">
         
-        <LiveKeywordTracking />
+        {/* <LiveKeywordTracking /> */}
       </div>
     </>
   );

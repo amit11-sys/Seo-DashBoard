@@ -1,5 +1,5 @@
 
-import Header from "@/components/Common/Header";
+import Header from "@/components/Common/Navbar";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 // import { getUserCampaign } from "@/actions/campaign";
 // import { UserKeywordData } from "@/actions/liveKeywords";

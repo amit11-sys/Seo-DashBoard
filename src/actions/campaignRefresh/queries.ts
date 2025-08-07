@@ -48,11 +48,11 @@ export const refreshAddedKeywords = async (campaignId: string) => {
     const refreshCampaign = await Keyword.find({ CampaignId: campaignId });
 
     const rankdata = await getKewordRank(refreshCampaign);
-    const VolumnData = await getVolumnRank(refreshCampaign);
+    // const VolumnData = await getVolumnRank(refreshCampaign);
     const intentData = await getRankIntent(refreshCampaign);
 
     console.log(rankdata?.rankResponses, "rankdata add");
-    console.log(VolumnData?.volumnResponses, "volumn data add");
+    // console.log(VolumnData?.volumnResponses, "volumn data add");
     console.log(intentData?.intentResponses, "intent data add");
 
     const finalData =
@@ -69,15 +69,15 @@ export const refreshAddedKeywords = async (campaignId: string) => {
             );
             console.log(matchedKeyword, "matchedKeyword in add");
             // Get corresponding volume data for this keyword
-            const volumnResponse = VolumnData?.volumnResponses?.find(
-              (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
-            );
-            const volumeItem =
-              volumnResponse?.response?.tasks?.[0]?.result?.find(
-                (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
-              );
-            const matchSearchVolumn = volumeItem?.search_volume ?? 0;
-            const matchcompetition = volumeItem?.competition ?? 0;
+            // const volumnResponse = VolumnData?.volumnResponses?.find(
+            //   (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+            // );
+            // const volumeItem =
+            //   volumnResponse?.response?.tasks?.[0]?.result?.find(
+            //     (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
+            //   );
+            // const matchSearchVolumn = volumeItem?.search_volume ?? 0;
+            // const matchcompetition = volumeItem?.competition ?? 0;
 
             // Get corresponding intent data for this keyword
             const intentResponse = intentData?.intentResponses?.find(
@@ -108,9 +108,11 @@ export const refreshAddedKeywords = async (campaignId: string) => {
               rank_group: data?.items?.[0]?.rank_group || 0,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: newKeyword || "",
-              searchVolumn: matchSearchVolumn,
+              // searchVolumn: matchSearchVolumn,
+              searchVolumn: 0,
               intent: matchIntent,
-              competition: matchcompetition,
+              // competition: matchcompetition,
+              competition: 0,
               campaignId: campaignId,
               keywordId: matchedKeyword?._id,
             };

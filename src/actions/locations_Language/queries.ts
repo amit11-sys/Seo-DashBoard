@@ -154,7 +154,8 @@ export const fetchLocation = async () => {
     }
 
     const locationData = await res.json();
-    const allLocations: { locationName: string; locationCode: number }[] = [];
+ 
+    const allLocations: { locationName: string; locationCode: number, locationIsoCode: string }[] = [];
     const allLanguages: string[] = [];
 
     const countries = ["ca", "us", "au", "nz", "uk"];
@@ -170,17 +171,18 @@ export const fetchLocation = async () => {
           country_iso_code: item.country_iso_code.toUpperCase(),
         }));
 
-      console.log(filteredData, "filtered country data");
+      // console.log(filteredData, "filtered country data");
 
       // Then process each location
       filteredData.forEach((loc: any) => {
-        console.log(loc, "locooo"); 
+        
         allLocations.push({
           locationName:
             loc.location_name,
             // loc.location_name.charAt(0).toUpperCase() +
             // loc.location_name.slice(1).toLowerCase(),
-          locationCode: loc.location_code,
+          locationCode: loc?.location_code,
+          locationIsoCode: loc?.country_iso_code,
         });
 
         // If you want to process languages per location:
@@ -197,7 +199,7 @@ export const fetchLocation = async () => {
 
     const locationsDbData = await Location.insertMany(allLocations);
 
-    console.log(locationsDbData, "Db data loaction in backend");
+    // console.log(locationsDbData, "Db data loaction in backend");
 
     return { allLocations };
   } catch (error) {

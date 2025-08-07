@@ -24,6 +24,8 @@ export type CampaignContextType = Campaign[];
 interface CampaignContextProps {
   campaignData: CampaignContextType;
   setCampaignData: Dispatch<SetStateAction<CampaignContextType>>;
+  activeSingleCampaign:any
+  setActiveSingleCampaign:Dispatch<SetStateAction<string>>
   
 }
 
@@ -50,9 +52,10 @@ export const CampaignDataProvider =  ({ children }: ProviderProps) => {
       __v: 0,
     },
   ]);
+  const [activeSingleCampaign, setActiveSingleCampaign] = useState<any>();
 
   return (
-    <CampaignContext.Provider value={{ campaignData, setCampaignData }}>
+    <CampaignContext.Provider value={{ campaignData, setCampaignData,activeSingleCampaign,setActiveSingleCampaign }}>
       {children}
     </CampaignContext.Provider>
   );

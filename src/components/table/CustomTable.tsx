@@ -158,7 +158,7 @@ interface CustomTableProps {
   tableData: TablebodyItems[];
 }
 
-const CustomTable = ({ tableHeader, tableData }: CustomTableProps) => {
+const CustomTable = ({ tableHeader, tableData }: any) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
 
@@ -184,7 +184,7 @@ const CustomTable = ({ tableHeader, tableData }: CustomTableProps) => {
       <Table className="min-w-full">
         <TableHeader className="bg-transparent text-white bg-black">
           <TableRow>
-            {tableHeader.map((header, id) => (
+            {tableHeader.map((header:any, id:number) => (
               <TableHead
                 key={id}
                 className="px-4 text-center py-3 border-e-2 text-sm font-semibold text-gray-700"

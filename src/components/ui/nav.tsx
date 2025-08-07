@@ -40,10 +40,11 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
     null
   );
+  console.log(links,"links");
  
-  useEffect(() => {
-    // setCampaignData(campaign);
-  }, []);
+  // useEffect(() => {
+  //   // setCampaignData(campaign);
+  // }, []);
 
   useEffect(() => {
     // Automatically open the dropdown if one of its items is active
@@ -66,7 +67,7 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
   return (
     <div
       data-collapsed={isCollapsed}
-      className="group flex min-h-[calc(100vh-48px)] flex-col gap-4 py-2 data-[collapsed=true]:gap-1 data-[collapsed=true]:py-2 dark:border-muted dark:bg-muted dark:text-muted-foreground"
+      className="group flex min-h-[calc(100vh-48px)] flex-col gap-4 py-2 data-[collapsed=true]:gap-1 data-[collapsed=true]:py-2 dark:border-muted dark:bg-muted dark:text-muted-foreground  pr-5"
     >
       {/* {links.length > 0 ? ( */}
       <nav className="grid gap-1  px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
@@ -77,7 +78,7 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
           );
 
           return (
-            <div key={index} className="relative ">
+            <div key={index} className="relative  w-full  ">
               {isCollapsed ? (
                 <Popover>
                   <PopoverTrigger asChild>
@@ -174,7 +175,7 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
                   >
                     <Link
                       href={link.href}
-                      className="flex w-full text-lg text-red-500 items-center justify-between"
+                      className="flex w-full text-lg text-orange-600 items-center justify-between"
                     >
                       <div className="flex items-center justify-start">
                         <link.icon className="mr-2 text-4xl" />

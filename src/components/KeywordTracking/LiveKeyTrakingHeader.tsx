@@ -14,12 +14,15 @@ import { getRefreshCampaign } from "@/actions/campaignRefresh";
 import { toast } from "sonner";
 import { useLoader } from "@/hooks/useLoader";
 import Loader from "../global/Loader";
+import { useCampaignData } from "@/app/context/CampaignContext";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {campaignId, showAddedKeyword} :any) {
+export default   function LiveKeyTrakingHeader( {campaignId, showAddedKeyword,compaigndata} :any) {
 const { loading, startLoading, stopLoading } = useLoader();
   
+const campaignStatus = compaigndata[0]?.status
+
 
 
  const handleRefreshCampaign = async () => {
@@ -73,7 +76,7 @@ const { loading, startLoading, stopLoading } = useLoader();
         </div>
         <div>
           <h2  className="text-xl font-bold text-black">
-            Live Keyword Tracking
+             {campaignStatus === 2 ? "Archived Keywords" : "Live Keyword Tracking"}
           </h2>
           {/* <p className="text-sm text-black">
             Last Updated: 1 hour ago (Jun 19, 2025)
@@ -83,7 +86,8 @@ const { loading, startLoading, stopLoading } = useLoader();
       </div>
 
       {/* Right Side: Action Icons */}
-      <div className="flex items-center gap-3 flex-wrap justify-end">
+      {
+        campaignStatus === 2 ? <> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
        <DialogFrom  campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
        {/* <button>Add Keyword</button> */}
         {iconButtons.map((item, idx) => (
@@ -96,6 +100,10 @@ const { loading, startLoading, stopLoading } = useLoader();
         ))}
         
       </div>
+      }
+     
+
+
     </div>
   );
 }

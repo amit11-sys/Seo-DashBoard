@@ -4,6 +4,7 @@ const locationSchema = new mongoose.Schema(
   {
     locationName: { type: String },
     locationCode: { type: Number }, 
+    locationIsoCode: { type: String },
    
   },
   {

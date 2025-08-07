@@ -33,9 +33,9 @@ interface TablebodyItems {
 interface CustomTableProps {
   tableHeader: TableHeaderitems[];
   tableData: TablebodyItems[];
-  campaignId: string;
-  showAddedKeyword: any;
-  setTableBody: React.Dispatch<React.SetStateAction<TablebodyItems[]>>;
+  campaignId?: string;
+  showAddedKeyword?: any;
+  setTableBody?: React.Dispatch<React.SetStateAction<TablebodyItems[]>>;
 }
 const CustomTable = ({
   tableHeader,
@@ -81,11 +81,13 @@ const CustomTable = ({
     const newValue = e.target.value;
     const startValue = Number(newValue);
     const startRespomse = await updateStartDB(keywordId, startValue);
-    setTableBody((prev) =>
-      prev.map((row, rowIndex) =>
-        rowIndex === index ? { ...row, start: newValue } : row
-      )
-    );
+   if (setTableBody) {
+  setTableBody((prev) =>
+    prev.map((row, rowIndex) =>
+      rowIndex === index ? { ...row, start: newValue } : row
+    )
+  );
+}
   };
 
   const handleBlur = () => {
@@ -219,7 +221,7 @@ const CustomTable = ({
                   <td className="text-center text-[12px] border p-1">
                     <div className="flex justify-center items-center gap-2">
                       <KeywordEdit
-                        campaignId={campaignId}
+                        campaignId={campaignId || ''}
                         keywordId={keywordId}
                         addEditkeywordsData={addEditkeywordsData}
                         showAddedKeyword={showAddedKeyword}
@@ -241,7 +243,7 @@ const CustomTable = ({
                       />
 
                       <DeleteConfirm
-                        campaignId={campaignId}
+                        campaignId={campaignId || ''}
                         keywordId={keywordId}
                         keyword={data.keyword}
                         setTableBody={setTableBody}

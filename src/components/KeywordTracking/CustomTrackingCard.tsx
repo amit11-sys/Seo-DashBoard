@@ -24,13 +24,14 @@ function getRandomDarkColor(): string {
 interface CustomTrackingCardProps {
  
     title: string;
-    data:  number; 
+    data:  any; 
+     className?: string;
     
  
 }
 
-const CustomTrackingCard = ( {title, data}:CustomTrackingCardProps ) => {
-  console.log({data, title})
+const CustomTrackingCard = ( {title, data , ...prop}:CustomTrackingCardProps ) => {
+  console.log({data, title, prop},"data, title, prop");
   // const [bgGradient, setBgGradient] = useState<string>('');
   const [textColor, setTextColor] = useState<string>('');
   console.log(textColor,"textColor");
@@ -45,7 +46,7 @@ const CustomTrackingCard = ( {title, data}:CustomTrackingCardProps ) => {
   return (
     <div
       //  style={{ borderColor: textColor }}
-      className={`cursor-pointer bg-white   w-[150px] h-[150px] flex-1 shadow-xl rounded-3xl justify-center items-center flex flex-col hover:scale-[1.02] transition-all ease-linear duration-75 p-3`}
+      className={`cursor-pointer bg-white flex-1 shadow-xl rounded-3xl justify-center items-center flex flex-col hover:scale-[1.02] transition-all ease-linear duration-75 p-3 ${prop.className} `}
     >
       <div className="w-full flex justify-center items-end">
         <h1

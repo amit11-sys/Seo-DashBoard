@@ -8,18 +8,19 @@ import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordCompon
 import { Nav } from "@/components/ui/nav";
 import Navbar from "@/components/Common/Navbar";
 import { getArchivedCampaign } from "@/actions/campaign";
+import ArchivedCampaignTable from "@/components/ArchivedCompaign/ArchivedCampaignTable";
 
 
 // import { useCampaignData } from "@/app/context/CampaignContext";
 
-const AddCamapign = async () => {
+const ArchivedCampaign = async () => {
  
 
 
 
  
   const archivedCampaignData = await getArchivedCampaign();
-  console.log(archivedCampaignData,"archivedCampaignData");
+  console.log(archivedCampaignData,"archivedCampaignData in Achi");
 
 // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
 // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
@@ -65,7 +66,7 @@ const AddCamapign = async () => {
 
         {/* Scrollable Right Content */}
         <main className="ml-[250px] flex-1 overflow-y-auto bg-slate-100 p-4">
-           <TabsComponents/>
+            <ArchivedCampaignTable archivedCampaignData={archivedCampaignData?.KeywordTrackingDataArchied}/>
         </main>
       </div>
     </section>
@@ -73,4 +74,4 @@ const AddCamapign = async () => {
   );
 };
 
-export default AddCamapign;
+export default ArchivedCampaign;

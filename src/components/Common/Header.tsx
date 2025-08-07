@@ -1,5 +1,5 @@
 "use client";
-import { getdeleteCampaign } from "@/actions/campaign";
+import { CreateArchivedCampaign } from "@/actions/campaign";
 import { useLoader } from "@/hooks/useLoader";
 import React, { useState } from "react";
 import { FaTrashAlt, FaFilePdf, FaArchive } from "react-icons/fa";
@@ -16,61 +16,70 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getfirstCompaignData } from "@/actions/keywordTracking";
+// import { useCampaignData } from "@/app/context/CampaignContext";
 
 
 interface HeaderProps {
   campaignId: string;
+  topRankData:any
 }
 
-const Header: React.FC<HeaderProps> = ({ campaignId }) => {
+const Header: React.FC<HeaderProps> = ({ campaignId,topRankData }) => {
   const { startLoading, stopLoading } = useLoader();
   const [openDelete, setOpenDelete] = useState(false);
   const [openArchive, setOpenArchive] = useState(false);
   const router = useRouter();
 
-  const handleCompaignDelete = async () => {
-    setOpenDelete(false);
-    startLoading();
-    try {
-      const DeletedCampaignData = await getdeleteCampaign(campaignId);
+  // const handleCompaignDelete = async () => {
+  //   setOpenDelete(false);
+  //   startLoading();
+  //   try {
+  //     const DeletedCampaignData = await CreateArchivedCampaign(campaignId);
 
-      if (!DeletedCampaignData) {
-        console.error("Failed to delete campaign:", DeletedCampaignData);
-        toast.error("Failed to delete campaign");
-        stopLoading();
-        return;
-      }
-      const firstCompaignData = await getfirstCompaignData();
+  //     // if (!DeletedCampaignData) {
+  //     //   console.error("Failed to delete campaign:", DeletedCampaignData);
+  //     //   toast.error("Failed to delete campaign");
+  //     //   stopLoading();
+  //     //   return;
+  //     // }
+  //     // const firstCompaignData = await getfirstCompaignData();
 
-      toast.success(DeletedCampaignData.message);
-      router.push(`/dashboard/${firstCompaignData?.firstCompagin?._id}`);
-    } catch (error) {
-      toast.error("Something went wrong while deleting the campaign");
-    } finally {
-      stopLoading();
-    }
-  };
-  const handleCompaignArchived = async (campaignId: string) => {
+  //     toast.success(DeletedCampaignData.message);
+  //     router.push("/dashboard/");
+
+  //   } catch (error) {
+  //     toast.error("Something went wrong while deleting the campaign");
+  //   } finally {
+  //     stopLoading();
+  //   }
+  // };
+  
+  const handleCompaignArchived = async (campaignId: string,topRankData:any, status:any) => {
     setOpenArchive(false);
     startLoading();
     try {
-      const DeletedCampaignData = await getdeleteCampaign(campaignId);
+      const addedCampaignData = await CreateArchivedCampaign(campaignId,topRankData, status);
 
-      if (!DeletedCampaignData) {
-        console.error("Failed to delete campaign:", DeletedCampaignData);
-        toast.error("Failed to delete campaign");
+      console.log(addedCampaignData, "addedCampaignDataIndata");
+
+      // const {setCampaignId} = useCampaignData()
+
+      // setCampaignId(addedCampaignData?.CompaignId as string)
+
+      if (!addedCampaignData) {
+        console.error("Failed to add Acrhived campaign:", addedCampaignData);
+        toast.error("Failed to add Acrhived campaign");
         stopLoading();
         return;
       }
-      const firstCompaignData = await getfirstCompaignData();
+      // const firstCompaignData = await getfirstCompaignData();
 
-      toast.success(DeletedCampaignData.message);
-      router.push(`/dashboard/${firstCompaignData?.firstCompagin?._id}`);
+      router.push(`/dashboard/`);
+      toast.success(addedCampaignData.message);
+      stopLoading();
     } catch (error) {
       toast.error("Something went wrong while deleting the campaign");
-    } finally {
-      stopLoading();
-    }
+    } 
   };
 
   return (
@@ -83,12 +92,12 @@ const Header: React.FC<HeaderProps> = ({ campaignId }) => {
           <FaFilePdf className=" text-2xl" />
         </button>
 
-        {/* Dialog Trigger for archive */}
-        <Dialog open={openArchive} onOpenChange={setOpenArchive}>
+        {/* Dialog Trigger for archive */} 
+       <Dialog open={openArchive} onOpenChange={setOpenArchive}>
           <DialogTrigger asChild>
             <button
               title="Archive Campaign"
-              className="flex items-center text-gray-600 px-4 py-2 rounded transition"
+              className="flex items-center text-green-500 px-4 py-2 rounded transition"
             >
               <FaArchive className="text-2xl" />
             </button>
@@ -110,48 +119,27 @@ const Header: React.FC<HeaderProps> = ({ campaignId }) => {
               <Button
                 variant="destructive"
                 onClick={() => {
-                  handleCompaignArchived(campaignId); // 👈 call your archive logic here
-                  setOpenArchive(false); // close dialog after action
+                  const status = 2
+                  handleCompaignArchived(campaignId, status,topRankData); 
+                  setOpenArchive(false); 
                 }}
               >
                 Archive
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Dialog Trigger for delete */}
-        <Dialog open={openDelete} onOpenChange={setOpenDelete}>
-          <DialogTrigger asChild>
-            <button
-              title="Delete Campaign"
-              className="flex items-center text-red-700 px-4 py-2 rounded transition"
-            >
-              <FaTrashAlt className=" text-2xl" />
-            </button>
-          </DialogTrigger>
-
-          {/* delete dialog */}
-
-          <DialogContent className="bg-white flex flex-col">
-            <DialogHeader>
-              <DialogTitle>Delete Campaign?</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this campaign? This action
-                cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-
-            <DialogFooter className="mt-4">
-              <Button variant="ghost" onClick={() => setOpenDelete(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleCompaignDelete}>
+               {/* <Button
+                variant="destructive"
+                onClick={() => {
+                  handleCompaignArchived(campaignId,topRankData, 3); 
+                  setOpenArchive(false); 
+                }}
+              >
                 Delete
-              </Button>
+              </Button> */}
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </Dialog> 
+
+  
       </div>
     </header>
   );

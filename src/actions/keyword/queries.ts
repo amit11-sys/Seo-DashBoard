@@ -1,4 +1,4 @@
-import { useCampaignData } from "@/app/context/CampaignContext";
+// import { useCampaignData } from "@/app/context/CampaignContext";
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
@@ -900,7 +900,7 @@ export const getKewordRank = async (KeywordData: any) => {
 
     for (const item of rankPayload) {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
+        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanceddd"}`,
         {
           method: "POST",
           headers: {
@@ -1197,9 +1197,9 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     }
 
     const { keywordId, campaignId } = updatedData;
-    console.log(updatedData,"edit data backend new")  
-    console.log(keywordId,campaignId,"idsies")
-    console.log(updatedData,"edit form data ")
+    // console.log(updatedData,"edit data backend new")  
+    // console.log(keywordId,campaignId,"idsies")
+    // console.log(updatedData,"edit form data ")
 
     // Update keyword document
     const updatedKeyword = await Keyword.findByIdAndUpdate(
@@ -1396,67 +1396,127 @@ export const saveMultipleKeyword = async (
     // console.log(VolumnData?.volumnResponses, "volumn data");
     console.log(intentData?.intentResponses, "intent data");
 
-    const finalData =
-      rankdata && "rankResponses" in rankdata
-        ? rankdata?.rankResponses?.map((rankItem: any) => {
-            console.log(rankItem, "rankItem");
-            const task = rankItem?.response?.tasks?.[0];
-            const data = task?.result?.[0];
-            const newKeyword = rankItem?.keyword;
-            const keyword = data?.keyword;
-            console.log(keyword, "keyword");
-            const matchedKeyword = addKeyword.find(
-              (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
-            );
-            console.log(matchedKeyword, "matchedKeyword");
-            // Get corresponding volume data for this keyword
-            // const volumnResponse = VolumnData?.volumnResponses?.find(
-            //   (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
-            // );
-            // const volumeItem =
-            //   volumnResponse?.response?.tasks?.[0]?.result?.find(
-            //     (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
-            //   );
-            // const matchSearchVolumn = volumeItem?.search_volume ?? 0;
-            // const matchcompetition = volumeItem?.competition ?? 0;
+    // const finalData =
+    //   rankdata && "rankResponses" in rankdata
+    //     ? rankdata?.rankResponses?.map((rankItem: any) => {
+    //         console.log(rankItem, "rankItem");
+    //         const task = rankItem?.response?.tasks?.[0];
+    //         const data = task?.result?.[0];
+    //         const newKeyword = rankItem?.keyword;
+    //         const keyword = data?.keyword;
+    //         console.log(keyword, "keyword");
+    //         const matchedKeyword = addKeyword.find(
+    //           (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+    //         );
+    //         console.log(matchedKeyword, "matchedKeyword");
+    //         // Get corresponding volume data for this keyword
+    //         // const volumnResponse = VolumnData?.volumnResponses?.find(
+    //         //   (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+    //         // );
+    //         // const volumeItem =
+    //         //   volumnResponse?.response?.tasks?.[0]?.result?.find(
+    //         //     (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
+    //         //   );
+    //         // const matchSearchVolumn = volumeItem?.search_volume ?? 0;
+    //         // const matchcompetition = volumeItem?.competition ?? 0;
 
-            // Get corresponding intent data for this keyword
-            const intentResponse = intentData?.intentResponses?.find(
-              (i) => i.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
-            );
-            const intentItem =
-              intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find(
-                (i: any) => {
-                  console.log(i, "inside intemt items");
-                  return i.keyword?.toLowerCase() === keyword?.toLowerCase();
-                }
-              );
-            console.log(intentResponse, "intent itmes");
-            console.log(intentItem, "intent item itmes");
-            const matchIntent = intentItem?.keyword_intent?.label ?? "";
+    //         // Get corresponding intent data for this keyword
+    //         const intentResponse = intentData?.intentResponses?.find(
+    //           (i) => i.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+    //         );
+    //         const intentItem =
+    //           intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find(
+    //             (i: any) => {
+    //               console.log(i, "inside intemt items");
+    //               return i.keyword?.toLowerCase() === keyword?.toLowerCase();
+    //             }
+    //           );
+    //         console.log(intentResponse, "intent itmes");
+    //         console.log(intentItem, "intent item itmes");
+    //         const matchIntent = intentItem?.keyword_intent?.label ?? "";
 
-            // const matchLangName = locationData?.find(loc => loc.location_code === data?.location_code);
+    //         // const matchLangName = locationData?.find(loc => loc.location_code === data?.location_code);
 
-            return {
-              type: task?.data?.se_type,
-              location_code: matchedKeyword?.searchLocationCode || 2124,
-              language_code: data?.language_code || "en",
-              // location_name: matchLangName?.locationName || "",
-              url: data?.items?.[0]?.url.trim() || "no ranking",
-              rank_group: data?.items?.[0]?.rank_group || 0,
-              rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-              keyword: newKeyword || "",
-              searchVolumn: 0,
-              // searchVolumn: matchSearchVolumn,
-              intent: matchIntent,
-              competition: 0,
-              // competition: matchcompetition,
-              campaignId: campaign?._id,
-              keywordId: matchedKeyword?._id,
-              start: data?.items?.[0]?.rank_group || 0,
-            };
-          })
-        : [];
+    //         return {
+    //           type: task?.data?.se_type,
+    //           location_code: matchedKeyword?.searchLocationCode || 2124,
+    //           language_code: data?.language_code || "en",
+    //           // location_name: matchLangName?.locationName || "",
+    //           url: data?.items?.[0]?.url.trim() || "no ranking",
+    //           rank_group: data?.items?.[0]?.rank_group || 0,
+    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //           keyword: newKeyword || "",
+    //           searchVolumn: 0,
+    //           // searchVolumn: matchSearchVolumn,
+    //           intent: matchIntent,
+    //           competition: 0,
+    //           // competition: matchcompetition,
+    //           campaignId: campaign?._id,
+    //           keywordId: matchedKeyword?._id,
+    //           start: data?.items?.[0]?.rank_group || 0,
+    //         };
+    //       })
+    //     : [];
+
+
+
+const finalData:any =
+  rankdata && "rankResponses" in rankdata
+    ? rankdata?.rankResponses?.map((rankItem: any) => {
+        const task = rankItem?.response?.tasks?.[0];
+        const data = task?.result?.[0];
+        const newKeyword = rankItem?.keyword;
+        const keyword = data?.keyword;
+
+        const matchedKeyword = addKeyword.find(
+          (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+        );
+
+        const intentResponse = intentData?.intentResponses?.find(
+          (i) => i.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+        );
+        const intentItem =
+          intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find(
+            (i: any) => i.keyword?.toLowerCase() === keyword?.toLowerCase()
+          );
+        const matchIntent = intentItem?.keyword_intent?.label ?? "";
+
+        const rankGroup = data?.items?.[0]?.rank_group || 0;
+
+        return {
+          type: task?.data?.se_type,
+          location_code: matchedKeyword?.searchLocationCode || 2124,
+          language_code: data?.language_code || "en",
+          url: data?.items?.[0]?.url?.trim() || "no ranking",
+          rank_group: rankGroup,
+          rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+          keyword: newKeyword || "",
+          searchVolumn: 0,
+          intent: matchIntent,
+          competition: 0,
+          campaignId: campaign?._id,
+          keywordId: matchedKeyword?._id,
+          start: rankGroup,
+
+          // ✅ Based on rank_group
+          keywordsUp: rankGroup > 0 ? 1 : 0,
+          top3: rankGroup <= 3 && rankGroup > 0 ? 1 : 0,
+          top10: rankGroup <= 10 && rankGroup > 0 ? 1 : 0,
+          top20: rankGroup <= 20 && rankGroup > 0 ? 1 : 0,
+          top30: rankGroup <= 30 && rankGroup > 0 ? 1 : 0,
+          top100: rankGroup <= 100 && rankGroup > 0 ? 1 : 0,
+        };
+      })
+    : [];
+
+
+
+
+
+
+
+
+
 
     // const createdRecords: any[] = [];
     // const res = await getLocation_languageData();

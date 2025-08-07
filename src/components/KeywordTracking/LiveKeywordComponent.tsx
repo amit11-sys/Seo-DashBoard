@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, use, useEffect, useState } from "react";
 import CustomTrackingCard from "@/components/KeywordTracking/CustomTrackingCard";
 import TrackingChart from "@/components/Chart/TrackingChart";
 import DropDownList from "@/components/DropDownList";
@@ -15,6 +15,8 @@ import { log, table } from "console";
 import KeywordTextArea from "../KeywordTextArea";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import Header from "../Common/Navbar";
+import { useCampaignData } from "@/app/context/CampaignContext";
+import { set } from "mongoose";
 
 type Tableitems = {
   key: string;
@@ -46,7 +48,7 @@ type TablebodyItems = {
 interface CustomTrackingCardProps {
   cardData: {
     title: string;
-    data: { title: string; data: number; }[];
+    data: { title: string; data: number }[];
     type?: string;
   };
 }
@@ -60,8 +62,30 @@ interface LiveKeywordComponentProps {
     message?: string;
     error?: string;
     newLiveKeywordDbData?: any[];
+    topRankData?: {
+      title: string;
+      data: {
+        title: string;
+        data: number;
+        id: number;
+      }[];
+      type: string;
+    };
   };
   campaignId: string;
+}
+
+interface HeaderProps {
+  campaignId: string;
+  topRankData?: {
+    title: string;
+    data: {
+      title: string;
+      data: number;
+      id: number;
+    }[];
+    type: string;
+  };
 }
 
 const LiveKeywordComponent = ({
@@ -69,15 +93,18 @@ const LiveKeywordComponent = ({
   campaignId,
 }: LiveKeywordComponentProps) => {
   const [tableBody, setTableBody] = useState<any[]>([]);
-  const [cardCounts, setCardCounts] = useState({
-  top3: 0,
-  top10: 0,
-  top20: 0,
-  top30: 0,
-  top100: 0,
-});
-console.log(cardCounts, "cardCounts");
-
+  const [cardCounts, setCardCounts] = useState<
+    { title: string; data: number; id: number }[]
+  >([]);
+  console.log(cardCounts, "cardCounts");
+  const {  setActiveSingleCampaign } = useCampaignData();
+  console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+  const compaigndata = campaignLiveKeywordsData?.newLiveKeywordDbData?.map(
+    (item: any) => {return(
+     item.campaignId)
+    }
+  );
+ console.log(compaigndata,"compaign data new");
 
   const tableHeader: Tableitems[] = [
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
@@ -148,46 +175,48 @@ console.log(cardCounts, "cardCounts");
   //   }
   // };
   const keywordTableData = async () => {
-  if (campaignLiveKeywordsData.newLiveKeywordDbData) {
-    const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
+    if (campaignLiveKeywordsData.newLiveKeywordDbData) {
+      const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
+      const topRankData = campaignLiveKeywordsData?.topRankData?.data;
+      console.log(topRankData, "topRankDataok");
 
-    let top3 = 0, top10 = 0, top20 = 0, top30 = 0, top100 = 0;
+      const data = rawData.map((item: any) => {
+        // const rankGroup = item?.rank_group || 0;
 
-    const data = rawData.map((item: any) => {
-      const rankGroup = item?.rank_group || 0;
+        // if (rankGroup > 0 && rankGroup <= 3) top3++;
+        // if (rankGroup > 0 && rankGroup <= 10) top10++;
+        // if (rankGroup > 0 && rankGroup <= 20) top20++;
+        // if (rankGroup > 0 && rankGroup <= 30) top30++;
+        // if (rankGroup > 0 && rankGroup <= 100) top100++;
 
-      if (rankGroup > 0 && rankGroup <= 3) top3++;
-      if (rankGroup > 0 && rankGroup <= 10) top10++;
-      if (rankGroup > 0 && rankGroup <= 20) top20++;
-      if (rankGroup > 0 && rankGroup <= 30) top30++;
-      if (rankGroup > 0 && rankGroup <= 100) top100++;
+        return {
+          keyword: item?.keyword || "",
+          keywordId: item.keywordId,
+          location: item?.location_name?.locationName?.locationName || "",
+          intent: item?.intent || "",
+          start: item?.start || 0,
+          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+          Absolute_Rank: item?.rank_absolute || 0,
+          Group_Rank: item?.rank_group || 0,
+          sevenDays: "-",
+          life: item?.rank_absolute || 0,
+          comp: item?.competition || 0,
+          sv: item?.searchVolumn || 0,
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item?.url || "",
+        };
+      });
 
-      return {
-        keyword: item?.keyword || "",
-        keywordId: item.keywordId,
-        location: item?.location_name?.locationName?.locationName || "",
-        intent: item?.intent || "",
-        start: item?.start || 0,
-        page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-        Absolute_Rank: item?.rank_absolute || 0,
-        Group_Rank: item?.rank_group || 0,
-        sevenDays: "-",
-        life: item?.rank_absolute || 0,
-        comp: item?.competition || 0,
-        sv: item?.searchVolumn || 0,
-        date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "2-digit",
-        }),
-        rankingUrl: item?.url || "",
-      };
-    });
-
-    setTableBody(data);
-    setCardCounts({ top3, top10, top20, top30, top100 });
-  }
-};
+      setTableBody(data);
+      if (topRankData) {
+        setCardCounts(topRankData);
+      }
+    }
+  };
 
   console.log(tableBody, "table body");
 
@@ -228,11 +257,10 @@ console.log(cardCounts, "cardCounts");
   const showAddedKeyword = (newItem: any) => {
     if (newItem && newItem.length > 0) {
       const mappedItems = newItem.map((item: any) => {
-
         console.log(item, "new added dataa");
         return {
           keyword: item?.keyword || "",
-        //  location: item?.location_code?.toString() || "",
+          //  location: item?.location_code?.toString() || "",
           location: item?.location_name || "",
           // location: item?.location_name?.locationName?.locationName || "",
           intent: item?.intent || "",
@@ -260,79 +288,80 @@ console.log(cardCounts, "cardCounts");
     }
   };
 
-
-const cardData = {
-  title: "keywords",
-  data: [
-    {
-      title: "Keywords Up",
-      data: tableBody?.length,
-      id: 1,
-    },
-    {
-      title: "In Top 3",
-      data: cardCounts.top3,
-      id: 2,
-    },
-    {
-      title: "In Top 10",
-      data: cardCounts.top10,
-      id: 3,
-    },
-    {
-      title: "In Top 20",
-      data: cardCounts.top20,
-      id: 4,
-    },
-    {
-      title: "In Top 30",
-      data: cardCounts.top30,
-      id: 5,
-    },
-    {
-      title: "In Top 100",
-      data: cardCounts.top100,
-      id: 6,
-    },
-  ],
-  type: "card",
-};
-
-console.log(cardData,"cardData");
-
-  
+  const cardData = {
+    title: "keywords",
+    data: cardCounts?.map((item: any) => {
+      return {
+        title: item.title,
+        data: item.data,
+        id: item.id,
+      };
+    }),
+    type: "card",
+  };
+  console.log(cardData, "cardDataok");
+  //     {
+  //       title: "Keywords Up",
+  //       data: tableBody?.length,
+  //       id: 1,
+  //     },
+  //     {
+  //       title: "In Top 3",
+  //       data: cardCounts.top3,
+  //       id: 2,
+  //     },
+  //     {
+  //       title: "In Top 10",
+  //       data: cardCounts.top10,
+  //       id: 3,
+  //     },
+  //     {
+  //       title: "In Top 20",
+  //       data: cardCounts.top20,
+  //       id: 4,
+  //     },
+  //     {
+  //       title: "In Top 30",
+  //       data: cardCounts.top30,
+  //       id: 5,
+  //     },
+  //     {
+  //       title: "In Top 100",
+  //       data: cardCounts.top100,
+  //       id: 6,
+  //     },
+  //   ],
 
   return (
     <div className="w-full min-h-[80vh]  text-gray-100">
       {/* Header */}
       <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
+        compaigndata={compaigndata}
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
         />
       </div>
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">
-
-      <div  className="flex justify-evenly items-center gap-5 w-full">
-        {
-          cardData?.data?.map((item: any) => {
+        <div className="flex justify-evenly items-center gap-5 w-full">
+          {cardData?.data?.map((item: any) => {
             console.log(item, "item");
 
             return (
               <div key={item.id}>
-
-                <CustomTrackingCard title={item?.title } data={item?.data} />
-              </div>)
-          }
-            
-          )
-        }
-      </div>
-      {/* <div className="w-[60%]">
+                <CustomTrackingCard
+                  className="w-[170px] h-[170px]"
+                  title={item?.title}
+                  data={item?.data}
+                />
+              </div>
+            );
+          })}
+        </div>
+        {/* <div className="w-[60%]">
         <TrackingChart/>
       </div> */}
       </div>
-     
 
       {/* Filter & Table Section */}
       <div className="rounded-xl p-6 ">

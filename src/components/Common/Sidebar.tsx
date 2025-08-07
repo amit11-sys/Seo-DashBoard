@@ -4,19 +4,21 @@ import { Nav } from "@/components/ui/nav";
 import {
   FaMinus, // Minus
   FaUsers, // Users
+  FaArchive
 } from "react-icons/fa";
 
 import { useCampaignData } from "@/app/context/CampaignContext";
 
 type SidebarProps = {
   isCollapsed: boolean;
+  archivedCampaignData?: any;
 };
 
-const Sidebar = ({ isCollapsed }: SidebarProps) => {
+const Sidebar = ({ isCollapsed, archivedCampaignData }: SidebarProps) => {
   const { campaignData } = useCampaignData();
 
   // console.log(campaignData);
-  const organizeData = campaignData.map((c: any) => {
+  const organizeCompaignData = campaignData.map((c: any) => {
     // console.log(c)
     return {
       title: c.projectUrl,
@@ -25,6 +27,16 @@ const Sidebar = ({ isCollapsed }: SidebarProps) => {
       icon: FaMinus,
     };
   });
+  const organizedArchivedCompaignData = archivedCampaignData?.map((c: any) => {
+  
+    return {
+      title: c.projectUrl,
+      href: `/dashboard/${c._id}`,
+      label: "",
+      icon: FaMinus,
+    };
+  });
+  console.log(organizedArchivedCompaignData,"organizedArchivedCompaignData");
 
   return (
     <>
@@ -39,10 +51,28 @@ const Sidebar = ({ isCollapsed }: SidebarProps) => {
 
             dropdownItems:
               campaignData?.length > 0
-                ? organizeData
+                ? organizeCompaignData
                 : [
                     {
                       title: "No campaigns",
+                      href: "#",
+                      label: "",
+                      icon: FaMinus,
+                    },
+                  ],
+          },
+          {
+            title: "Archived Campaigns",
+            href: "#",
+            label: "",
+            icon: FaArchive,
+
+            dropdownItems:
+              organizedArchivedCompaignData?.length > 0
+                ? organizedArchivedCompaignData
+                : [
+                    {
+                      title: "No Archived campaigns",
                       href: "#",
                       label: "",
                       icon: FaMinus,
@@ -62,3 +92,4 @@ const Sidebar = ({ isCollapsed }: SidebarProps) => {
 };
 
 export default Sidebar;
+

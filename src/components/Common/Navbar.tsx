@@ -10,20 +10,26 @@ import { FaPlus, FaPowerOff } from "react-icons/fa6";
 import BlueButton from "../ui/CustomButton";
 import { MdDashboard } from "react-icons/md";
 import { useEffect, useState } from "react";
-import { getUserCampaign } from "@/actions/campaign";
+import { getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
 import { getfirstCompaignData } from "@/actions/keywordTracking";
+import { useCampaignData } from "@/app/context/CampaignContext";
 
 type Props = {
   // setIsCollapsed: (isCollapsed: boolean) => void;
   // isCollapsed: boolean;
+  campaignId?: string
 };
 
-export default function Navbar() {
+export default  function Navbar({campaignId}: Props) {
   // const handleToggle = () => {
   //   setIsCollapsed(!isCollapsed);
   // };
   const [FirstCompaign, setFirstCompaign] = useState("");
+  
   const router = useRouter();
+  //  const { campaignId } = useCampaignData();
+  //  const archivedCampaignData = await getArchivedCampaign(campaignId);
+
   const onLogout = async () => {
     const logout = await logoutUser();
     if (logout) {
@@ -31,6 +37,7 @@ export default function Navbar() {
       toast("Logout Successfully");
     }
   };
+  
   useEffect(() => {
     const fetchFirstCampaign = async () => {
       try {

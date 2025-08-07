@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 import { MdDashboard } from "react-icons/md";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { FaHome } from "react-icons/fa";
-import { getUserCampaign } from "@/actions/campaign";
+import { getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
+import Link from "next/link";
 
 interface Campaign {
   _id: string;
@@ -24,18 +25,25 @@ interface Campaign {
 interface SidebarWrapperProps {
   // children: React.ReactNode;
   // Convertedcampaign: Campaign[];
+  archivedCampaignData:any
+  campaignId?:string
 }
 
-export default function SidebarWrapper({
+export default  function SidebarWrapper({
   // children,
   // Convertedcampaign,
+  campaignId,
+  archivedCampaignData
 }: SidebarWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { setCampaignData } = useCampaignData();
+  // const archivedCampaignData = await getArchivedCampaign(campaignId);
+
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getUserCampaign();
+      console.log(data,"data in sidebar");
       if (Array.isArray(data?.campaign)) {
         setCampaignData(data.campaign);
       }
@@ -57,12 +65,14 @@ export default function SidebarWrapper({
               <MdDashboard className="text-2xl" />
             </span>
           ) : (
+            <Link href="/dashboard">
             <span className="text-xl text-center flex gap-1 justify-center items-center font-semibold"><FaHome />Dashboard</span>
+            </Link>
           )}
         </div>
 
         <ScrollArea className="h-[calc(100vh-48px)]">
-          <Sidebar isCollapsed={isCollapsed} />
+          <Sidebar archivedCampaignData={archivedCampaignData} isCollapsed={isCollapsed} />
         </ScrollArea>
       </div>
 

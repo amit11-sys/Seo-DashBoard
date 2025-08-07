@@ -6,7 +6,7 @@ import jwt, { SignOptions, Secret } from "jsonwebtoken";
 import { generateToken } from "@/lib/utils/token";
 import { generateResetEmail } from "@/lib/template/html_template";
 import { mailSender } from "../mail";
-import { getUserCampaign } from "../campaign";
+// import { getUserCampaign } from "../campaign";
 import Campaign from "@/lib/models/campaign.model";
 
 export const newUserSignUp = async (formData: any) => {

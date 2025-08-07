@@ -900,7 +900,7 @@ export const getKewordRank = async (KeywordData: any) => {
 
     for (const item of rankPayload) {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanceddd"}`,
+        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
         {
           method: "POST",
           headers: {
@@ -1510,7 +1510,7 @@ const finalData:any =
     : [];
 
 
-
+      console.log(finalData, "finalDatawithrank");
 
 
 

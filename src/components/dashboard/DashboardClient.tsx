@@ -22,11 +22,11 @@ import NewCustomTable from "@/components/NewCustomTable";
 import { FaArchive } from "react-icons/fa";
 import { TbRestore } from "react-icons/tb";
 import { MdDeleteForever } from "react-icons/md";
-import { Router } from "lucide-react";
+import { Link, Router } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface TableData {
-  name: string;
+  name: string ;
   date: string;
   // integration: string;
   // searcher: string;
@@ -70,6 +70,7 @@ const DashboardClient = () => {
           archived?.KeywordTrackingDataArchied?.length ?? 0
         );
         setActiveComapignCount(campaignStatus1?.campaign?.length ?? 0);
+
         const dbStatusWiseData = await getDbKeywordStatusData(campaignStatus);
 
         const campaignStatusData = dbStatusWiseData?.campaignDatastatus;
@@ -78,54 +79,139 @@ const DashboardClient = () => {
         console.log(campaignStatusData, "comapignStatusData");
         console.log(keywordStatusData, "keywordStatusData");
 
-        // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
         setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
         setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
         setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
 
-        const tabledata = campaignStatusData?.map((item: any) => {
-          const keywordsData = keywordStatusData?.find(
-            (c: any) => c.campaignId === item?._id
-          );
-          console.log(keywordsData, "campaignok");
+        // const tabledata = keywordStatusData?.map((item: any) => {
+        //   console.log(item, "itemintabledata");
+        //   const keywordsData = campaignStatusData?.find(
+        //     (c: any) => c._id === item?.campaignId
+        //   );
+        //   console.log(keywordsData, "campaignok");
 
-          const keywordsCount = keywordStatusData?.filter(
-            (kItem: any) => kItem?.campaignId === item?._id
-          );
-          console.log(keywordsCount, "keywordsCount");
+        //   const keywordsCount = keywordStatusData?.filter(
+        //     (kItem: any) => kItem?.campaignId === item?._id
+        //   );
+        //   console.log(keywordsCount, "keywordsCount");
 
-          const mongoDate = new Date(item?.createdAt);
+        //   const mongoDate = new Date(item?.createdAt);
+        //   const formatted = mongoDate.toLocaleDateString("en-US", {
+        //     year: "numeric",
+        //     month: "short",
+        //     day: "2-digit",
+        //   });
+        //   // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
+        //   return {
+        //     name: item?.projectUrl || "",
+        //     date: formatted,
+        //     // integration: keywordsData?.integration || "GSC",
+        //     // searcher: keywordsData?.language_code || "US",
+        //     // audit: keywordsData?.audit || 25,
+        //     kwds: keywordsCount?.length || 0,
+        //     top3: keywordsData?.top3 || 0,
+        //     top10: keywordsData?.top10 || 0,
+        //     top20: keywordsData?.top20 || 0,
+        //     top30: keywordsData?.top30 || 0,
+        //     top100: keywordsData?.top100 || 0,
+        //     // backlinks: keywordsData?.backlinks || 0,
+        //     action:
+        //       campaignStatus === 2 ? (
+        //         <div className="flex gap-2">
+        //           <button
+        //             title="Restore"
+        //             onClick={() => handleRestore(item._id)}
+        //           >
+        //             <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
+        //           </button>
+        //           <button
+        //             title="Delete Forever"
+        //             onClick={() => handleDelete(item._id)}
+        //           >
+        //             <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
+        //           </button>
+        //         </div>
+        //       ) : null,
+        //   };
+        // });
+
+        const tabledata = campaignStatusData?.map((campaign: any) => {
+          const campaignId = campaign._id;
+
+          // Get all keyword entries for this campaign
+          const keywordsForCampaign =
+            keywordStatusData?.filter(
+              (item: any) => item?.campaignId === campaignId
+            ) || [];
+          console.log(keywordsForCampaign, " keywordForCampaign");
+
+          // Sum up all top rank values
+          // const totalRanks = {
+          //   top3: 0,
+          //   top10: 0,
+          //   top20: 0,
+          //   top30: 0,
+          //   top100: 0,
+          // };
+
+          // keywordsForCampaign.forEach((kw: any) => {
+          //   totalRanks.top3 += kw?.top3 || 0;
+          //   totalRanks.top10 += kw?.top10 || 0;
+          //   totalRanks.top20 += kw?.top20 || 0;
+          //   totalRanks.top30 += kw?.top30 || 0;
+          //   totalRanks.top100 += kw?.top100 || 0;
+          // });
+          // console.log(keywordsForCampaign,'keywordForCampaignSet');
+
+          // Flatten all rank_group values from keywordsForCampaign
+          const allRankGroups = keywordsForCampaign
+            .flatMap((kw: any) => kw.rank_group)
+            .filter((rank: number) => rank > 0); // Only valid positive ranks
+
+          // Compute top rank stats from the combined rank groups
+          const totalRanks = {
+            top3: allRankGroups.filter((r: number) => r <= 3).length,
+            top10: allRankGroups.filter((r: number) => r <= 10).length,
+            top20: allRankGroups.filter((r: number) => r <= 20).length,
+            top30: allRankGroups.filter((r: number) => r <= 30).length,
+            top100: allRankGroups.filter((r: number) => r <= 100).length,
+          };
+
+
+          // console.log(keywordsForCampaign, "keywordForCampaignSet");
+          console.log(totalRanks, "flattened ranks");
+
+
+
+          // Format created date
+          const mongoDate = new Date(campaign.createdAt);
           const formatted = mongoDate.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
             day: "2-digit",
           });
-          // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
+
           return {
-            name: item?.projectUrl || "",
+            name: campaign.projectUrl || "",
             date: formatted,
-            // integration: keywordsData?.integration || "GSC",
-            // searcher: keywordsData?.language_code || "US",
-            // audit: keywordsData?.audit || 25,
-            kwds: keywordsCount?.length || 0,
-            top3: keywordsData?.top3 || 0,
-            top10: keywordsData?.top10 || 0,
-            top20: keywordsData?.top20 || 0,
-            top30: keywordsData?.top30 || 0,
-            top100: keywordsData?.top100 || 0,
-            // backlinks: keywordsData?.backlinks || 0,
+            kwds: keywordsForCampaign.length || 0,
+            top3: totalRanks.top3,
+            top10: totalRanks.top10,
+            top20: totalRanks.top20,
+            top30: totalRanks.top30,
+            top100: totalRanks.top100,
             action:
               campaignStatus === 2 ? (
                 <div className="flex gap-2">
                   <button
                     title="Restore"
-                    onClick={() => handleRestore(item._id)}
+                    onClick={() => handleRestore(campaignId)}
                   >
                     <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
                   </button>
                   <button
                     title="Delete Forever"
-                    onClick={() => handleDelete(item._id)}
+                    onClick={() => handleDelete(campaignId)}
                   >
                     <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
                   </button>
@@ -246,107 +332,194 @@ const DashboardClient = () => {
     const restore = await CreateArchivedCampaign(CompaignId, status);
     router.push(`/dashboard/${CompaignId}`);
   };
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const archived = await getArchivedCampaign();
-        const keywords = await getDbTopLiveKeywordData();
-        const campaignStatus1 = await getUserCampaign();
-        const campaignCountData = await getCompaignCount();
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const archived = await getArchivedCampaign();
+          const keywords = await getDbTopLiveKeywordData();
+          const campaignStatus1 = await getUserCampaign();
+          const campaignCountData = await getCompaignCount();
 
-        setArchivedComapignCount(
-          archived?.KeywordTrackingDataArchied?.length ?? 0
-        );
-        setActiveComapignCount(campaignStatus1?.campaign?.length ?? 0);
-        const dbStatusWiseData = await getDbKeywordStatusData(campaignStatus);
-
-        const campaignStatusData = dbStatusWiseData?.campaignDatastatus;
-        const keywordStatusData = dbStatusWiseData?.keywordDatastatus;
-
-        console.log(campaignStatusData, "comapignStatusData");
-
-        // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
-        setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
-        setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
-        setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
-
-        const tabledata = campaignStatusData?.map((item: any) => {
-          const keywordsData = keywordStatusData?.find(
-            (c: any) => c.campaignId === item?._id
+          setArchivedComapignCount(
+            archived?.KeywordTrackingDataArchied?.length ?? 0
           );
-          console.log(keywordsData, "campaignok");
+          setActiveComapignCount(campaignStatus1?.campaign?.length ?? 0);
+          const dbStatusWiseData = await getDbKeywordStatusData(campaignStatus);
 
-          const keywordsCount = keywordStatusData?.filter(
-            (kItem: any) => kItem?.campaignId === item?._id
-          );
-          console.log(keywordsCount, "keywordsCount");
+          const campaignStatusData = dbStatusWiseData?.campaignDatastatus;
+          const keywordStatusData = dbStatusWiseData?.keywordDatastatus;
 
-          const mongoDate = new Date(item?.createdAt);
-          const formatted = mongoDate.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
+          console.log(campaignStatusData, "comapignStatusData");
+
+          // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
+          setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
+          setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
+          setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
+
+          // const tabledata = campaignStatusData?.map((item: any) => {
+          //   const keywordsData = keywordStatusData?.find(
+          //     (c: any) => c.campaignId === item?._id
+          //   );
+          //   console.log(keywordsData, "campaignok");
+
+          //   const keywordsCount = keywordStatusData?.filter(
+          //     (kItem: any) => kItem?.campaignId === item?._id
+          //   );
+          //   console.log(keywordsCount, "keywordsCount");
+
+          //   const mongoDate = new Date(item?.createdAt);
+          //   const formatted = mongoDate.toLocaleDateString("en-US", {
+          //     year: "numeric",
+          //     month: "short",
+          //     day: "2-digit",
+          //   });
+
+          //   return {
+          //     name: item?.projectUrl || "",
+          //     date: formatted,
+          //     integration: keywordsData?.integration || "GSC",
+          //     searcher: keywordsData?.language_code || "US",
+          //     audit: keywordsData?.audit || 25,
+          //     kwds: keywordsCount?.length || 0,
+          //     top3: keywordsData?.top3 || 0,
+          //     top10: keywordsData?.top10 || 0,
+          //     top20: keywordsData?.top20 || 0,
+          //     top30: keywordsData?.top30 || 0,
+          //     top100: keywordsData?.top100 || 0,
+          //     backlinks: keywordsData?.backlinks || 0,
+          //     action:
+          //       campaignStatus === 2 ? (
+          //         <div className="flex gap-2">
+          //           <button
+          //             title="Restore"
+          //             onClick={() => handleRestore(item._id)}
+          //           >
+          //             <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
+          //           </button>
+          //           <button
+          //             title="Delete Forever"
+          //             onClick={() => handleDelete(item._id)}
+          //           >
+          //             <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
+          //           </button>
+          //         </div>
+          //       ) : null,
+          //   };
+          // });
+
+          // console.log(tabledata, "tabledata inside");
+
+            const tabledata = campaignStatusData?.map((campaign: any) => {
+            const campaignId = campaign._id;
+
+            // Get all keyword entries for this campaign
+            const keywordsForCampaign =
+              keywordStatusData?.filter(
+                (item: any) => item?.campaignId === campaignId
+              ) || [];
+            console.log(keywordsForCampaign, " keywordForCampaign");
+
+            // Sum up all top rank values
+            // const totalRanks = {
+            //   top3: 0,
+            //   top10: 0,
+            //   top20: 0,
+            //   top30: 0,
+            //   top100: 0,
+            // };
+
+            // keywordsForCampaign.forEach((kw: any) => {
+            //   totalRanks.top3 += kw?.top3 || 0;
+            //   totalRanks.top10 += kw?.top10 || 0;
+            //   totalRanks.top20 += kw?.top20 || 0;
+            //   totalRanks.top30 += kw?.top30 || 0;
+            //   totalRanks.top100 += kw?.top100 || 0;
+            // });
+            // console.log(keywordsForCampaign,'keywordForCampaignSet');
+
+            // Flatten all rank_group values from keywordsForCampaign
+            const allRankGroups = keywordsForCampaign
+              .flatMap((kw: any) => kw.rank_group)
+              .filter((rank: number) => rank > 0); // Only valid positive ranks
+
+            // Compute top rank stats from the combined rank groups
+            const totalRanks = {
+              top3: allRankGroups.filter((r: number) => r <= 3).length,
+              top10: allRankGroups.filter((r: number) => r <= 10).length,
+              top20: allRankGroups.filter((r: number) => r <= 20).length,
+              top30: allRankGroups.filter((r: number) => r <= 30).length,
+              top100: allRankGroups.filter((r: number) => r <= 100).length,
+            };
+
+
+            // console.log(keywordsForCampaign, "keywordForCampaignSet");
+            console.log(totalRanks, "flattened ranks");
+
+
+
+            // Format created date
+            const mongoDate = new Date(campaign.createdAt);
+            const formatted = mongoDate.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+            });
+
+            return {
+              campaignId:campaignId,
+              name: campaign.projectUrl,
+              date: formatted,
+              kwds: keywordsForCampaign.length || 0,
+              top3: totalRanks.top3,
+              top10: totalRanks.top10,
+              top20: totalRanks.top20,
+              top30: totalRanks.top30,
+              top100: totalRanks.top100,
+              action:
+                campaignStatus === 2 ? (
+                  <div className="flex gap-2">
+                    <button
+                      title="Restore"
+                      onClick={() => handleRestore(campaignId)}
+                    >
+                      <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
+                    </button>
+                    <button
+                      title="Delete Forever"
+                      onClick={() => handleDelete(campaignId)}
+                    >
+                      <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
+                    </button>
+                  </div>
+                ) : null,
+            };
           });
 
-          return {
-            name: item?.projectUrl || "",
-            date: formatted,
-            integration: keywordsData?.integration || "GSC",
-            searcher: keywordsData?.language_code || "US",
-            audit: keywordsData?.audit || 25,
-            kwds: keywordsCount?.length || 0,
-            top3: keywordsData?.top3 || 0,
-            top10: keywordsData?.top10 || 0,
-            top20: keywordsData?.top20 || 0,
-            top30: keywordsData?.top30 || 0,
-            top100: keywordsData?.top100 || 0,
-            backlinks: keywordsData?.backlinks || 0,
-            action:
-              campaignStatus === 2 ? (
-                <div className="flex gap-2">
-                  <button
-                    title="Restore"
-                    onClick={() => handleRestore(item._id)}
-                  >
-                    <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
-                  </button>
-                  <button
-                    title="Delete Forever"
-                    onClick={() => handleDelete(item._id)}
-                  >
-                    <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
-                  </button>
-                </div>
-              ) : null,
-          };
-        });
 
-        console.log(tabledata, "tabledata inside");
+          setTableData(tabledata ?? []);
+        } catch (error) {
+          console.error("Error fetching dashboard data:", error);
+        }
+      };
 
-        setTableData(tabledata ?? []);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      }
-    };
+      fetchData();
+    }, [campaignStatus]);
 
-    fetchData();
-  }, [campaignStatus]);
-
-  const tableHeader = [
-    { key: "name", label: "Campaign Name" },
-    { key: "date", label: "Date Added" },
-    { key: "integration", label: "Integration" },
-    { key: "searcher", label: "Searcher" },
-    { key: "audit", label: "Audit Score" },
-    { key: "top3", label: "top 3" },
-    { key: "top10", label: "top 10" },
-    { key: "top20", label: "top 20" },
-    { key: "top30", label: "top 30" },
-    { key: "top100", label: "top 100" },
-    { key: "kwds", label: "Kwds" },
-    { key: "backlinks", label: "Backlinks" },
-    ...(campaignStatus === 2 ? [{ key: "action", label: "Action" }] : []),
-  ];
+    const tableHeader = [
+      { key: "name", label: "Campaign Name" },
+      { key: "date", label: "Date Added" },
+      // { key: "integration", label: "Integration" },
+      // { key: "searcher", label: "Searcher" },
+      // { key: "audit", label: "Audit Score" },
+      { key: "top3", label: "top 3" },
+      { key: "top10", label: "top 10" },
+      { key: "top20", label: "top 20" },
+      { key: "top30", label: "top 30" },
+      { key: "top100", label: "top 100" },
+      { key: "kwds", label: "Kwds" },
+      // { key: "backlinks", label: "Backlinks" },
+      ...(campaignStatus === 2 ? [{ key: "action", label: "Action" }] : []),
+    ];
 
   // Filter table data based on search
   const filteredData = tableData.filter((item) =>

@@ -22,9 +22,10 @@ import { getfirstCompaignData } from "@/actions/keywordTracking";
 interface HeaderProps {
   campaignId: string;
   topRankData:any
+  campaignStatus:any
 }
 
-const Header: React.FC<HeaderProps> = ({ campaignId,topRankData }) => {
+const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }) => {
   const { startLoading, stopLoading } = useLoader();
   const [openDelete, setOpenDelete] = useState(false);
   const [openArchive, setOpenArchive] = useState(false);
@@ -83,8 +84,10 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData }) => {
   };
 
   return (
+
     <header className="flex items-center justify-between p-2 shadow-md rounded-md">
-      <div className="flex items-center space-x-4 ml-auto">
+      {campaignStatus === 1 && (
+         <div className="flex items-center space-x-4 ml-auto">
         <button
           title="Download PDF"
           className="flex items-center text-red-400 px-3 py-1.5 rounded transition"
@@ -141,6 +144,8 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData }) => {
 
   
       </div>
+      )}
+     
     </header>
   );
 };

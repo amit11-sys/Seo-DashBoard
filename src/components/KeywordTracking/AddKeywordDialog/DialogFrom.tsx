@@ -46,9 +46,10 @@ import { getfetchDBlocationData } from "@/actions/keywordTracking";
 interface DialogFormProps {
   campaignId: string;
   showAddedKeyword: (keywords: string[]) => void;
+  updatedTopRankOnAddedKeyword: () => void;
 }
 
-const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
+const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword }: DialogFormProps) => {
   const { startLoading, stopLoading } = useLoader();
   const form = useForm({
     resolver: zodResolver(addKeywordsSchema),
@@ -163,6 +164,7 @@ const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
       const matchlocation = await getfetchDBlocationData(
         form.getValues("searchLocationCode")
       );
+      await updatedTopRankOnAddedKeyword()
 
       if (response?.addedKeywords && matchlocation?.locationName) {
         const modifiedKeywords = response.addedKeywords.map((item: {}) => ({
@@ -172,6 +174,7 @@ const DialogForm = ({ campaignId, showAddedKeyword }: DialogFormProps) => {
 
         await showAddedKeyword(modifiedKeywords);
       }
+     
     
 
       // Optionally, you can log the response or handle it as needed

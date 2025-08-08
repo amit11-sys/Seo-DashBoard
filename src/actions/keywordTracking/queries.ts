@@ -537,6 +537,7 @@ export const DbKeywordStatusData = async (statusCode: number) => {
     // 3. Get keyword data related to those campaign IDs
     const keywordDatastatus = await KeywordTracking.find({
       campaignId: { $in: campaignIds },
+      status:1,
      
     });
     console.log(keywordDatastatus,"keywordDatastatus");

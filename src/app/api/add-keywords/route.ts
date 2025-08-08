@@ -13,6 +13,7 @@ export async function POST(req: Request) {
 
     
     if (campaignId) {
+      // revalidatePath(`/dashboard/`);
       revalidatePath(`/dashboard/${campaignId}`);
     }
     return NextResponse.json(result);

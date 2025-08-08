@@ -11,7 +11,7 @@ import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
 import APIKeyword from "@/lib/KeywordApi.json";
-import { getArchivedCampaign } from "@/actions/campaign";
+import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 export default async function DashboardDetails({
   params,
 }: {
@@ -20,8 +20,11 @@ export default async function DashboardDetails({
 }) {
   const { campaignId } = await params;
   const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
-  console.log(campaignLiveKeywordsData,"campaignLiveKeywordsData");
+  // console.log(campaignLiveKeywordsData.topRankData,"campaignLiveKeywordsData");
+  const campignDataWithId = await getGetCampaignByid(campaignId)
 
+  const campaignStatus = campignDataWithId?.campaign?.status
+  console.log(campaignStatus,"campaignStatus");
 
  
 
@@ -59,7 +62,7 @@ export default async function DashboardDetails({
      
         <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
           {/* <SearchAnalytics /> */}
-          <Header topRankData={campaignLiveKeywordsData.topRankData}  campaignId={campaignId} />
+          <Header campaignStatus={campaignStatus} topRankData={campaignLiveKeywordsData.topRankData}  campaignId={campaignId} />
 
           <LiveKeywordComponent
             // getrankingData={getrankingData}

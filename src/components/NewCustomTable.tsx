@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Link from "next/link";
 
 interface TableHeaderItem {
   key: string;
@@ -26,10 +27,11 @@ const NewCustomTable: React.FC<CustomTableProps> = ({
   tableData,
   campaignStatus,
 }) => {
+  
   return (
     <div className="border border-white  rounded-xl p-6 overflow-hidden">
       <Table className="min-w-full">
-        <TableHeader className="bg-transparent text-white ">
+        <TableHeader className="bg-gray-300  text-white ">
           <TableRow>
             {tableHeader.map((header) => (
               <TableHead
@@ -44,33 +46,43 @@ const NewCustomTable: React.FC<CustomTableProps> = ({
         </TableHeader>
 
         <TableBody>
-          {tableData.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={tableHeader.length}
-                className="text-center py-4"
+  {tableData.length === 0 ? (
+    <TableRow>
+      <TableCell
+        colSpan={tableHeader.length}
+        className="text-center py-4"
+      >
+        No data available
+      </TableCell>
+    </TableRow>
+  ) : (
+    tableData.map((row: any, rowIndex: number) => (
+      <TableRow
+        key={rowIndex}
+        className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
+      >
+        {tableHeader.map((header) => (
+          <TableCell
+            key={header.key}
+            className="text-center px-4 py-3 border-e-2"
+          >
+            {header.key === "name" ? (
+              <Link
+                href={`/dashboard/${row.campaignId}`}
+                className="text-blue-600 underline cursor-pointer"
               >
-                No data available
-              </TableCell>
-            </TableRow>
-          ) : (
-            tableData.map((row: any, rowIndex: number) => (
-              <TableRow
-                key={rowIndex}
-                className={rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
-              >
-                {tableHeader.map((header) => (
-                  <TableCell
-                    key={header.key}
-                    className="text-center px-4 py-3 border-e-2"
-                  >
-                    {row[header.key]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          )}
-        </TableBody>
+                {row.name}
+              </Link>
+            ) : (
+              row[header.key]
+            )}
+          </TableCell>
+        ))}
+      </TableRow>
+    ))
+  )}
+</TableBody>
+
       </Table>
     </div>
   );

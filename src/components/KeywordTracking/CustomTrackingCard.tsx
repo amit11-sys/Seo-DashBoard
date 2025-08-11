@@ -31,10 +31,10 @@ interface CustomTrackingCardProps {
 }
 
 const CustomTrackingCard = ( {title, data , ...prop}:CustomTrackingCardProps ) => {
-  console.log({data, title, prop},"data, title, prop");
+  // console.log({data, title, prop},"data, title, prop");
   // const [bgGradient, setBgGradient] = useState<string>('');
   const [textColor, setTextColor] = useState<string>('');
-  console.log(textColor,"textColor");
+  // console.log(textColor,"textColor");
 
  useEffect(() => {
   const color = getRandomDarkColor();

@@ -96,15 +96,73 @@ const LiveKeywordComponent = ({
   const [cardCounts, setCardCounts] = useState<
     { title: string; data: number; id: number }[]
   >([]);
+  const [topRankData, setTopRankData] = useState<any[]>([]);
   console.log(cardCounts, "cardCounts");
-  const {  setActiveSingleCampaign } = useCampaignData();
-  console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+  const { setActiveSingleCampaign } = useCampaignData();
+  // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+
+
+  useEffect(() => {
+    const fetchDBLiveDatagain = async () => {
+      
+      const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
+
+
+       if (campaignLiveKeywordsData.newLiveKeywordDbData) {
+      const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
+      const topRankData = campaignLiveKeywordsData?.topRankData?.data;
+
+      const data = rawData.map((item: any) => {
+        // const rankGroup = item?.rank_group || 0;
+
+        // if (rankGroup > 0 && rankGroup <= 3) top3++;
+        // if (rankGroup > 0 && rankGroup <= 10) top10++;
+        // if (rankGroup > 0 && rankGroup <= 20) top20++;
+        // if (rankGroup > 0 && rankGroup <= 30) top30++;
+        // if (rankGroup > 0 && rankGroup <= 100) top100++;
+
+        return {
+          keyword: item?.keyword || "",
+          keywordId: item.keywordId,
+          location: item?.location_name?.locationName?.locationName || "",
+          intent: item?.intent || "",
+          start: item?.start || 0,
+          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+          Absolute_Rank: item?.rank_absolute || 0,
+          Group_Rank: item?.rank_group || 0,
+          sevenDays: "-",
+          life: item?.rank_absolute || 0,
+          comp: item?.competition || 0,
+          sv: item?.searchVolumn || 0,
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item?.url || "",
+        };
+      });
+
+
+       console.log(topRankData, "topRankDataok");
+
+      
+      if (topRankData) {
+        setCardCounts(topRankData);
+      }
+    }
+
+
+    }
+    fetchDBLiveDatagain()
+  },[tableBody])
+
   const compaigndata = campaignLiveKeywordsData?.newLiveKeywordDbData?.map(
-    (item: any) => {return(
-     item.campaignId)
+    (item: any) => {
+      return item.campaignId;
     }
   );
- console.log(compaigndata,"compaign data new");
+  // console.log(compaigndata, "compaign data new");
 
   const tableHeader: Tableitems[] = [
     // { key: "select", label: "", icon: <Checkbox className="inline mr-1" /> },
@@ -174,11 +232,12 @@ const LiveKeywordComponent = ({
   //     setTableBody(data);
   //   }
   // };
-  const keywordTableData = async () => {
+  const keywordTableData =  () => {
+    console.log('calling fn');
+    
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
-      const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
+      const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
       const topRankData = campaignLiveKeywordsData?.topRankData?.data;
-      console.log(topRankData, "topRankDataok");
 
       const data = rawData.map((item: any) => {
         // const rankGroup = item?.rank_group || 0;
@@ -211,6 +270,9 @@ const LiveKeywordComponent = ({
         };
       });
 
+
+       console.log(topRankData, "topRankDataok");
+
       setTableBody(data);
       if (topRankData) {
         setCardCounts(topRankData);
@@ -219,6 +281,45 @@ const LiveKeywordComponent = ({
   };
 
   console.log(tableBody, "table body");
+
+  const showAddedKeyword = (newItem: any) => {
+    if (newItem && newItem.length > 0) {
+      const mappedItems = newItem.map((item: any) => {
+        console.log(item, "new added dataa");
+        return {
+          keyword: item?.keyword || "",
+          //  location: item?.location_code?.toString() || "",
+          location: item?.location_name || "",
+          // location: item?.location_name?.locationName?.locationName || "",
+          intent: item?.intent || "",
+          keywordId: item.keywordId,
+          start: item?.start || 0,
+          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+          Absolute_Rank: item?.rank_absolute || 0,
+          Group_Rank: item?.rank_group || 0,
+          // oneDay: "1",
+          sevenDays: "-",
+          // thirtyDays: "-",
+          life: item?.rank_absolute || 0,
+          comp: item?.competition || 0,
+          sv: item?.searchVolumn || 0,
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item?.url || "",
+        };
+      });
+
+      setTableBody((prev) => [...prev, ...mappedItems]);
+    }
+   
+  };
+  const updatedTopRankOnAddedKeyword = () => {
+    console.log("run updatedTopRankOnAddedKeyword");
+ keywordTableData()
+  }
 
   // const showAddedKeyword = async (newItem: any) => {
   //   // console.log(newItem, "showadded ok hai");
@@ -254,39 +355,6 @@ const LiveKeywordComponent = ({
 
   //   // }
   // };
-  const showAddedKeyword = (newItem: any) => {
-    if (newItem && newItem.length > 0) {
-      const mappedItems = newItem.map((item: any) => {
-        console.log(item, "new added dataa");
-        return {
-          keyword: item?.keyword || "",
-          //  location: item?.location_code?.toString() || "",
-          location: item?.location_name || "",
-          // location: item?.location_name?.locationName?.locationName || "",
-          intent: item?.intent || "",
-          keywordId: item.keywordId,
-          start: item?.start || 0,
-          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-          Absolute_Rank: item?.rank_absolute || 0,
-          Group_Rank: item?.rank_group || 0,
-          // oneDay: "1",
-          sevenDays: "-",
-          // thirtyDays: "-",
-          life: item?.rank_absolute || 0,
-          comp: item?.competition || 0,
-          sv: item?.searchVolumn || 0,
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item?.url || "",
-        };
-      });
-
-      setTableBody((prev) => [...prev, ...mappedItems]);
-    }
-  };
 
   const cardData = {
     title: "keywords",
@@ -337,7 +405,8 @@ const LiveKeywordComponent = ({
       {/* Header */}
       <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
-        compaigndata={compaigndata}
+          updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
+          compaigndata={compaigndata}
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
         />
@@ -345,7 +414,7 @@ const LiveKeywordComponent = ({
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">
         <div className="flex justify-evenly items-center gap-5 w-full">
           {cardData?.data?.map((item: any) => {
-            console.log(item, "item");
+            
 
             return (
               <div key={item.id}>

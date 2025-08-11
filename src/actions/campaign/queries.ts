@@ -79,6 +79,36 @@ export const getCampaign = async () => {
     return { error: "Internal Server Error." };
   }
 };
+export const GetCampaignByid = async (campaignId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+    // console.log(user);
+
+    // const campaign = await Campaign.find({ userId: user?.id });
+    const campaign = await Campaign.findById({
+      _id: campaignId,
+  });
+    if (!campaign) {
+      return { error: "Error while getting Single with Id campaign" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "Campaign Successfully Found with Id",
+      campaign,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
 export const CampaignStatus2 = async () => {
   try {
     await connectToDB();
@@ -264,27 +294,27 @@ export const ArchivedCampaignCreate = async (CompaignId: string,status:number, t
       { new: true }
     );
    
-   if(topRankData){
+  //  if(topRankData){
      
-     const topRankUpdate = {
-       keywordsUp: topRankData?.data?.find((item: any) => item.title === "Keywords Up")?.data || 0,
-       top3: topRankData?.data?.find((item: any) => item.title === "In Top 3")?.data || 0,
-       top10: topRankData?.data?.find((item: any) => item.title === "In Top 10")?.data || 0,
-       top20: topRankData?.data?.find((item: any) => item.title === "In Top 20")?.data || 0,
-       top30: topRankData?.data?.find((item: any) => item.title === "In Top 30")?.data || 0,
-       top100: topRankData?.data?.find((item: any) => item.title === "In Top 100")?.data || 0,
+  //    const topRankUpdate = {
+  //      keywordsUp: topRankData?.data?.find((item: any) => item.title === "Keywords Up")?.data || 0,
+  //      top3: topRankData?.data?.find((item: any) => item.title === "In Top 3")?.data || 0,
+  //      top10: topRankData?.data?.find((item: any) => item.title === "In Top 10")?.data || 0,
+  //      top20: topRankData?.data?.find((item: any) => item.title === "In Top 20")?.data || 0,
+  //      top30: topRankData?.data?.find((item: any) => item.title === "In Top 30")?.data || 0,
+  //      top100: topRankData?.data?.find((item: any) => item.title === "In Top 100")?.data || 0,
        
-     };
-     console.log(topRankUpdate, "topRankUpdate");
+  //    };
+  //    console.log(topRankUpdate, "topRankUpdate");
  
     
-     const updatedKeywordTracking = await KeywordTracking.updateMany(
-       { campaignId: CompaignId },
-       { $set: topRankUpdate },
-        { new: true }
-     );
+  //    const updatedKeywordTracking = await KeywordTracking.updateMany(
+  //      { campaignId: CompaignId },
+  //      { $set: topRankUpdate },
+  //       { new: true }
+  //    );
 
-   }
+  //  }
 
    
 

@@ -96,7 +96,7 @@ const EditKeywords = ({
       deviceType: "",
     },
   });
-  console.log(defaultData, "defaultttt");
+  // console.log(defaultData, "defaultttt");
  
   const searchLoc = form.watch("searchLocationCode");
 
@@ -119,7 +119,7 @@ const EditKeywords = ({
       });
     }, 300);
   }, []);
-  console.log(searchLoc);
+
 
   useEffect(() => {
     if (query.trim().length > 1) debouncedFetch(query);
@@ -153,7 +153,7 @@ const EditKeywords = ({
     };
     fetchlanguage();
   }, []);
-  console.log(defaultData);
+  
 
   useEffect(() => {
     if (defaultData) {

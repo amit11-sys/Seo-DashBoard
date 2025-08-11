@@ -1,11 +1,12 @@
 "use server";
 
-import { archivedCampaign, ArchivedCampaignCreate, CampaignStatus2, CompaignCount, getCampaign, newCampaign } from "./queries";
+import { archivedCampaign, ArchivedCampaignCreate, CampaignStatus2, CompaignCount, getCampaign, GetCampaignByid, newCampaign } from "./queries";
 import { addMultipleKeyword } from "../keyword";
 import {
   // createNewKeywordTrackingData,
   getTrackingData,
 } from "../keywordTracking";
+import Campaign from "@/lib/models/campaign.model";
 // import { getKeywordLiveData } from "../liveKeywords";
 
 export const createCampaign = async (formData: any) => {
@@ -78,5 +79,9 @@ export const getCompaignCount = async () => {
 };
 export const getCampaignStatus2 = async () => {
   const data = await CampaignStatus2();
+  return data;
+};
+export const getGetCampaignByid = async (campaignid: string) => {
+  const data = await GetCampaignByid(campaignid);
   return data;
 };

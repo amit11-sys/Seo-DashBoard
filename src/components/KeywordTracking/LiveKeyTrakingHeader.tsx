@@ -18,7 +18,7 @@ import { useCampaignData } from "@/app/context/CampaignContext";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {campaignId, showAddedKeyword,compaigndata} :any) {
+export default   function LiveKeyTrakingHeader( {campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword} :any) {
 const { loading, startLoading, stopLoading } = useLoader();
   
 const campaignStatus = compaigndata[0]?.status
@@ -88,7 +88,7 @@ const campaignStatus = compaigndata[0]?.status
       {/* Right Side: Action Icons */}
       {
         campaignStatus === 2 ? <> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
-       <DialogFrom  campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
+       <DialogFrom updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword} campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
        {/* <button>Add Keyword</button> */}
         {iconButtons.map((item, idx) => (
           <div

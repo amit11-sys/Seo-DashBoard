@@ -197,6 +197,7 @@ const finalData: any =
         const task = rankItem?.response?.tasks?.[0];
         const data = task?.result?.[0];
         const newKeyword = rankItem?.keyword;
+        console.log(data, "dataIn Loop");
 
         const matchedKeyword = newAddKeyword.find(
           (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
@@ -212,6 +213,7 @@ const finalData: any =
           rank_group: rankGroup,
           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
           keyword: newKeyword || "",
+             checkUrl : data?.check_url || "no url",
           searchVolumn: 0,
           intent: "", // Skipped intent match to save time
           competition: 0,

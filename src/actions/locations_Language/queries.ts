@@ -158,7 +158,7 @@ export const fetchLocation = async () => {
     const allLocations: { locationName: string; locationCode: number, locationIsoCode: string }[] = [];
     const allLanguages: string[] = [];
 
-    const countries = ["ca", "us", "au", "nz", "uk"];
+    const countries = ["ca", "us", "au", "nz", "gb","in"];
 
     locationData?.tasks.forEach((task: any) => {
       // Filter country-specific data once per task

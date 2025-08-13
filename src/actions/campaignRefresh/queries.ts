@@ -166,6 +166,7 @@ const finalData: any =
           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
           keyword: newKeyword || "",
           searchVolumn: 0,
+            checkUrl : data?.check_url || "no url",
           intent: "", 
           competition: 0,
           campaignId: campaignId,

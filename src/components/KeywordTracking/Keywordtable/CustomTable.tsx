@@ -5,6 +5,8 @@ import KeywordEdit from "./KeywordEdit";
 import DeleteConfirm from "./KeywordDel";
 
 import { getTrackingData, updateStartDB } from "@/actions/keywordTracking";
+import { SearchIcon } from "lucide-react";
+import { useLoader } from "@/hooks/useLoader";
 
 interface TableHeaderitems {
   key: string;
@@ -21,6 +23,7 @@ interface TablebodyItems {
   page: string;
   Absolute_Rank: string;
   Group_Rank: string;
+  checkUrl: string;
   // oneDay: string;
   sevenDays: string;
   // thirtyDays: string;
@@ -45,6 +48,7 @@ const CustomTable = ({
   setTableBody,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
+  const {startLoading, stopLoading} = useLoader();
   // console.log(tableData, "table data");
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
   const [defaultData, setDefaultData] = useState<any>([]);
@@ -113,7 +117,43 @@ const CustomTable = ({
   // Example: Set only first one (or you can pass entire array)
   setDefaultData(transformed[0]);
 };
+  const handleClick = (spyglassBase: string) => {
+  try {
+    startLoading()
+    // const urlObj = new URL(spyglassBase);
+    // console.log(urlObj, "urlOOK");
+    console.log(spyglassBase, "spyglass base");
+    // urlObj.searchParams.set("highlight", keyword);
+    window.open(spyglassBase.toString(), "_blank");
+    stopLoading()
+  } catch (err) {
+    console.error("Invalid URL:", err);
+  }
+};
 
+
+
+
+// const handleHighlightClick = async (url: string) => {
+//   startLoading();
+//   try {
+//     const highlightedHTML = await sethighlightKeyword(url);
+//     // Open in new tab
+//     const blob = new Blob([highlightedHTML], { type: "text/html" });
+//     const newTab = window.open();
+//     if (newTab) {
+//       const blobUrl = URL.createObjectURL(blob); // Create a URL for the blob
+//       newTab.location.href = blobUrl; // Set the new tab's location to the blob URL
+//       newTab.onload = () => {
+//         URL.revokeObjectURL(blobUrl); // Clean up the blob URL after the new tab loads
+//       };
+//     }
+//   } catch (err) {
+//     console.error("Error highlighting keyword:", err);
+//   } finally {
+//     stopLoading(); // Ensure loading state is stopped
+//   }
+// };
 
   return (
     <div className="w-full shadow-lg text-black rounded-md  max-h-[700px] overflow-x-auto relative">
@@ -156,12 +196,42 @@ const CustomTable = ({
                   key={rowIndex}
                   className="hover:bg-indigo-50 transition-colors"
                 >
-                  <td
+                  {/* <td
                     className="text-center text-[14px] text-wrap min-w-[200px]  border  p-1"
                     title={data.keyword}
                   >
                     {data.keyword}
+                  </td> */}
+
+                  <td
+                    className="text-center text-[14px] overflow-hidden text-wrap min-w-[200px] border p-1 relative group"
+                    title={data.keyword}
+                  >
+                    {data.keyword}
+
+                    {/* Eye/Search icon animation */}
+                    {data?.checkUrl && (
+                      <div
+                        className="flex justify-center w-full h-full bg-white items-center absolute right-0 top-0 -translate-y-[20px] opacity-0 
+                 group-hover:opacity-100 group-hover:translate-y-0
+                 transition-all duration-300 ease-out"
+                      >
+                        {/* <a
+                          href={data?.checkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 bg-white rounded-full shadow hover:shadow-md"
+                        > */}
+                        <button onClick={()=> handleClick(data?.checkUrl)}>
+
+                          <SearchIcon className="text-orange-500"  />
+                        </button>
+                        {/* // </a> */}
+                      </div>
+                    )}
                   </td>
+
+
                   <td className="text-center text-[12px] border  min-w-[50px] p-1">{data.location}</td>
                   <td className="text-center text-[12px] border p-3">{data.intent}</td>
 

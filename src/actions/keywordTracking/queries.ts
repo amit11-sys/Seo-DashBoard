@@ -143,9 +143,10 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     const topRankData = {
       title: "Keywords",
       data: [
+
         {
           title: "Keywords Up",
-          data: LiveKeywordDbData.length,
+          data: cardCounts?.top100,
           id: 1,
         },
         {
@@ -174,6 +175,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
           id: 6,
         },
       ],
+      totalKeywords: LiveKeywordDbData.length,
       type: "card",
     };
 

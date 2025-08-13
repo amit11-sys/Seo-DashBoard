@@ -25,12 +25,13 @@ interface CustomTrackingCardProps {
  
     title: string;
     data:  any; 
+      totalKeywords: number;
      className?: string;
     
  
 }
 
-const CustomTrackingCard = ( {title, data , ...prop}:CustomTrackingCardProps ) => {
+const CustomTrackingCard = ( {title, data, totalKeywords, ...prop}:CustomTrackingCardProps ) => {
   // console.log({data, title, prop},"data, title, prop");
   // const [bgGradient, setBgGradient] = useState<string>('');
   const [textColor, setTextColor] = useState<string>('');
@@ -51,8 +52,8 @@ const CustomTrackingCard = ( {title, data , ...prop}:CustomTrackingCardProps ) =
       <div className="w-full flex justify-center items-end">
         <h1
       style={{ color: textColor }}
-         className="text-center font-extrabold text-4xl">
-          <CountUp duration={2} end={data} />
+         className="text-center font-extrabold text-2xl">
+          <CountUp duration={2} end={data} /> /{totalKeywords}
         </h1>
       </div>
       <p className="flex text-black text-sm justify-center items-center mt-2">

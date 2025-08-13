@@ -87,11 +87,14 @@ const campaignStatus = compaigndata[0]?.status
       </div>
 
       {/* Right Side: Action Icons */}
-      <DownloadExcelBtn tableHeader={tableHeader} tableData={tableData}/>
+
+      
+     
       {
-        campaignStatus === 2 ? <> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
+        campaignStatus === 2 ? <>  <DownloadExcelBtn tableHeader={tableHeader} tableData={tableData}/> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
        <DialogFrom updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword} campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
        {/* <button>Add Keyword</button> */}
+        <DownloadExcelBtn tableHeader={tableHeader} tableData={tableData}/>
         {iconButtons.map((item, idx) => (
           <div
             key={idx}

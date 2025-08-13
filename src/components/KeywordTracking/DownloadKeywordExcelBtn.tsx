@@ -29,7 +29,7 @@ export default function DownloadExcelBtn({
   filename = "Keywords-report.xlsx",
 }: any) {
   const [open, setOpen] = useState(false);
-  const{ startLoading, stopLoading} = useLoader();
+  const { startLoading, stopLoading } = useLoader();
 
   const handleConfirm = () => {
     startLoading();
@@ -41,16 +41,12 @@ export default function DownloadExcelBtn({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          className=" shadow-none p-0   text-green-600 hover:text-green-700"
-          aria-label="Generate Excel"
-          title="Generate Excel"
-        >
-          <FaFileExcel className="" />
-        </Button>
+        <button aria-label="Generate Excel" title="Generate Excel">
+          <FaFileExcel className="shadow-none p-0 text-2xl   text-green-600 hover:text-green-700" />
+        </button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle>Generate Excel Report</DialogTitle>
         </DialogHeader>
@@ -64,7 +60,7 @@ export default function DownloadExcelBtn({
             Cancel
           </Button>
           <Button
-            className="bg-green-600 hover:bg-green-700 text-white"
+            className="bg-orange-600 hover:bg-orange-700 text-white"
             onClick={handleConfirm}
           >
             Yes, Generate

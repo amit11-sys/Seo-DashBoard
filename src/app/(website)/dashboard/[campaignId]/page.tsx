@@ -8,10 +8,12 @@ import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 // import { getLocation_languageData } from "@/actions/locations_Language";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
-import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
+import LiveKeyword from "@/components/KeywordTracking/LiveKeyword";
 import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
 import APIKeyword from "@/lib/KeywordApi.json";
-import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
+import { getArchivedCampaign, getCurrentCampaignIdData } from "@/actions/campaign";
+import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
+import { getfetchGmbMetrics } from "@/actions/KeywordsGmb";
 export default async function DashboardDetails({
   params,
 }: {
@@ -21,9 +23,17 @@ export default async function DashboardDetails({
   const { campaignId } = await params;
   const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
   // console.log(campaignLiveKeywordsData.topRankData,"campaignLiveKeywordsData");
-  const campignDataWithId = await getGetCampaignByid(campaignId)
+  const campignDataWithId = await getCurrentCampaignIdData(campaignId)
+  console.log(campignDataWithId,"campignDataWithId");
 
-  const campaignStatus = campignDataWithId?.campaign?.status
+  const googleAcccessToken = campignDataWithId?.CurrentCampaignIdData.googleAccessToken
+
+    console.log(googleAcccessToken,"googleAcccessToken");
+
+  // const GmbPiachartData = await getfetchGmbMetrics
+  const campaignStatus = campignDataWithId?.CurrentCampaignIdData?.status
+
+
   console.log(campaignStatus,"campaignStatus");
 
  
@@ -62,13 +72,10 @@ export default async function DashboardDetails({
      
         <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
           {/* <SearchAnalytics /> */}
-          <Header campaignStatus={campaignStatus} topRankData={campaignLiveKeywordsData.topRankData}  campaignId={campaignId} />
-
-          <LiveKeywordComponent
-            // getrankingData={getrankingData}
-            campaignLiveKeywordsData={campaignLiveKeywordsData}
-            campaignId={campaignId}
-          />
+         
+      <LiveKeywordComponent campaignStatus={campaignStatus} topRankData={campaignLiveKeywordsData.topRankData} campaignLiveKeywordsData={campaignLiveKeywordsData}
+            campaignId={campaignId} />
+         
         </main>
       </div>
     </section>

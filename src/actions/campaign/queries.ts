@@ -79,36 +79,36 @@ export const getCampaign = async () => {
     return { error: "Internal Server Error." };
   }
 };
-export const GetCampaignByid = async (campaignId: string) => {
-  try {
-    await connectToDB();
+// export const CurrentCampaignIdData = async (campaignId: string) => {
+//   try {
+//     await connectToDB();
 
-    const user = await getUserFromToken();
-    if (!user) {
-      return { error: "Unauthorized" };
-    }
-    // console.log(user);
+//     const user = await getUserFromToken();
+//     if (!user) {
+//       return { error: "Unauthorized" };
+//     }
+//     // console.log(user);
 
-    // const campaign = await Campaign.find({ userId: user?.id });
-    const campaign = await Campaign.findById({
-      _id: campaignId,
-  });
-    if (!campaign) {
-      return { error: "Error while getting Single with Id campaign" };
-    }
-    // if (campaign) {
-    return {
-      success: true,
-      message: "Campaign Successfully Found with Id",
-      campaign,
-    };
-    // }
-  } catch (error) {
-    console.log(error);
+//     // const campaign = await Campaign.find({ userId: user?.id });
+//     const campaign = await Campaign.findById({
+//       _id: campaignId,
+//   });
+//     if (!campaign) {
+//       return { error: "Error while getting Single with Id campaign" };
+//     }
+//     // if (campaign) {
+//     return {
+//       success: true,
+//       message: "Campaign Successfully Found with Id",
+//       campaign,
+//     };
+//     // }
+//   } catch (error) {
+//     console.log(error);
 
-    return { error: "Internal Server Error." };
-  }
-};
+//     return { error: "Internal Server Error." };
+//   }
+// };
 export const CampaignStatus2 = async () => {
   try {
     await connectToDB();
@@ -353,4 +353,29 @@ export const CompaignCount = async () => {
     return { error: "Internal Server Error." };
   }
 };
+export const CurrentCampaignIdData = async (campaignId:string) => {
+  try {
+    await connectToDB();
 
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const CurrentCampaignIdData = await Campaign.findById({ _id: campaignId });
+    
+    if (!campaignId) {
+      return { error: "Error while getting campaign New Id" };
+    }
+
+    return {
+      success: true,
+      message: "New CompaignId Successfully Found",
+      CurrentCampaignIdData,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};

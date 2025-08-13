@@ -4,7 +4,7 @@ import TabsComponents from "@/components/Compaign/TabsComponents";
 import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
-import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
+import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeyword";
 import { Nav } from "@/components/ui/nav";
 import Navbar from "@/components/Common/Navbar";
 import { getArchivedCampaign } from "@/actions/campaign";

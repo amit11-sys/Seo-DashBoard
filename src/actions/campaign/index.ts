@@ -1,6 +1,6 @@
 "use server";
 
-import { archivedCampaign, ArchivedCampaignCreate, CampaignStatus2, CompaignCount, getCampaign, GetCampaignByid, newCampaign } from "./queries";
+import { archivedCampaign, ArchivedCampaignCreate, CampaignStatus2, CompaignCount, getCampaign, CurrentCampaignIdData, newCampaign } from "./queries";
 import { addMultipleKeyword } from "../keyword";
 import {
   // createNewKeywordTrackingData,
@@ -81,7 +81,7 @@ export const getCampaignStatus2 = async () => {
   const data = await CampaignStatus2();
   return data;
 };
-export const getGetCampaignByid = async (campaignid: string) => {
-  const data = await GetCampaignByid(campaignid);
+export const getCurrentCampaignIdData = async (campaignid: string) => {
+  const data = await CurrentCampaignIdData(campaignid);
   return data;
 };

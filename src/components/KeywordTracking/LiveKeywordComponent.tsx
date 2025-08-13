@@ -405,6 +405,8 @@ const LiveKeywordComponent = ({
       {/* Header */}
       <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
+          tableHeader={tableHeader}
+          tableData={tableBody}
           updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
           compaigndata={compaigndata}
           campaignId={campaignId}

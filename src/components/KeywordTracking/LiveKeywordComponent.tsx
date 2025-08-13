@@ -93,10 +93,9 @@ const LiveKeywordComponent = ({
   campaignId,
 }: LiveKeywordComponentProps) => {
   const [tableBody, setTableBody] = useState<any[]>([]);
-  const [cardCounts, setCardCounts] = useState<
-    { title: string; data: number; id: number }[]
-  >([]);
+  const [cardCounts, setCardCounts] = useState<any  >([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
+  const [totalKeywords, setTotalKeywords] = useState<number>(0);
   console.log(cardCounts, "cardCounts");
   const { setActiveSingleCampaign } = useCampaignData();
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
@@ -110,7 +109,7 @@ const LiveKeywordComponent = ({
 
        if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
-      const topRankData = campaignLiveKeywordsData?.topRankData?.data;
+      const topRankData = campaignLiveKeywordsData?.topRankData;
 
       const data = rawData.map((item: any) => {
         // const rankGroup = item?.rank_group || 0;
@@ -358,7 +357,7 @@ const LiveKeywordComponent = ({
 
   const cardData = {
     title: "keywords",
-    data: cardCounts?.map((item: any) => {
+    data: cardCounts?.data?.map((item: any) => {
       return {
         title: item.title,
         data: item.data,
@@ -366,6 +365,7 @@ const LiveKeywordComponent = ({
       };
     }),
     type: "card",
+    totalKeywords: cardCounts?.totalKeywords || 0,
   };
   console.log(cardData, "cardDataok");
   //     {
@@ -405,6 +405,8 @@ const LiveKeywordComponent = ({
       {/* Header */}
       <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
+          tableHeader={tableHeader}
+          tableData={tableBody}
           updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
           compaigndata={compaigndata}
           campaignId={campaignId}
@@ -414,11 +416,12 @@ const LiveKeywordComponent = ({
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">
         <div className="flex justify-evenly items-center gap-5 w-full">
           {cardData?.data?.map((item: any) => {
-            
-
+              
+              
             return (
               <div key={item.id}>
                 <CustomTrackingCard
+                  totalKeywords={cardData?.totalKeywords}
                   className="w-[170px] h-[170px]"
                   title={item?.title}
                   data={item?.data}
@@ -426,6 +429,13 @@ const LiveKeywordComponent = ({
               </div>
             );
           })}
+
+          
+
+
+
+
+
         </div>
         {/* <div className="w-[60%]">
         <TrackingChart/>

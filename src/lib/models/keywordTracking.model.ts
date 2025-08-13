@@ -15,6 +15,7 @@ const KeywordTrackingSchema = new mongoose.Schema(
     intent: { type: String },
     competition: { type: Number },
     start: { type: Number },
+      checkUrl : { type: String },
     //  competition: { type: Number },
     //  intent: { type: String },
     // SearchEngine:{ type: String },

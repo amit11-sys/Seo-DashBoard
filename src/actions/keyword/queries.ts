@@ -1383,6 +1383,7 @@ const finalData: any =
           rank_group: rankGroup,
           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
           keyword: newKeyword || "",
+            checkUrl : data?.check_url || "no url",
           searchVolumn: 0,
           intent: "", 
           competition: 0,
@@ -1608,6 +1609,7 @@ const finalData: any =
           intent: "", // Skipped intent match to save time
           competition: 0,
           campaignId: campaign?._id,
+            checkUrl : data?.check_url || "no url",
           keywordId: matchedKeyword?._id,
           start: rankGroup,
 

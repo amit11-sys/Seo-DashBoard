@@ -15,15 +15,15 @@ import { toast } from "sonner";
 import { useLoader } from "@/hooks/useLoader";
 import Loader from "../global/Loader";
 import { useCampaignData } from "@/app/context/CampaignContext";
-import DownloadExcelBtn from "./DownloadKeywordExcelBtn";
+import DownloadKeywordExcelBtn from "@/components/KeywordTracking/DownloadKeywordExcelBtn";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData} :any) {
+export default   function LiveKeyTrakingHeader( {campaignId,campaignStatus, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData} :any) {
 const { loading, startLoading, stopLoading } = useLoader();
   
-const campaignStatus = compaigndata[0]?.status
-
+// const campaignStatus = compaigndata[0]?.status || 1
+ 
 
 
  const handleRefreshCampaign = async () => {
@@ -91,10 +91,10 @@ const campaignStatus = compaigndata[0]?.status
       
      
       {
-        campaignStatus === 2 ? <>  <DownloadExcelBtn tableHeader={tableHeader} tableData={tableData}/> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
+        campaignStatus === 2 ? <>  <DownloadKeywordExcelBtn tableHeader={tableHeader} tableData={tableData}/> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
        <DialogFrom updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword} campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
        {/* <button>Add Keyword</button> */}
-        <DownloadExcelBtn tableHeader={tableHeader} tableData={tableData}/>
+        <DownloadKeywordExcelBtn tableHeader={tableHeader} tableData={tableData}/>
         {iconButtons.map((item, idx) => (
           <div
             key={idx}

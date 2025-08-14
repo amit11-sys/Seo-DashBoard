@@ -28,7 +28,6 @@ const ArchivedCampaign = async () => {
 // const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
 
 // async function fetchLocations() {
-//   const res = await fetch('https://api.dataforseo.com/v3/serp/google/locations', {
 //     method: 'GET',
 //     headers: {
 //       'Content-Type': 'application/json',

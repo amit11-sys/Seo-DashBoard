@@ -78,7 +78,6 @@ task?.result?.forEach((loc: any) => {
 //       );
 //       const res: any = await fetch(
 //         // `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"dataforseo_labs/locations_and_languages"}`
-//         `https://api.dataforseo.com/v3/serp/google/locations`,
 
 //         {
 //           method: "GET",
@@ -138,7 +137,7 @@ export const fetchLocation = async () => {
     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
     // console.log(,"country NAME")
     const res: any = await fetch(
-      `https://api.dataforseo.com/v3/serp/google/locations`,
+      `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}serp/google/locations`,
       {
         method: "GET",
         headers: {
@@ -215,7 +214,6 @@ export const fetchLocation = async () => {
 //     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
 //     // console.log(,"country NAME")
 //     // const res: any = await fetch(
-//     //   // `https://api.dataforseo.com/v3/serp/google/locations`,
 //     //   {
 //     //     method: "GET",
 //     //     headers: {

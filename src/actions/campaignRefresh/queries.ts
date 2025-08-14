@@ -3,7 +3,7 @@ import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
-import { QRCode } from "antd";
+// import { QRCode } from "antd";
 import {
   getKewordRank,
   getRankIntent,

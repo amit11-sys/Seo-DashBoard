@@ -15,38 +15,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useLoader } from "@/hooks/useLoader";
 
 // type Props = {
 //   analyticData: AnalyticsPayload; // must be { dateWise: [...], monthWise: [...] }
 //   filename?: string;
 // };
 
-export default function DownloadKeywordExcelBtn({
-  // analyticData,
-  tableHeader,
-  tableData,
-  filename = "Keywords-report.xlsx",
+export default function  DownloadExcelBtn({
+  analyticData,
+  filename = "console-report.xlsx",
 }: any) {
   const [open, setOpen] = useState(false);
-  const { startLoading, stopLoading } = useLoader();
 
   const handleConfirm = () => {
-    startLoading();
-    downloadExcelTwoSheets(tableHeader, tableData, filename);
-    stopLoading();
+    downloadExcelTwoSheets(analyticData, filename);
     setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button aria-label="Generate Excel" title="Generate Excel">
-          <FaFileExcel className="shadow-none p-0 text-2xl   text-green-600 hover:text-green-700" />
-        </button>
+        <Button
+          className=" shadow-none p-0   text-green-600 hover:text-green-700"
+          aria-label="Generate Excel" title="Generate Excel"
+        >
+          <FaFileExcel className="" />
+         
+        </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md bg-white">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Generate Excel Report</DialogTitle>
         </DialogHeader>
@@ -57,10 +55,10 @@ export default function DownloadKeywordExcelBtn({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+          Cancel
           </Button>
           <Button
-            className="bg-orange-600 hover:bg-orange-700 text-white"
+            className="bg-green-600 hover:bg-green-700 text-white"
             onClick={handleConfirm}
           >
             Yes, Generate

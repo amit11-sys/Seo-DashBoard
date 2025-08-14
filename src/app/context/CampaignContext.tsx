@@ -41,17 +41,18 @@ const CampaignContext = createContext<CampaignContextProps | undefined>(
 // --- Provider ---
 export const CampaignDataProvider =  ({ children }: ProviderProps) => {
   //  const campaign = await getUserCampaign();
-  const [campaignData, setCampaignData] = useState<CampaignContextType>([
-    {
-      _id: "",
-      campaignName: "",
-      projectUrl: "",
-      userId: "",
-      createdAt: "",
-      updatedAt: "",
-      __v: 0,
-    },
-  ]);
+  const [campaignData, setCampaignData] = useState<any>();
+  // const [campaignData, setCampaignData] = useState<any>([
+  //   {
+  //     _id: "",
+  //     campaignName: "",
+  //     projectUrl: "",
+  //     userId: "",
+  //     createdAt: "",
+  //     updatedAt: "",
+  //     __v: 0,
+  //   },
+  // ]);
   const [activeSingleCampaign, setActiveSingleCampaign] = useState<any>();
 
   return (

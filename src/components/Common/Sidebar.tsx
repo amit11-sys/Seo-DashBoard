@@ -12,13 +12,14 @@ import { useCampaignData } from "@/app/context/CampaignContext";
 type SidebarProps = {
   isCollapsed: boolean;
   archivedCampaignData?: any;
+  activeCampignData?: any
 };
 
-const Sidebar = ({ isCollapsed, archivedCampaignData }: SidebarProps) => {
+const Sidebar = ({ isCollapsed, activeCampignData,archivedCampaignData }: SidebarProps) => {
   const { campaignData } = useCampaignData();
 
-  // console.log(campaignData);
-  const organizeCompaignData = campaignData.map((c: any) => {
+  console.log(campaignData,"status1 datA");
+  const organizeCompaignData = activeCampignData?.map((c: any) => {
     // console.log(c)
     return {
       title: c.projectUrl,

@@ -10,6 +10,9 @@ import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
+import ClientDashboard from "@/components/ClientDashboard"; // client component
+import { getCurrentCampaignIdData } from "@/actions/campaign";
+
 import APIKeyword from "@/lib/KeywordApi.json";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 export default async function DashboardDetails({
@@ -24,7 +27,13 @@ export default async function DashboardDetails({
   const campignDataWithId = await getGetCampaignByid(campaignId)
 
   const campaignStatus = campignDataWithId?.campaign?.status
+
+
   console.log(campaignStatus,"campaignStatus");
+
+
+    const CurrentCampaignData = await getCurrentCampaignIdData(campaignId);
+
 
  
 
@@ -64,8 +73,9 @@ export default async function DashboardDetails({
           {/* <SearchAnalytics /> */}
           <Header campaignStatus={campaignStatus} topRankData={campaignLiveKeywordsData.topRankData}  campaignId={campaignId} />
 
-          <LiveKeywordComponent
-            // getrankingData={getrankingData}
+           <ClientDashboard
+           campaignStatus={campaignStatus}
+          CurrentCampaignData={CurrentCampaignData}
             campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}
           />

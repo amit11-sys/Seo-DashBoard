@@ -39,6 +39,7 @@ import { useRouter } from "next/navigation";
 import KeywordTextArea from "../KeywordTextArea";
 import debounce from "lodash.debounce";
 // import { getLocationData } from "@/actions/locations_Language";
+import GoogleIntegrations from "../GoogleConsole/googleIntegration";
 
 import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
 import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
@@ -60,6 +61,9 @@ interface CampaignTabsProps {
 
 export function CampaignTabs() {
   const { startLoading, stopLoading } = useLoader();
+    const [showIntegrationDialog, setShowIntegrationDialog] = useState(false);
+const [createdCampaignId, setCreatedCampaignId] = useState<string >("");
+  
   // const [searchText, setSearchText] = useState("");
   // const [locations, setLocations] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
@@ -265,7 +269,10 @@ fetchlanguage()
         // console.log(campaign, "from on submit");
         const campaignId = response.campaign._id;
 
-        router.push(`/dashboard/${campaignId}`);
+            setCreatedCampaignId(campaignId); // Save for dashboard redirect
+      setShowIntegrationDialog(true); // Show dialog
+
+    //  router.push(`/dashboard/${campaignId}?showIntegrations=true`);
 
         toast("Campaign created successfully");
         form.reset();
@@ -382,6 +389,7 @@ fetchlanguage()
   ];
 
   return (
+    <>
     <Form {...form}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* <AnimatedBackground /> */}
@@ -745,6 +753,20 @@ fetchlanguage()
         </TabsContent>
       </Tabs>
     </Form>
+     {showIntegrationDialog && (
+  <GoogleIntegrations
+    onClose={() => setShowIntegrationDialog(false)}
+    onSkip={() => {
+      if (createdCampaignId) {
+        router.push(`/dashboard/${createdCampaignId}`);
+      }
+    }}
+     createdCampaignId={createdCampaignId}
+
+  />
+)}
+    
+    </>
   );
 }
 

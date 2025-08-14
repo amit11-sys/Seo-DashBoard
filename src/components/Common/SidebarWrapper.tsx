@@ -79,12 +79,7 @@ export default  function SidebarWrapper({
         </ScrollArea>
       </div>
 
-      {/* <div className="flex-1 transition-all w-full duration-300 ease-in-out">
-        <ScrollArea className="h-[calc(100vh-48px)]">
-          <Header setIsCollapsed={setIsCollapsed} isCollapsed={isCollapsed} />
-          {children}
-        </ScrollArea>
-      </div> */}
+      
     </>
   );
 }

@@ -1,4 +1,3 @@
-// import useAxios from "@/hooks/useAxios";
 "use server";
 import Campaign from "@/lib/models/campaign.model";
 import { getDBcompaignGoogleData } from "../campaign";
@@ -9,33 +8,7 @@ import { fetchLocations } from "../KeywordsGmb/queries";
 
 const client_secret = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET;
 const client_id = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-// export async function getAuthToken({ code }: any) {
-//   const url = `${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`;
 
-//   // console.log(code, "codeeee");
-
-//   const tokenData = {
-//     // code: code?.code,
-//     client_id:
-//      
-//     grant_type: "authorization_code",
-//   };
-//   // console.log(tokenData);
-
-//   try {
-//     const tokenResponse = await fetch(url, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/x-www-form-urlencoded",
-//       },
-//       body: new URLSearchParams(tokenData as any).toString(),
-//     });
-//     // console.log(tokenResponse, "tokenResponse");
-//     return tokenResponse;
-//   } catch (error) {
-//     console.error("Error during token exchange:", error);
-//   }
-// }
 
 type GAApiRow = any; // <- replace with your real row shape
 type GSApiResponse = {
@@ -92,36 +65,17 @@ export async function GoogleConsoleDataByDate(
     endDate: endDate || todayFormatted,
     dimensions: ["date"],
   };
-  // console.log(newCompaignId, "newCompaignId in getGoogleSearchDataByDimension");
 
   const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
-  // console.log(testdata, "testdata");
-  // const compaignGoogleData = (await getDBcompaignGoogleData(
-  //       newCompaignId
-  //     )) as CompaignGoogleData | null;
-  //     console.log(compaignGoogleData,"compaignGoogleData ");
-
-  // if (!compaignGoogleData?.compaignGoogleData) {
-  //   throw new Error(compaignGoogleData?.error ?? "No campaign tokens found");
-  // }
+ 
 
   const access_token = compaignGoogleData.googleAccessToken;
   const CompaignUrl = compaignGoogleData.projectUrl;
-  // function extractDomain(url: string): string | null {
-  //   const match = url.match(/\/\/(.*?)\.com/);
-  //   return match ? match[1] : null;
-  // }
-  const urlNameMatch = extractDomain(CompaignUrl);
-  // console.log(urlNameMatch, "urlNameMatch");
 
-  // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
-  //   const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl ?? "";
-  // console.log(access_token, "access_token");
-  // console.log(CompaignUrl, "CampaignURL");
-  // console.log(encodeURIComponent(CompaignUrl), "CampaignURL encodind");
+  const urlNameMatch = extractDomain(CompaignUrl);
+ 
 
   try {
-    // const payload = { startDate, endDate, dimensions };
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
@@ -143,7 +97,6 @@ export async function GoogleConsoleDataByDate(
     }
 
     const json = (await res.json()) as GSApiResponse;
-    // console.log(json,"json in getGoogleSearchDataByDimension");
 
     const rawData = json.rows ?? [];
     const processedData = processConsoleData(rawData);
@@ -171,8 +124,7 @@ export async function GoogleSearchDataByDimension(
   dimension: string,
   date: any
 ) {
-  // console.log(dimension, "dimension");
-  // console.log(newCompaignId, "newCompaignId in getGoogleSearchDataByDimension");
+
   const { startDate, endDate } = date;
   const today1 = new Date();
   const todayFormatted = today1.toISOString().split("T")[0];
@@ -190,14 +142,7 @@ export async function GoogleSearchDataByDimension(
     };
     const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
 
-    // console.log(compaignGoogleData, "testdata");
-    //
-    // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
-    // console.log(compaignGoogleData, "compaignGoogleData in getGoogleSearchDataByDimension");
-    // const compaignGoogleData = (await getDBcompaignGoogleData(
-    //   newCompaignId
-    // )) as CompaignGoogleData | null;
-    // console.log(compaignGoogleData,"compaignGoogleData ");
+  
 
 
     
@@ -209,36 +154,12 @@ export async function GoogleSearchDataByDimension(
     const access_token = compaignGoogleData?.googleAccessToken;
     const CompaignUrl = compaignGoogleData?.projectUrl;
     
-    // const location = await fetchLocations(access_token);
-    // console.log(location,"locationOKO hia")
-    // console.log(access_token, "in access_token");
-    // console.log(CompaignUrl, "in googleSearchDataByDimension");
+   
 
     const acoountNameforMatch = extractDomain(CompaignUrl);
 
-    // console.log(acoountNameforMatch, "acoountNameforMatch");
-
-    // const data = await googleAnalyticsAccountID(
-    //   access_token,
-    //   acoountNameforMatch ?? ""
-    // );
-
-    // console.log(data, "data idid");
-    // const accountId = data?.accountId ?? "";
-    // const propertiesID = await googleAnalyticsPropertyID(
-    //   accountId,
-    //   access_token,
-    //   acoountNameforMatch ?? ""
-    // );
-    // console.log(propertiesID, "propertiesID in googleSearchDataByDimension");
-
-    // const propertyId = propertiesID[0].name ?? "";
-    // console.log(propertyId, "propertyId in googleSearchDataByDimension");
-    // const analyticData = await getAnalyticsData(access_token, propertyId);
-    // console.log(analyticData, "analyticData in googleSearchDataByDimension");
-    // Rest of the code...
-    // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
-    // const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl ?? "";
+    
+    
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
@@ -255,7 +176,6 @@ export async function GoogleSearchDataByDimension(
 
     if (!res.ok) {
       const text = await res.text();
-      // mimic axios error.response for your existing catch blocks
       const err: any = new Error(`HTTP ${res.status} ${res.statusText}`);
       err.response = { status: res.status, data: text };
       throw err;
@@ -364,11 +284,9 @@ export async function refreshGoogleAccessToken(campaignId: string) {
       $set: {
         googleAccessToken: json.access_token,
         googleAccessTokenExpiry: newExpiry,
-        // ...(json.refresh_token && { googleRefreshToken: json.refresh_token }),
       },
     }
   );
-  // console.log(updatedCampaign, "updatedCampaign in refershGoogleAccessToken");
 
   return updatedCampaign;
 }
@@ -521,10 +439,6 @@ export async function googleAnalyticsPropertyID(
       throw new Error("Account ID and access token are required");
     }
 
-    // Log inputs for debugging (optional)
-    // console.table({ accessToken, accountId });
-
-    // Construct the API URL with filter for properties under the account
     const url = new URL(
       `${ process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}properties`
     );

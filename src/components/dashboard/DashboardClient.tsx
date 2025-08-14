@@ -83,58 +83,7 @@ const DashboardClient = () => {
         setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
         setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
 
-        // const tabledata = keywordStatusData?.map((item: any) => {
-        //   console.log(item, "itemintabledata");
-        //   const keywordsData = campaignStatusData?.find(
-        //     (c: any) => c._id === item?.campaignId
-        //   );
-        //   console.log(keywordsData, "campaignok");
-
-        //   const keywordsCount = keywordStatusData?.filter(
-        //     (kItem: any) => kItem?.campaignId === item?._id
-        //   );
-        //   console.log(keywordsCount, "keywordsCount");
-
-        //   const mongoDate = new Date(item?.createdAt);
-        //   const formatted = mongoDate.toLocaleDateString("en-US", {
-        //     year: "numeric",
-        //     month: "short",
-        //     day: "2-digit",
-        //   });
-        //   // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
-        //   return {
-        //     name: item?.projectUrl || "",
-        //     date: formatted,
-        //     // integration: keywordsData?.integration || "GSC",
-        //     // searcher: keywordsData?.language_code || "US",
-        //     // audit: keywordsData?.audit || 25,
-        //     kwds: keywordsCount?.length || 0,
-        //     top3: keywordsData?.top3 || 0,
-        //     top10: keywordsData?.top10 || 0,
-        //     top20: keywordsData?.top20 || 0,
-        //     top30: keywordsData?.top30 || 0,
-        //     top100: keywordsData?.top100 || 0,
-        //     // backlinks: keywordsData?.backlinks || 0,
-        //     action:
-        //       campaignStatus === 2 ? (
-        //         <div className="flex gap-2">
-        //           <button
-        //             title="Restore"
-        //             onClick={() => handleRestore(item._id)}
-        //           >
-        //             <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
-        //           </button>
-        //           <button
-        //             title="Delete Forever"
-        //             onClick={() => handleDelete(item._id)}
-        //           >
-        //             <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
-        //           </button>
-        //         </div>
-        //       ) : null,
-        //   };
-        // });
-
+      
         const tabledata = campaignStatusData?.map((campaign: any) => {
           const campaignId = campaign._id;
 
@@ -145,30 +94,11 @@ const DashboardClient = () => {
             ) || [];
           console.log(keywordsForCampaign, " keywordForCampaign");
 
-          // Sum up all top rank values
-          // const totalRanks = {
-          //   top3: 0,
-          //   top10: 0,
-          //   top20: 0,
-          //   top30: 0,
-          //   top100: 0,
-          // };
-
-          // keywordsForCampaign.forEach((kw: any) => {
-          //   totalRanks.top3 += kw?.top3 || 0;
-          //   totalRanks.top10 += kw?.top10 || 0;
-          //   totalRanks.top20 += kw?.top20 || 0;
-          //   totalRanks.top30 += kw?.top30 || 0;
-          //   totalRanks.top100 += kw?.top100 || 0;
-          // });
-          // console.log(keywordsForCampaign,'keywordForCampaignSet');
-
-          // Flatten all rank_group values from keywordsForCampaign
+        
           const allRankGroups = keywordsForCampaign
             .flatMap((kw: any) => kw.rank_group)
             .filter((rank: number) => rank > 0); // Only valid positive ranks
 
-          // Compute top rank stats from the combined rank groups
           const totalRanks = {
             top3: allRankGroups.filter((r: number) => r <= 3).length,
             top10: allRankGroups.filter((r: number) => r <= 10).length,
@@ -178,7 +108,6 @@ const DashboardClient = () => {
           };
 
 
-          // console.log(keywordsForCampaign, "keywordForCampaignSet");
           console.log(totalRanks, "flattened ranks");
 
 
@@ -239,7 +168,6 @@ const DashboardClient = () => {
       if (!confirmed) return;
       const status = 3; // Status for "deleted"
       const deleteResponse = await CreateArchivedCampaign(campaignId, status);
-      // console.log(deleteResponse, "Deleted campaign response");
 
       // 2. Refetch data to update dashboard
       const [
@@ -356,59 +284,7 @@ const DashboardClient = () => {
           setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
           setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
 
-          // const tabledata = campaignStatusData?.map((item: any) => {
-          //   const keywordsData = keywordStatusData?.find(
-          //     (c: any) => c.campaignId === item?._id
-          //   );
-          //   console.log(keywordsData, "campaignok");
-
-          //   const keywordsCount = keywordStatusData?.filter(
-          //     (kItem: any) => kItem?.campaignId === item?._id
-          //   );
-          //   console.log(keywordsCount, "keywordsCount");
-
-          //   const mongoDate = new Date(item?.createdAt);
-          //   const formatted = mongoDate.toLocaleDateString("en-US", {
-          //     year: "numeric",
-          //     month: "short",
-          //     day: "2-digit",
-          //   });
-
-          //   return {
-          //     name: item?.projectUrl || "",
-          //     date: formatted,
-          //     integration: keywordsData?.integration || "GSC",
-          //     searcher: keywordsData?.language_code || "US",
-          //     audit: keywordsData?.audit || 25,
-          //     kwds: keywordsCount?.length || 0,
-          //     top3: keywordsData?.top3 || 0,
-          //     top10: keywordsData?.top10 || 0,
-          //     top20: keywordsData?.top20 || 0,
-          //     top30: keywordsData?.top30 || 0,
-          //     top100: keywordsData?.top100 || 0,
-          //     backlinks: keywordsData?.backlinks || 0,
-          //     action:
-          //       campaignStatus === 2 ? (
-          //         <div className="flex gap-2">
-          //           <button
-          //             title="Restore"
-          //             onClick={() => handleRestore(item._id)}
-          //           >
-          //             <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
-          //           </button>
-          //           <button
-          //             title="Delete Forever"
-          //             onClick={() => handleDelete(item._id)}
-          //           >
-          //             <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
-          //           </button>
-          //         </div>
-          //       ) : null,
-          //   };
-          // });
-
-          // console.log(tabledata, "tabledata inside");
-
+       
             const tabledata = campaignStatusData?.map((campaign: any) => {
             const campaignId = campaign._id;
 
@@ -419,25 +295,8 @@ const DashboardClient = () => {
               ) || [];
             console.log(keywordsForCampaign, " keywordForCampaign");
 
-            // Sum up all top rank values
-            // const totalRanks = {
-            //   top3: 0,
-            //   top10: 0,
-            //   top20: 0,
-            //   top30: 0,
-            //   top100: 0,
-            // };
+          
 
-            // keywordsForCampaign.forEach((kw: any) => {
-            //   totalRanks.top3 += kw?.top3 || 0;
-            //   totalRanks.top10 += kw?.top10 || 0;
-            //   totalRanks.top20 += kw?.top20 || 0;
-            //   totalRanks.top30 += kw?.top30 || 0;
-            //   totalRanks.top100 += kw?.top100 || 0;
-            // });
-            // console.log(keywordsForCampaign,'keywordForCampaignSet');
-
-            // Flatten all rank_group values from keywordsForCampaign
             const allRankGroups = keywordsForCampaign
               .flatMap((kw: any) => kw.rank_group)
               .filter((rank: number) => rank > 0); // Only valid positive ranks
@@ -452,7 +311,6 @@ const DashboardClient = () => {
             };
 
 
-            // console.log(keywordsForCampaign, "keywordForCampaignSet");
             console.log(totalRanks, "flattened ranks");
 
 
@@ -589,7 +447,6 @@ const DashboardClient = () => {
               />
             </div>
 
-            {/* <FilterTabs /> */}
 
             <NewCustomTable
               campaignStatus={campaignStatus}

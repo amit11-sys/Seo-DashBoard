@@ -32,17 +32,7 @@ import {
 } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
 import { getfetchDBlocationData } from "@/actions/keywordTracking";
-// import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
-// const schema = z.object({
-//   name: z.string().min(1, "Campaign name is required"),
-//   keywordTag: z.string().optional(),
-//   searchLocationC: z.string().min(1, "Location is required"),
-//   language: z.string().min(1, "Language is required"),
-//   SearchEngine: z.string().optional(),
-//   serpType: z.string().optional(),
-//   deviceType: z.string().optional(),
-// });
 interface DialogFormProps {
   campaignId: string;
   showAddedKeyword: (keywords: string[]) => void;
@@ -343,22 +333,7 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
                   />
                 )}
               />
-              {/* <Controller
-                name="searchLocationCode"
-                control={form.control}
-                render={({ field }) => (
-                  <DropDownList
-                    listData={countries}
-                    icon={
-                      <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                    }
-                    listName="Search Location"
-                    value={field.value}
-                    onChange={(selected:any) => field.onChange(selected?.value)}
-                    errorMessage={form.formState.errors.searchLocationCode?.message}
-                  />
-                )}
-              /> */}
+             
               <div className="relative">
                 <Controller
                   name="searchLocationCode"
@@ -404,26 +379,7 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
                   {form.formState.errors.searchLocationCode?.message}
                 </div>
               </div>
-              {/* <Controller
-                name="volumeLocationCode"
-                control={form.control}
-                render={({ field }) => (
-                  <DropDownList
-                    listData={countries}
-                    icon={
-                      <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                    }
-                    listName="volume Location"
-                    value={field.value}
-                    onChange={(selected: any) =>
-                      field.onChange(selected?.value)
-                    }
-                    errorMessage={
-                      form.formState.errors.volumeLocationCode?.message
-                    }
-                  />
-                )}
-              /> */}
+              
 
               <div className="relative">
                 <Controller
@@ -489,30 +445,7 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
             </div>
 
             <div className="space-y-4">
-              {/* <div
-                className={`multipleKeyword border ${keywordError && "border-red-400"} p-2 rounded w-full`}
-              >
-                <div className="flex flex-wrap gap-2">
-                  {Keywords.map((keyword, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center gap-1"
-                    >
-                      {keyword}
-                      <button onClick={() => removeKeyword(index)}>
-                        &times;
-                      </button>
-                    </span>
-                  ))}
-                  <input
-                    value={tagsInput}
-                    onChange={(e) => setTagsInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type a keyword and press Enter"
-                    className="flex-1 bg-transparent p-1 outline-none"
-                  />
-                </div>
-              </div> */}
+            
               <KeywordTextArea
                 value={KeywordsText}
                 onChange={handleKeywordChange}

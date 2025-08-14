@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { getfirstCompaignData } from "@/actions/keywordTracking";
-// import { useCampaignData } from "@/app/context/CampaignContext";
 
 
 interface HeaderProps {
@@ -31,30 +29,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
   const [openArchive, setOpenArchive] = useState(false);
   const router = useRouter();
 
-  // const handleCompaignDelete = async () => {
-  //   setOpenDelete(false);
-  //   startLoading();
-  //   try {
-  //     const DeletedCampaignData = await CreateArchivedCampaign(campaignId);
-
-  //     // if (!DeletedCampaignData) {
-  //     //   console.error("Failed to delete campaign:", DeletedCampaignData);
-  //     //   toast.error("Failed to delete campaign");
-  //     //   stopLoading();
-  //     //   return;
-  //     // }
-  //     // const firstCompaignData = await getfirstCompaignData();
-
-  //     toast.success(DeletedCampaignData.message);
-  //     router.push("/dashboard/");
-
-  //   } catch (error) {
-  //     toast.error("Something went wrong while deleting the campaign");
-  //   } finally {
-  //     stopLoading();
-  //   }
-  // };
-  
+ 
   const handleCompaignArchived = async (campaignId: string,topRankData:any, status:any) => {
     setOpenArchive(false);
     startLoading();
@@ -63,9 +38,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
 
       console.log(addedCampaignData, "addedCampaignDataIndata");
 
-      // const {setCampaignId} = useCampaignData()
 
-      // setCampaignId(addedCampaignData?.CompaignId as string)
 
       if (!addedCampaignData) {
         console.error("Failed to add Acrhived campaign:", addedCampaignData);
@@ -73,7 +46,6 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
         stopLoading();
         return;
       }
-      // const firstCompaignData = await getfirstCompaignData();
 
       router.push(`/dashboard/`);
       toast.success(addedCampaignData.message);

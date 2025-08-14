@@ -1,9 +1,7 @@
 import { FaGoogle } from "react-icons/fa";
 import { FaInfoCircle } from "react-icons/fa";
 import {  FaFilePdf } from "react-icons/fa6";
-// import { FaFileExcel } from "react-icons/fa";
-// import { FaCalendarAlt } from "react-icons/fa";
-// import { FaSync } from "react-icons/fa";
+
 
 export default function SearchConsoleHead() {
   return (
@@ -26,7 +24,7 @@ export default function SearchConsoleHead() {
         <div>
           <button
             className="  text-white font-semibold py-2 px-4 rounded" title="Whole Report"
-            // onClick={handleGeneratePDF}
+            
           >
            {/* <FaFilePdf className="text-red-600 text-3xl"/> */}
           </button>

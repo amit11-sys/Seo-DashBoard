@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   downloadExcelTwoSheets,
-  // type AnalyticsPayload,
 } from "@/lib/downloadExcel";
 import { FaFileExcel } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
@@ -17,10 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { useLoader } from "@/hooks/useLoader";
 
-// type Props = {
-//   analyticData: AnalyticsPayload; // must be { dateWise: [...], monthWise: [...] }
-//   filename?: string;
-// };
+
 
 export default function DownloadKeywordExcelBtn({
   // analyticData,

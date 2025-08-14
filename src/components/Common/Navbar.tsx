@@ -15,21 +15,16 @@ import { getfirstCompaignData } from "@/actions/keywordTracking";
 import { useCampaignData } from "@/app/context/CampaignContext";
 
 type Props = {
-  // setIsCollapsed: (isCollapsed: boolean) => void;
-  // isCollapsed: boolean;
+  
   campaignId?: string
 };
 
 export default  function Navbar({campaignId}: Props) {
-  // const handleToggle = () => {
-  //   setIsCollapsed(!isCollapsed);
-  // };
+
   const [FirstCompaign, setFirstCompaign] = useState("");
   
   const router = useRouter();
-  //  const { campaignId } = useCampaignData();
-  //  const archivedCampaignData = await getArchivedCampaign(campaignId);
-
+  
   const onLogout = async () => {
     const logout = await logoutUser();
     if (logout) {
@@ -68,7 +63,6 @@ export default  function Navbar({campaignId}: Props) {
                   </>
                 </button>
                 <div
-                  // className="flex flex-shrink-0 items-center transition-all duration-200 transform hover:scale-105 hover:from-[#d65d2d] cursor-pointer hover:to-[#FE7743] bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white py-4 px-4 rounded-full bg-[#335488]">
 
                   className="flex  items-center  text-white text-3xl transition-all duration-200 transform hover:scale-105 "
                 >

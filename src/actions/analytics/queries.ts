@@ -8,16 +8,7 @@ export const fetchLievKeyword = async (url: string) => {
     target: url,
     language_name: "English",
     location_code: 2840,
-    // filters: [
-    //   ["keyword_data.keyword_info.search_volume", "<>", 0],
-    //   "and",
-    //   [
-    //     ["ranked_serp_element.serp_item.type", "<>", "paid"],
-    //     "or",
-    //     ["ranked_serp_element.serp_item.is_paid", "=", false],
-    //   ],
-    // ],
-    // limit: 3,
+   
   });
 
   try {
@@ -81,31 +72,25 @@ function findMatchingAccounts(
   nameMatch: string
 ): AccountItem[] {
   const normalizedMatch = normalizeString(nameMatch);
-  // console.log(normalizedMatch, "normalizedMatch");
 
   return data.filter((item) =>
     normalizeString(item.displayName).includes(normalizedMatch)
   );
 }
 function refineUrl(url: string): string {
-  // Remove protocol and "www."
   let clean = url.replace(/^https?:\/\//, "").replace(/^www\./, "");
 
-  // Take only the first part before the first dot
   return clean.split(".")[0];
 }
 
 const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
-// const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
 
 export async function googleAnalyticsAccountID(
   access_token: string,
   nameMatch: string
 ) {
   try {
-    // const payload = { startDate, endDate, dimensions };
-    // console.log(nameMatch, "nameMatch in googleAnalyticsAccountID");
-    // console.log(access_token, "access_token in googleAnalyticsAccountID");
+   
     const res = await fetch(
   
       `${process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}accounts`,
@@ -118,7 +103,6 @@ export async function googleAnalyticsAccountID(
       }
     );
 
-    // console.table({ access_token, nameMatch });
     const AccountIdData: any = await res.json();
 
     const accountsData: SimplifiedAccount[] = AccountIdData?.accounts?.map(
@@ -129,13 +113,10 @@ export async function googleAnalyticsAccountID(
       })
     );
 
-    // console.log(accountsData, "accountsData");
     const nameMatchRefined = refineUrl(nameMatch);
-    // console.log(nameMatchRefined, "nameMatchRefined");
 
     const matchForAcountId = findMatchingAccounts(accountsData, nameMatchRefined);
 
-    // console.log(matchForAcountId, "matchForAcountId");
 
     const accountId = matchForAcountId[0]?.accountId;
     const accountName = matchForAcountId[0]?.displayName;
@@ -156,7 +137,6 @@ interface PropertiesResponse {
   properties?: Property[];
 }
 
-// Function to fetch GA4 properties for an account
 
 type Property = {
   name: string;
@@ -169,7 +149,6 @@ function findMatchingProperty(
   accountId: string,
   nameMatch: string
 ): Property[] {
-  // Split into individual words (ignoring spaces and case)
   const words = nameMatch
     .trim()
     .toLowerCase()
@@ -181,98 +160,13 @@ function findMatchingProperty(
 
     return (
       property.parent.endsWith(accountId) &&
-      // Every word must be included in the display name
       words.every((word) => normalizedDisplayName.includes(word))
     );
   });
 }
 
 
-// export async function googleAnalyticsPropertyID(
-//   accountId: string,
-//   accessToken: string,
-//   nameMatch: string
-// ): Promise<Property[]> {
-//   console.log(accountId,"accountId in googleAnalyticsPropertyID");
-//   console.log(accessToken,"accessToken in googleAnalyticsPropertyID");
-//   console.log(nameMatch,"nameMatch in googleAnalyticsPropertyID");
-//   try {
-//     // Validate inputs
-//     if (!accountId || !accessToken) {
-//       throw new Error("Account ID and access token are required");
-//     }
 
-//     // Log inputs for debugging (optional)
-//     // console.table({ accessToken, accountId });
-
-//     // Construct the API URL with filter for properties under the account
-//     const url = new URL(
-//  
-//     );
-//     url.searchParams.append("filter", `parent:accounts/${accountId}`);
-
-//     // Make the API request
-//     const response = await fetch(url.toString(), {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     // Check for HTTP errors
-//     if (!response.ok) {
-//       const errorText = await response.text();
-//       throw new Error(
-//         `API call failed with status ${response.status}: ${errorText}`
-//       );
-//     }
-
-//     // Parse the response
-//     const data: any = await response.json();
-
-//     // Validate response structure
-//     if (!data.properties || !Array.isArray(data.properties)) {
-//       console.warn("No properties found or invalid response structure:", data);
-//       return [];
-//     }
-
-//     // Map properties to a simplified format
-//     const properties: Property[] = data.properties.map((prop: any) => ({
-//       name: prop.name,
-//       displayName: prop.displayName,
-//       parent: prop.parent,
-//     }));
-
-//     console.log(properties,"propertiesId");//[
-// //   {
-// //     name: 'properties/424145640',
-// //     displayName: 'SEO Quartz',
-// //     parent: 'accounts/299633390'
-// //   },
-// //   {
-// //     name: 'properties/468876035',
-// //     displayName: 'Health Connect Daily',
-// //     parent: 'accounts/299633390'
-// //   }
-// // ] consoleLog propertiesId
-
-
-
-// //match displayname with nameMatch
-   
-
-
- 
-
-//     return propertiesDataID;
-//   } catch (error: unknown) {
-//     const errorMessage =
-//       error instanceof Error ? error.message : "Unknown error occurred";
-//     console.error("googleAnalyticsPropertyID error:", errorMessage);
-//     return []; // Return null to indicate failure
-//   }
-// }
 
 export async function googleAnalyticsPropertyID(
   accountId: string,
@@ -349,161 +243,17 @@ const propertiesDataID = properties[0]?.name ?? "";
 }
 
 
-// export async function AnalyticsData(access_token: string, propertyId: string) {
-//   //   function extractPropertyId(rawpropertiesID: string): string {
-//   //   return rawpropertiesID.replace('properties/', '');
-//   // }
 
-//   // const propertyId = 424145640;
-//   // const propertyId = extractPropertyId(rawpropertiesID);
-
-//   try {
-//     // const requestBody = {
-//     //   dateRanges: [
-//     //     {
-//     //       startDate: "30daysAgo",
-//     //       endDate: "today",
-//     //     },
-//     //   ],
-//     //   dimensions: [
-//     //     { name: "country" },
-//     //     // { name: "pageTitle" },
-//     //     // { name: "sessionDefaultChannelGrouping" },
-//     //   ],
-//     //   metrics: [
-//     //     { name: "activeUsers" },
-//     //     // { name: "newUsers" },
-//     //     // { name: "averageSessionDuration" }, // Average engagement time (in seconds)
-//     //     // { name: "userEngagementDuration" },
-//     //     // { name: "eventsPerSession" }, // Events per session
-//     //     // { name: "engagementRate" }, // Engagement rate
-//     //     // { name: "eventCount" }, // Event count
-//     //     // { name: "totalRevenue" },
-//     //   ],
-//     // };
-
-
-//     const getUserPayload = {
-//       dateRanges: [
-//         {
-//           startDate: "30daysAgo",
-//           endDate: "today",
-//         },
-//       ],
-//       dimensions: [
-//         // { name: "country" },
-//         // { name: "pageTitle" },
-//         { name: "sessionDefaultChannelGrouping" },
-//       ],
-//       metrics: [
-//         // { name: 'screenPageViews' }, // Page views
-//         { name: 'sessions' }, // Total sessions
-//         // metrics: [
-//         { name: 'activeUsers' }, // Active users
-//         { name: 'newUsers' }, // New users
-//         { name: 'averageSessionDuration' }, // Average engagement time (in seconds)
-//         { name: 'userEngagementDuration' }, // Total engagement time (in seconds)
-//       ],
-//     };
-//     const countryPayload = {
-//       dateRanges: [
-//         {
-//           startDate: "30daysAgo",
-//           endDate: "today",
-//         },
-//       ],
-//       dimensions: [
-//         { name: "country" },
-//         // { name: "pageTitle" },
-//         // { name: "sessionDefaultChannelGrouping" },
-//       ],
-//       metrics: [
-//         { name: "activeUsers" },
-//         // { name: "newUsers" },
-//         // { name: "averageSessionDuration" }, // Average engagement time (in seconds)
-//         // { name: "userEngagementDuration" },
-//         // { name: "eventsPerSession" }, // Events per session
-//         // { name: "engagementRate" }, // Engagement rate
-//         // { name: "eventCount" }, // Event count
-//         // { name: "totalRevenue" },
-//       ],
-//     };
-//     const pageTitlePayload = {
-//       dateRanges: [
-//         {
-//           startDate: "30daysAgo",
-//           endDate: "today",
-//         },
-//       ],
-//       dimensions: [
-//         // { name: "country" },
-//         { name: "pageTitle" },
-//         // { name: "sessionDefaultChannelGrouping" },
-//       ],
-//       metrics: [
-//         { name: "activeUsers" },
-//         // { name: "newUsers" },
-//         // { name: "averageSessionDuration" }, // Average engagement time (in seconds)
-//         // { name: "userEngagementDuration" },
-//         // { name: "eventsPerSession" }, // Events per session
-//         // { name: "engagementRate" }, // Engagement rate
-//         // { name: "eventCount" }, // Event count
-//         // { name: "totalRevenue" },
-//       ],
-//     };
-//     const keyDataPayload = {
-//       dateRanges: [
-//         {
-//           startDate: "30daysAgo",
-//           endDate: "today",
-//         },
-//       ],
-//       dimensions: [
-//         { name: 'sessionDefaultChannelGrouping' }, // Traffic source (organic search, paid search, etc.)
-//       ],
-//       metrics: [
-//         { name: 'activeUsers' }, // Users
-//         { name: 'sessions' }, // Sessions
-//         { name: 'engagedSessions' }, // Engaged sessions
-//         { name: 'averageSessionDuration' }, // Average engagement time (in seconds)
-//         // { name: 'engagedSessionsPerUser' }, // Engaged sessions per user
-//         { name: 'eventsPerSession' }, // Events per session
-//         { name: 'engagementRate' }, // Engagement rate
-//         { name: 'eventCount' }, // Event count
-//         { name: 'totalRevenue' }, // Total revenue
-//       ],
-//     };
-
-//     const response = await fetch(
-//        `${process.env.NEXT_PUBLIC_ANALYTICS_DATA}properties/${propertyId}:runReport`,
-//       {
-//         method: "POST",
-//         headers: {
-//           Authorization: `Bearer ${access_token}`,
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(getUserPayload),
-//       }
-//     );
-
-//     if (!response.ok) {
-//       const errorData = await response.json();
-//       console.error("Error response:", errorData);
-//       throw new Error(`HTTP error! status: ${response.status}`);
-//     }
-
-//     const report = await response.json();
-//     return report;
-//   } catch (error: any) {
-//     console.error("Error fetching analytics data:", error?.message ?? error);
-//   }
-// }
 
 
 
 export async function AnalyticsData(access_token: string, propertyId: string) {
 
-  // if(propertyId === null || propertyId === undefined) return null;
+ 
+  if (!access_token || !propertyId) {
+    throw new Error("Access token and property ID are required");
+   
+  }
   const baseUrl =  `${process.env.NEXT_PUBLIC_ANALYTICS_DATA}properties/${propertyId}:runReport`;
 
   // Define all the payloads to loop through

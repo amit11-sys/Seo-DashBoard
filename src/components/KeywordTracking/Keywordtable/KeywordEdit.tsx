@@ -34,19 +34,7 @@ import {
   getlanguageData,
 } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
-// import {editKeywordsSchema} from "@/lib/zod"
 
-// const editKeywordsSchema = z.object({
-//   url: z.string().url("Invalid URL"),
-//   keywordTag: z.string().optional(),
-//   searchLocationCode: z.number().min(1, "Location is required"),
-//   volumeLocationCode: z.number().min(1, "Location is required"),
-//   language: z.string().min(1, "Language is required"),
-//   SearchEngine: z.string().min(1, "Search engine is required"),
-//   serpType: z.string().optional(),
-//   deviceType: z.string().min(1, "Device type is required"),
-//   keywords: z.string().min(1, "Enter at least one keyword"),
-// });
 const editKeywordsSchema = z.object({
   url: z.string().url({ message: "Please enter a valid URL" }),
   searchLocationCode: z
@@ -180,30 +168,7 @@ const EditKeywords = ({
     }
   }, [defaultData, form]);
 
-  // const editclick = async () => {
-
-  // };
-
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (
-  //     (e.key === "Enter" || e.key === "," || e.key === " ") &&
-  //     tagsInput.trim()
-  //   ) {
-  //     e.preventDefault();
-  //     const trimmed = tagsInput.trim();
-  //     if (!keywords.includes(trimmed)) {
-  //       setKeywords((prev) => [...prev, trimmed]);
-  //     }
-  //     setTagsInput("");
-  //   } else if (e.key === "Backspace" && !tagsInput && keywords.length) {
-  //     setKeywords((prev) => prev.slice(0, -1));
-  //   }
-  // };
-
-  // const removeKeyword = (index: number) => {
-  //   setKeywords((prev) => prev.filter((_, i) => i !== index));
-  // };
-
+  
   const onSubmit = async () => {
     const keywordInput = form.getValues("keywords");
     console.log("okokoko", form.getValues());
@@ -268,9 +233,7 @@ const EditKeywords = ({
       }
       setTableBody(data);
       if (!Response) throw new Error("Update failed");
-      // console.log(Response.tracking,"tracking");
 
-      // await addEditkeywordsData(Response.tracking);
 
       await showAddedKeyword(Response.tracking);
 
@@ -450,24 +413,7 @@ const EditKeywords = ({
                   />
                 )}
               />
-              {/* <Controller
-                  name="searchLocationCode"
-                  control={form.control}
-                  render={({ field }) => (
-                    <DropDownList
-                      listData={countries}
-                      icon={
-                        <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                      }
-                      listName="Search Location"
-                      value={field.value}
-                      onChange={(selected:any) => field.onChange(selected?.value)}
-                      errorMessage={
-                        form.formState.errors.searchLocationCode?.message
-                      }
-                    />
-                  )}
-                /> */}
+            
               <div className="relative">
                 <Controller
                   name="searchLocationCode"
@@ -514,23 +460,7 @@ const EditKeywords = ({
                   {form.formState.errors.searchLocationCode?.message}
                 </div>
               </div>
-              {/* <Controller
-                  name="volumeLocationCode"
-                  control={form.control}
-                  render={({ field }) => (
-                    <DropDownList
-                      listData={countries}
-                      icon={
-                        <MdOutlineLocationOn className="text-blue-500 text-xl" />
-                      }
-                      listName="Volume Location"
-                      value={field.value}
-                      onChange={(selected: any) =>
-                        field.onChange(selected?.value)
-                      }
-                    />
-                  )}
-                /> */}
+            
               <div className="relative">
                 <Controller
                   name="volumeLocationCode"

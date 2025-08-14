@@ -50,14 +50,7 @@ const state = url.searchParams.get("state")?.toString();
     const currentCampaignIdData = await getCurrentCampaignIdData(stateData.campaignId);
     const projectUrl= currentCampaignIdData?.CurrentCampaignIdData?.projectUrl
       console.log(currentCampaignIdData,"inRouter")
-    // const accountIDdata = await getGoogleAnalyticsAccountID(tokenResult?.access_token);
-    
-    // console.log(accountIDdata,"accountIDdata in googleLogin");
-
-    // const propertyIDdata = await getGoogleAnalyticsPropertyID(accountIDdata?.webProperties[0].id, tokenResult?.access_token);
-    // console.log(propertyIDdata,"propertyIDdata in googleLogin");
-    // You can store tokens in db or session here
-
+   
       if (stateData?.analyticsData === true) {
       await setPropertyIdForDB(stateData.campaignId, tokenResult, projectUrl);
       await getDbCompaignDataUpdate(stateData.campaignId, tokenResult);
@@ -65,10 +58,6 @@ const state = url.searchParams.get("state")?.toString();
     if (stateData?.consoleData === true) {
       await getDbCompaignDataUpdate(stateData.campaignId, tokenResult);
     }
-
-
-
-    // Redirect to dashboard or success page 
 
 
     return NextResponse.redirect(new URL(`/dashboard/${stateData.campaignId}`, req.url));

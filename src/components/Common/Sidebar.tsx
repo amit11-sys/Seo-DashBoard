@@ -82,12 +82,7 @@ const Sidebar = ({ isCollapsed, activeCampignData,archivedCampaignData }: Sideba
           },
         ]}
       />
-      {/* <Separator />
-      {!isCollapsed && (
-        <h4 className="mt-3 px-4 text-base font-semibold tracking-tight">
-          Discover
-        </h4>
-      )} */}
+     
     </>
   );
 };

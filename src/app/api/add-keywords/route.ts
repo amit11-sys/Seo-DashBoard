@@ -1,4 +1,3 @@
-// src/app/api/create-keywords/route.ts
 import { NextResponse } from "next/server";
 import { createNewkeywords } from "@/actions/addKeywords";
 import { revalidatePath } from "next/cache";
@@ -13,7 +12,6 @@ export async function POST(req: Request) {
 
     
     if (campaignId) {
-      // revalidatePath(`/dashboard/`);
       revalidatePath(`/dashboard/${campaignId}`);
     }
     return NextResponse.json(result);

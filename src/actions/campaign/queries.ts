@@ -174,50 +174,7 @@ export const CampaignStatus1 = async () => {
 };
 
 
-// export const deleteCampaign = async (CompaignId: string) => {
-//   try {
-//     await connectToDB();
 
-//     const user = await getUserFromToken();
-//     if (!user) {
-//       return { error: "Unauthorized" };
-//     }
-//     console.log(CompaignId, "CompaignId delete");
-
-//     const compaignDataDelete = await Campaign.findByIdAndUpdate({_id:CompaignId}, {
-//       status: 2,
-//     });
-
-//     // const KeywordTrackingDataDelete = await KeywordTracking.findOne(
-//     //   { campaignId: CompaignId },
-//     //   { status: 2 }
-//     // );
-
-//     // const KeywordDataDelete = await Keyword.findOne(
-//     //   { CampaignId: CompaignId },
-//     //   { status: 2 }
-//     // );
-
-    
-
-//     if (!CompaignId) {
-//       return { error: " Not Find Id Error while deleting campaign" };
-//     }
-//     // if (campaign) {
-//     return {
-//       success: true,
-//       message: "Campaign Successfully Deleted",
-//       compaignDataDelete,
-//       // KeywordTrackingDataDelete,
-//       // KeywordDataDelete,
-//     };
-//     // }
-//   } catch (error) {
-//     console.log(error);
-
-//     return { error: "Internal Server Error." };
-//   }
-// };
 export const archivedCampaign = async () => {
   try {
     await connectToDB();
@@ -256,54 +213,6 @@ export const archivedCampaign = async () => {
     return { error: "Internal Server Error." };
   }
 };
-// export const ArchivedCampaignCreate = async (CompaignId: string,topRankData:any) => {
-//   try {
-//     await connectToDB();
-
-//     const user = await getUserFromToken();
-//     if (!user) {
-//       return { error: "Unauthorized" };
-//     }
-//     console.log(topRankData, "topRankData in server");
-
-    
-
-//     const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
-//       { _id: CompaignId},
-//       { status: 2 }
-//     );
-
-    
-//     const addedCompignData =await KeywordTracking.findOneAndUpdate(
-//       { campaignId: CompaignId },
-//       {topRankData}
-     
-//     )
-
-//     console.log(addedCompignData,"addedCompignData ok");
-   
-
-    
-
-//     if (!CompaignId) {
-//       return { error: " Not Find data Error while Arching campaign" };
-//     }
-//     // if (campaign) {
-//     return {
-//       success: true,
-//       message: "Archived Campaign Successfully Added",
-//       // compaignDataDelete,
-//       KeywordTrackingDataArchied,
-//       // KeywordDataDelete,
-//     };
-//     // }
-//   } catch (error) {
-//     console.log(error);
-
-//     return { error: "Internal Server Error." };
-//   }
-// };
-
 export const ArchivedCampaignCreate = async (CompaignId: string,status:number, topRankData?: any ) => {
   try {
     await connectToDB();
@@ -592,29 +501,23 @@ export const propertyIdForDB = async (campaignId:string,tokenResult:{},nameMatch
       return { error: "Unauthorized" }
     }
 
-    // console.log(campaignId,"campaignId in propertyId");
-    // console.log(tokenResult,"tokenResult in propertyId");
-    // console.log(nameMatch,"campaignData in propertyId");
+   
 
     const {
       access_token,
     } = tokenResult as GoogleTokenResult;
    
 const acoountNameforMatch = extractDomain(nameMatch);
-// console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
      const data = await googleAnalyticsAccountID(
       access_token,
       acoountNameforMatch ?? ""
     );
 
-    // console.log(data,"data in propertyId");
     const accountId = Array.isArray(data) ? data[0]?.accountId : data?.accountId ?? "";
         console.log(accountId,"accountId in propertyId");
 
-        // const location = await fetchLocations(access_token);
 
 
-        // console.log(location,"locaion in propertyId");
 
 
 
@@ -624,7 +527,6 @@ const acoountNameforMatch = extractDomain(nameMatch);
       acoountNameforMatch ?? ""
     );
 
-    // console.log(propertiesID,"propertiesID in propertyId");
 
 
 //  const propertyId = propertiesID[0]?.name ?? "";
@@ -632,7 +534,6 @@ const propertyId = propertiesID.split("/")[1];
 
 
 
-// console.log(propertyId,"proepertyId in propertyId");
 
 const campaignDataWithPropertyIdData = await Campaign.findByIdAndUpdate(
 {_id : campaignId},

@@ -9,7 +9,3 @@ interface campaignId {
 CampaignId:string
 
 }
-// export const getKeywordLiveData=async (CampaignId:string)=>{
-//   const NewgetLiveData= await getLiveData(CampaignId)
-//   return NewgetLiveData
-// }

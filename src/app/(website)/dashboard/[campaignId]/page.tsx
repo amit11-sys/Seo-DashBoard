@@ -1,81 +1,58 @@
 "use server";
-import {
-  getDbLiveKeywordData,
-} from "@/actions/keywordTracking";
+import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 import Navbar from "@/components/Common/Navbar";
-// import { getKeywordLiveData } from "@/actions/liveKeywords";
 import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
-// import { getLocation_languageData } from "@/actions/locations_Language";
-import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
-import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
-import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
+
 import ClientDashboard from "@/components/ClientDashboard"; // client component
 import { getCurrentCampaignIdData } from "@/actions/campaign";
 
-import APIKeyword from "@/lib/KeywordApi.json";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 export default async function DashboardDetails({
   params,
 }: {
-  // params: Promise<{ campaignId: string }>;
   params: { campaignId: string };
 }) {
   const { campaignId } = await params;
   const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
-  // console.log(campaignLiveKeywordsData.topRankData,"campaignLiveKeywordsData");
-  const campignDataWithId = await getGetCampaignByid(campaignId)
+  const campignDataWithId = await getGetCampaignByid(campaignId);
 
-  const campaignStatus = campignDataWithId?.campaign?.status
+  const campaignStatus = campignDataWithId?.campaign?.status;
 
+  console.log(campaignStatus, "campaignStatus");
 
-  console.log(campaignStatus,"campaignStatus");
+  const CurrentCampaignData = await getCurrentCampaignIdData(campaignId);
 
-
-    const CurrentCampaignData = await getCurrentCampaignIdData(campaignId);
-
-
- 
-
-
-  // const location_and_language = await getLocation_languageData();
-  // console.log(campaignLiveKeywordsData.topRankData,"campaignLiveKeywordsData");
-
-  // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData in page");
   const archivedCampaignData = await getArchivedCampaign();
-  // const getrankingData = (cardData:{}) =>{
-
-  //   return(cardData);
-  // }
-
-
- 
 
   return (
-    
-  <section className="relative h-screen flex flex-col overflow-hidden">
-     
+    <section className="relative h-screen flex flex-col overflow-hidden">
       <div className="fixed top-0 left-0 right-0 z-50">
         {/* <Header /> */}
-       <Navbar campaignId={campaignId as string}/>
-
+        <Navbar campaignId={campaignId as string} />
       </div>
 
-    
       <div className="flex flex-1 pt-[80px] overflow-hidden">
-       
         <aside className="w-[250px]   h-full fixed left-0 top-[20px] z-40">
-        <SidebarWrapper campaignId={campaignId as string} archivedCampaignData={archivedCampaignData?.KeywordTrackingDataArchied ?? []} />
+          <SidebarWrapper
+            campaignId={campaignId as string}
+            archivedCampaignData={
+              archivedCampaignData?.KeywordTrackingDataArchied ?? []
+            }
+          />
         </aside>
 
-     
         <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
           {/* <SearchAnalytics /> */}
-          <Header campaignStatus={campaignStatus} topRankData={campaignLiveKeywordsData.topRankData}  campaignId={campaignId} />
+          <Header
+            campaignStatus={campaignStatus}
+            topRankData={campaignLiveKeywordsData.topRankData}
+            campaignId={campaignId}
+          />
 
-           <ClientDashboard
-           campaignStatus={campaignStatus}
-          CurrentCampaignData={CurrentCampaignData}
+          <ClientDashboard
+            campaignStatus={campaignStatus}
+            CurrentCampaignData={CurrentCampaignData}
             campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}
           />

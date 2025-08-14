@@ -38,15 +38,12 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import KeywordTextArea from "../KeywordTextArea";
 import debounce from "lodash.debounce";
-// import { getLocationData } from "@/actions/locations_Language";
 import GoogleIntegrations from "../GoogleConsole/googleIntegration";
 
 import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
 import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
 import { log } from "console";
-// import GoogleSignIn from "../GoogleConsole/GoogleIntegration/GoogleSignIn";
 
-// import { getTrackingData } from "@/actions/keywordTracking";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 interface LocationAndLanguageType {
@@ -64,30 +61,11 @@ export function CampaignTabs() {
     const [showIntegrationDialog, setShowIntegrationDialog] = useState(false);
 const [createdCampaignId, setCreatedCampaignId] = useState<string >("");
   
-  // const [searchText, setSearchText] = useState("");
-  // const [locations, setLocations] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
   const router = useRouter();
 
-  function CountrySelector() {}
-  const handleCountrySelect = (option: OptionType) => {
-    console.log("Selected country:", option);
-  };
+ 
 
-  //  const [query, setQuery] = useState('');
-  // const [results, setResults] = useState<any>([]);
-  // const [isPending, startTransition] = useTransition();
-
-  // const debouncedFetch = debounce((q: string) => {
-  //   startTransition(() => {
-  //     getfetchDBLocation(q).then(setResults).catch(console.error);
-  //   });
-  // }, 300);
-
-  // useEffect(() => {
-  //   if (query.trim().length > 1) debouncedFetch(query);
-  //   return () => debouncedFetch.cancel();
-  // }, [query]);
 
   const [query, setQuery] = useState("");
   const [volumnQuery, setVolumnQuery] = useState("");
@@ -173,44 +151,6 @@ fetchlanguage()
     []
   );
 
-  // const fetchCitiesByCountry = async (country: string) => {
-  //   if (!country) {
-  //     setVolumeLocationOptions([]);
-  //     return;
-  //   }
-  //   try {
-  //     const res = await fetch(
-  //       `${process.env.NEXT_PUBLIC_COUNTRIESNOW_URL}countries/cities`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ country }),
-  //       }
-  //     );
-
-  //     const data = await res.json();
-  //     // console.log();
-
-  //     if (data) {
-  //       // const stateData = data.data.states.map((state: any) => state?.name);
-  //       setVolumeLocationOptions(data.data);
-  //     } else {
-  //       setVolumeLocationOptions([]);
-  //       toast.error("No cities found for selected country.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching cities:", error);
-  //     toast.error("Failed to fetch cities.");
-  //   }
-  // };
-
-  // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
-  // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
-
-  // useEffect(() => {
-  //   setLanguage(location_and_language.allLanguages);
-  //   setLocation(location_and_language.allLocations);
-  // }, []);
 
   const onHandleVolumn = (countryCode: number) => {};
   const handleCampaignSubmit = async () => {
@@ -219,16 +159,7 @@ fetchlanguage()
 
     const isValid = await form.trigger(["name", "url"]);
 
-    // if (!isValid) {
-    //   if (form.formState.errors.keyword) {
-    //     toast.error(form.formState.errors.name.message || "Please provide Name.");
-    //   }
-    //   if (form.formState.errors.searchLocation) {
-    //     toast.error(form.formState.errors.url.message || "Please select a url.");
-    //   }
-
-    //   return;
-    // }
+   
 
     if (!isValid) return;
 
@@ -266,7 +197,6 @@ fetchlanguage()
 
       if (response?.success) {
         const campaign = await getUserCampaign();
-        // console.log(campaign, "from on submit");
         const campaignId = response.campaign._id;
 
             setCreatedCampaignId(campaignId); // Save for dashboard redirect

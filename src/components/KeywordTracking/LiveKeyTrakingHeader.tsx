@@ -40,7 +40,6 @@ const { loading, startLoading, stopLoading } = useLoader();
     stopLoading()
     toast.success(refreshedCampaign.message);
 
-    // setCampaignData(refreshedCampaign);
   } catch (error) {
     console.error("Error refreshing campaign:", error);
     toast.error("Something went wrong while refreshing the campaign");
@@ -49,16 +48,7 @@ const { loading, startLoading, stopLoading } = useLoader();
 
 
  const iconButtons = [
-    // {
-    //   icon: <FaFilePdf className="text-3xl" />,
-    //   color: "text-red-400",
-    //   onClick: () => {}, // No action for this
-    // },
-    // {
-    //   icon: <FcDataSheet className="text-3xl" />,
-    //   color: "text-green-600",
-    //   onClick: () => {}, // No action for this
-    // },
+   
     {
       icon: <HiRefresh className="text-3xl" />,
       color: "text-purple-500",

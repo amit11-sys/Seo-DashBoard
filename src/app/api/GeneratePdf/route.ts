@@ -50,12 +50,12 @@ export async function POST(req: NextRequest) {
 
   const pdfBuffer = await generatePDFWithTailwind(html);
 
-  return new NextResponse(pdfBuffer, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": "attachment; filename=report.pdf",
-    },
-  });
+// return new NextResponse(new Blob([pdfBuffer], { type: 'application/pdf' }), {
+//   status: 200,
+//   headers: {
+//     "Content-Type": "application/pdf",
+//     "Content-Disposition": "attachment; filename=report.pdf",
+//   },
+// });
 }
 

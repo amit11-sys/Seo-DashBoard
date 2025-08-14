@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
           title="Download PDF"
           className="flex items-center text-red-400 px-3 py-1.5 rounded transition"
         >
-         <FaFilePdf className="text-red-600 text-3xl"/>
+         {/* <FaFilePdf className="text-red-600 text-3xl"/> */}
         </button>
 
         {/* Dialog Trigger for archive */} 

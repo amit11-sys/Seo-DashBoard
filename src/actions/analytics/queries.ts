@@ -129,7 +129,7 @@ export async function googleAnalyticsAccountID(
       })
     );
 
-    console.log(accountsData, "accountsData");
+    // console.log(accountsData, "accountsData");
     const nameMatchRefined = refineUrl(nameMatch);
     // console.log(nameMatchRefined, "nameMatchRefined");
 
@@ -321,7 +321,7 @@ export async function googleAnalyticsPropertyID(
       displayName: prop.displayName,
       parent: prop.parent,
     }));
-      //  console.log(properties,"okkkidd");
+       console.log(properties,"okkkidd");
  const search = nameMatch.trim().toLowerCase();
 const propertiesDataID = properties[0]?.name ?? "";
 // {
@@ -503,8 +503,8 @@ const propertiesDataID = properties[0]?.name ?? "";
 
 export async function AnalyticsData(access_token: string, propertyId: string) {
 
-  if(propertyId === null || propertyId === undefined) return null;
-  const baseUrl =  `${process.env.NEXT_PUBLIC_ANALYTICS_DATA}/properties/${propertyId}:runReport`;
+  // if(propertyId === null || propertyId === undefined) return null;
+  const baseUrl =  `${process.env.NEXT_PUBLIC_ANALYTICS_DATA}properties/${propertyId}:runReport`;
 
   // Define all the payloads to loop through
   const payloads: { name: string; payload: any }[] = [
@@ -576,7 +576,7 @@ export async function AnalyticsData(access_token: string, propertyId: string) {
       results[name] = { error: error?.message ?? error };
     }
   }
-  // console.log(results, "resultsok");
+
 
   return results;
 }

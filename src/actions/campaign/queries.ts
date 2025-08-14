@@ -611,10 +611,10 @@ const acoountNameforMatch = extractDomain(nameMatch);
     const accountId = Array.isArray(data) ? data[0]?.accountId : data?.accountId ?? "";
         console.log(accountId,"accountId in propertyId");
 
-        const location = await fetchLocations(access_token);
+        // const location = await fetchLocations(access_token);
 
 
-        console.log(location,"locaion in propertyId");
+        // console.log(location,"locaion in propertyId");
 
 
 

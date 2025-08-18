@@ -15,28 +15,59 @@ import { toast } from "sonner";
 import { useLoader } from "@/hooks/useLoader";
 import Loader from "../global/Loader";
 import { useCampaignData } from "@/app/context/CampaignContext";
-import DownloadExcelBtn from "./DownloadKeywordExcelBtn";
+import DownloadKeywordExcelBtn from "@/components/KeywordTracking/DownloadKeywordExcelBtn";
+import { useEffect, useState } from "react";
+import { getDbLiveKeywordData, getTrackingData } from "@/actions/keywordTracking";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData} :any) {
-const { loading, startLoading, stopLoading } = useLoader();
+export default   function LiveKeyTrakingHeader( {sortedDataExel,setIsLoading,campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData} :any) {
+const {  startLoading, stopLoading } = useLoader();
+const [refreshData, setRefreshData] = useState("");
   
-const campaignStatus = compaigndata[0]?.status
+const campaignStatus = compaigndata[0]?.status || 1
+ 
+function formatLastUpdated(createdAt: string) {
+  const date = new Date(createdAt);
 
+  // Format absolute date like: Jun 19, 2025
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
+  const diffMs = Date.now() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
 
+  let timeAgo = "";
+  if (diffMins < 1) timeAgo = "just now";
+  else if (diffMins < 60) timeAgo = `${diffMins} min ago`;
+  else if (diffHours < 24) timeAgo = `${diffHours} hr ago`;
+  else timeAgo = `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+
+  return `Last Updated: ${timeAgo} (${formattedDate})`;
+}
  const handleRefreshCampaign = async () => {
   startLoading()
   try {
     const refreshedCampaign = await getRefreshCampaign(campaignId);
-
+    console.log(refreshedCampaign, "refreshedCampaign");
+    const lastUpdated = refreshedCampaign?.updatedRecords
+  ? formatLastUpdated(refreshedCampaign.updatedRecords[0]?.updatedAt || '')
+  : '';
     if (!refreshedCampaign || refreshedCampaign.error) {
       console.error("Failed to refresh campaign:", refreshedCampaign?.error);
       toast.error("Failed to refresh campaign");
       return;
     }
-
+    if (refreshedCampaign?.updatedRecords) {
+      
+      setRefreshData(lastUpdated);
+    }
+   
     stopLoading()
     toast.success(refreshedCampaign.message);
 
@@ -46,6 +77,36 @@ const campaignStatus = compaigndata[0]?.status
     toast.error("Something went wrong while refreshing the campaign");
   }
 };
+
+
+useEffect(() => {
+const fetchUpdatedDate = async () => {
+
+  try {
+    const refreshedCampaign = await getDbLiveKeywordData(campaignId);
+    console.log(refreshData, "refreshedCampaignok");
+    if (refreshedCampaign?.newLiveKeywordDbData) {
+      const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
+      setRefreshData(formatLastUpdated(lastUpdated));
+    } else {
+      setRefreshData("No updates available");
+    }
+  } catch (error) {
+    console.error("Error fetching campaign data:", error);
+    setRefreshData("Failed to fetch update time");
+  }
+
+
+
+}
+
+;
+fetchUpdatedDate();
+
+
+}, []);
+
+
 
 
  const iconButtons = [
@@ -79,9 +140,9 @@ const campaignStatus = compaigndata[0]?.status
           <h2  className="text-xl font-bold text-black">
              {campaignStatus === 2 ? "Archived Keywords" : "Live Keyword Tracking"}
           </h2>
-          {/* <p className="text-sm text-black">
-            Last Updated: 1 hour ago (Jun 19, 2025)
-          </p> */}
+          <p className="text-sm text-black">
+           {refreshData}
+          </p>
         </div>
       
       </div>
@@ -91,10 +152,10 @@ const campaignStatus = compaigndata[0]?.status
       
      
       {
-        campaignStatus === 2 ? <>  <DownloadExcelBtn tableHeader={tableHeader} tableData={tableData}/> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
+        campaignStatus === 2 ? <>  <DownloadKeywordExcelBtn tableHeader={tableHeader} tableData={tableData}/> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
        <DialogFrom updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword} campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
        {/* <button>Add Keyword</button> */}
-        <DownloadExcelBtn tableHeader={tableHeader} tableData={tableData}/>
+        <DownloadKeywordExcelBtn sortedDataExel={sortedDataExel} tableHeader={tableHeader} tableData={tableData}/>
         {iconButtons.map((item, idx) => (
           <div
             key={idx}

@@ -17,6 +17,7 @@ import KeywordTracking from "@/lib/models/keywordTracking.model";
 import Header from "../Common/Navbar";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { set } from "mongoose";
+import DeleteConfirm from "./Keywordtable/KeywordDel";
 
 type Tableitems = {
   key: string;
@@ -73,6 +74,7 @@ interface LiveKeywordComponentProps {
     };
   };
   campaignId: string;
+  campaignStatus?: number
 }
 
 interface HeaderProps {
@@ -91,71 +93,65 @@ interface HeaderProps {
 const LiveKeywordComponent = ({
   campaignLiveKeywordsData,
   campaignId,
+  // campaignStatus
+
+  
 }: LiveKeywordComponentProps) => {
   const [tableBody, setTableBody] = useState<any[]>([]);
-  const [cardCounts, setCardCounts] = useState<any  >([]);
+  const [cardCounts, setCardCounts] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
   const [totalKeywords, setTotalKeywords] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [sortedDataExel, setSortedDataForExel] = useState<TablebodyItems[]>([]);
+
   console.log(cardCounts, "cardCounts");
   const { setActiveSingleCampaign } = useCampaignData();
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+const setExelData = (data:any) => {
+setSortedDataForExel(data);
 
-
+}
   useEffect(() => {
     const fetchDBLiveDatagain = async () => {
-      
       const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
 
+      if (campaignLiveKeywordsData.newLiveKeywordDbData) {
+        const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
+        const topRankData = campaignLiveKeywordsData?.topRankData;
 
-       if (campaignLiveKeywordsData.newLiveKeywordDbData) {
-      const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
-      const topRankData = campaignLiveKeywordsData?.topRankData;
+        const data = rawData.map((item: any) => {
+          return {
+            keyword: item?.keyword || "",
+            keywordId: item.keywordId,
+            location: item?.location_name?.locationName?.locationName || "",
+            intent: item?.intent || "",
+            start: item?.start || 0,
+            checkUrl: item?.CheckUrl || "",
+            page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+            Absolute_Rank: item?.rank_absolute || 0,
+            Group_Rank: item?.rank_group || 0,
+            sevenDays: "-",
+            life: item?.rank_absolute || 0,
+            comp: item?.competition || 0,
+            sv: item?.searchVolumn || 0,
+            date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "2-digit",
+            }),
+            rankingUrl: item?.url || "",
+          };
+        });
 
-      const data = rawData.map((item: any) => {
-        // const rankGroup = item?.rank_group || 0;
+        console.log(topRankData, "topRankDataok");
 
-        // if (rankGroup > 0 && rankGroup <= 3) top3++;
-        // if (rankGroup > 0 && rankGroup <= 10) top10++;
-        // if (rankGroup > 0 && rankGroup <= 20) top20++;
-        // if (rankGroup > 0 && rankGroup <= 30) top30++;
-        // if (rankGroup > 0 && rankGroup <= 100) top100++;
-
-        return {
-          keyword: item?.keyword || "",
-          keywordId: item.keywordId,
-          location: item?.location_name?.locationName?.locationName || "",
-          intent: item?.intent || "",
-          start: item?.start || 0,
-          checkUrl : item?.CheckUrl || "",
-          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-          Absolute_Rank: item?.rank_absolute || 0,
-          Group_Rank: item?.rank_group || 0,
-          sevenDays: "-",
-          life: item?.rank_absolute || 0,
-          comp: item?.competition || 0,
-          sv: item?.searchVolumn || 0,
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item?.url || "",
-        };
-      });
-
-
-       console.log(topRankData, "topRankDataok");
-
-      
-      if (topRankData) {
-        setCardCounts(topRankData);
+        if (topRankData) {
+          setCardCounts(topRankData);
+        }
       }
-    }
-
-
-    }
-    fetchDBLiveDatagain()
-  },[tableBody])
+    };
+    fetchDBLiveDatagain();
+  }, [tableBody]);
 
   const compaigndata = campaignLiveKeywordsData?.newLiveKeywordDbData?.map(
     (item: any) => {
@@ -178,8 +174,8 @@ const LiveKeywordComponent = ({
     },
 
     {
-      key: "Group-Rank",
-      label: "G-Rank",
+      key: "Group_Rank",
+      label: "Group_Rank",
       icon: <FcGoogle className="inline mr-1" />,
     },
     // { key: "one_day", label: "1 Day" },
@@ -201,40 +197,10 @@ const LiveKeywordComponent = ({
       keywordTableData();
     }
   }, [campaignLiveKeywordsData]);
-  // console.log(campaignLiveKeywordsData, "use effect data");
 
-  // const keywordTableData = async () => {
-  //   if (campaignLiveKeywordsData.newLiveKeywordDbData) {
-  //     const data = campaignLiveKeywordsData.newLiveKeywordDbData.map(
-  //       (item: any) => ({
-  //         keyword: item?.keyword || "",
-  //         keywordId: item.keywordId,
-  //         location: item?.location_name?.locationName?.locationName || "",
-  //         intent: item?.intent || "",
-  //         start: item?.start || 0,
-  //         page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-  //         Absolute_Rank: item?.rank_absolute || 0,
-  //         Group_Rank: item?.rank_group || 0,
-  //         // oneDay: "1",
-  //         sevenDays: "-",
-  //         // thirtyDays: "-",
-  //         life: item?.rank_absolute || 0,
-  //         comp: item?.competition || 0,
-  //         sv: item?.searchVolumn || 0,
-  //         date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-  //           day: "2-digit",
-  //           month: "short",
-  //           year: "2-digit",
-  //         }),
-  //         rankingUrl: item?.url || "",
-  //       })
-  //     );
-  //     setTableBody(data);
-  //   }
-  // };
-  const keywordTableData =  () => {
-    console.log('calling fn');
-    
+  const keywordTableData = () => {
+    console.log("calling fn");
+
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
       const topRankData = campaignLiveKeywordsData?.topRankData?.data;
@@ -271,8 +237,7 @@ const LiveKeywordComponent = ({
         };
       });
 
-
-       console.log(topRankData, "topRankDataok");
+      console.log(topRankData, "topRankDataok");
 
       setTableBody(data);
       if (topRankData) {
@@ -316,47 +281,11 @@ const LiveKeywordComponent = ({
 
       setTableBody((prev) => [...prev, ...mappedItems]);
     }
-   
   };
   const updatedTopRankOnAddedKeyword = () => {
     console.log("run updatedTopRankOnAddedKeyword");
- keywordTableData()
-  }
-
-  // const showAddedKeyword = async (newItem: any) => {
-  //   // console.log(newItem, "showadded ok hai");
-  //   const trackingKeyword = await getDbLiveKeywordData(campaignId);
-
-  //   // if (trackingKeyword && trackingKeyword?.newLiveKeywordDbData?.length > 0) {
-
-  //   const mappedItems =
-  //     trackingKeyword?.newLiveKeywordDbData?.map((item: any) => {
-  //       console.log(item, "new added dataa");
-  //       return {
-  //         keyword: item.keyword,
-  //         location: item?.location_name?.locationName?.locationName,
-  //         intent: item.intent || "",
-  //         start: String(item.start),
-  //         page: Math.ceil(item.rank_absolute / 10).toString(),
-  //         Absolute_Rank: String(item.rank_absolute),
-  //         Group_Rank: String(item.rank_group),
-  //         sevenDays: "-",
-  //         life: String(item.rank_absolute),
-  //         comp: item.competition || 0,
-  //         sv: item.searchVolumn || 0,
-  //         date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-  //           day: "2-digit",
-  //           month: "short",
-  //           year: "2-digit",
-  //         }),
-  //         rankingUrl: item.url,
-  //       };
-  //     }) ?? [];
-
-  //   setTableBody((prev) => [...prev, ...mappedItems]);
-
-  //   // }
-  // };
+    keywordTableData();
+  };
 
   const cardData = {
     title: "keywords",
@@ -408,6 +337,9 @@ const LiveKeywordComponent = ({
       {/* Header */}
       <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
+        sortedDataExel={sortedDataExel}
+        setIsLoading={setIsLoading}
+          // campaignStatus={campaignStatus}
           tableHeader={tableHeader}
           tableData={tableBody}
           updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
@@ -419,8 +351,6 @@ const LiveKeywordComponent = ({
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">
         <div className="flex justify-evenly items-center gap-5 w-full">
           {cardData?.data?.map((item: any) => {
-              
-              
             return (
               <div key={item.id}>
                 <CustomTrackingCard
@@ -432,13 +362,6 @@ const LiveKeywordComponent = ({
               </div>
             );
           })}
-
-          
-
-
-
-
-
         </div>
         {/* <div className="w-[60%]">
         <TrackingChart/>
@@ -447,13 +370,17 @@ const LiveKeywordComponent = ({
 
       {/* Filter & Table Section */}
       <div className="rounded-xl p-6 ">
+      
+
         <CustomTable
+          setExelData={setExelData}
           tableHeader={tableHeader}
+          setSortedDataForExel={setSortedDataForExel}
           tableData={tableBody}
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
           setTableBody={setTableBody}
-        />
+        /> 
       </div>
     </div>
   );

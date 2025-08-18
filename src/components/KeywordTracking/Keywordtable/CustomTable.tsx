@@ -7,6 +7,13 @@ import DeleteConfirm from "./KeywordDel";
 import { getTrackingData, updateStartDB } from "@/actions/keywordTracking";
 import { SearchIcon } from "lucide-react";
 import { useLoader } from "@/hooks/useLoader";
+import { Button } from "@/components/ui/button";
+import { LuArrowUpDown } from "react-icons/lu";
+import { FaCopy } from "react-icons/fa6";
+import { BsSearch } from "react-icons/bs";
+import { toast } from "sonner";
+import { TableSkeleton } from "@/components/Skeleton/TableSkeleton";
+import SingleKeywordRefresh from "../SingleKeywordRefresh";
 
 interface TableHeaderitems {
   key: string;
@@ -37,21 +44,52 @@ interface CustomTableProps {
   tableHeader: TableHeaderitems[];
   tableData: TablebodyItems[];
   campaignId?: string;
+  // isLoading?: boolean;
   showAddedKeyword?: any;
   setTableBody?: React.Dispatch<React.SetStateAction<TablebodyItems[]>>;
+  setSortedDataForExel?: any;
+  sortedDataExel?: any;
+  setExelData?: (data: any) => void;
 }
+
+
 const CustomTable = ({
+setExelData,
   tableHeader,
   tableData,
   campaignId,
   showAddedKeyword,
   setTableBody,
+  
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
-  const {startLoading, stopLoading} = useLoader();
-  // console.log(tableData, "table data");
+  const { startLoading, stopLoading } = useLoader();
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
   const [defaultData, setDefaultData] = useState<any>([]);
+
+  // ✅ Sorting state
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortedData, setSortedData] = useState<TablebodyItems[]>([]);
+
+  useEffect(() => {
+  setSortedData(tableData);
+
+}, [tableData]);
+  const handleSort = () => {
+    const sorted = [...sortedData].sort((a, b) => {
+      const valA = Number(a.Group_Rank) || 0;
+      const valB = Number(b.Group_Rank) || 0;
+      return sortOrder === "asc" ? valA - valB : valB - valA;
+    });
+    setSortedData(sorted);
+      if (setExelData) {
+  setExelData(sorted);
+}
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  };
+
+
+
   useEffect(() => {
     const FetchKeyWordsDb = async () => {
       const CampaignId = campaignId;
@@ -114,25 +152,29 @@ const CustomTable = ({
     keywords: item.keywords, 
   }));
 
-  // Example: Set only first one (or you can pass entire array)
-  setDefaultData(transformed[0]);
-};
-  const handleClick = (spyglassBase: string) => {
-  try {
-    startLoading()
-    // const urlObj = new URL(spyglassBase);
-    // console.log(urlObj, "urlOOK");
-    console.log(spyglassBase, "spyglass base");
-    // urlObj.searchParams.set("highlight", keyword);
-    window.open(spyglassBase.toString(), "_blank");
-    stopLoading()
-  } catch (err) {
-    console.error("Invalid URL:", err);
-  }
-};
-
-
-
+    // Example: Set only first one (or you can pass entire array)
+    setDefaultData(transformed[0]);
+  };
+  const handleSpyGlass = (spyglassBase: string) => {
+    try {
+      startLoading();
+      // const urlObj = new URL(spyglassBase);
+      // console.log(urlObj, "urlOOK");
+      console.log(spyglassBase, "spyglass base");
+      // urlObj.searchParams.set("highlight", keyword);
+      window.open(spyglassBase.toString(), "_blank");
+      stopLoading();
+    } catch (err) {
+      console.error("Invalid URL:", err);
+    }
+  };
+  const handleCopy = (keyword: string) => {
+    navigator.clipboard.writeText(keyword).then(() => {
+      toast("keyword copied to clipboard!");
+    }).catch(err => {
+      console.error("Failed to copy URL:", err);
+    });
+  };
 
 // const handleHighlightClick = async (url: string) => {
 //   startLoading();
@@ -156,36 +198,46 @@ const CustomTable = ({
 // };
 
   return (
-    <div className="w-full shadow-lg text-black rounded-md  max-h-[700px] overflow-x-auto relative">
+    
+    <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
       <table className="min-w-[1000px] w-full table-auto">
         <thead>
-          <tr className="sticky  top-0 bg-gradient-to-r bg-gray-200  text-black">
+          <tr className="sticky top-0 bg-gradient-to-r bg-gray-200 text-black">
             {tableHeader.map((header, id) => (
-              <th
-                key={id}
-                className="py-3 px-1 text-center text-sm font-medium"
-              >
-                <div className="flex  items-center text-sm justify-center gap-1">
-                  {header.icon && (
-                    <span className="text-sm">{header.icon}</span>
-                  )}
+              <th key={id} className="py-3 px-1 text-center text-sm font-medium">
+                <div className="flex items-center text-sm justify-center gap-1">
+                  {header.icon && <span className="text-sm">{header.icon}</span>}
                   {header.label}
+
+                 
+                  {header.key === "Group_Rank" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-1"
+                      onClick={handleSort}
+                    >
+                      <LuArrowUpDown className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </th>
             ))}
           </tr>
         </thead>
+              {/* {tableData.length === 0 ? <TableSkeleton/> : ( */}
+
 
         <tbody>
-          {tableData.length === 0 ? (
+          {sortedData.length === 0 ? (
             <tr>
               <td colSpan={15} className="text-center text-gray-500 py-6">
                 No keyword data found
               </td>
             </tr>
           ) : (
-            tableData.map((data, rowIndex) => {
-              const keywordId = data.keywordId;
+            sortedData.map((data, rowIndex) => {
+               const keywordId = data.keywordId;
 
               const matchedKeywordData = keywordDbData?.find(
                 (item: { _id: string }) => item._id === keywordId
@@ -210,21 +262,17 @@ const CustomTable = ({
                     {data.keyword}
 
                     {/* Eye/Search icon animation */}
-                    {data?.checkUrl && (
+                    {data && (
                       <div
-                        className="flex justify-center w-full h-full bg-white items-center absolute right-0 top-0 -translate-y-[20px] opacity-0 
+                        className="flex gap-5 justify-center w-full h-full bg-white items-center absolute right-0 top-0 -translate-y-[20px] opacity-0 
                  group-hover:opacity-100 group-hover:translate-y-0
                  transition-all duration-300 ease-out"
                       >
-                        {/* <a
-                          href={data?.checkUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1 bg-white rounded-full shadow hover:shadow-md"
-                        > */}
-                        <button onClick={()=> handleClick(data?.checkUrl)}>
-
-                          <SearchIcon className="text-orange-500"  />
+                        <button onClick={() => handleSpyGlass(data?.checkUrl)}>
+                          <BsSearch title="Go To" className="text-orange-500 text-xl" />
+                        </button>
+                        <button onClick={() => handleCopy(data?.keyword)}>
+                          <FaCopy title="Copy" className="text-blue-400 text-xl" />
                         </button>
                         {/* // </a> */}
                       </div>
@@ -318,6 +366,14 @@ const CustomTable = ({
                         keyword={data.keyword}
                         setTableBody={setTableBody}
                       />
+                    
+                      <SingleKeywordRefresh
+                        campaignId={campaignId || ""}
+                        keywordId={keywordId}
+                        keyword={data.keyword}
+                          setTableBody={setTableBody}
+                        
+                      />
                     </div>
                   </td>
                 </tr>
@@ -325,9 +381,13 @@ const CustomTable = ({
             })
           )}
         </tbody>
+              {/* ) */}
+         
       </table>
     </div>
+    
   );
 };
+
 
 export default CustomTable;

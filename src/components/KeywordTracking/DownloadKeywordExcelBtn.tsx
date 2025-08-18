@@ -22,18 +22,23 @@ import { useLoader } from "@/hooks/useLoader";
 //   filename?: string;
 // };
 
-export default function DownloadExcelBtn({
+export default function DownloadKeywordExcelBtn({
   // analyticData,
+  sortedDataExel,
   tableHeader,
   tableData,
   filename = "Keywords-report.xlsx",
 }: any) {
   const [open, setOpen] = useState(false);
   const { startLoading, stopLoading } = useLoader();
-
+    
   const handleConfirm = () => {
     startLoading();
-    downloadExcelTwoSheets(tableHeader, tableData, filename);
+    downloadExcelTwoSheets(
+  tableHeader,
+  (sortedDataExel && sortedDataExel.length > 0 ? sortedDataExel : tableData),
+  filename
+);
     stopLoading();
     setOpen(false);
   };

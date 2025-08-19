@@ -9,7 +9,7 @@ import { SearchIcon } from "lucide-react";
 import { useLoader } from "@/hooks/useLoader";
 import { Button } from "@/components/ui/button";
 import { LuArrowUpDown } from "react-icons/lu";
-import { FaCopy } from "react-icons/fa6";
+import { FaCopy, FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { BsSearch } from "react-icons/bs";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/Skeleton/TableSkeleton";
@@ -52,29 +52,36 @@ interface CustomTableProps {
   setExelData?: (data: any) => void;
 }
 
-
 const CustomTable = ({
-setExelData,
+  setExelData,
   tableHeader,
   tableData,
   campaignId,
   showAddedKeyword,
   setTableBody,
-  
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const { startLoading, stopLoading } = useLoader();
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
   const [defaultData, setDefaultData] = useState<any>([]);
+  const [locationFilter, setLocationFilter] = useState<string>("all");
 
   // ✅ Sorting state
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [sortedData, setSortedData] = useState<TablebodyItems[]>([]);
 
-  useEffect(() => {
-  setSortedData(tableData);
+  const [excludeZero, setExcludeZero] = useState<boolean>(false); // 👈 new toggle
+  // sortMode can be: "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
+const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero">("normal");
 
-}, [tableData]);
+
+  const uniqueLocations = Array.from(
+    new Set(tableData.map((row) => row.location))
+  );
+
+  useEffect(() => {
+    setSortedData(tableData);
+  }, [tableData]);
   const handleSort = () => {
     const sorted = [...sortedData].sort((a, b) => {
       const valA = Number(a.Group_Rank) || 0;
@@ -82,13 +89,63 @@ setExelData,
       return sortOrder === "asc" ? valA - valB : valB - valA;
     });
     setSortedData(sorted);
-      if (setExelData) {
-  setExelData(sorted);
-}
+    if (setExelData) {
+      setExelData(sorted);
+    }
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
+  // useEffect(() => {
+  //   let data = [...tableData];
 
+  //   // Filter by location if applied
+  //   if (locationFilter !== "all") {
+  //     data = data.filter((row) => row.location === locationFilter);
+  //   }
 
+  //   // Apply sorting by Group_Rank
+  //   if (sortOrder) {
+  //     data = data
+  //       .filter((row) => Number(row.Group_Rank) > 0) // 🚫 exclude 0 rank
+  //       .sort((a, b) => {
+  //         const valA = Number(a.Group_Rank) || 0;
+  //         const valB = Number(b.Group_Rank) || 0;
+  //         return sortOrder === "asc" ? valA - valB : valB - valA;
+  //       });
+  //   }
+
+  //   setSortedData(data);
+
+  //   if (setExelData) {
+  //     setExelData(data);
+  //   }
+  // }, [tableData, locationFilter, sortOrder]);
+
+  useEffect(() => {
+    let data = [...tableData];
+
+   
+    if (locationFilter !== "all") {
+      data = data.filter((row) => row.location === locationFilter);
+    }
+
+    if (excludeZero) {
+      data = data.filter((row) => Number(row.Group_Rank) > 0);
+    }
+
+    if (sortOrder) {
+      data = data.sort((a, b) => {
+        const valA = Number(a.Group_Rank) || 0;
+        const valB = Number(b.Group_Rank) || 0;
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      });
+    }
+
+    setSortedData(data);
+
+    if (setExelData) {
+      setExelData(data);
+    }
+  }, [tableData, locationFilter, sortOrder, excludeZero]);
 
   useEffect(() => {
     const FetchKeyWordsDb = async () => {
@@ -104,12 +161,6 @@ setExelData,
     };
     FetchKeyWordsDb();
   }, []);
-  // console.log(keywordDbData, "keyworddb data");
-  // const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
-
-  // useEffect(() => {
-  //   setTableValues(tableData);
-  // }, [tableData]);
 
   const handleStartClick = (index: number) => {
     setEditableRowIndex(index);
@@ -123,34 +174,34 @@ setExelData,
     const newValue = e.target.value;
     const startValue = Number(newValue);
     const startRespomse = await updateStartDB(keywordId, startValue);
-   if (setTableBody) {
-  setTableBody((prev) =>
-    prev.map((row, rowIndex) =>
-      rowIndex === index ? { ...row, start: newValue } : row
-    )
-  );
-}
+    if (setTableBody) {
+      setTableBody((prev) =>
+        prev.map((row, rowIndex) =>
+          rowIndex === index ? { ...row, start: newValue } : row
+        )
+      );
+    }
   };
 
   const handleBlur = () => {
     setEditableRowIndex(null);
   };
 
- const addEditkeywordsData = async (data: any) => {
-  console.log(data, "default function");
+  const addEditkeywordsData = async (data: any) => {
+    console.log(data, "default function");
 
-  // Transform and set default data
-  const transformed = data.map((item: any) => ({
-    url: item.url || "",
-    keywordTag: item.keywordTag || "",
-    searchLocationCode: item.searchLocationCode || "",
-    volumeLocationCode: item.volumeLocationCode || "",
-    language: item.language || "",
-    SearchEngine: item.SearchEngine || "",
-    serpType: item.serpType || "",
-    deviceType: item.deviceType || "",
-    keywords: item.keywords, 
-  }));
+    // Transform and set default data
+    const transformed = data.map((item: any) => ({
+      url: item.url || "",
+      keywordTag: item.keywordTag || "",
+      searchLocationCode: item.searchLocationCode || "",
+      volumeLocationCode: item.volumeLocationCode || "",
+      language: item.language || "",
+      SearchEngine: item.SearchEngine || "",
+      serpType: item.serpType || "",
+      deviceType: item.deviceType || "",
+      keywords: item.keywords,
+    }));
 
     // Example: Set only first one (or you can pass entire array)
     setDefaultData(transformed[0]);
@@ -169,65 +220,83 @@ setExelData,
     }
   };
   const handleCopy = (keyword: string) => {
-    navigator.clipboard.writeText(keyword).then(() => {
-      toast("keyword copied to clipboard!");
-    }).catch(err => {
-      console.error("Failed to copy URL:", err);
-    });
+    navigator.clipboard
+      .writeText(keyword)
+      .then(() => {
+        toast("keyword copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL:", err);
+      });
   };
 
-// const handleHighlightClick = async (url: string) => {
-//   startLoading();
-//   try {
-//     const highlightedHTML = await sethighlightKeyword(url);
-//     // Open in new tab
-//     const blob = new Blob([highlightedHTML], { type: "text/html" });
-//     const newTab = window.open();
-//     if (newTab) {
-//       const blobUrl = URL.createObjectURL(blob); // Create a URL for the blob
-//       newTab.location.href = blobUrl; // Set the new tab's location to the blob URL
-//       newTab.onload = () => {
-//         URL.revokeObjectURL(blobUrl); // Clean up the blob URL after the new tab loads
-//       };
-//     }
-//   } catch (err) {
-//     console.error("Error highlighting keyword:", err);
-//   } finally {
-//     stopLoading(); // Ensure loading state is stopped
-//   }
-// };
-
   return (
-    
     <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
+      {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
       <table className="min-w-[1000px] w-full table-auto">
         <thead>
           <tr className="sticky top-0 bg-gradient-to-r bg-gray-200 text-black">
+            
+
             {tableHeader.map((header, id) => (
-              <th key={id} className="py-3 px-1 text-center text-sm font-medium">
+              <th
+                key={id}
+                className="py-3 px-1 text-center text-sm font-medium"
+              >
                 <div className="flex items-center text-sm justify-center gap-1">
-                  {header.icon && <span className="text-sm">{header.icon}</span>}
+                  {header.icon && (
+                    <span className="text-sm">{header.icon}</span>
+                  )}
                   {header.label}
 
-                 
+                  {/* Group_Rank sorting button */}
+                
+
                   {header.key === "Group_Rank" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="ml-1"
-                      onClick={handleSort}
-                    >
-                      <LuArrowUpDown className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                     
+                      <Button
+                     
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                        }
+                      >
+                        <LuArrowUpDown className="h-4 w-4" />
+                      </Button>
+
+                     
+                      <Button
+                        variant={excludeZero ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => setExcludeZero(!excludeZero)}
+                      >
+                        {excludeZero ?<FaRegEyeSlash title="Show Zero" /> : <FaRegEye title="Hide Zero" />}
+                      </Button>
+                    </div>
                   )}
+
+                  {/* Location dropdown filter */}
+                  {header.key === "location" && (
+                    <select
+                      className="ml-2 border-none rounded px-1 py-2 w-28 text-xs"
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                    >
+                      <option value="all">All</option>
+                      {uniqueLocations.map((loc) => (
+                        <option key={loc} value={loc}>
+                          {loc}
+                        </option>
+                      ))}
+                    </select>
+                  )}  
                 </div>
               </th>
             ))}
           </tr>
         </thead>
-              {/* {tableData.length === 0 ? <TableSkeleton/> : ( */}
-
-
         <tbody>
           {sortedData.length === 0 ? (
             <tr>
@@ -237,7 +306,7 @@ setExelData,
             </tr>
           ) : (
             sortedData.map((data, rowIndex) => {
-               const keywordId = data.keywordId;
+              const keywordId = data.keywordId;
 
               const matchedKeywordData = keywordDbData?.find(
                 (item: { _id: string }) => item._id === keywordId
@@ -269,19 +338,28 @@ setExelData,
                  transition-all duration-300 ease-out"
                       >
                         <button onClick={() => handleSpyGlass(data?.checkUrl)}>
-                          <BsSearch title="Go To" className="text-orange-500 text-xl" />
+                          <BsSearch
+                            title="Go To"
+                            className="text-orange-500 text-xl"
+                          />
                         </button>
                         <button onClick={() => handleCopy(data?.keyword)}>
-                          <FaCopy title="Copy" className="text-blue-400 text-xl" />
+                          <FaCopy
+                            title="Copy"
+                            className="text-blue-400 text-xl"
+                          />
                         </button>
                         {/* // </a> */}
                       </div>
                     )}
                   </td>
 
-
-                  <td className="text-center text-[12px] border  min-w-[50px] p-1">{data.location}</td>
-                  <td className="text-center text-[12px] border p-3">{data.intent}</td>
+                  <td className="text-center text-[12px] border  min-w-[50px] p-1">
+                    {data.location}
+                  </td>
+                  <td className="text-center text-[12px] border p-3">
+                    {data.intent}
+                  </td>
 
                   <td
                     className="text-center text-[12px] border cursor-pointer p-1"
@@ -308,20 +386,30 @@ setExelData,
                     )}
                   </td>
 
-                  <td className="text-center text-[12px] border p-1">{data.page}</td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.page}
+                  </td>
                   <td className="text-center text-[12px] border p-3">
                     {data.Absolute_Rank}
                   </td>
-                  <td className="text-center text-[12px] border p-1">{data.Group_Rank}</td>
-                  <td className="text-center text-[12px] border p-1">{data.sevenDays}</td>
-                  <td className="text-center text-[12px] border p-1">{data.life}</td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.Group_Rank}
+                  </td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.sevenDays}
+                  </td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.life}
+                  </td>
                   {/* <td className="text-center text-[12px] text-black border p-1">
                     {data.comp}
                   </td> */}
                   {/* <td className="text-center text-[12px] text-black border p-1">
                     {data.sv}
                   </td> */}
-                  <td className="text-center text-[12px] border text-nowrap p-1">{data.date}</td>
+                  <td className="text-center text-[12px] border text-nowrap p-1">
+                    {data.date}
+                  </td>
 
                   <td className="text-center text-[12px] border p-1">
                     <div className="flex justify-center items-center">
@@ -339,7 +427,7 @@ setExelData,
                   <td className="text-center text-[12px] border p-1">
                     <div className="flex justify-center items-center gap-2">
                       <KeywordEdit
-                        campaignId={campaignId || ''}
+                        campaignId={campaignId || ""}
                         keywordId={keywordId}
                         addEditkeywordsData={addEditkeywordsData}
                         showAddedKeyword={showAddedKeyword}
@@ -361,18 +449,17 @@ setExelData,
                       />
 
                       <DeleteConfirm
-                        campaignId={campaignId || ''}
+                        campaignId={campaignId || ""}
                         keywordId={keywordId}
                         keyword={data.keyword}
                         setTableBody={setTableBody}
                       />
-                    
+
                       <SingleKeywordRefresh
                         campaignId={campaignId || ""}
                         keywordId={keywordId}
                         keyword={data.keyword}
-                          setTableBody={setTableBody}
-                        
+                        setTableBody={setTableBody}
                       />
                     </div>
                   </td>
@@ -381,13 +468,10 @@ setExelData,
             })
           )}
         </tbody>
-              {/* ) */}
-         
       </table>
+     {/* )}  */}
     </div>
-    
   );
 };
-
 
 export default CustomTable;

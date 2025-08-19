@@ -55,11 +55,12 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
   //   }
   // };
   
-  const handleCompaignArchived = async (campaignId: string,topRankData:any, status:any) => {
+  const handleCompaignArchived = async (campaignId: string,topRankData:any, ) => {
     setOpenArchive(false);
     startLoading();
+    const status = 2
     try {
-      const addedCampaignData = await CreateArchivedCampaign(campaignId,topRankData, status);
+      const addedCampaignData = await CreateArchivedCampaign(campaignId,status,topRankData);
 
       console.log(addedCampaignData, "addedCampaignDataIndata");
 
@@ -123,7 +124,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
                 variant="destructive"
                 onClick={() => {
                   const status = 2
-                  handleCompaignArchived(campaignId, status,topRankData); 
+                  handleCompaignArchived(campaignId,topRankData); 
                   setOpenArchive(false); 
                 }}
               >

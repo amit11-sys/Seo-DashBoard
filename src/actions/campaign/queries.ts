@@ -92,7 +92,7 @@ export const GetCampaignByid = async (campaignId: string) => {
     // const campaign = await Campaign.find({ userId: user?.id });
     const campaign = await Campaign.findById({
       _id: campaignId,
-  });
+    });
     if (!campaign) {
       return { error: "Error while getting Single with Id campaign" };
     }
@@ -140,7 +140,6 @@ export const CampaignStatus2 = async () => {
   }
 };
 
-
 // export const deleteCampaign = async (CompaignId: string) => {
 //   try {
 //     await connectToDB();
@@ -164,8 +163,6 @@ export const CampaignStatus2 = async () => {
 //     //   { CampaignId: CompaignId },
 //     //   { status: 2 }
 //     // );
-
-    
 
 //     if (!CompaignId) {
 //       return { error: " Not Find Id Error while deleting campaign" };
@@ -193,17 +190,8 @@ export const archivedCampaign = async () => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-   
 
-    
-
-    const KeywordTrackingDataArchied = await Campaign.find(
-      { status: 2}
-    );
-
-   
-
-    
+    const KeywordTrackingDataArchied = await Campaign.find({ status: 2 });
 
     if (!KeywordTrackingDataArchied) {
       return { error: " Not Find Id Error while deleting campaign" };
@@ -233,24 +221,18 @@ export const archivedCampaign = async () => {
 //     }
 //     console.log(topRankData, "topRankData in server");
 
-    
-
 //     const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
 //       { _id: CompaignId},
 //       { status: 2 }
 //     );
 
-    
 //     const addedCompignData =await KeywordTracking.findOneAndUpdate(
 //       { campaignId: CompaignId },
 //       {topRankData}
-     
+
 //     )
 
 //     console.log(addedCompignData,"addedCompignData ok");
-   
-
-    
 
 //     if (!CompaignId) {
 //       return { error: " Not Find data Error while Arching campaign" };
@@ -271,7 +253,11 @@ export const archivedCampaign = async () => {
 //   }
 // };
 
-export const ArchivedCampaignCreate = async (CompaignId: string,status:number, topRankData?: any ) => {
+export const ArchivedCampaignCreate = async (
+  CompaignId: string,
+  status: number,
+  topRankData?: any
+) => {
   try {
     await connectToDB();
 
@@ -281,48 +267,88 @@ export const ArchivedCampaignCreate = async (CompaignId: string,status:number, t
     }
 
     if (!CompaignId) {
-      return { error: "Campaign ID is missing." }; 
+      return { error: "Campaign ID is missing." };
     }
 
     console.log(topRankData, "topRankData in server");
-    console.log(status,"statusin");
+    console.log(status, "statusin");
+  
+    // delete campaign
+    if( status === 3) {
+      const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 3 },
+        { new: true }
+      );
 
-   
-    const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
-      { _id: CompaignId },
-      { status: status },
-      { new: true }
-    );
-   
-  //  if(topRankData){
-     
-  //    const topRankUpdate = {
-  //      keywordsUp: topRankData?.data?.find((item: any) => item.title === "Keywords Up")?.data || 0,
-  //      top3: topRankData?.data?.find((item: any) => item.title === "In Top 3")?.data || 0,
-  //      top10: topRankData?.data?.find((item: any) => item.title === "In Top 10")?.data || 0,
-  //      top20: topRankData?.data?.find((item: any) => item.title === "In Top 20")?.data || 0,
-  //      top30: topRankData?.data?.find((item: any) => item.title === "In Top 30")?.data || 0,
-  //      top100: topRankData?.data?.find((item: any) => item.title === "In Top 100")?.data || 0,
-       
-  //    };
-  //    console.log(topRankUpdate, "topRankUpdate");
- 
+    }
+        if (status === 3) {
+      const updatedKeywords = await KeywordTracking.updateMany(
+        { campaignId: CompaignId },
+        { $set: { status: 3 } }
+      );
+    }
+
+    // restore campaign
+    if( status === 1) {
+      const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 1 },
+        { new: true }
+      );
+
+    }
+     if( status === 1 ) {
+      const updatedKeywords = await KeywordTracking.updateMany(
+        { campaignId: CompaignId },
+        { $set: { status: 1 } }
+      );
+    }
+    // ARCHIVED campaign
+    if( status === 2) {
+      const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 2 },
+        { new: true }
+      );
+
+    }
+     if( status === 2 ) {
+      const updatedKeywords = await KeywordTracking.updateMany(
+        { campaignId: CompaignId },
+        { $set: { status: 2 } }
+      );
+    }
+
+
+
     
-  //    const updatedKeywordTracking = await KeywordTracking.updateMany(
-  //      { campaignId: CompaignId },
-  //      { $set: topRankUpdate },
-  //       { new: true }
-  //    );
+    //  if(topRankData){
 
-  //  }
+    //    const topRankUpdate = {
+    //      keywordsUp: topRankData?.data?.find((item: any) => item.title === "Keywords Up")?.data || 0,
+    //      top3: topRankData?.data?.find((item: any) => item.title === "In Top 3")?.data || 0,
+    //      top10: topRankData?.data?.find((item: any) => item.title === "In Top 10")?.data || 0,
+    //      top20: topRankData?.data?.find((item: any) => item.title === "In Top 20")?.data || 0,
+    //      top30: topRankData?.data?.find((item: any) => item.title === "In Top 30")?.data || 0,
+    //      top100: topRankData?.data?.find((item: any) => item.title === "In Top 100")?.data || 0,
 
-   
+    //    };
+    //    console.log(topRankUpdate, "topRankUpdate");
+
+    //    const updatedKeywordTracking = await KeywordTracking.updateMany(
+    //      { campaignId: CompaignId },
+    //      { $set: topRankUpdate },
+    //       { new: true }
+    //    );
+
+    //  }
 
     return {
       success: true,
       message: "Archived Campaign Successfully",
-      KeywordTrackingDataArchied,
-      CompaignId
+      // KeywordTrackingDataArchied,
+      CompaignId,
     };
   } catch (error) {
     console.error(error);
@@ -339,10 +365,10 @@ export const CompaignCount = async () => {
       return { error: "Unauthorized" };
     }
 
-   const campaignCount = await Campaign.find({
-  status: { $in: [1, 2] },
-});
-    console.log(campaignCount,"campaignCount");
+    const campaignCount = await Campaign.find({
+      status: { $in: [1, 2] },
+    });
+    console.log(campaignCount, "campaignCount");
     return {
       success: true,
       message: "Campaign Count Successfully",
@@ -353,4 +379,3 @@ export const CompaignCount = async () => {
     return { error: "Internal Server Error." };
   }
 };
-

@@ -1,30 +1,56 @@
-import { Skeleton } from "@/components/ui/skeleton";
+"use client"
+import React from "react"
+import { Skeleton, Table } from "antd"
 
-export function TableSkeleton({ rows = 5, cols = 6 }: { rows?: any; cols?: any }) {
+export function TableSkeleton({
+  rows = 5,
+  cols = 6,
+}: {
+  rows?: number
+  cols?: number
+}) {
+  // Generate fake columns
+  const columns = Array.from({ length: cols }).map((_, i) => ({
+    title: (
+      <Skeleton.Input
+        style={{ width: 100, height: 16 }}
+        active={true}
+      />
+    ),
+    dataIndex: `col${i}`,
+    key: `col${i}`,
+    render: () => (
+      <Skeleton.Input
+        style={{ width: "100%", height: 16 }}
+        active={true}
+      />
+    ),
+  }))
+
+  // Generate fake data
+  const data = Array.from({ length: rows }).map((_, i) => {
+    const row: Record<string, any> = { key: i }
+    columns.forEach((_, j) => {
+      row[`col${j}`] = i + "-" + j
+    })
+    return row
+  })
+
   return (
-    <div className="w-full shadow-lg rounded-md overflow-hidden">
-      <table className="min-w-[1000px] w-full table-auto">
-        <thead>
-          <tr className="bg-gray-200">
-            {Array.from({ length: cols }).map((_, i) => (
-              <th key={i} className="p-3 text-left">
-                <Skeleton className="h-4 w-24" />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: rows }).map((_, row) => (
-            <tr key={row} className="border-b">
-              {Array.from({ length: cols }).map((_, col) => (
-                <td key={col} className="p-3">
-                  <Skeleton className="h-4 w-full" />
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div
+      style={{
+        backgroundColor: "white",
+        padding: "16px",
+        borderRadius: "8px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+      }}
+    >
+      <Table
+        columns={columns}
+        dataSource={data}
+        pagination={false}
+        bordered
+      />
     </div>
-  );
+  )
 }

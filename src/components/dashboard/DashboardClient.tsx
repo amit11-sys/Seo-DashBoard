@@ -54,9 +54,11 @@ const DashboardClient = () => {
   const router = useRouter();
   const handleArchivedCampaigns = () => {
     setTabSelected("Archived Campaigns");
+    setCampaignStatus(2)
   };
   const handleActiveCampaigns = () => {
     setTabSelected("Active Campaigns");
+    setCampaignStatus(1)
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -547,7 +549,7 @@ const DashboardClient = () => {
             <div className="flex gap-3">
               <CustomTrackingCard
                 className={"W-[150px] h-[150px] bg-gray-400 "}
-                title="Total Keywords"
+                title="Active Keywords"
                 data={topKeywordsCount}
               />
               <CustomTrackingCard

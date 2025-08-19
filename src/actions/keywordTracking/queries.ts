@@ -119,7 +119,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     //   path: "campaignId", 
     // });
 
-    console.log(LiveKeywordDbData,"populatedata");
+ 
     // Compute ranking counts
     const cardCounts = {
       top3: 0,
@@ -444,9 +444,10 @@ export const DbTopLiveKeywordData = async () => {
   try {
     await connectToDB();
 
-    const TopLiveKeywordDbData = await KeywordTracking.find();
+    const TopLiveKeywordDbData = await KeywordTracking.find({status: 1});
 
     // Format for card
+    console.log(TopLiveKeywordDbData,"TopLiveKeywordDbData");
 
     // console.log(newLiveKeywordDbData, "realdata");
 
@@ -539,7 +540,7 @@ export const DbKeywordStatusData = async (statusCode: number) => {
     // 3. Get keyword data related to those campaign IDs
     const keywordDatastatus = await KeywordTracking.find({
       campaignId: { $in: campaignIds },
-      status:1,
+      status:statusCode,
      
     });
     console.log(keywordDatastatus,"keywordDatastatus");

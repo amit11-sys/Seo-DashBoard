@@ -12,9 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
 import { Trash2, RotateCcw, Search } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import {  useState } from "react";
 import { FaArchive } from "react-icons/fa";
-import { useCampaignData } from "@/app/context/CampaignContext";
 
 const campaigns = [
   {
@@ -57,10 +56,10 @@ export default function ArchivedCampaignTable(archivedCampaignData: any) {
   const filteredData = campaigns.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
-  useEffect(() => {
-    // setArchivedData(archivedCampaignData?.archivedCampaignData);
+  // useEffect(() => {
+  //   // setArchivedData(archivedCampaignData?.archivedCampaignData);
      
-  }, [archivedCampaignData]);
+  // }, [archivedCampaignData]);
 
   return (
     <div className="p-6 rounded-xl shadow-md">

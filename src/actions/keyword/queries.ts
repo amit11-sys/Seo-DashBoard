@@ -1163,10 +1163,10 @@ export const deleteKeywordById = async (deletedData: { keywordId: string }) => {
     const { keywordId } = deletedData;
     console.log(keywordId, "delet id");
 
-    // ✅ Update keyword document status to 2 (soft delete)
+   
     const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
       { keywordId },
-      { $set: { status: 2 } },
+      { $set: { status: 3 } },
       { new: true }
     );
 

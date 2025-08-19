@@ -113,7 +113,7 @@ const SingleKeywordRefresh = ({
         }));
       }
       setTableBody(data);
-        toast.success("Keyword deleted successfully");
+        toast.success("Keyword Updated successfully");
         setOpen(false);
       } else {
         toast.error(res.error || "Failed to delete keyword");

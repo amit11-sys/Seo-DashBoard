@@ -272,17 +272,15 @@ export const ArchivedCampaignCreate = async (
 
     console.log(topRankData, "topRankData in server");
     console.log(status, "statusin");
-  
+
     // delete campaign
-    if( status === 3) {
+    if (status === 3) {
       const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
         { _id: CompaignId },
-        { status: 3 },
-        { new: true }
+        { status: 3 }
       );
-
     }
-        if (status === 3) {
+    if (status === 3) {
       const updatedKeywords = await KeywordTracking.updateMany(
         { campaignId: CompaignId },
         { $set: { status: 3 } }
@@ -290,39 +288,33 @@ export const ArchivedCampaignCreate = async (
     }
 
     // restore campaign
-    if( status === 1) {
-      const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
-        { _id: CompaignId },
+    if (status === 1) {
+      await Campaign.findByIdAndUpdate(
+        CompaignId,
         { status: 1 },
         { new: true }
-      );
+      ).setOptions({ timestamps: false });
 
-    }
-     if( status === 1 ) {
-      const updatedKeywords = await KeywordTracking.updateMany(
+      await KeywordTracking.updateMany(
         { campaignId: CompaignId },
         { $set: { status: 1 } }
-      );
+      ).setOptions({ timestamps: false });
     }
+
     // ARCHIVED campaign
-    if( status === 2) {
+    if (status === 2) {
       const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
         { _id: CompaignId },
-        { status: 2 },
-        { new: true }
+        { status: 2 }
       );
-
     }
-     if( status === 2 ) {
+    if (status === 2) {
       const updatedKeywords = await KeywordTracking.updateMany(
         { campaignId: CompaignId },
         { $set: { status: 2 } }
       );
     }
 
-
-
-    
     //  if(topRankData){
 
     //    const topRankUpdate = {

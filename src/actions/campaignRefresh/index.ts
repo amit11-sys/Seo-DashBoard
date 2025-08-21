@@ -1,7 +1,7 @@
 "use server"
 // import { agenda, startAgenda } from "@/lib/agenda";
 
-import "@/lib/jobs/refreshKeywords"; 
+
 // import { addToQueue } from "@/lib/jobQueue"
 import { refreshAddedKeywords, RefreshSingleKeyword } from "./queries"
 

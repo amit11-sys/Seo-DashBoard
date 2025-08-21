@@ -17,16 +17,17 @@ import Loader from "../global/Loader";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import DownloadKeywordExcelBtn from "@/components/KeywordTracking/DownloadKeywordExcelBtn";
 import { useEffect, useState } from "react";
-import { getDbLiveKeywordData, getTrackingData } from "@/actions/keywordTracking";
+import { getDbLiveKeywordData, getDbLiveKeywordDataWithStatus, getTrackingData } from "@/actions/keywordTracking";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {sortedDataExel,setIsLoading,campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData} :any) {
+export default   function LiveKeyTrakingHeader( {sortedDataExel,statusCode,setIsLoading,campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData} :any) {
 const {  startLoading, stopLoading } = useLoader();
 const [refreshData, setRefreshData] = useState("");
   
-const campaignStatus = compaigndata[0]?.status || 1
- 
+// const campaignStatus =  2
+ console.log(statusCode,"statusin Header")
+//  console.log(campaignId,"campaignId Header")
 function formatLastUpdated(createdAt: string) {
   const date = new Date(createdAt);
 
@@ -54,7 +55,8 @@ function formatLastUpdated(createdAt: string) {
   startLoading()
   try {
     const refreshedCampaign = await getRefreshCampaign(campaignId);
-    console.log(refreshedCampaign, "refreshedCampaign");
+    // console.log(refreshedCampaign, "refreshedCampaign");
+    // console.log(campaignId, "campaignId");
     const lastUpdated = refreshedCampaign?.updatedRecords
   ? formatLastUpdated(refreshedCampaign.updatedRecords[0]?.updatedAt || '')
   : '';
@@ -80,31 +82,28 @@ function formatLastUpdated(createdAt: string) {
 
 
 useEffect(() => {
-const fetchUpdatedDate = async () => {
+  const fetchUpdatedDate = async () => {
+    try {
+      if (!campaignId || !statusCode) return; // guard for missing data
 
-  try {
-    const refreshedCampaign = await getDbLiveKeywordData(campaignId);
-    console.log(refreshData, "refreshedCampaignok");
-    if (refreshedCampaign?.newLiveKeywordDbData) {
-      const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
-      setRefreshData(formatLastUpdated(lastUpdated));
-    } else {
-      setRefreshData("No updates available");
+      const refreshedCampaign = await getDbLiveKeywordDataWithStatus(campaignId, statusCode);
+
+      console.log(refreshedCampaign?.newLiveKeywordDbData, "refreshedCampaignok");
+
+if (refreshedCampaign?.newLiveKeywordDbData && refreshedCampaign.newLiveKeywordDbData.length > 0) {
+        const lastUpdated = refreshedCampaign?.newLiveKeywordDbData[0]?.updatedAt || "";
+        setRefreshData(formatLastUpdated(lastUpdated));
+      } else {
+        setRefreshData("No updates available");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign data:", error);
+      setRefreshData("Failed to fetch update time");
     }
-  } catch (error) {
-    console.error("Error fetching campaign data:", error);
-    setRefreshData("Failed to fetch update time");
-  }
+  };
 
-
-
-}
-
-;
-fetchUpdatedDate();
-
-
-}, []);
+  fetchUpdatedDate();
+}, [campaignId, statusCode]); // ✅ rerun when these change
 
 
 
@@ -138,7 +137,7 @@ fetchUpdatedDate();
         </div>
         <div>
           <h2  className="text-xl font-bold text-black">
-             {campaignStatus === 2 ? "Archived Keywords" : "Live Keyword Tracking"}
+             {statusCode === 2 ? "Archived Keywords" : "Live Keyword Tracking"}
           </h2>
           <p className="text-sm text-black">
            {refreshData}
@@ -152,7 +151,7 @@ fetchUpdatedDate();
       
      
       {
-        campaignStatus === 2 ? <>  <DownloadKeywordExcelBtn tableHeader={tableHeader} tableData={tableData}/> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
+        statusCode === 2 ? <>  <DownloadKeywordExcelBtn tableHeader={tableHeader} tableData={tableData}/> </>  : <div className="flex items-center gap-3 flex-wrap justify-end">
        <DialogFrom updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword} campaignId={campaignId} showAddedKeyword={showAddedKeyword}/>
        {/* <button>Add Keyword</button> */}
         <DownloadKeywordExcelBtn sortedDataExel={sortedDataExel} tableHeader={tableHeader} tableData={tableData}/>

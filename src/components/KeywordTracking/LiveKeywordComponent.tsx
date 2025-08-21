@@ -10,7 +10,7 @@ import { FaStar } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import LiveKeyTrakingHeader from "@/components/KeywordTracking/LiveKeyTrakingHeader";
-import { getDbLiveKeywordData } from "@/actions/keywordTracking";
+import { getDbLiveKeywordData, getDbLiveKeywordDataWithStatus } from "@/actions/keywordTracking";
 import { log, table } from "console";
 import KeywordTextArea from "../KeywordTextArea";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
@@ -18,6 +18,7 @@ import Header from "../Common/Navbar";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { set } from "mongoose";
 import DeleteConfirm from "./Keywordtable/KeywordDel";
+import { getGetCampaignByid } from "@/actions/campaign";
 
 type Tableitems = {
   key: string;
@@ -58,7 +59,7 @@ interface campaignId {
   campaignId: any;
 }
 interface LiveKeywordComponentProps {
-  campaignLiveKeywordsData: {
+  campaignLiveKeywordsData?: {
     success?: boolean;
     message?: string;
     error?: string;
@@ -74,7 +75,7 @@ interface LiveKeywordComponentProps {
     };
   };
   campaignId: string;
-  campaignStatus?: number
+
 }
 
 interface HeaderProps {
@@ -91,30 +92,68 @@ interface HeaderProps {
 }
 
 const LiveKeywordComponent = ({
-  campaignLiveKeywordsData,
+  // campaignLiveKeywordsData,
   campaignId,
-  // campaignStatus
+  
 
   
-}: LiveKeywordComponentProps) => {
+}: any) => {
   const [tableBody, setTableBody] = useState<any[]>([]);
   const [cardCounts, setCardCounts] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
   const [totalKeywords, setTotalKeywords] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [sortedDataExel, setSortedDataForExel] = useState<TablebodyItems[]>([]);
-
+  const [statusCode, setStatusCode] = useState<any>();
+  const [campaignLiveKeywordsData, setCampaignLiveKeywordsData] = useState<any>(null);
+    console.log(statusCode,"codein live keyword component");
   console.log(cardCounts, "cardCounts");
-  const { setActiveSingleCampaign } = useCampaignData();
-  // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+  // const { setActiveSingleCampaign } = useCampaignData();
+  console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
 const setExelData = (data:any) => {
 setSortedDataForExel(data);
 
 }
+useEffect(() => {
+  const fetchCampignCode = async () => {
+    try {
+      // Fetch campaign data by ID
+      const campignDataWithId: any = await getGetCampaignByid(campaignId);
+
+      const campaignStatus = campignDataWithId?.campaign?.status;
+
+      if (!campaignStatus) {
+        console.warn("No campaign status found");
+        return;
+      }
+
+      setStatusCode(campaignStatus);
+      console.log(campaignStatus, "googleCode");
+
+      // Use campaignStatus directly instead of stale state
+      const campaignLiveKeywordsData = await getDbLiveKeywordDataWithStatus(
+        campaignId,
+        campaignStatus
+      );
+
+      console.log(campaignLiveKeywordsData, "data useEffect");
+      setCampaignLiveKeywordsData(campaignLiveKeywordsData);
+    } catch (error) {
+      console.error("Error fetching campaign data:", error);
+    }
+  };
+
+  if (campaignId) {
+    fetchCampignCode();
+  }
+}, [campaignId]); 
+
+ 
+
   useEffect(() => {
     const fetchDBLiveDatagain = async () => {
-      const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
-
+      const campaignLiveKeywordsData = await getDbLiveKeywordDataWithStatus(campaignId,statusCode );
+   
       if (campaignLiveKeywordsData.newLiveKeywordDbData) {
         const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
         const topRankData = campaignLiveKeywordsData?.topRankData;
@@ -200,7 +239,7 @@ setSortedDataForExel(data);
 
   const keywordTableData = () => {
     console.log("calling fn");
-
+      console.log(campaignLiveKeywordsData,"tablefordatain")
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
       const topRankData = campaignLiveKeywordsData?.topRankData?.data;
@@ -339,7 +378,7 @@ setSortedDataForExel(data);
         <LiveKeyTrakingHeader
         sortedDataExel={sortedDataExel}
         setIsLoading={setIsLoading}
-          // campaignStatus={campaignStatus}
+          statusCode={statusCode}
           tableHeader={tableHeader}
           tableData={tableBody}
           updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}

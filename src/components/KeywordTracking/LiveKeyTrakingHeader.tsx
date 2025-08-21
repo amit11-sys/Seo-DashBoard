@@ -18,13 +18,15 @@ import { useCampaignData } from "@/app/context/CampaignContext";
 import DownloadKeywordExcelBtn from "@/components/KeywordTracking/DownloadKeywordExcelBtn";
 import { useEffect, useState } from "react";
 import { getDbLiveKeywordData, getTrackingData } from "@/actions/keywordTracking";
+// import { useCampaignProgress } from "@/hooks/useCampaignProgress";
+import { ProgressBar } from "../KeywordProgress";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {sortedDataExel,setIsLoading,campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData} :any) {
+export default   function LiveKeyTrakingHeader( {sortedDataExel,setIsLoading,campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData, total, processed, done} :any) {
 const {  startLoading, stopLoading } = useLoader();
 const [refreshData, setRefreshData] = useState("");
-  
+  //  const { total, processed, done } = useCampaignProgress(campaignId);
 const campaignStatus = compaigndata[0]?.status || 1
  
 function formatLastUpdated(createdAt: string) {
@@ -148,6 +150,15 @@ fetchUpdatedDate();
       </div>
 
       {/* Right Side: Action Icons */}
+ {total > 0 && (
+  <div className="flex items-center gap-2">
+    <ProgressBar processed={processed} total={total} done={done} />
+    <span className="text-sm text-gray-600">
+      {done ? '' : processed/total}{" "}
+      {/* {done ? "(Completed)" : "(Processing...)"} */}
+    </span>
+  </div>
+)}
 
       
      

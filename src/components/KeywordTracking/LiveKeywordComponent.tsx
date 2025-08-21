@@ -18,6 +18,7 @@ import Header from "../Common/Navbar";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import { set } from "mongoose";
 import DeleteConfirm from "./Keywordtable/KeywordDel";
+import { useCampaignProgress } from "@/hooks/useCampaignProgress";
 
 type Tableitems = {
   key: string;
@@ -97,6 +98,7 @@ const LiveKeywordComponent = ({
 
   
 }: LiveKeywordComponentProps) => {
+   const { total, processed, done } = useCampaignProgress(campaignId);
   const [tableBody, setTableBody] = useState<any[]>([]);
   const [cardCounts, setCardCounts] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
@@ -196,7 +198,7 @@ setSortedDataForExel(data);
     if (campaignLiveKeywordsData) {
       keywordTableData();
     }
-  }, [campaignLiveKeywordsData]);
+  }, [campaignLiveKeywordsData, done]);
 
   const keywordTableData = () => {
     console.log("calling fn");
@@ -346,6 +348,9 @@ setSortedDataForExel(data);
           compaigndata={compaigndata}
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
+          total={total}
+          processed={processed}
+          done={done}
         />
       </div>
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">

@@ -1,19 +1,18 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
-import { Worker, JobsOptions } from "bullmq";
+import { Worker } from "bullmq";
 import fetch from "node-fetch";
 import { getRedis } from "../lib/redis";
-import KeywordTracking from "../lib/models/keywordTracking.model"; // adjust path
-import mongoose from "mongoose";
-import { connectToDB } from "../lib/db"; // your existing db connector
+import { connectToDB } from "../lib/db"; 
+import KeywordTracking from "../lib/models/keywordTracking.model";
 
 const connection = getRedis();
-const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
-const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
-console.log(username, password);
+const LOGIN = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
+const PASSWORD = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
+const BASE = process.env.DATAFORSEO_BASE ?? "https://api.dataforseo.com/v3/";
 
-if (!username || !password) {
-  console.error("❌ DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD missing in env");
+if (!LOGIN || !PASSWORD) {
+  console.error("❌ DATAFORSEO_LOGIN / DATAFORSEO_PASSWORD missing");
   process.exit(1);
 }
 
@@ -23,37 +22,37 @@ if (!username || !password) {
     process.exit(1);
   });
 })();
+const endpoint = `${BASE}serp/google/organic/live/advanced`;
 
 export const keywordWorker = new Worker(
   "keywordQueue",
   async (job) => {
-    console.log("🟢 Picked job:", job.id, job.name);
-
     const {
+      campaignId,
       keywordId,
+      userId,
       keyword,
       location_code,
       language_code,
-      target,
       device,
       se_domain,
-      campaignId,
-      userId,
+      target,
     } = job.data as {
+      campaignId: string;
       keywordId: string;
+      userId?: string | null;
       keyword: string;
       location_code: number;
       language_code: string;
-      target: string;
       device: "desktop" | "mobile";
       se_domain: string;
-      campaignId: string;
-      userId: string;
+      target: string; 
     };
 
-    await job.updateProgress(5);
+    const redis = getRedis();
+    const progressKey = `campaign:${campaignId}:progress`;
 
-    const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    const basicAuth = Buffer.from(`${LOGIN}:${PASSWORD}`).toString("base64");
     const payload = [
       {
         keyword,
@@ -64,88 +63,61 @@ export const keywordWorker = new Worker(
         target,
       },
     ];
-    console.log(payload, 'sending PAYLOAD');
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-    try {
-      // throttle progress
-      await job.updateProgress(10);
+    const json: any = await res.json();
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${basicAuth}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+    const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
+    const data = json?.tasks?.[0]?.data;
+    const meta = json?.tasks?.[0]?.result?.[0];
 
-      const result: any = await response.json();
-
-      //   if (!response.ok || result.status_code >= 400) {
-      //     console.error("❌ DataForSEO error:", result);
-      //     throw new Error(
-      //       `DataForSEO error: code=${result.status_code}, message=${result.status_message}`
-      //     );
-      //   }
-
-      await job.updateProgress(60);
-
-      // Extract first matched item (you can improve matching logic)
-      const item = result?.tasks?.[0]?.result?.[0]?.items?.[0];
-      const data = result?.tasks?.[0]?.data;
-      const data1=result?.tasks?.[0]?.result?.[0]
-    //   console.log(data, result?.tasks?.[0], item);
-    //   console.log(data1);
-      
-      await KeywordTracking.create(
-        {
-          type: data?.se_type,
-          location_code: data1?.location_code,
-          language_code: data1?.language_code,
-          url: target,
-          rank_group: item?.rank_group || 0,
-          rank_absolute: item?.rank_absolute || 0,
-          keyword: data?.keyword || "",
-          checkUrl: data1?.check_url || "no url",
-          searchVolumn: 0,
-          intent: "",
-          competition: 0,
-          campaignId: campaignId,
+    // Persist a row per keyword run (recommended)
+    await KeywordTracking.create({
+      type: data?.se_type,
+      location_code: meta?.location_code,
+      language_code: meta?.language_code,
+      url: target,
+      rank_group: item?.rank_group ?? 0,
+      rank_absolute: item?.rank_absolute ?? 0,
+      keyword: data?.keyword ?? keyword,
+      checkUrl: meta?.check_url ?? "no url",
+      searchVolumn: 0,
+      intent: "",
+      competition: 0,
+      campaignId: campaignId,
           keywordId: keywordId,
-          start: item?.rank_group || 0,
-        },
-        { new: true }
-      );
+      start: item?.rank_group ?? 0,
+      userId: userId ?? null,
+      // ...any other fields in your model
+    });
 
-      await job.updateProgress(100);
+    // Update progress
+    await redis.hincrby(progressKey, "processed", 1);
+    await redis.hset(progressKey, "lastUpdated", String(Date.now()));
 
-      console.log(
-        `✅ Processed "${keyword}" for target "${target}" — campaign ${campaignId}`
-      );
-      return { ok: true, keyword, rank_group: item?.rank_group ?? 0 };
-    } catch (err) {
-      console.error("❌ Worker job error:", err);
-      throw err; // let BullMQ mark failed
-    }
+    const total = Number((await redis.hget(progressKey, "total")) || 0);
+    const processed = Number((await redis.hget(progressKey, "processed")) || 0);
+    console.log(`✅ [${campaignId}] ${processed}/${total} processed — "${keyword}"`);
   },
   {
     connection,
-    // Rate-limit to avoid hitting API limits, tune as needed
-    limiter: { max: 5, duration: 1000 },
-    // Autoscaling/stability options
     concurrency: 3,
+    limiter: { max: 5, duration: 1000 },
   }
 );
 
-// Useful worker event logs
 keywordWorker.on("active", (job) => {
   console.log(`🚀 Job active: ${job.id}`);
 });
-keywordWorker.on("completed", (job, res) => {
-  console.log(`✅ Job completed: ${job.id}`, res);
+keywordWorker.on("completed", (job) => {
+  console.log(`✅ Job completed: ${job.id}`);
 });
 keywordWorker.on("failed", (job, err) => {
   console.error(`💥 Job failed: ${job?.id}`, err);

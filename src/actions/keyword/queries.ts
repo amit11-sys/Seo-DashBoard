@@ -6,6 +6,7 @@ import Keyword from "@/lib/models/keyword.model";
 // import { getUserCampaign } from "../campaign";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import { keywordQueue } from "@/lib/queue/keywordQueue";
+import { getRedis } from "@/lib/redis";
 // import { getLocation_languageData } from "../locations_Language";
 // import { getKewordRank, getRankIntent, getVolumnRank } from ".";
 const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
@@ -1427,30 +1428,39 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
   const user = await getUserFromToken();
   if (!user) return { error: "Unauthorized" };
 
-
+  // Save new keyword docs
   const addedKeywords = await Promise.all(
     (formData?.keyword || []).map(async (kwStr: string) => {
-      const { keyword, ...rest } = formData;
       return await Keyword.create({
-        ...rest,
-        keywords: kwStr,
+        ...formData,           // includes language, device, location, etc.
+        keywords: kwStr,       // the actual keyword string
         userId: user.id,
         CampaignId: campaign._id,
       });
     })
   );
 
- 
+  // Initialize progress in Redis
+  const redis = getRedis();
+  const progressKey = `campaign:${campaign._id.toString()}:progress`;
+  await redis.hset(progressKey, {
+    total: String(addedKeywords.length),
+    processed: "0",
+    lastUpdated: String(Date.now()),
+  });
+  await redis.expire(progressKey, 60 * 60);
+
+  // Enqueue jobs for each keyword
   await Promise.all(
     addedKeywords.map((kw) =>
       keywordQueue.add("fetchKeywordRanking", {
         keywordId: kw._id.toString(),
-        keyword: kw.keywords,
-        location_code: kw.searchLocationCode, 
-        language_code: kw.language,       
-        target: `*${kw.url}*`,            
-        device: kw.deviceType,            
-        se_domain: kw.SearchEngine,      
+        keyword: kw.keywords,               // must match what you stored
+        location_code: kw.searchLocationCode,
+        language_code: kw.language,
+        target: `*${kw.url}*`,
+        device: kw.deviceType,
+        se_domain: kw.SearchEngine,
         campaignId: campaign._id.toString(),
         userId: user.id.toString(),
       })
@@ -1466,3 +1476,4 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
     counts,
   };
 };
+

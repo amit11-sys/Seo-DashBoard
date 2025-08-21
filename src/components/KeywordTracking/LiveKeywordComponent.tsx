@@ -198,7 +198,48 @@ setSortedDataForExel(data);
     if (campaignLiveKeywordsData) {
       keywordTableData();
     }
-  }, [campaignLiveKeywordsData, done]);
+  }, [campaignLiveKeywordsData]);
+
+useEffect(() => {
+  if (done) {
+    (async () => {
+      // console.log("✅ Done detected, fetching latest keyword data...");
+
+      const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
+
+      if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+        const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
+        const topRankData = campaignLiveKeywordsData?.topRankData?.data;
+
+        const data = rawData.map((item: any) => ({
+          keyword: item?.keyword || "",
+          keywordId: item.keywordId,
+          location: item?.location_name?.locationName?.locationName || "",
+          intent: item?.intent || "",
+          start: item?.start || 0,
+          checkUrl: item?.checkUrl || "",
+          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+          Absolute_Rank: item?.rank_absolute || 0,
+          Group_Rank: item?.rank_group || 0,
+          sevenDays: "-",
+          life: item?.rank_absolute || 0,
+          comp: item?.competition || 0,
+          sv: item?.searchVolumn || 0,
+          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item?.url || "",
+        }));
+
+        setTableBody(data);
+        if (topRankData) setCardCounts(topRankData);
+      }
+    })();
+  }
+}, [done, campaignId]);
+
 
   const keywordTableData = () => {
     console.log("calling fn");

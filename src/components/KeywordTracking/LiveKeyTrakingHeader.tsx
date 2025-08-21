@@ -155,7 +155,7 @@ fetchUpdatedDate();
     <ProgressBar processed={processed} total={total} done={done} />
     <span className="text-sm text-gray-600">
       {processed}/{total}{" "}
-      {done ? "(Completed)" : "(Processing...)"}
+      {/* {done ? "(Completed)" : "(Processing...)"} */}
     </span>
   </div>
 )}

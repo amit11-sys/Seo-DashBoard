@@ -154,7 +154,7 @@ fetchUpdatedDate();
   <div className="flex items-center gap-2">
     <ProgressBar processed={processed} total={total} done={done} />
     <span className="text-sm text-gray-600">
-      {processed}/{total}{" "}
+      {done ? '' : processed/total}{" "}
       {/* {done ? "(Completed)" : "(Processing...)"} */}
     </span>
   </div>

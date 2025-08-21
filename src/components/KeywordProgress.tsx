@@ -9,21 +9,25 @@ export function ProgressBar({
   total: number;
   done: boolean;
 }) {
-  const [showCompleted, setShowCompleted] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (done) {
-      setShowCompleted(true);
-      // hide after 3 seconds
+      // show bar immediately when completed
+      setVisible(true);
+      // hide after 3s
       timer = setTimeout(() => {
-        setShowCompleted(false);
+        setVisible(false);
       }, 3000);
+    } else {
+      // reset visibility while processing
+      setVisible(true);
     }
     return () => clearTimeout(timer);
   }, [done]);
 
-  if (!total || total === 0) return null;
+  if (!total || total === 0 || !visible) return null;
 
   const percent = Math.round((processed / total) * 100);
 
@@ -39,9 +43,7 @@ export function ProgressBar({
       </div>
       <span className="text-xs text-gray-700">
         {done
-          ? showCompleted
-            ? "✅ Completed"
-            : null
+          ? "✅ Completed"
           : `Processing keywords... (${processed}/${total})`}
       </span>
     </div>

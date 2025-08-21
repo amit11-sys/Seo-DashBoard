@@ -192,7 +192,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     // );
     const newLiveKeywordDbData = await Promise.all(
       LiveKeywordDbData.map(async (item) => {
-        const locationName = await fetchDBlocationData(item.location_code);
+        const locationName = await fetchDBlocationData(item?.location_code);
         // console.log(item, "location map");
 
         const plainItem = item.toObject(); // convert to plain JS object

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export function ProgressBar({
   processed,
@@ -9,6 +9,20 @@ export function ProgressBar({
   total: number;
   done: boolean;
 }) {
+  const [showCompleted, setShowCompleted] = useState(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (done) {
+      setShowCompleted(true);
+      // hide after 3 seconds
+      timer = setTimeout(() => {
+        setShowCompleted(false);
+      }, 3000);
+    }
+    return () => clearTimeout(timer);
+  }, [done]);
+
   if (!total || total === 0) return null;
 
   const percent = Math.round((processed / total) * 100);
@@ -25,7 +39,9 @@ export function ProgressBar({
       </div>
       <span className="text-xs text-gray-700">
         {done
-          ? "✅ Completed"
+          ? showCompleted
+            ? "✅ Completed"
+            : null
           : `Processing keywords... (${processed}/${total})`}
       </span>
     </div>

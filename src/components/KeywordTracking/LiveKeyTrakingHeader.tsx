@@ -83,8 +83,8 @@ useEffect(() => {
 const fetchUpdatedDate = async () => {
 
   try {
-    const refreshedCampaign = await getDbLiveKeywordData(campaignId);
-    console.log(refreshData, "refreshedCampaignok");
+    const refreshedCampaign:any = await getDbLiveKeywordData(campaignId);
+    // console.log(refreshData, "refreshedCampaignok");
     if (refreshedCampaign?.newLiveKeywordDbData) {
       const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
       setRefreshData(formatLastUpdated(lastUpdated));

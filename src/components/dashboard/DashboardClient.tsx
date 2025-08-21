@@ -291,16 +291,16 @@ const DashboardClient = () => {
         return {
           name: item?.projectUrl || "",
           date: formattedDate,
-          integration: keywordsData?.integration || "GSC",
+          // integration: keywordsData?.integration || "GSC",
           searcher: keywordsData?.language_code || "US",
-          audit: keywordsData?.audit || 25,
+          // audit: keywordsData?.audit || 25,
           kwds: keywordsCount?.length || 0,
           top3: keywordsData?.top3 || 0,
           top10: keywordsData?.top10 || 0,
           top20: keywordsData?.top20 || 0,
           top30: keywordsData?.top30 || 0,
           top100: keywordsData?.top100 || 0,
-          backlinks: keywordsData?.backlinks || 0,
+          // backlinks: keywordsData?.backlinks || 0,
           ...(campaignStatus === 2 && {
             action: (
               <div className="flex gap-2">

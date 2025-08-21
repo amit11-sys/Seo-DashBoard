@@ -1,27 +1,47 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
 
-const KeywordTrackingSchema = new mongoose.Schema(
+interface IKeywordTracking extends Document {
+  type?: string;
+  location_code: number;
+  language_code?: string;
+  url?: string;
+  keywordTag?: string;
+  rank_group: number;
+  rank_absolute?: number;
+  keyword?: string;
+  location_name?: string;
+  searchVolumn?: number;
+  intent?: string;
+  competition?: number;
+  start?: number;
+  checkUrl?: string;
+  keywordsUp?: number;
+  top3?: number;
+  top10?: number;
+  top20?: number;
+  top30?: number;
+  top100?: number;
+  campaignId?: mongoose.Schema.Types.ObjectId;
+  keywordId?: mongoose.Schema.Types.ObjectId;
+  status?: number;
+}
+
+const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
   {
-    type: { type: String }, // "organic"
-    location_code: { type: Number }, // 2124
+    type: { type: String },
+    location_code: { type: Number },
     language_code: { type: String },
     url: { type: String },
-    keywordTag: { type: String }, //
-    rank_group: { type: Number }, // 2
+    keywordTag: { type: String },
+    rank_group: { type: Number },
     rank_absolute: { type: Number },
     keyword: { type: String },
-    location_name: { type: String }, // 3
+    location_name: { type: String },
     searchVolumn: { type: Number },
     intent: { type: String },
     competition: { type: Number },
     start: { type: Number },
-      checkUrl : { type: String },
-    //  competition: { type: Number },
-    //  intent: { type: String },
-    // SearchEngine:{ type: String },
-    // language :  { type: String }, // "en"
-    // deviceType: { type: String },
-    // campaignId: { type: String},
+    checkUrl: { type: String },
     keywordsUp: { type: Number },
     top3: { type: Number },
     top10: { type: Number },
@@ -30,19 +50,13 @@ const KeywordTrackingSchema = new mongoose.Schema(
     top100: { type: Number },
     campaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
     keywordId: { type: mongoose.Schema.Types.ObjectId, ref: "Keyword" },
-    status: {
-      type: Number,
-
-      default: 1,
-    },
+    status: { type: Number, default: 1 },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const KeywordTracking =
+const KeywordTracking: Model<IKeywordTracking> =
   mongoose.models.KeywordTracking ||
-  mongoose.model("KeywordTracking", KeywordTrackingSchema);
+  mongoose.model<IKeywordTracking>("KeywordTracking", KeywordTrackingSchema);
 
 export default KeywordTracking;

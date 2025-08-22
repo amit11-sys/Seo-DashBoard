@@ -17,17 +17,17 @@ import Loader from "../global/Loader";
 import { useCampaignData } from "@/app/context/CampaignContext";
 import DownloadKeywordExcelBtn from "@/components/KeywordTracking/DownloadKeywordExcelBtn";
 import { useEffect, useState } from "react";
-import { getDbLiveKeywordData, getTrackingData } from "@/actions/keywordTracking";
+import { getDbLiveKeywordData, getDbLiveKeywordDataWithSatusCode, getTrackingData } from "@/actions/keywordTracking";
 // import { useCampaignProgress } from "@/hooks/useCampaignProgress";
 import { ProgressBar } from "../KeywordProgress";
 interface CampaignIdProps {
   campaignId: string;
 }
-export default   function LiveKeyTrakingHeader( {sortedDataExel,setIsLoading,campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData, total, processed, done} :any) {
+export default   function LiveKeyTrakingHeader( {sortedDataExel,campaignStatus,setIsLoading,campaignId, showAddedKeyword,compaigndata,updatedTopRankOnAddedKeyword,tableHeader,tableData, total, processed, done} :any) {
 const {  startLoading, stopLoading } = useLoader();
 const [refreshData, setRefreshData] = useState("");
   //  const { total, processed, done } = useCampaignProgress(campaignId);
-const campaignStatus = compaigndata[0]?.status || 1
+// const campaignStatus = compaigndata[0]?.status || 1
  
 function formatLastUpdated(createdAt: string) {
   const date = new Date(createdAt);
@@ -81,34 +81,56 @@ function formatLastUpdated(createdAt: string) {
 };
 
 
+// useEffect(() => {
+// const fetchUpdatedDate = async () => {
+
+//   try {
+//     const refreshedCampaign:any = await getDbLiveKeywordDataWithSatusCode(campaignId,campaignStatus);
+//     // console.log(refreshData, "refreshedCampaignok");
+//     if (refreshedCampaign?.newLiveKeywordDbData) {
+//       const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
+//       setRefreshData(formatLastUpdated(lastUpdated));
+//     } else {
+//       setRefreshData("No updates available");
+//     }
+//   } catch (error) {
+//     console.error("Error fetching campaign data:", error);
+//     setRefreshData("Failed to fetch update time");
+//   }
+
+
+
+// }
+
+// ;
+// fetchUpdatedDate();
+
+
+// }, []);
+
 useEffect(() => {
-const fetchUpdatedDate = async () => {
+  const fetchUpdatedDate = async () => {
+    try {
+      if (!campaignId || !campaignStatus) return; // guard for missing data
 
-  try {
-    const refreshedCampaign:any = await getDbLiveKeywordData(campaignId);
-    // console.log(refreshData, "refreshedCampaignok");
-    if (refreshedCampaign?.newLiveKeywordDbData) {
-      const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
-      setRefreshData(formatLastUpdated(lastUpdated));
-    } else {
-      setRefreshData("No updates available");
+      const refreshedCampaign:any = await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
+
+      console.log(refreshedCampaign?.newLiveKeywordDbData, "refreshedCampaignok");
+
+if (refreshedCampaign?.newLiveKeywordDbData && refreshedCampaign.newLiveKeywordDbData.length > 0) {
+       const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
+        setRefreshData(formatLastUpdated(lastUpdated));
+      } else {
+        setRefreshData("No updates available");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign data:", error);
+      setRefreshData("Failed to fetch update time");
     }
-  } catch (error) {
-    console.error("Error fetching campaign data:", error);
-    setRefreshData("Failed to fetch update time");
-  }
+  };
 
-
-
-}
-
-;
-fetchUpdatedDate();
-
-
-}, []);
-
-
+  fetchUpdatedDate();
+}, [campaignId, campaignStatus]);
 
 
  const iconButtons = [

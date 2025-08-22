@@ -45,7 +45,7 @@ export default function SignInForm() {
         const campaignId = user?.campaignId
 
         if (campaignId) {
-          router.push(`/dashboard/${campaignId}`);
+          router.push(`/dashboard`);
         }
         else {
           router.push(`/add-campaign`);

@@ -35,13 +35,13 @@ interface NavProps {
   }[];
 }
 
-export function Nav({ links=[], isCollapsed }: NavProps) {
+export function Nav({ links = [], isCollapsed }: NavProps) {
   const pathName = usePathname();
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
     null
   );
   console.log(links,"links");
- 
+
   // useEffect(() => {
   //   // setCampaignData(campaign);
   // }, []);
@@ -78,7 +78,7 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
           );
 
           return (
-            <div key={index} className="relative  w-full  ">
+            <div key={index} className="relative  w-full   ">
               {isCollapsed ? (
                 <Popover>
                   <PopoverTrigger asChild>
@@ -98,7 +98,9 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
                       )}
                     >
                       <link.icon className="h-4 text-2xl w-4 bg-slate-800 " />
-                      <span className="sr-only">{link.title.replace(/^https?:\/\/(www\.)?/, "")}</span>
+                      <span className="sr-only">
+                        {link.title.replace(/^https?:\/\/(www\.)?/, "")}
+                      </span>
                     </Link>
                   </PopoverTrigger>
                   <PopoverContent
@@ -106,7 +108,9 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
                     className="flex w-64 flex-col gap-4 border-l-2 bg-white"
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <span>{link.title.replace(/^https?:\/\/(www\.)?/, "")}</span>
+                      <span>
+                        {link.title.replace(/^https?:\/\/(www\.)?/, "")}
+                      </span>
                       <div className="">
                         {link.label && (
                           <span className="ml-auto bg-slate-800 font-semibold ">
@@ -138,7 +142,10 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
                             )}
                           >
                             <dropdownItem.icon className="h-4 w-4 text-primary" />
-                            {dropdownItem.title.replace(/^https?:\/\/(www\.)?/, "")}
+                            {dropdownItem.title.replace(
+                              /^https?:\/\/(www\.)?/,
+                              ""
+                            )}
                             {dropdownItem.label && (
                               <span
                                 className={cn(
@@ -217,14 +224,16 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
                         duration: 0.6,
                       }}
                       className={cn(
-                        "ml-5 mt-1  text-2xl space-y-1 border-l-2 border-primary bg-background",
+                        "ml-5 mt-1  text-2xl space-y-1 border-l-2 overflow-y-auto   border-primary bg-background",
                         "transition-opacity duration-300 ease-in-out",
                         openDropdownIndex === index
                           ? "block translate-y-0 opacity-100"
-                          : "hidden -translate-y-2 opacity-0"
+                          : "hidden -translate-y-2 opacity-0",
+                        "max-h-72 overflow-y-auto pr-2"
                       )}
                     >
                       {link.dropdownItems.map((dropdownItem, i) => (
+                       
                         <Link
                           key={i}
                           href={dropdownItem.href}
@@ -236,11 +245,16 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
                                   : "ghost",
                               size: "sm",
                             }),
-                            "flex  hover:scale-[1.03] mt-3 border-1 rounded-sm items-center overflow-x-hidden text-sm justify-start gap-2  pl-0"
+                            "flex hover:scale-[1.04] mt-3 border-1 rounded-sm items-center overflow-x-hidden text-sm justify-start gap-2 pl-0",
+                            pathName === dropdownItem.href &&
+                              "bg-primary/10 text-primary font-semibold border-l-4  border-primary"
                           )}
                         >
                           <dropdownItem.icon className="h-4 w-4 text-primary" />
-                          {dropdownItem.title.replace(/^https?:\/\/(www\.)?/, "")}
+                          {dropdownItem.title.replace(
+                            /^https?:\/\/(www\.)?/,
+                            ""
+                          )}
                           {dropdownItem.label && (
                             <span
                               className={cn(
@@ -262,14 +276,13 @@ export function Nav({ links=[], isCollapsed }: NavProps) {
           );
         })}
       </nav>
-  {/* ) : ( */}
+      {/* ) : ( */}
 
-     {/* <div className="text-center text-muted-foreground py-10 text-sm">
+      {/* <div className="text-center text-muted-foreground py-10 text-sm">
         No compaign
       </div> */}
 
-  {/* )} */}
+      {/* )} */}
     </div>
   );
 }
-

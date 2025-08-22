@@ -250,7 +250,7 @@ fetchlanguage()
 
     const payload = {
       ...values,
-      keyword: Keywords,
+      keyword: Keywords || [],
       // searchLocationCode:
     };
 

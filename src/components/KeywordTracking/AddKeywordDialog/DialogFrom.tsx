@@ -32,6 +32,7 @@ import {
 } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
 import { getfetchDBlocationData } from "@/actions/keywordTracking";
+import { GetCampaignByid } from "@/actions/campaign/queries";
 // import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 // const schema = z.object({
@@ -49,7 +50,11 @@ interface DialogFormProps {
   updatedTopRankOnAddedKeyword: () => void;
 }
 
-const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword }: DialogFormProps) => {
+const DialogForm = ({
+  campaignId,
+  showAddedKeyword,
+  updatedTopRankOnAddedKeyword,
+}: DialogFormProps) => {
   const { startLoading, stopLoading } = useLoader();
   const form = useForm({
     resolver: zodResolver(addKeywordsSchema),
@@ -79,6 +84,25 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
   const [isPending, startTransition] = useTransition();
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
   const [languages, setLanguages] = useState<string[]>([]);
+  const [defaultUrl, setDefaulturl] = useState<string>("");
+
+  const setDefaultUrl = async () => {
+    if (!campaignId) {
+      console.warn("No campaignId provided");
+      setDefaulturl("");
+      return;
+    }
+
+    try {
+      const campaignData = await GetCampaignByid(campaignId);
+
+      const url = campaignData?.campaign?.projectUrl ?? "";
+      setDefaulturl(url);
+    } catch (error) {
+      console.error("Failed to fetch campaign data:", error);
+      setDefaulturl("");
+    }
+  };
 
   // ✅ Memoize debounced function so it survives re-renders
   const debouncedFetch = useMemo(() => {
@@ -123,6 +147,11 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
     };
     fetchlanguage();
   }, []);
+  useEffect(() => {
+  if (defaultUrl) {
+    form.reset({ url: defaultUrl });
+  }
+}, [defaultUrl, form]);
 
   const onSubmit = async () => {
     const isValid = await form.trigger();
@@ -164,7 +193,7 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
       const matchlocation = await getfetchDBlocationData(
         form.getValues("searchLocationCode")
       );
-      await updatedTopRankOnAddedKeyword()
+      await updatedTopRankOnAddedKeyword();
 
       if (response?.addedKeywords && matchlocation?.locationName) {
         const modifiedKeywords = response.addedKeywords.map((item: {}) => ({
@@ -174,8 +203,6 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
 
         await showAddedKeyword(modifiedKeywords);
       }
-     
-    
 
       // Optionally, you can log the response or handle it as needed
       console.log("Submitted:", response);
@@ -194,9 +221,9 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
       });
 
       setKeywords([]);
-      setQuery(""); 
+      setQuery("");
       setVolumnQuery("");
-      setKeywordsText(""); 
+      setKeywordsText("");
       setOpen(false);
       stopLoading();
       // await getDbLiveKeywordData(campaignId.campaignId)
@@ -305,7 +332,15 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
   ];
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (isOpen) {
+          setDefaultUrl(); // run only when opening
+        }
+      }}
+    >
       <DialogTrigger className="bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white px-5 py-4 rounded-full text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105">
         Add Keywords
       </DialogTrigger>
@@ -326,6 +361,8 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
                 control={form.control}
                 render={({ field }) => (
                   <NewCustomInput
+                    disabled={true}
+                    defaultValue={defaultUrl}
                     placeholder="Enter Domain URL"
                     {...field}
                     errorMessage={form.formState.errors.url?.message}

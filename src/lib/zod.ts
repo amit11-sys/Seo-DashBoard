@@ -39,10 +39,10 @@ export const campaignSchema = z.object({
   searchLocationCode: z.number().min(1, { message: "Search Location is required" }),
   keywordTag: z.string().optional(),
   SearchEngine: z.string().min(1, { message: "Search Engine is required" }),
-  // keyword: z.string().min(1, { message: "Please provide at least one keyword" }),
-  keyword: z.array(
-    z.string().min(1, { message: "Please provide at least one keyword" })
-  ),
+  keyword:  z.array(z.string()).optional(),
+  // keyword: z.array(
+  //   z.string().min(1, { message: "Please provide at least one keyword" })
+  // ),
 
   volumeLocationCode: z.number().min(1, { message: "Search volumn Location is required" }),
   language: z.string().min(1, { message: "Language is required" }),

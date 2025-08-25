@@ -150,18 +150,21 @@ const DialogForm = ({
   useEffect(() => {
   if (defaultUrl) {
     form.reset({ url: defaultUrl });
+    setDefaultUrl()
   }
 }, [defaultUrl, form]);
+
 
   const onSubmit = async () => {
     const isValid = await form.trigger();
     if (Keywords.length === 0) {
-      setKeywordError("Please enter at least one keyword.");
-      return;
-    } else {
-      setKeywordError(null);
-    }
-    if (!isValid) return;
+        setKeywordError("Please enter at least one keyword.");
+        return;
+      } else {
+          setKeywordError(null);
+        }
+        
+        console.log("okokok")
 
     const payload = {
       ...form.getValues(),
@@ -182,9 +185,9 @@ const DialogForm = ({
 
       if (!res.ok) throw new Error("Failed to create keywords");
       if (!res.ok) throw new Error("Failed to create keywords");
-      console.log(res, "res addd");
-
+      
       const response = await res.json();
+      console.log(response, "res addd");
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
       // }

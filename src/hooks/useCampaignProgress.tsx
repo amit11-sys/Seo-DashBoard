@@ -1,6 +1,7 @@
+'use client'
 import { useEffect, useState } from "react";
 
-export function useCampaignProgress(campaignId: string, interval = 3000) {
+export function useCampaignProgress(campaignId: string, interval = 3000, refreshKey = 0) {
   const [progress, setProgress] = useState<{
     total: number;
     processed: number;
@@ -25,7 +26,7 @@ export function useCampaignProgress(campaignId: string, interval = 3000) {
             done: data.done,
           });
 
-          // stop polling if done
+
           if (data.done && timer) {
             clearInterval(timer);
           }
@@ -39,7 +40,7 @@ export function useCampaignProgress(campaignId: string, interval = 3000) {
     timer = setInterval(fetchProgress, interval);
 
     return () => clearInterval(timer);
-  }, [campaignId, interval]);
+  }, [campaignId, interval, refreshKey]);
 
   return progress;
 }

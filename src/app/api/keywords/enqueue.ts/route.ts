@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       device,
       se_domain,
       target,
-      userId,            // optional, if you want to associate
+      userId,
     } = body;
 
     if (!campaignId || !Array.isArray(keywords) || keywords.length === 0) {
@@ -24,16 +24,14 @@ export async function POST(req: NextRequest) {
     const redis = getRedis();
     const progressKey = `campaign:${campaignId}:progress`;
 
-    // Initialize progress for this run
     await redis.hset(progressKey, {
       total: String(keywords.length),
       processed: "0",
       lastUpdated: String(Date.now()),
     });
-    // Optional: expire progress after some time
+
     await redis.expire(progressKey, 60 * 60); // 1h
 
-    // Enqueue each keyword as its own job
     for (const keyword of keywords) {
       await keywordQueue.add(
         "fetchKeywordRanking",

@@ -100,7 +100,8 @@ const LiveKeywordComponent = ({
   campaignId,
   // campaignStatus
 }: LiveKeywordComponentProps) => {
-  const { total, processed, done } = useCampaignProgress(campaignId);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { total, processed, done } = useCampaignProgress(campaignId, 3000, refreshKey);
   const [tableBody, setTableBody] = useState<any[]>([]);
   const [cardCounts, setCardCounts] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
@@ -126,7 +127,7 @@ const LiveKeywordComponent = ({
         const campaignDataWithId = await getGetCampaignByid(campaignId);
         const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
         setCampaignStatus(campaignStatus);
-        const liveKeywordData = await getDbLiveKeywordDataWithSatusCode(
+        const liveKeywordData:any = await getDbLiveKeywordDataWithSatusCode(
           campaignId,
           campaignStatus
         );
@@ -235,8 +236,8 @@ const LiveKeywordComponent = ({
       (async () => {
         // console.log("✅ Done detected, fetching latest keyword data...");
 
-        const campaignLiveKeywordsData =
-          await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
+        const campaignLiveKeywordsData  = await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
+          // console.log(campaignLiveKeywordsData, "getDbLiveKeywordDataWithSatusCode");
         // const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
 
         if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
@@ -423,6 +424,7 @@ const LiveKeywordComponent = ({
           total={total}
           processed={processed}
           done={done}
+          setRefresh={setRefreshKey}
         />
       </div>
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">

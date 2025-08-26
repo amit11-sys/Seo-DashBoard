@@ -3,6 +3,8 @@ import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import { getDbLiveKeywordData } from "../keywordTracking";
+import { getRedis } from "@/lib/redis";
+import { keywordQueue } from "@/lib/queue/keywordQueue";
 // import { getLocation_languageData } from "../locations_Language";
 import { getKewordRank, getRankIntent, getVolumnRank } from "../keyword/queries";
 interface KeywordPayload {
@@ -20,7 +22,7 @@ interface ErrorResponse {
 }
 const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
 const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
-export const addkeywords = async (formData: any) => {
+export const addkeywordsok = async (formData: any) => {
   try {
     await connectToDB();
 
@@ -241,4 +243,71 @@ const finalData: any =
     console.log(error);
     return { error: "Internal Server Error." };
   }
+};
+
+export const addkeywords= async (formData: any) => {
+  await connectToDB();
+  const user = await getUserFromToken();
+  if (!user) return { error: "Unauthorized" };
+const campaignId = formData?.campaignId; // ✅ FIXED
+    // console.log(campaignId, "formdat id");
+    const { keywords, ...rest } = formData;
+  // Save new keyword docs
+  // const addedKeywords = await Promise.all(
+  //   (formData?.keyword || []).map(async (kwStr: string) => {
+  //     return await Keyword.create({
+  //       ...formData, // includes language, device, location, etc.
+  //       keywords: kwStr, // the actual keyword string
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //   })
+  // );
+  const newAddKeyword = await Promise.all(
+      keywords.map(async (singleKeyword: string) => {
+        return await Keyword.create({
+          ...rest,
+          keywords: singleKeyword,
+          userId: user.id,
+          CampaignId: campaignId, // ✅ FIXED
+        });
+      })
+    );
+
+  const redis = getRedis();
+  const progressKey = `campaign:${campaignId.toString()}:progress`;
+  await redis.hset(progressKey, {
+    total: String(newAddKeyword.length),
+    processed: "0",
+    lastUpdated: String(Date.now()),
+  });
+  await redis.expire(progressKey, 60 * 60);
+
+  // Enqueue jobs for each keyword
+  await Promise.all(
+    newAddKeyword.map((kw) =>
+      keywordQueue.add("fetchKeywordRanking", {
+        keywordId: kw._id.toString(),
+        keyword: kw.keywords, // must match what you stored
+        location_code: kw.searchLocationCode,
+        language_code: kw.language,
+        target: kw.url,
+
+        device: kw.deviceType,
+        se_domain: kw.SearchEngine,
+        campaignId: campaignId.toString(),
+        userId: user.id.toString(),
+      })
+    )
+  );
+
+  const counts = await keywordQueue.getJobCounts();
+
+  return {
+    success: true,
+    message: "Keywords queued for live ranking",
+    queued: newAddKeyword.length,
+    counts,
+
+  };
 };

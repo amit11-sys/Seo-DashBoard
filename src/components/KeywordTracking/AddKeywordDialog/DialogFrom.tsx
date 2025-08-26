@@ -46,15 +46,16 @@ import { GetCampaignByid } from "@/actions/campaign/queries";
 // });
 interface DialogFormProps {
   campaignId: string;
-  showAddedKeyword: (keywords: string[]) => void;
-  updatedTopRankOnAddedKeyword: () => void;
+  // showAddedKeyword: (keywords: string[]) => void;
+  // updatedTopRankOnAddedKeyword: () => void;
 }
 
 const DialogForm = ({
   campaignId,
-  showAddedKeyword,
-  updatedTopRankOnAddedKeyword,
-}: DialogFormProps) => {
+  onClose
+  // showAddedKeyword,
+  // updatedTopRankOnAddedKeyword,
+}: any) => {
   const { startLoading, stopLoading } = useLoader();
   const form = useForm({
     resolver: zodResolver(addKeywordsSchema),
@@ -173,7 +174,7 @@ const DialogForm = ({
     };
 
     console.log(payload, "add kewywords front end data payloadd");
-    startLoading();
+    // startLoading();
     try {
       const res = await fetch("/api/add-keywords", {
         method: "POST",
@@ -187,25 +188,26 @@ const DialogForm = ({
       if (!res.ok) throw new Error("Failed to create keywords");
       
       const response = await res.json();
+    onClose();
       console.log(response, "res addd");
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
       // }
       console.log(response.addedKeywords, "Response from API");
       console.log(form.getValues("searchLocationCode"), "cod location");
-      const matchlocation = await getfetchDBlocationData(
-        form.getValues("searchLocationCode")
-      );
-      await updatedTopRankOnAddedKeyword();
+      // const matchlocation = await getfetchDBlocationData(
+      //   form.getValues("searchLocationCode")
+      // );
+      // await updatedTopRankOnAddedKeyword();
 
-      if (response?.addedKeywords && matchlocation?.locationName) {
-        const modifiedKeywords = response.addedKeywords.map((item: {}) => ({
-          ...item,
-          location_name: matchlocation.locationName.locationName, // <- direct string
-        }));
+      // if (response?.addedKeywords && matchlocation?.locationName) {
+      //   const modifiedKeywords = response.addedKeywords.map((item: {}) => ({
+      //     ...item,
+      //     location_name: matchlocation.locationName.locationName, // <- direct string
+      //   }));
 
-        await showAddedKeyword(modifiedKeywords);
-      }
+      //   await showAddedKeyword(modifiedKeywords);
+      // }
 
       // Optionally, you can log the response or handle it as needed
       console.log("Submitted:", response);
@@ -228,7 +230,7 @@ const DialogForm = ({
       setVolumnQuery("");
       setKeywordsText("");
       setOpen(false);
-      stopLoading();
+      // stopLoading();
       // await getDbLiveKeywordData(campaignId.campaignId)
     } catch (error) {
       console.error("Submission Error:", error);

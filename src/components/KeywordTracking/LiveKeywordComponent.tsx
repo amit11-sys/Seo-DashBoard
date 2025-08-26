@@ -10,7 +10,10 @@ import { FaStar } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import LiveKeyTrakingHeader from "@/components/KeywordTracking/LiveKeyTrakingHeader";
-import { getDbLiveKeywordData } from "@/actions/keywordTracking";
+import {
+  getDbLiveKeywordData,
+  getDbLiveKeywordDataWithSatusCode,
+} from "@/actions/keywordTracking";
 import { log, table } from "console";
 import KeywordTextArea from "../KeywordTextArea";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
@@ -19,6 +22,7 @@ import { useCampaignData } from "@/app/context/CampaignContext";
 import { set } from "mongoose";
 import DeleteConfirm from "./Keywordtable/KeywordDel";
 import { useCampaignProgress } from "@/hooks/useCampaignProgress";
+import { getGetCampaignByid } from "@/actions/campaign";
 
 type Tableitems = {
   key: string;
@@ -59,7 +63,7 @@ interface campaignId {
   campaignId: any;
 }
 interface LiveKeywordComponentProps {
-  campaignLiveKeywordsData: {
+  campaignLiveKeywordsData?: {
     success?: boolean;
     message?: string;
     error?: string;
@@ -75,7 +79,7 @@ interface LiveKeywordComponentProps {
     };
   };
   campaignId: string;
-  campaignStatus?: number
+  campaignStatus?: number;
 }
 
 interface HeaderProps {
@@ -92,30 +96,57 @@ interface HeaderProps {
 }
 
 const LiveKeywordComponent = ({
-  campaignLiveKeywordsData,
+  // campaignLiveKeywordsData,
   campaignId,
   // campaignStatus
-
-  
 }: LiveKeywordComponentProps) => {
-   const { total, processed, done } = useCampaignProgress(campaignId);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { total, processed, done } = useCampaignProgress(campaignId, 3000, refreshKey);
   const [tableBody, setTableBody] = useState<any[]>([]);
   const [cardCounts, setCardCounts] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
   const [totalKeywords, setTotalKeywords] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [sortedDataExel, setSortedDataForExel] = useState<TablebodyItems[]>([]);
+  const [campaignLiveKeywordsData, setCampaignLiveKeywordsData] =
+    useState<any>();
+  const [campaignStatus, setCampaignStatus] = useState<number>(1);
+  //  const [campaignStatus, setCampaignStatus] = useState<number>(campaignStatus
 
   console.log(cardCounts, "cardCounts");
   const { setActiveSingleCampaign } = useCampaignData();
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
-const setExelData = (data:any) => {
-setSortedDataForExel(data);
+  const setExelData = (data: any) => {
+    setSortedDataForExel(data);
+  };
+  useEffect(() => {
+    const fetchLiveKeywordData = async () => {
+      try {
+        if (!campaignId) return;
 
-}
+        const campaignDataWithId = await getGetCampaignByid(campaignId);
+        const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
+        setCampaignStatus(campaignStatus);
+        const liveKeywordData:any = await getDbLiveKeywordDataWithSatusCode(
+          campaignId,
+          campaignStatus
+        );
+
+        setCampaignLiveKeywordsData(liveKeywordData);
+      } catch (error) {
+        console.error("Error fetching live keyword data:", error);
+      }
+    };
+
+    fetchLiveKeywordData();
+  }, [campaignId]);
   useEffect(() => {
     const fetchDBLiveDatagain = async () => {
-      const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
+      const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
+        campaignId,
+        campaignStatus
+      );
+      // const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
 
       if (campaignLiveKeywordsData.newLiveKeywordDbData) {
         const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
@@ -200,46 +231,47 @@ setSortedDataForExel(data);
     }
   }, [campaignLiveKeywordsData]);
 
-useEffect(() => {
-  if (done) {
-    (async () => {
-      // console.log("✅ Done detected, fetching latest keyword data...");
+  useEffect(() => {
+    if (done) {
+      (async () => {
+        // console.log("✅ Done detected, fetching latest keyword data...");
 
-      const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
+        const campaignLiveKeywordsData  = await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
+          // console.log(campaignLiveKeywordsData, "getDbLiveKeywordDataWithSatusCode");
+        // const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
 
-      if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
-        const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
-        const topRankData = campaignLiveKeywordsData?.topRankData?.data;
+        if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+          const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
+          const topRankData = campaignLiveKeywordsData?.topRankData?.data;
 
-        const data = rawData.map((item: any) => ({
-          keyword: item?.keyword || "",
-          keywordId: item.keywordId,
-          location: item?.location_name?.locationName?.locationName || "",
-          intent: item?.intent || "",
-          start: item?.start || 0,
-          checkUrl: item?.checkUrl || "",
-          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-          Absolute_Rank: item?.rank_absolute || 0,
-          Group_Rank: item?.rank_group || 0,
-          sevenDays: "-",
-          life: item?.rank_absolute || 0,
-          comp: item?.competition || 0,
-          sv: item?.searchVolumn || 0,
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item?.url || "",
-        }));
+          const data = rawData.map((item: any) => ({
+            keyword: item?.keyword || "",
+            keywordId: item.keywordId,
+            location: item?.location_name?.locationName?.locationName || "",
+            intent: item?.intent || "",
+            start: item?.start || 0,
+            checkUrl: item?.checkUrl || "",
+            page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+            Absolute_Rank: item?.rank_absolute || 0,
+            Group_Rank: item?.rank_group || 0,
+            sevenDays: "-",
+            life: item?.rank_absolute || 0,
+            comp: item?.competition || 0,
+            sv: item?.searchVolumn || 0,
+            date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "2-digit",
+            }),
+            rankingUrl: item?.url || "",
+          }));
 
-        setTableBody(data);
-        if (topRankData) setCardCounts(topRankData);
-      }
-    })();
-  }
-}, [done, campaignId]);
-
+          setTableBody(data);
+          if (topRankData) setCardCounts(topRankData);
+        }
+      })();
+    }
+  }, [done, campaignId]);
 
   const keywordTableData = () => {
     console.log("calling fn");
@@ -380,9 +412,9 @@ useEffect(() => {
       {/* Header */}
       <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
-        sortedDataExel={sortedDataExel}
-        setIsLoading={setIsLoading}
-          // campaignStatus={campaignStatus}
+          sortedDataExel={sortedDataExel}
+          setIsLoading={setIsLoading}
+          campaignStatus={campaignStatus}
           tableHeader={tableHeader}
           tableData={tableBody}
           updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
@@ -392,6 +424,7 @@ useEffect(() => {
           total={total}
           processed={processed}
           done={done}
+          setRefresh={setRefreshKey}
         />
       </div>
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">
@@ -416,8 +449,6 @@ useEffect(() => {
 
       {/* Filter & Table Section */}
       <div className="rounded-xl p-6 ">
-      
-
         <CustomTable
           setExelData={setExelData}
           tableHeader={tableHeader}
@@ -426,7 +457,7 @@ useEffect(() => {
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}
           setTableBody={setTableBody}
-        /> 
+        />
       </div>
     </div>
   );

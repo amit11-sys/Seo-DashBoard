@@ -238,19 +238,19 @@ fetchlanguage()
     const values = form.getValues();
     const isValid = await form.trigger();
 
-    if (keywords.length === 0) {
-      setKeywordError("Please enter at least one keyword.");
-      return;
-    } else {
-      setKeywordError(null);
-    }
+    // if (keywords.length === 0) {
+    //   setKeywordError("Please enter at least one keyword.");
+    //   return;
+    // } else {
+    //   setKeywordError(null);
+    // }
     if (!isValid) {
       return;
     }
 
     const payload = {
       ...values,
-      keyword: Keywords,
+      keyword: Keywords || [],
       // searchLocationCode:
     };
 
@@ -258,6 +258,7 @@ fetchlanguage()
 
     startLoading();
     try {
+    
       const response = await createCampaign(payload);
 
       if (response?.success) {

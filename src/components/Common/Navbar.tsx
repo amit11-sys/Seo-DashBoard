@@ -11,7 +11,7 @@ import BlueButton from "../ui/CustomButton";
 import { MdDashboard } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
-import { getfirstCompaignData } from "@/actions/keywordTracking";
+// import { getfirstCompaignData } from "@/actions/keywordTracking";
 import { useCampaignData } from "@/app/context/CampaignContext";
 
 type Props = {
@@ -38,18 +38,18 @@ export default  function Navbar({campaignId}: Props) {
     }
   };
   
-  useEffect(() => {
-    const fetchFirstCampaign = async () => {
-      try {
-        const fetchCompaigns = await getfirstCompaignData();
-        console.log(fetchCompaigns?.firstCompagin?._id, "first fetch");
-        setFirstCompaign(fetchCompaigns?.firstCompagin?._id);
-      } catch (error) {
-        console.log(error, "failed to fetch compaign nav header");
-      }
-    };
-    fetchFirstCampaign();
-  }, []);
+  // useEffect(() => {
+  //   const fetchFirstCampaign = async () => {
+  //     try {
+  //       const fetchCompaigns = await getfirstCompaignData();
+  //       console.log(fetchCompaigns?.firstCompagin?._id, "first fetch");
+  //       setFirstCompaign(fetchCompaigns?.firstCompagin?._id);
+  //     } catch (error) {
+  //       console.log(error, "failed to fetch compaign nav header");
+  //     }
+  //   };
+  //   fetchFirstCampaign();
+  // }, []);
 
   return (
     <>
@@ -74,7 +74,7 @@ export default  function Navbar({campaignId}: Props) {
                 >
                   <Link
                     className="flex justify-center items-center gap-4"
-                    href={`/dashboard/${FirstCompaign}`}
+                    href={`/dashboard`}
                   >
                     <MdDashboard />
                     ANALYTICS-DASHBOARD

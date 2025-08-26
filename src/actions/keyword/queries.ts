@@ -926,7 +926,7 @@ export const getKewordRank = async (KeywordData: any) => {
       }
     }
 
-    console.log(rankResponses, "rank response");
+    console.log(rankResponses[0].response.tasks[0].result, "rank response");
 
     // const res = await getLocation_languageData();
     // const locationData = res?.allLocations;
@@ -1165,7 +1165,7 @@ export const deleteKeywordById = async (deletedData: { keywordId: string }) => {
     const { keywordId } = deletedData;
     console.log(keywordId, "delet id");
 
-   
+
     const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
       { keywordId },
       { $set: { status: 3 } },
@@ -1199,7 +1199,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     }
 
     const { keywordId, campaignId } = updatedData;
-    // console.log(updatedData,"edit data backend new")  
+    // console.log(updatedData,"edit data backend new")
     // console.log(keywordId,campaignId,"idsies")
     // console.log(updatedData,"edit form data ")
 
@@ -1348,56 +1348,56 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
 
 
     const allRankGroups =
-  rankdata?.rankResponses?.flatMap((rankItem: any) => {
-    const task = rankItem?.response?.tasks?.[0];
-    const data = task?.result?.[0];
-    const rankGroup = data?.items?.[0]?.rank_group;
-    return rankGroup !== undefined ? [rankGroup] : [];
-  }) || [];
-
-const totalTopRanks = {
-  keywordsUp: allRankGroups.filter((r) => r > 0).length,
-  top3: allRankGroups.filter((r) => r > 0 && r <= 3).length,
-  top10: allRankGroups.filter((r) => r > 0 && r <= 10).length,
-  top20: allRankGroups.filter((r) => r > 0 && r <= 20).length,
-  top30: allRankGroups.filter((r) => r > 0 && r <= 30).length,
-  top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
-};
-
-const finalData: any =
-  rankdata && "rankResponses" in rankdata
-    ? rankdata?.rankResponses?.map((rankItem: any) => {
+      rankdata?.rankResponses?.flatMap((rankItem: any) => {
         const task = rankItem?.response?.tasks?.[0];
         const data = task?.result?.[0];
-        const newKeyword = rankItem?.keyword;
+        const rankGroup = data?.items?.[0]?.rank_group;
+        return rankGroup !== undefined ? [rankGroup] : [];
+      }) || [];
 
-        const matchedKeyword = [updatedKeyword].find(
-          (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
-        );
+    const totalTopRanks = {
+      keywordsUp: allRankGroups.filter((r) => r > 0).length,
+      top3: allRankGroups.filter((r) => r > 0 && r <= 3).length,
+      top10: allRankGroups.filter((r) => r > 0 && r <= 10).length,
+      top20: allRankGroups.filter((r) => r > 0 && r <= 20).length,
+      top30: allRankGroups.filter((r) => r > 0 && r <= 30).length,
+      top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
+    };
 
-        const rankGroup = data?.items?.[0]?.rank_group || 0;
+    const finalData: any =
+      rankdata && "rankResponses" in rankdata
+        ? rankdata?.rankResponses?.map((rankItem: any) => {
+            const task = rankItem?.response?.tasks?.[0];
+            const data = task?.result?.[0];
+            const newKeyword = rankItem?.keyword;
 
-        return {
-          type: task?.data?.se_type,
-          location_code: matchedKeyword?.searchLocationCode || 2124,
-          language_code: data?.language_code || "en",
-          url: data?.items?.[0]?.url?.trim() || "no ranking",
-          rank_group: rankGroup,
-          rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-          keyword: newKeyword || "",
+            const matchedKeyword = [updatedKeyword].find(
+              (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+            );
+
+            const rankGroup = data?.items?.[0]?.rank_group || 0;
+
+            return {
+              type: task?.data?.se_type,
+              location_code: matchedKeyword?.searchLocationCode || 2124,
+              language_code: data?.language_code || "en",
+              url: data?.items?.[0]?.url?.trim() || "no ranking",
+              rank_group: rankGroup,
+              rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+              keyword: newKeyword || "",
             checkUrl : data?.check_url || "no url",
-          searchVolumn: 0,
-          intent: "", 
-          competition: 0,
-          campaignId: campaignId,
-          keywordId: matchedKeyword?._id,
-          start: rankGroup,
+              searchVolumn: 0,
+              intent: "",
+              competition: 0,
+              campaignId: campaignId,
+              keywordId: matchedKeyword?._id,
+              start: rankGroup,
 
-         //rank top
-          ...totalTopRanks,
-        };
-      })
-    : [];
+              //rank top
+              ...totalTopRanks,
+            };
+          })
+        : [];
 
 
 
@@ -1432,8 +1432,8 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
   const addedKeywords = await Promise.all(
     (formData?.keyword || []).map(async (kwStr: string) => {
       return await Keyword.create({
-        ...formData,           // includes language, device, location, etc.
-        keywords: kwStr,       // the actual keyword string
+        ...formData, // includes language, device, location, etc.
+        keywords: kwStr, // the actual keyword string
         userId: user.id,
         CampaignId: campaign._id,
       });
@@ -1455,10 +1455,11 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
     addedKeywords.map((kw) =>
       keywordQueue.add("fetchKeywordRanking", {
         keywordId: kw._id.toString(),
-        keyword: kw.keywords,               // must match what you stored
+        keyword: kw.keywords, // must match what you stored
         location_code: kw.searchLocationCode,
         language_code: kw.language,
-        target: `*${kw.url}*`,
+        target: kw.url,
+
         device: kw.deviceType,
         se_domain: kw.SearchEngine,
         campaignId: campaign._id.toString(),
@@ -1476,4 +1477,3 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
     counts,
   };
 };
-

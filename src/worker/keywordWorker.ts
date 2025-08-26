@@ -47,6 +47,7 @@ export const keywordWorker = new Worker(
       device: "desktop" | "mobile";
       se_domain: string;
       target: string; 
+      
     };
 
     const redis = getRedis();
@@ -60,7 +61,7 @@ export const keywordWorker = new Worker(
         language_name: language_code,
         device,
         se_domain,
-        target,
+        target: `*${target}*`,
       },
     ];
     const res = await fetch(endpoint, {

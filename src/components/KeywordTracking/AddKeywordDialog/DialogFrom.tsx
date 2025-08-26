@@ -32,6 +32,7 @@ import {
 } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
 import { getfetchDBlocationData } from "@/actions/keywordTracking";
+import { GetCampaignByid } from "@/actions/campaign/queries";
 // import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 // const schema = z.object({
@@ -45,11 +46,16 @@ import { getfetchDBlocationData } from "@/actions/keywordTracking";
 // });
 interface DialogFormProps {
   campaignId: string;
-  showAddedKeyword: (keywords: string[]) => void;
-  updatedTopRankOnAddedKeyword: () => void;
+  // showAddedKeyword: (keywords: string[]) => void;
+  // updatedTopRankOnAddedKeyword: () => void;
 }
 
-const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword }: DialogFormProps) => {
+const DialogForm = ({
+  campaignId,
+  onClose,
+  // showAddedKeyword,
+  // updatedTopRankOnAddedKeyword,
+}: any) => {
   const { startLoading, stopLoading } = useLoader();
   const form = useForm({
     resolver: zodResolver(addKeywordsSchema),
@@ -79,6 +85,25 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
   const [isPending, startTransition] = useTransition();
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
   const [languages, setLanguages] = useState<string[]>([]);
+  const [defaultUrl, setDefaulturl] = useState<string>("");
+
+  const setDefaultUrl = async () => {
+    if (!campaignId) {
+      console.warn("No campaignId provided");
+      setDefaulturl("");
+      return;
+    }
+
+    try {
+      const campaignData = await GetCampaignByid(campaignId);
+
+      const url = campaignData?.campaign?.projectUrl ?? "";
+      form.reset({ url: url });
+    } catch (error) {
+      console.error("Failed to fetch campaign data:", error);
+      setDefaulturl("");
+    }
+  };
 
   // ✅ Memoize debounced function so it survives re-renders
   const debouncedFetch = useMemo(() => {
@@ -123,6 +148,9 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
     };
     fetchlanguage();
   }, []);
+  useEffect(() => {
+    setDefaultUrl();
+  }, [campaignId]);
 
   const onSubmit = async () => {
     const isValid = await form.trigger();
@@ -132,7 +160,8 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
     } else {
       setKeywordError(null);
     }
-    if (!isValid) return;
+
+    console.log("okokok");
 
     const payload = {
       ...form.getValues(),
@@ -141,7 +170,7 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
     };
 
     console.log(payload, "add kewywords front end data payloadd");
-    startLoading();
+    // startLoading();
     try {
       const res = await fetch("/api/add-keywords", {
         method: "POST",
@@ -153,29 +182,28 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
 
       if (!res.ok) throw new Error("Failed to create keywords");
       if (!res.ok) throw new Error("Failed to create keywords");
-      console.log(res, "res addd");
 
       const response = await res.json();
+      onClose();
+      console.log(response, "res addd");
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
       // }
       console.log(response.addedKeywords, "Response from API");
       console.log(form.getValues("searchLocationCode"), "cod location");
-      const matchlocation = await getfetchDBlocationData(
-        form.getValues("searchLocationCode")
-      );
-      await updatedTopRankOnAddedKeyword()
+      // const matchlocation = await getfetchDBlocationData(
+      //   form.getValues("searchLocationCode")
+      // );
+      // await updatedTopRankOnAddedKeyword();
 
-      if (response?.addedKeywords && matchlocation?.locationName) {
-        const modifiedKeywords = response.addedKeywords.map((item: {}) => ({
-          ...item,
-          location_name: matchlocation.locationName.locationName, // <- direct string
-        }));
+      // if (response?.addedKeywords && matchlocation?.locationName) {
+      //   const modifiedKeywords = response.addedKeywords.map((item: {}) => ({
+      //     ...item,
+      //     location_name: matchlocation.locationName.locationName, // <- direct string
+      //   }));
 
-        await showAddedKeyword(modifiedKeywords);
-      }
-     
-    
+      //   await showAddedKeyword(modifiedKeywords);
+      // }
 
       // Optionally, you can log the response or handle it as needed
       console.log("Submitted:", response);
@@ -194,11 +222,11 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
       });
 
       setKeywords([]);
-      setQuery(""); 
+      setQuery("");
       setVolumnQuery("");
-      setKeywordsText(""); 
+      setKeywordsText("");
       setOpen(false);
-      stopLoading();
+      // stopLoading();
       // await getDbLiveKeywordData(campaignId.campaignId)
     } catch (error) {
       console.error("Submission Error:", error);
@@ -305,7 +333,14 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
   ];
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+
+        // setDefaultUrl();
+      }}
+    >
       <DialogTrigger className="bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white px-5 py-4 rounded-full text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105">
         Add Keywords
       </DialogTrigger>
@@ -326,6 +361,8 @@ const DialogForm = ({ campaignId, showAddedKeyword,updatedTopRankOnAddedKeyword 
                 control={form.control}
                 render={({ field }) => (
                   <NewCustomInput
+                    disabled={true}
+                    defaultValue={defaultUrl}
                     placeholder="Enter Domain URL"
                     {...field}
                     errorMessage={form.formState.errors.url?.message}

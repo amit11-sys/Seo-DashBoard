@@ -12,10 +12,10 @@ export async function POST(req: Request) {
     const campaignId = body?.campaignId?.campaignId;
 
     
-    if (campaignId) {
-      // revalidatePath(`/dashboard/`);
-      revalidatePath(`/dashboard/${campaignId}`);
-    }
+    // if (campaignId) {
+    //   // revalidatePath(`/dashboard/`);
+    //   revalidatePath(`/dashboard/${campaignId}`);
+    // }
     return NextResponse.json(result);
   } catch (error) {
     console.error("API Error:", error);

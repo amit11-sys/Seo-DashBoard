@@ -7,6 +7,7 @@ import {
   getTrackingData,
 } from "../keywordTracking";
 import Campaign from "@/lib/models/campaign.model";
+import { CloudCog } from "lucide-react";
 // import { getKeywordLiveData } from "../liveKeywords";
 
 export const createCampaign = async (formData: any) => {
@@ -16,8 +17,12 @@ export const createCampaign = async (formData: any) => {
   // console.log(campaign,"from index")
 
   if (campaign) {
-    // await addMultipleKeyword(formData?.keywords)
-    await addMultipleKeyword(formData, campaign);
+    if(formData?.keyword.length > 0){
+      
+      await addMultipleKeyword(formData, campaign);
+    }else{
+      return campaign;
+    }
 
     // const newCompaignId = campaign?.campaign?._id;
     // console.log(newCompaignId,"nreeeeeee")

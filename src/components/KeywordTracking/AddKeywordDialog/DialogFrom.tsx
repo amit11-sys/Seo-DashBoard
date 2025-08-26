@@ -52,7 +52,7 @@ interface DialogFormProps {
 
 const DialogForm = ({
   campaignId,
-  onClose
+  onClose,
   // showAddedKeyword,
   // updatedTopRankOnAddedKeyword,
 }: any) => {
@@ -98,7 +98,7 @@ const DialogForm = ({
       const campaignData = await GetCampaignByid(campaignId);
 
       const url = campaignData?.campaign?.projectUrl ?? "";
-      setDefaulturl(url);
+      form.reset({ url: url });
     } catch (error) {
       console.error("Failed to fetch campaign data:", error);
       setDefaulturl("");
@@ -149,23 +149,19 @@ const DialogForm = ({
     fetchlanguage();
   }, []);
   useEffect(() => {
-  if (defaultUrl) {
-    form.reset({ url: defaultUrl });
-    setDefaultUrl()
-  }
-}, [defaultUrl, form]);
-
+    setDefaultUrl();
+  }, [campaignId]);
 
   const onSubmit = async () => {
     const isValid = await form.trigger();
     if (Keywords.length === 0) {
-        setKeywordError("Please enter at least one keyword.");
-        return;
-      } else {
-          setKeywordError(null);
-        }
-        
-        console.log("okokok")
+      setKeywordError("Please enter at least one keyword.");
+      return;
+    } else {
+      setKeywordError(null);
+    }
+
+    console.log("okokok");
 
     const payload = {
       ...form.getValues(),
@@ -186,9 +182,9 @@ const DialogForm = ({
 
       if (!res.ok) throw new Error("Failed to create keywords");
       if (!res.ok) throw new Error("Failed to create keywords");
-      
+
       const response = await res.json();
-    onClose();
+      onClose();
       console.log(response, "res addd");
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
@@ -341,9 +337,8 @@ const DialogForm = ({
       open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
-        if (isOpen) {
-          setDefaultUrl(); // run only when opening
-        }
+
+        // setDefaultUrl();
       }}
     >
       <DialogTrigger className="bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white px-5 py-4 rounded-full text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105">

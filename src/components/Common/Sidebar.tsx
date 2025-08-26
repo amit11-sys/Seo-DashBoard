@@ -8,17 +8,30 @@ import {
 } from "react-icons/fa";
 
 import { useCampaignData } from "@/app/context/CampaignContext";
+import { useEffect, useState } from "react";
+import { getUserCampaign } from "@/actions/campaign";
 
 type SidebarProps = {
   isCollapsed: boolean;
   archivedCampaignData?: any;
+  campaignId?: string
 };
 
-const Sidebar = ({ isCollapsed, archivedCampaignData }: SidebarProps) => {
-  const { campaignData } = useCampaignData();
+const Sidebar = ({ isCollapsed, archivedCampaignData,campaignId }: SidebarProps) => {
+  const [campaignData, setCampaignData] = useState<any>();
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getUserCampaign();
+      // console.log(data,"data in sidebar");
+      if (Array.isArray(data?.campaign)) {
+        setCampaignData(data?.campaign);
+      }
+    };
+    fetchData();
+  },[campaignId])
 
   // console.log(campaignData);
-  const organizeCompaignData = campaignData.map((c: any) => {
+  const organizeCompaignData = campaignData?.map((c: any) => {
     // console.log(c)
     return {
       title: c.projectUrl,

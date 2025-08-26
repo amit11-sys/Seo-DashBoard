@@ -36,20 +36,20 @@ export default  function SidebarWrapper({
   archivedCampaignData
 }: SidebarWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { setCampaignData } = useCampaignData();
+  // const { setCampaignData } = useCampaignData();
   // const archivedCampaignData = await getArchivedCampaign(campaignId);
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getUserCampaign();
-      console.log(data,"data in sidebar");
-      if (Array.isArray(data?.campaign)) {
-        setCampaignData(data.campaign);
-      }
-    };
-    fetchData();
-  }, []);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const data = await getUserCampaign();
+  //     console.log(data,"data in sidebar");
+  //     if (Array.isArray(data?.campaign)) {
+  //       setCampaignData(data.campaign);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
 
   return (
     <>
@@ -72,7 +72,7 @@ export default  function SidebarWrapper({
         </div>
 
         <ScrollArea className="h-[calc(100vh-48px)]">
-          <Sidebar archivedCampaignData={archivedCampaignData} isCollapsed={isCollapsed} />
+          <Sidebar campaignId={campaignId} archivedCampaignData={archivedCampaignData} isCollapsed={isCollapsed} />
         </ScrollArea>
       </div>
 

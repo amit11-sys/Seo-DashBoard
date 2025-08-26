@@ -9,7 +9,7 @@ export default async function DashboardDetails({
 }: {
   params: { campaignId: string };
 }) {
-  const { campaignId } = await params;
+  const { campaignId } =  params;
   const campignDataWithId = await getGetCampaignByid(campaignId);
   const campaignStatus = campignDataWithId?.campaign?.status;
   

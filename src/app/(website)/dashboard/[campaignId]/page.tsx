@@ -73,7 +73,9 @@ export default async function DashboardDetails({
         <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
           {/* <SearchAnalytics /> */}
          
-      <LiveKeywordComponent campaignStatus={campaignStatus} topRankData={campaignLiveKeywordsData.topRankData} campaignLiveKeywordsData={campaignLiveKeywordsData}
+      <LiveKeywordComponent campaignStatus={campaignStatus} 
+      // topRankData={campaignLiveKeywordsData.topRankData} 
+      // campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId} />
          
         </main>

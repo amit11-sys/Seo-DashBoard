@@ -54,9 +54,11 @@ const DashboardClient = () => {
   const router = useRouter();
   const handleArchivedCampaigns = () => {
     setTabSelected("Archived Campaigns");
+    setCampaignStatus(2)
   };
   const handleActiveCampaigns = () => {
     setTabSelected("Active Campaigns");
+    setCampaignStatus(1)
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -289,16 +291,16 @@ const DashboardClient = () => {
         return {
           name: item?.projectUrl || "",
           date: formattedDate,
-          integration: keywordsData?.integration || "GSC",
+          // integration: keywordsData?.integration || "GSC",
           searcher: keywordsData?.language_code || "US",
-          audit: keywordsData?.audit || 25,
+          // audit: keywordsData?.audit || 25,
           kwds: keywordsCount?.length || 0,
           top3: keywordsData?.top3 || 0,
           top10: keywordsData?.top10 || 0,
           top20: keywordsData?.top20 || 0,
           top30: keywordsData?.top30 || 0,
           top100: keywordsData?.top100 || 0,
-          backlinks: keywordsData?.backlinks || 0,
+          // backlinks: keywordsData?.backlinks || 0,
           ...(campaignStatus === 2 && {
             action: (
               <div className="flex gap-2">
@@ -547,7 +549,7 @@ const DashboardClient = () => {
             <div className="flex gap-3">
               <CustomTrackingCard
                 className={"W-[150px] h-[150px] bg-gray-400 "}
-                title="Total Keywords"
+                title="Active Keywords"
                 data={topKeywordsCount}
               />
               <CustomTrackingCard

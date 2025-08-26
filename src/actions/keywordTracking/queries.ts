@@ -119,7 +119,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     //   path: "campaignId", 
     // });
 
-    console.log(LiveKeywordDbData,"populatedata");
+ 
     // Compute ranking counts
     const cardCounts = {
       top3: 0,
@@ -143,9 +143,10 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     const topRankData = {
       title: "Keywords",
       data: [
+
         {
           title: "Keywords Up",
-          data: LiveKeywordDbData.length,
+          data: cardCounts?.top100,
           id: 1,
         },
         {
@@ -174,6 +175,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
           id: 6,
         },
       ],
+      totalKeywords: LiveKeywordDbData.length,
       type: "card",
     };
 
@@ -190,7 +192,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     // );
     const newLiveKeywordDbData = await Promise.all(
       LiveKeywordDbData.map(async (item) => {
-        const locationName = await fetchDBlocationData(item.location_code);
+        const locationName = await fetchDBlocationData(item?.location_code);
         // console.log(item, "location map");
 
         const plainItem = item.toObject(); // convert to plain JS object
@@ -442,9 +444,10 @@ export const DbTopLiveKeywordData = async () => {
   try {
     await connectToDB();
 
-    const TopLiveKeywordDbData = await KeywordTracking.find();
+    const TopLiveKeywordDbData = await KeywordTracking.find({status: 1});
 
     // Format for card
+    console.log(TopLiveKeywordDbData,"TopLiveKeywordDbData");
 
     // console.log(newLiveKeywordDbData, "realdata");
 
@@ -537,7 +540,7 @@ export const DbKeywordStatusData = async (statusCode: number) => {
     // 3. Get keyword data related to those campaign IDs
     const keywordDatastatus = await KeywordTracking.find({
       campaignId: { $in: campaignIds },
-      status:1,
+      status:statusCode,
      
     });
     console.log(keywordDatastatus,"keywordDatastatus");
@@ -550,6 +553,130 @@ export const DbKeywordStatusData = async (statusCode: number) => {
     };
   } catch (error) {
     console.error(error);
+    return { error: "Internal Server Error." };
+  }
+};
+
+export const DbLiveKeywordDatabyStatus = async (newCompaignId: string,campaignStatus:number) => {
+  try {
+    await connectToDB();
+
+    // const user = await getUserFromToken();
+    // if (!user) {
+    //   return { error: "Unauthorized" };
+    // }
+    // console.log(user);
+    // console.log(newCompaignId,"newkeywordCampaign")
+
+    const LiveKeywordDbData = await KeywordTracking.find({
+      campaignId: newCompaignId,
+      status: campaignStatus,
+    }).populate('campaignId');
+    // const campaignData = await KeywordTracking.populate(LiveKeywordDbData, {
+    //   path: "campaignId", 
+    // });
+
+ 
+    // Compute ranking counts
+    const cardCounts = {
+      top3: 0,
+      top10: 0,
+      top20: 0,
+      top30: 0,
+      top100: 0,
+    };
+
+    LiveKeywordDbData.forEach((keyword) => {
+      const rank = keyword.rank_group;
+
+      if (rank > 0 && rank <= 3) cardCounts.top3 += 1;
+      if (rank > 0 && rank <= 10) cardCounts.top10 += 1;
+      if (rank > 0 && rank <= 20) cardCounts.top20 += 1;
+      if (rank > 0 && rank <= 30) cardCounts.top30 += 1;
+      if (rank > 0 && rank <= 100) cardCounts.top100 += 1;
+    });
+
+    // Format for card
+    const topRankData = {
+      title: "Keywords",
+      data: [
+
+        {
+          title: "Keywords Up",
+          data: cardCounts?.top100,
+          id: 1,
+        },
+        {
+          title: "In Top 3",
+          data: cardCounts.top3,
+          id: 2,
+        },
+        {
+          title: "In Top 10",
+          data: cardCounts.top10,
+          id: 3,
+        },
+        {
+          title: "In Top 20",
+          data: cardCounts.top20,
+          id: 4,
+        },
+        {
+          title: "In Top 30",
+          data: cardCounts.top30,
+          id: 5,
+        },
+        {
+          title: "In Top 100",
+          data: cardCounts.top100,
+          id: 6,
+        },
+      ],
+      totalKeywords: LiveKeywordDbData.length,
+      type: "card",
+    };
+
+    //  add location in data
+    // const newLiveKeywordDbData = await Promise.all(
+    //   LiveKeywordDbData.map(async (item) => {
+    //     const locationName = await fetchDBlocationData(item.location_code);
+    //     console.log(item, "location map");
+    //     return {
+    //       ...item,
+    //       location_name: locationName || "",
+    //     };
+    //   })
+    // );
+    const newLiveKeywordDbData = await Promise.all(
+      LiveKeywordDbData.map(async (item) => {
+        const locationName = await fetchDBlocationData(item?.location_code);
+        // console.log(item, "location map");
+
+        const plainItem = item.toObject(); // convert to plain JS object
+
+        return {
+          ...plainItem,
+          location_name: locationName || "",
+        };
+      })
+    );
+
+    // console.log(newLiveKeywordDbData, "realdata");
+
+    if (!LiveKeywordDbData) {
+      return { error: "Error while getting LiveKeywordDbData" };
+    }
+    // if (campaign) {
+    return {
+      success: true,
+      message: "LiveKeywordDbData Successfully Found",
+      newLiveKeywordDbData,
+      topRankData,
+    };
+    // }
+  } catch (error) {
+    console.log(error);
+
     return { error: "Internal Server Error." };
   }
 };

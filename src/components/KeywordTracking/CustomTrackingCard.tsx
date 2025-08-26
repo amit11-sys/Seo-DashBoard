@@ -1,6 +1,8 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import CountUp from 'react-countup';
+import React, { useEffect, useState } from "react";
+import CountUp from "react-countup";
+
+import { usePathname } from "next/navigation";
 
 function getRandomDarkGradient(): string {
   const randomChannel = () => Math.floor(Math.random() * 60); // 0–150 for dark tones
@@ -20,28 +22,31 @@ function getRandomDarkColor(): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-
 interface CustomTrackingCardProps {
- 
-    title: string;
-    data:  any; 
-     className?: string;
-    
- 
+  title: string;
+  data: any;
+  totalKeywords?: number;
+  className?: string;
 }
 
-const CustomTrackingCard = ( {title, data , ...prop}:CustomTrackingCardProps ) => {
+const CustomTrackingCard = ({
+  title,
+  data,
+  totalKeywords,
+  ...prop
+}: CustomTrackingCardProps) => {
+  const pathname = usePathname();
+
   // console.log({data, title, prop},"data, title, prop");
   // const [bgGradient, setBgGradient] = useState<string>('');
-  const [textColor, setTextColor] = useState<string>('');
+  const [textColor, setTextColor] = useState<string>("");
   // console.log(textColor,"textColor");
 
- useEffect(() => {
-  const color = getRandomDarkColor();
-  if (color) setTextColor(color);
-  else setTextColor("rgb(50, 50, 50)");
-}, []);
-
+  useEffect(() => {
+    const color = getRandomDarkColor();
+    if (color) setTextColor(color);
+    else setTextColor("rgb(50, 50, 50)");
+  }, []);
 
   return (
     <div
@@ -50,9 +55,16 @@ const CustomTrackingCard = ( {title, data , ...prop}:CustomTrackingCardProps ) =
     >
       <div className="w-full flex justify-center items-end">
         <h1
-      style={{ color: textColor }}
-         className="text-center font-extrabold text-4xl">
-          <CountUp duration={2} end={data} />
+          style={{ color: textColor }}
+          className="text-center font-extrabold text-2xl"
+        >
+          <CountUp duration={2} end={data} />{" "}
+          {title === "Keywords Up" ? null : (
+            <>
+              {pathname !== "/dashboard" && <span className="text-md">/</span>}{" "}
+              {totalKeywords}
+            </>
+          )}
         </h1>
       </div>
       <p className="flex text-black text-sm justify-center items-center mt-2">

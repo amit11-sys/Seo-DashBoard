@@ -20,10 +20,10 @@ import { getfirstCompaignData } from "@/actions/keywordTracking";
 
 interface HeaderProps {
   campaignId: string;
-  topRankData: any;
+  topRankData?: any;
   campaignStatus: any;
-  setOpenOptions: any;
-  openOptions: string;
+  setOpenOptions?: any;
+  openOptions?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -62,22 +62,13 @@ const Header: React.FC<HeaderProps> = ({
   //     stopLoading();
   //   }
   // };
-
-  const handleCompaignArchived = async (
-    campaignId: string,
-    topRankData: any,
-    status: any
-  ) => {
+  
+  const handleCompaignArchived = async (campaignId: string,topRankData:any, ) => {
     setOpenArchive(false);
     startLoading();
+    const status = 2
     try {
-      const addedCampaignData = await CreateArchivedCampaign(
-        campaignId,
-        topRankData,
-        status
-      );
-
-      
+      const addedCampaignData = await CreateArchivedCampaign(campaignId,status,topRankData);
 
       console.log(addedCampaignData, "addedCampaignDataIndata");
 
@@ -100,17 +91,17 @@ const Header: React.FC<HeaderProps> = ({
       toast.error("Something went wrong while deleting the campaign");
     }
   };
-  const handleGmbAndSeo = (Show: string) => {
-    setOpenOptions(Show || openOptions);
-    setOpenTab( Show || openOptions ) 
-  };
+  // const handleGmbAndSeo = (Show: string) => {
+  //   setOpenOptions(Show || openOptions);
+  //   setOpenTab( Show || openOptions ) 
+  // };
 
   return (
     <header className="flex items-center justify-between p-2 shadow-md rounded-md">
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         <button onClick={() => handleGmbAndSeo("seo")} className={`${  openTab === "seo" && "bg-green-200"} px-3 border-[1px] border-gray-400 rounded-full`}>SEO</button>
         <button onClick={() => handleGmbAndSeo("gmb")}className={`${ openTab === "gmb" && "bg-green-200"} px-3 border-[1px] border-gray-400 rounded-full`}>GMB</button>
-      </div>
+      </div> */}
 
       {campaignStatus === 1 && (
         <div className="flex items-center space-x-4 ml-auto">
@@ -149,7 +140,7 @@ const Header: React.FC<HeaderProps> = ({
                   variant="destructive"
                   onClick={() => {
                     const status = 2;
-                    handleCompaignArchived(campaignId, status, topRankData);
+                    handleCompaignArchived(campaignId, status);
                     setOpenArchive(false);
                   }}
                 >

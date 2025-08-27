@@ -72,19 +72,19 @@ export default function LiveKeyTrakingHeader({
     try {
       const refreshedCampaign = await getRefreshCampaign(campaignId);
       console.log(refreshedCampaign, "refreshedCampaign");
-      const lastUpdated = refreshedCampaign?.updatedRecords
-        ? formatLastUpdated(
-            refreshedCampaign.updatedRecords[0]?.updatedAt || ""
-          )
-        : "";
+      // const lastUpdated = refreshedCampaign?.updatedRecords
+      //   ? formatLastUpdated(
+      //       refreshedCampaign.updatedRecords[0]?.updatedAt || ""
+      //     )
+      //   : "";
       if (!refreshedCampaign || refreshedCampaign.error) {
         console.error("Failed to refresh campaign:", refreshedCampaign?.error);
         toast.error("Failed to refresh campaign");
         return;
       }
-      if (refreshedCampaign?.updatedRecords) {
-        setRefreshData(lastUpdated);
-      }
+      // if (refreshedCampaign?.updatedRecords) {
+      //   setRefreshData(lastUpdated);
+      // }
 
       stopLoading();
       toast.success(refreshedCampaign.message);

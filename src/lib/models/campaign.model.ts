@@ -5,6 +5,10 @@ const campaignSchema = new mongoose.Schema(
     campaignName: { type: String, required: true },
     projectUrl: { type: String, required: true},
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    total: { type: Number, default: 0 },
+    processed: { type: Number, default: 0 },
+    done: { type: Boolean, default: false },
+    lastUpdated: { type: Date, default: Date.now },
     status: {
       type: Number,
 

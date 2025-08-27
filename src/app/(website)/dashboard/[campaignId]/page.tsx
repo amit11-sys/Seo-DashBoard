@@ -4,6 +4,7 @@ import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
+import LiveKeyword from "@/components/KeywordTracking/LiveKeyword";
 export default async function DashboardDetails({
   params,
 }: {
@@ -35,17 +36,12 @@ export default async function DashboardDetails({
         </aside>
 
         <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
-          <Header
-            campaignStatus={campaignStatus}
-            topRankData={campaignLiveKeywordsData.topRankData}
-            campaignId={campaignId}
-          />
-
-          <LiveKeywordComponent
-          campaignStatus={campaignStatus}
+        
+          <LiveKeyword   campaignStatus={campaignStatus}
             campaignLiveKeywordsData={campaignLiveKeywordsData}
-            campaignId={campaignId}
-          />
+            campaignId={campaignId} />
+            
+         
         </main>
       </div>
     </section>

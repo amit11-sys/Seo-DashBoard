@@ -20,6 +20,7 @@ import {
 } from "@/actions/keywordTracking";
 // import { useCampaignProgress } from "@/hooks/useCampaignProgress";
 import { ProgressBar } from "../KeywordProgress";
+import { getMapsData } from "@/actions/googleMyBusiness";
 interface CampaignIdProps {
   campaignId: string;
 }
@@ -171,6 +172,11 @@ export default function LiveKeyTrakingHeader({
       onClick: handleRefreshCampaign, // Refresh button assigned
     },
   ];
+  const mapdata = async ()=>{
+    console.log("chal padaa")
+    const data=await  getMapsData()
+
+  };
 
   return (
     <div className=" flex flex-col md:flex-row items-center  justify-between text-black rounded-xl  gap-4">
@@ -179,6 +185,7 @@ export default function LiveKeyTrakingHeader({
         <div className="text-3xl text-orange-500">
           <HiOutlineKey />
         </div>
+        <button className="border-2" onClick={mapdata}>button</button>
         <div>
           <h2 className="text-xl font-bold text-black">
             {campaignStatus === 2

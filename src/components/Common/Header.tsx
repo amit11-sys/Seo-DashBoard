@@ -23,13 +23,17 @@ interface HeaderProps {
   campaignId: string;
   topRankData:any
   campaignStatus:any
+  openOptions?: string;
+  setOpenOptions?: any;
+
 }
 
-const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }) => {
+const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus,openOptions,setOpenOptions }) => {
   const { startLoading, stopLoading } = useLoader();
   const [openDelete, setOpenDelete] = useState(false);
   const [openArchive, setOpenArchive] = useState(false);
   const router = useRouter();
+  const [openTab, setOpenTab] = useState(openOptions || "seo");
 
   // const handleCompaignDelete = async () => {
   //   setOpenDelete(false);
@@ -83,12 +87,24 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
       toast.error("Something went wrong while deleting the campaign");
     } 
   };
+  const handleGmbAndSeo = (tab: string) => {
+    setOpenOptions(tab);
+    setOpenTab(tab);
+  }
 
   return (
 
     <header className="flex items-center justify-between p-2 shadow-md rounded-md">
+      
+       
+
+      
       {campaignStatus === 1 && (
          <div className="flex items-center space-x-4 ml-auto">
+            <div className="flex gap-4">
+        <button onClick={() => handleGmbAndSeo("seo")} className={`${  openTab === "seo" && "bg-green-200"} px-3 border-[1px] border-gray-400 rounded-full`}>SEO</button>
+        <button onClick={() => handleGmbAndSeo("gmb")}className={`${ openTab === "gmb" && "bg-green-200"} px-3 border-[1px] border-gray-400 rounded-full`}>GMB</button>
+      </div>
         <button
           title="Download PDF"
           className="flex items-center text-red-400 px-3 py-1.5 rounded transition"

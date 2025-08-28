@@ -359,7 +359,7 @@ export async function refreshAddedKeywords(campaignId: string) {
     const user = await getUserFromToken();
     if (!user) return { error: "Unauthorized" };
 
-    const refreshCampaign = await Keyword.find({ campaignId, status: 1 });
+    const refreshCampaign = await Keyword.find({ CampaignId:campaignId, status: 1 });
     if (!refreshCampaign.length) {
       return { error: "No active keywords to refresh" };
     }

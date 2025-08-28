@@ -3,7 +3,6 @@
 import React, {
   useState,
   useEffect,
-  useCallback,
   useTransition,
   useMemo,
 } from "react";
@@ -27,7 +26,7 @@ import { toast } from "sonner";
 import { createCampaign, getUserCampaign } from "@/actions/campaign";
 import DropDownList from "@/components/DropDownList";
 import { HiMiniTag } from "react-icons/hi2";
-import { MdOutlineDevices, MdOutlineLocationOn } from "react-icons/md";
+import { MdOutlineDevices } from "react-icons/md";
 import { FcGoogle } from "react-icons/fc";
 import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
 import { NewCustomInput } from "../NewCustomInput";
@@ -38,14 +37,10 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import KeywordTextArea from "../KeywordTextArea";
 import debounce from "lodash.debounce";
-// import { getLocationData } from "@/actions/locations_Language";
-
-import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
-import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
-import { log } from "console";
-// import GoogleSignIn from "../GoogleConsole/GoogleIntegration/GoogleSignIn";
-
-// import { getTrackingData } from "@/actions/keywordTracking";
+import {
+  getfetchDBLocation,
+  getlanguageData,
+} from "@/actions/locations_Language";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 interface LocationAndLanguageType {
@@ -57,41 +52,37 @@ interface CampaignTabsProps {
   location_and_language: LocationAndLanguageType;
 }
 
-
 export function CampaignTabs() {
-  const { startLoading, stopLoading } = useLoader();
-  // const [searchText, setSearchText] = useState("");
-  // const [locations, setLocations] = useState<string[]>([]);
-  const [languages, setLanguages] = useState<string[]>([]);
   const router = useRouter();
-
-  function CountrySelector() {}
-  const handleCountrySelect = (option: OptionType) => {
-    console.log("Selected country:", option);
-  };
-
-  //  const [query, setQuery] = useState('');
-  // const [results, setResults] = useState<any>([]);
-  // const [isPending, startTransition] = useTransition();
-
-  // const debouncedFetch = debounce((q: string) => {
-  //   startTransition(() => {
-  //     getfetchDBLocation(q).then(setResults).catch(console.error);
-  //   });
-  // }, 300);
-
-  // useEffect(() => {
-  //   if (query.trim().length > 1) debouncedFetch(query);
-  //   return () => debouncedFetch.cancel();
-  // }, [query]);
-
+    const form = useForm<CampaignFormType>({
+    resolver: zodResolver(campaignSchema),
+    defaultValues: {
+      name: "",
+      url: "",
+      keywordTag: "",
+      keyword: [],
+      SearchEngine: "",
+      searchLocationCode: 0,
+      volumeLocationCode: 0,
+      language: "",
+      serpType: "",
+      deviceType: "",
+    },
+  });
+  const { startLoading, stopLoading } = useLoader();
+  const [languages, setLanguages] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [volumnQuery, setVolumnQuery] = useState("");
   const [results, setResults] = useState<any>([]);
   const [VolumeLocation, setVolumeLocation] = useState<any>([]);
   const [isPending, startTransition] = useTransition();
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
-
+  const [Keywords, setKeywords] = useState<string[]>([]);
+  const [KeywordsText, setKeywordsText] = useState<any>("");
+  const [campaignValid, setCampaignValid] = useState(false);
+  const [activeTab, setActiveTab] = useState("account");
+  const { setCampaignData } = useCampaignData();
+  const [keywordError, setKeywordError] = useState<string | null>(null);
   // ✅ Memoize debounced function so it survives re-renders
   const debouncedFetch = useMemo(() => {
     return debounce((q: string) => {
@@ -121,94 +112,20 @@ export function CampaignTabs() {
       debouncedFetchvolumn.cancel();
     };
   }, [volumnQuery, debouncedFetchvolumn]);
-useEffect(()=>{
-const fetchlanguage = async  ()=>{
+  useEffect(() => {
+    const fetchlanguage = async () => {
+      try {
+        const data = await getlanguageData();
 
-  try {
-
-    const data = await getlanguageData()
-   
-    const langdata = data?.allLanguages
-    setLanguages(langdata ?? []);
-    
-  } catch (error) {
-    console.log(error,"language error")
-    
-  }
-}
-fetchlanguage()
-
-},[])
+        const langdata = data?.allLanguages;
+        setLanguages(langdata ?? []);
+      } catch (error) {
+        console.log(error, "language error");
+      }
+    };
+    fetchlanguage();
+  }, []);
   // console.log("Results:", results, "Query:", query);
-  const form = useForm<CampaignFormType>({
-    resolver: zodResolver(campaignSchema),
-    defaultValues: {
-      name: "",
-      url: "",
-      keywordTag: "",
-      keyword: [],
-      SearchEngine: "",
-      searchLocationCode: 0,
-      volumeLocationCode: 0,
-      language: "",
-      serpType: "",
-      deviceType: "",
-    },
-  });
-  // console.log(location_and_language,"luange and locations")
-  const [tagsInput, settagsInput] = useState("");
-  const [Keywords, setKeywords] = useState<string[]>([]);
-  const [KeywordsText, setKeywordsText] = useState<any>("");
-  const [campaignValid, setCampaignValid] = useState(false);
-  const [activeTab, setActiveTab] = useState("account");
-  const [language, setLanguage] = useState<string[]>([]);
-  const [location, setLocation] = useState<string[]>([]);
-  const { setCampaignData } = useCampaignData();
-  const [keywordError, setKeywordError] = useState<string | null>(null);
-  const [volumeLocationOptions, setVolumeLocationOptions] = useState<string[]>(
-    []
-  );
-
-  // const fetchCitiesByCountry = async (country: string) => {
-  //   if (!country) {
-  //     setVolumeLocationOptions([]);
-  //     return;
-  //   }
-  //   try {
-  //     const res = await fetch(
-  //       `${process.env.NEXT_PUBLIC_COUNTRIESNOW_URL}countries/cities`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ country }),
-  //       }
-  //     );
-
-  //     const data = await res.json();
-  //     // console.log();
-
-  //     if (data) {
-  //       // const stateData = data.data.states.map((state: any) => state?.name);
-  //       setVolumeLocationOptions(data.data);
-  //     } else {
-  //       setVolumeLocationOptions([]);
-  //       toast.error("No cities found for selected country.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching cities:", error);
-  //     toast.error("Failed to fetch cities.");
-  //   }
-  // };
-
-  // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
-  // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
-
-  // useEffect(() => {
-  //   setLanguage(location_and_language.allLanguages);
-  //   setLocation(location_and_language.allLocations);
-  // }, []);
-
-  const onHandleVolumn = (countryCode: number) => {};
   const handleCampaignSubmit = async () => {
     const values = form.getValues();
     console.log(values);
@@ -620,9 +537,9 @@ fetchlanguage()
                           />
                         )}
                       />
-                       <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.volumeLocationCode?.message}
-                </div>
+                      <div className="w-full text-sm text-red-500">
+                        {form.formState.errors.volumeLocationCode?.message}
+                      </div>
 
                       {VolumeLocation.length > 0 && (
                         <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
@@ -669,9 +586,9 @@ fetchlanguage()
                   />
                 )}
               />
-               <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.SearchEngine?.message}
-                </div>
+              <div className="w-full text-sm text-red-500">
+                {form.formState.errors.SearchEngine?.message}
+              </div>
               <Controller
                 name="language"
                 control={form.control}

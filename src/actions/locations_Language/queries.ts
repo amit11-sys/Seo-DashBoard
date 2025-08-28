@@ -27,36 +27,22 @@ export const getlanguage = async () => {
           },
         }
       );
-      const langData = await res.json();
-      
-      //  console.log(langData?.tasks[0]?.result[0]?.available_languages[0].language_name,"location api")
-      // const allLocations: { locationName: string; locationCode: number }[] = [];
-      const allLanguages: string[] = [];
-
-      // console.log(locationData.tasks, "locations");
-
-      const countries = ["va"];
-
-      langData?.tasks.forEach((task: any) => {
-      
-       
-task?.result?.forEach((loc: any) => {
-          loc?.available_languages?.forEach((lang: any) => {
-            
-            allLanguages.push(
-              lang?.language_name
-               
-            );
-          });
-        });
-      });
-
-    
       if (!res.ok) {
         const errorBody = await res.text();
         throw new Error(`Request failed: ${res.status} - ${errorBody}`);
       }
 
+      const langData = await res.json();
+      const allLanguages: string[] =
+        langData?.tasks?.flatMap(
+          (task: any) =>
+            task?.result?.flatMap(
+              (loc: any) =>
+                loc?.available_languages?.map(
+                  (lang: any) => lang?.language_name
+                ) ?? []
+            ) ?? []
+        ) ?? [];
       return { allLanguages };
     }
   } catch (error) {
@@ -154,11 +140,15 @@ export const fetchLocation = async () => {
     }
 
     const locationData = await res.json();
- 
-    const allLocations: { locationName: string; locationCode: number, locationIsoCode: string }[] = [];
+
+    const allLocations: {
+      locationName: string;
+      locationCode: number;
+      locationIsoCode: string;
+    }[] = [];
     const allLanguages: string[] = [];
 
-    const countries = ["ca", "us", "au", "nz","uk","in","gb"];
+    const countries = ["ca", "us", "au", "nz", "uk", "in", "gb"];
 
     locationData?.tasks.forEach((task: any) => {
       // Filter country-specific data once per task
@@ -175,12 +165,10 @@ export const fetchLocation = async () => {
 
       // Then process each location
       filteredData.forEach((loc: any) => {
-        
         allLocations.push({
-          locationName:
-            loc.location_name,
-            // loc.location_name.charAt(0).toUpperCase() +
-            // loc.location_name.slice(1).toLowerCase(),
+          locationName: loc.location_name,
+          // loc.location_name.charAt(0).toUpperCase() +
+          // loc.location_name.slice(1).toLowerCase(),
           locationCode: loc?.location_code,
           locationIsoCode: loc?.country_iso_code,
         });

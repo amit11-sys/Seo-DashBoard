@@ -72,19 +72,22 @@ export default function LiveKeyTrakingHeader({
     try {
       const refreshedCampaign = await getRefreshCampaign(campaignId);
       console.log(refreshedCampaign, "refreshedCampaign");
-      const lastUpdated = refreshedCampaign?.updatedRecords
-        ? formatLastUpdated(
-            refreshedCampaign.updatedRecords[0]?.updatedAt || ""
-          )
-        : "";
+      // const lastUpdated = refreshedCampaign?.updatedRecords
+      //   ? formatLastUpdated(
+      //       refreshedCampaign.updatedRecords[0]?.updatedAt || ""
+      //     )
+      //   : "";
+      if(refreshedCampaign){
+        setRefresh((k: any) => k + 1)
+      }
       if (!refreshedCampaign || refreshedCampaign.error) {
         console.error("Failed to refresh campaign:", refreshedCampaign?.error);
         toast.error("Failed to refresh campaign");
         return;
       }
-      if (refreshedCampaign?.updatedRecords) {
-        setRefreshData(lastUpdated);
-      }
+      // if (refreshedCampaign?.updatedRecords) {
+      //   setRefreshData(lastUpdated);
+      // }
 
       stopLoading();
       toast.success(refreshedCampaign.message);
@@ -194,7 +197,7 @@ export default function LiveKeyTrakingHeader({
         <div className="flex items-center gap-2">
           <ProgressBar processed={processed} total={total} done={done} />
           <span className="text-sm text-gray-600">
-            {done ? "" : processed / total}{" "}
+          {done ? null : total > 0 ? ((processed / total) * 100).toFixed(0) + "%" : "0%"}{" "}
             {/* {done ? "(Completed)" : "(Processing...)"} */}
           </span>
         </div>

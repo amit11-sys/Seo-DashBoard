@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 import { Worker } from "bullmq";
-import fetch from "node-fetch";
 import { getRedis } from "../lib/redis";
-import { connectToDB } from "../lib/db"; 
+import { connectToDB } from "../lib/db";
 import KeywordTracking from "../lib/models/keywordTracking.model";
+import Campaign from "../lib/models/campaign.model";
 
 const connection = getRedis();
 const LOGIN = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
@@ -46,66 +46,104 @@ export const keywordWorker = new Worker(
       language_code: string;
       device: "desktop" | "mobile";
       se_domain: string;
-      target: string; 
-      
+      target: string;
     };
 
     const redis = getRedis();
     const progressKey = `campaign:${campaignId}:progress`;
 
     const basicAuth = Buffer.from(`${LOGIN}:${PASSWORD}`).toString("base64");
-    const payload = [
-      {
-        keyword,
-        location_code,
-        language_name: language_code,
-        device,
-        se_domain,
-        target: `*${target}*`,
-      },
-    ];
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${basicAuth}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+      const payload = [
+        {
+          keyword,
+          location_code,
+          language_name: language_code,
+          device,
+          se_domain,
+          target: `*${target}*`,
+        },
+      ];
+        try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basicAuth}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  if (!res.ok) {
+    const errorBody = await res.text();
+    throw new Error(
+      `❌ DataForSEO failed: ${res.status} - ${errorBody}`
+    );
+  }
+      const json: any = await res.json();
 
-    const json: any = await res.json();
+      const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
+      const data = json?.tasks?.[0]?.data;
+      const meta = json?.tasks?.[0]?.result?.[0];
 
-    const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
-    const data = json?.tasks?.[0]?.data;
-    const meta = json?.tasks?.[0]?.result?.[0];
+      await KeywordTracking.findOneAndUpdate(
+        { keywordId, campaignId }, // filter
+        {
+          $set: {
+            rank_group: item?.rank_group ?? 0,
+            rank_absolute: item?.rank_absolute ?? 0,
+            updatedAt: new Date(),
+          },
+          $setOnInsert: {
+            keywordId,
+            campaignId,
+            keyword: data?.keyword ?? keyword,
+            url: target,
+            type: data?.se_type,
+            location_code: meta?.location_code,
+            language_code: meta?.language_code,
+            checkUrl: meta?.check_url ?? "no url",
+            searchVolumn: 0,
+            intent: "",
+            competition: 0,
+            start: item?.rank_group ?? 0,
+            userId: userId ?? null,
+          },
+        },
+        { upsert: true, returnDocument: "after" }
+      );
 
-    // Persist a row per keyword run (recommended)
-    await KeywordTracking.create({
-      type: data?.se_type,
-      location_code: meta?.location_code,
-      language_code: meta?.language_code,
-      url: target,
-      rank_group: item?.rank_group ?? 0,
-      rank_absolute: item?.rank_absolute ?? 0,
-      keyword: data?.keyword ?? keyword,
-      checkUrl: meta?.check_url ?? "no url",
-      searchVolumn: 0,
-      intent: "",
-      competition: 0,
-      campaignId: campaignId,
-          keywordId: keywordId,
-      start: item?.rank_group ?? 0,
-      userId: userId ?? null,
-      // ...any other fields in your model
-    });
+      // Update progress
+      await redis.hincrby(progressKey, "processed", 1);
+      await redis.hset(progressKey, "lastUpdated", String(Date.now()));
 
-    // Update progress
-    await redis.hincrby(progressKey, "processed", 1);
-    await redis.hset(progressKey, "lastUpdated", String(Date.now()));
+      const total = Number((await redis.hget(progressKey, "total")) || 0);
+      const processed = Number(
+        (await redis.hget(progressKey, "processed")) || 0
+      );
+      if (processed >= total) {
+        await redis.del(progressKey);
+      }
+      await Campaign.updateOne(
+        { _id: campaignId },
+        {
+          total,
+          processed,
+          done: processed >= total && total > 0,
+          lastUpdated: new Date(),
+        },
+        { upsert: true }
+      );
 
-    const total = Number((await redis.hget(progressKey, "total")) || 0);
-    const processed = Number((await redis.hget(progressKey, "processed")) || 0);
-    console.log(`✅ [${campaignId}] ${processed}/${total} processed — "${keyword}"`);
+      console.log(
+        `✅ [${campaignId}] ${processed}/${total} processed — "${keyword}"`
+      );
+    } catch (err) {
+      console.error(
+        `💥 Error processing campaign ${campaignId}, keyword "${keyword}"`,
+        err
+      );
+      await redis.del(progressKey);
+      throw err;
+    }
   },
   {
     connection,

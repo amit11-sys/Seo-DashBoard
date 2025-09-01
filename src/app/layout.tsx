@@ -4,15 +4,12 @@ import { Toaster } from "@/components/ui/sonner";
 import Loader from "@/components/global/Loader";
 
 import ReactQueryProvider from "@/components/ReactQueryProvider";
-import { Poppins } from "next/font/google";
+
 import { CampaignDataProvider } from "@/app/context/CampaignContext";
 
 
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: "400",
-});
+
 
 
 export const metadata: Metadata = {
@@ -28,7 +25,7 @@ export default function RootLayout({
   
   return (
     <html lang="en">
-      <body className={`${poppins.className} antialiased  relative `}>
+      <body className={` antialiased  relative `}>
        
         <CampaignDataProvider>
           <Loader />

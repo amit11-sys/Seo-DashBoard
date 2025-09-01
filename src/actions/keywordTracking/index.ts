@@ -17,8 +17,8 @@ export const getDbLiveKeywordData=async (newCompaignId:string)=>{
   const DbKeywordData= await DbLiveKeywordData(newCompaignId) 
   return DbKeywordData
 }
-export const getDbLiveKeywordDataWithSatusCode=async (newCompaignId:string,campaignStatus:number)=>{
-  const DbKeywordData= await DbLiveKeywordDataWithSatusCode(newCompaignId,campaignStatus) 
+export const getDbLiveKeywordDataWithSatusCode=async (newCompaignId:string,campaignStatus:number,location?:string)=>{
+  const DbKeywordData= await DbLiveKeywordDataWithSatusCode(newCompaignId,campaignStatus,location) 
   return DbKeywordData
 }
 export const updateStartDB =async (keywordId: string, newStartData: number)=>{

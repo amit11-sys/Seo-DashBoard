@@ -80,6 +80,8 @@ interface LiveKeywordComponentProps {
   };
   campaignId: string;
   campaignStatus?: number;
+  ShareCampaignStatus?: number;
+  tokendata?: any
 }
 
 interface HeaderProps {
@@ -98,7 +100,8 @@ interface HeaderProps {
 const LiveKeywordComponent = ({
   // campaignLiveKeywordsData,
   campaignId,
-  // campaignStatus
+  ShareCampaignStatus,
+  tokendata
 }: LiveKeywordComponentProps) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const { total, processed, done } = useCampaignProgress(
@@ -106,6 +109,7 @@ const LiveKeywordComponent = ({
     3000,
     refreshKey
   );
+  console.log({campaignId,tokendata});
   const [tableBody, setTableBody] = useState<any[]>([]);
   const [cardCounts, setCardCounts] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
@@ -510,6 +514,7 @@ const LiveKeywordComponent = ({
           sortedDataExel={sortedDataExel}
           setIsLoading={setIsLoading}
           campaignStatus={campaignStatus}
+          ShareCampaignStatus={ShareCampaignStatus}
           tableHeader={tableHeader}
           tableData={tableBody}
           updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}

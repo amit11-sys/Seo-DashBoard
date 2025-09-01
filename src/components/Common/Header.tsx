@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
     try {
       const campaigndata = await getGetCampaignByid(campaignId);
       const userId = campaigndata?.campaign?.userId ;
-      const shareLink = await getGenerateShareLink(userId,`/dashboard/${campaignId}`);
+      const shareLink = await getGenerateShareLink(userId,`/dashboard/detail/`,campaignId);
       console.log(shareLink, "shareLink");
       await navigator.clipboard.writeText(shareLink);
       toast.success("Shareable link copied to clipboard!");

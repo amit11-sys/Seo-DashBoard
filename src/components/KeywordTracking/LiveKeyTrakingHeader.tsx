@@ -28,6 +28,7 @@ export default function LiveKeyTrakingHeader({
   campaignStatus,
   setIsLoading,
   campaignId,
+  ShareCampaignStatus,
   showAddedKeyword,
   compaigndata,
   updatedTopRankOnAddedKeyword,
@@ -200,7 +201,7 @@ export default function LiveKeyTrakingHeader({
         </div>
       )}
 
-      {campaignStatus === 2 ? (
+      {ShareCampaignStatus || campaignStatus === 2 ? (
         <>
           {" "}
           <DownloadKeywordExcelBtn

@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 export default async function DashboardDetails({
   params,
 }: {
-  params: { campaignId: string, share_token?: string };
+  params: { campaignId: string};
 }) {
   const { campaignId } =  params;
   const campignDataWithId = await getGetCampaignByid(campaignId);
@@ -19,23 +19,6 @@ export default async function DashboardDetails({
   console.log(campaignStatus, "campaignStatus");
 
   const archivedCampaignData = await getArchivedCampaign();
-
- const shareToken = params?.share_token;
-
-  if (shareToken) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/share/validate?share_token=${shareToken}`, {
-      cache: "no-store",
-    });
-
-    const data = await res.json();
-
-    if (!data.valid) {
-      redirect("/sign-in"); // 🚀 secure redirect if token invalid
-    }
-
-    // you can even use `data.userId` to load user-specific data
-  }
-
 
 
 

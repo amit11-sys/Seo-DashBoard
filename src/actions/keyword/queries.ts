@@ -1153,7 +1153,11 @@ type KeywordUpdateData = {
   campaignId?: string;
   keywordId: string;
 };
-export const deleteKeywordById = async (deletedData: { keywordId: string }) => {
+
+export const deleteKeywordById = async (
+  selectedKeywords: string[],
+
+) => {
   try {
     await connectToDB();
 
@@ -1161,32 +1165,31 @@ export const deleteKeywordById = async (deletedData: { keywordId: string }) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
+    
 
-    const { keywordId } = deletedData;
-    console.log(keywordId, "delet id");
-
-
-    const modifiedStatusKeyword = await KeywordTracking.findOneAndUpdate(
-      { keywordId },
-      { $set: { status: 3 } },
-      { new: true }
-    );
-
-    console.log(modifiedStatusKeyword, "status del");
-
-    if (!modifiedStatusKeyword) {
-      return { error: "Keyword delete failed" };
+    if (!Array.isArray(selectedKeywords) || selectedKeywords.length === 0) {
+      return { error: "No keywords selected" };
     }
 
+    const result = await KeywordTracking.updateMany(
+      { 
+        keywordId: { $in: selectedKeywords } 
+      },
+      { $set: { status: 3 } }
+    );
+    console.log(result, "delete result");
+
+    if (result.modifiedCount === 0) {
+      return { error: "No keywords were updated" };
+    }
+    console.log(selectedKeywords, "delete keyword");
     return {
       success: true,
-      message: "Keyword deleted successfully",
+      // message: `${result.modifiedCount} keyword(s) deleted successfully`,
     };
   } catch (error: any) {
     console.error("Delete failed:", error);
-    return {
-      error: "Internal Server Error",
-    };
+    return { error: "Internal Server Error" };
   }
 };
 export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
@@ -1429,22 +1432,48 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
   if (!user) return { error: "Unauthorized" };
 
   // Save new keyword docs
+  // const addedKeywords = await Promise.all(
+  //   (formData?.keyword || []).map(async (kwStr: string) => {
+  //     return await Keyword.create({
+  //       ...formData, // includes language, device, location, etc.
+  //       keywords: kwStr, // the actual keyword string
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //   })
+  // );
   const addedKeywords = await Promise.all(
-    (formData?.keyword || []).map(async (kwStr: string) => {
-      return await Keyword.create({
-        ...formData, // includes language, device, location, etc.
-        keywords: kwStr, // the actual keyword string
-        userId: user.id,
-        CampaignId: campaign._id,
-      });
-    })
-  );
+  (formData?.keyword || []).map(async (kwStr: string) => {
+    // Check if keyword already exists for this user & campaign
+    const exists = await Keyword.findOne({
+      keywords: kwStr,
+      userId: user.id,
+      CampaignId: campaign._id,
+    });
+
+    if (exists) {
+      // Skip duplicates, return null so it won’t be added
+      return null;
+    }
+
+    return await Keyword.create({
+      ...formData, // includes language, device, location, etc.
+      keywords: kwStr, // the actual keyword string
+      userId: user.id,
+      CampaignId: campaign._id,
+    });
+  })
+);
+
+// Filter out nulls (duplicates)
+const filteredKeywords = addedKeywords.filter((kw) => kw !== null);
+
 
   // Initialize progress in Redis
   const redis = getRedis();
   const progressKey = `campaign:${campaign._id.toString()}:progress`;
   await redis.hset(progressKey, {
-    total: String(addedKeywords.length),
+    total: String(filteredKeywords.length),
     processed: "0",
     lastUpdated: String(Date.now()),
   });
@@ -1452,7 +1481,7 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
 
   // Enqueue jobs for each keyword
   await Promise.all(
-    addedKeywords.map((kw) =>
+    filteredKeywords.map((kw) =>
       keywordQueue.add("fetchKeywordRanking", {
         keywordId: kw._id.toString(),
         keyword: kw.keywords, // must match what you stored
@@ -1473,7 +1502,7 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
   return {
     success: true,
     message: "Keywords queued for live ranking",
-    queued: addedKeywords.length,
+    queued: filteredKeywords.length,
     counts,
   };
 };

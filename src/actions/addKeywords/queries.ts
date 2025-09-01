@@ -263,21 +263,46 @@ const campaignId = formData?.campaignId; // ✅ FIXED
   //     });
   //   })
   // );
-  const newAddKeyword = await Promise.all(
-      keywords.map(async (singleKeyword: string) => {
-        return await Keyword.create({
-          ...rest,
-          keywords: singleKeyword,
+  // const newAddKeyword = await Promise.all(
+  //     keywords.map(async (singleKeyword: string) => {
+  //       return await Keyword.create({
+  //         ...rest,
+  //         keywords: singleKeyword,
+  //         userId: user.id,
+  //         CampaignId: campaignId, // ✅ FIXED
+  //       });
+  //     })
+  //   );
+    const newAddKeyword = await Promise.all(
+      (formData?.keyword || []).map(async (kwStr: string) => {
+        
+        const exists = await Keyword.findOne({
+          keywords: kwStr,
           userId: user.id,
-          CampaignId: campaignId, // ✅ FIXED
+          CampaignId: campaignId,
+        });
+    
+        if (exists) {
+          return null;
+        }
+
+        return await Keyword.create({
+          ...formData, 
+          keywords: kwStr,
+          userId: user.id,
+          CampaignId: campaignId,
         });
       })
     );
+    
+    // Filter out nulls (duplicates)
+    const filteredKeywords = newAddKeyword.filter((kw) => kw !== null);
+    
 
   const redis = getRedis();
   const progressKey = `campaign:${campaignId.toString()}:progress`;
   await redis.hset(progressKey, {
-    total: String(newAddKeyword.length),
+    total: String(filteredKeywords.length),
     processed: "0",
     lastUpdated: String(Date.now()),
   });
@@ -285,7 +310,7 @@ const campaignId = formData?.campaignId; // ✅ FIXED
 
   // Enqueue jobs for each keyword
   await Promise.all(
-    newAddKeyword.map((kw) =>
+    filteredKeywords.map((kw) =>
       keywordQueue.add("fetchKeywordRanking", {
         keywordId: kw._id.toString(),
         keyword: kw.keywords, // must match what you stored
@@ -306,7 +331,7 @@ const campaignId = formData?.campaignId; // ✅ FIXED
   return {
     success: true,
     message: "Keywords queued for live ranking",
-    queued: newAddKeyword.length,
+    queued: filteredKeywords.length,
     counts,
 
   };

@@ -1,5 +1,5 @@
 "use client";
-import { CreateArchivedCampaign } from "@/actions/campaign";
+import { CreateArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import { useLoader } from "@/hooks/useLoader";
 import React, { useState } from "react";
 import { FaTrashAlt, FaFilePdf, FaArchive } from "react-icons/fa";
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { getGenerateShareLink } from "@/actions/generateShareLink";
+import { BsShare } from "react-icons/bs";
 // import { getfirstCompaignData } from "@/actions/keywordTracking";
 // import { useCampaignData } from "@/app/context/CampaignContext";
 
@@ -31,6 +33,19 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
   const [openArchive, setOpenArchive] = useState(false);
   const router = useRouter();
 
+  const handleshareLink = async () => {
+
+    try {
+      const campaigndata = await getGetCampaignByid(campaignId);
+      const userId = campaigndata?.campaign?.userId ;
+      const shareLink = await getGenerateShareLink(userId,`/dashboard/detail/`,campaignId);
+      console.log(shareLink, "shareLink");
+      await navigator.clipboard.writeText(shareLink);
+      toast.success("Shareable link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to generate shareable link.");
+    }
+  };
   // const handleCompaignDelete = async () => {
   //   setOpenDelete(false);
   //   startLoading();
@@ -86,7 +101,11 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
 
   return (
 
-    <header className="flex items-center justify-between p-2 shadow-md rounded-md">
+    <header className="flex items-end justify-end p-2 shadow-md rounded-md">
+      <div className="">
+
+     <BsShare className=" cursor-pointer text-xl text-green-600" title="Share" onClick={handleshareLink}/>
+      </div>
       {campaignStatus === 1 && (
          <div className="flex items-center space-x-4 ml-auto">
         <button

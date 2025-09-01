@@ -4,16 +4,25 @@ import React, { ReactNode, useEffect, useState } from "react";
 import KeywordEdit from "./KeywordEdit";
 import DeleteConfirm from "./KeywordDel";
 
-import { getTrackingData, updateStartDB } from "@/actions/keywordTracking";
+import {
+  getDbLiveKeywordData,
+  getTrackingData,
+  updateStartDB,
+} from "@/actions/keywordTracking";
 import { SearchIcon } from "lucide-react";
 import { useLoader } from "@/hooks/useLoader";
 import { Button } from "@/components/ui/button";
-import { LuArrowUpDown } from "react-icons/lu";
+import { LuArrowUpDown, LuDelete } from "react-icons/lu";
 import { FaCopy, FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { BsSearch } from "react-icons/bs";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/Skeleton/TableSkeleton";
 import SingleKeywordRefresh from "../SingleKeywordRefresh";
+import { RiRefreshFill } from "react-icons/ri";
+import { IoRefreshCircle } from "react-icons/io5";
+import { MdDelete, MdDeleteSweep } from "react-icons/md";
+import { deleteKeywordData } from "@/actions/keyword";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TableHeaderitems {
   key: string;
@@ -50,6 +59,8 @@ interface CustomTableProps {
   setSortedDataForExel?: any;
   sortedDataExel?: any;
   setExelData?: (data: any) => void;
+  fetchCardDatafilterLocation?: any;
+  filterCampaignLiveKeywordsData?: any;
 }
 
 const CustomTable = ({
@@ -59,24 +70,30 @@ const CustomTable = ({
   campaignId,
   showAddedKeyword,
   setTableBody,
+  filterCampaignLiveKeywordsData,
+  fetchCardDatafilterLocation,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const { startLoading, stopLoading } = useLoader();
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
   const [defaultData, setDefaultData] = useState<any>([]);
   const [locationFilter, setLocationFilter] = useState<string>("all");
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
 
+  const [selectAll, setSelectAll] = useState(false);
   // ✅ Sorting state
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [sortedData, setSortedData] = useState<TablebodyItems[]>([]);
 
   const [excludeZero, setExcludeZero] = useState<boolean>(false); // 👈 new toggle
   // sortMode can be: "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
-const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero">("normal");
-
-
+  const [sortMode, setSortMode] = useState<
+    "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
+  >("normal");
+  console.log(tableData, "tableDataNew");
+  console.log(filterCampaignLiveKeywordsData, "filterCampaignLiveKeywordsData");
   const uniqueLocations = Array.from(
-    new Set(tableData.map((row) => row.location))
+    new Set(filterCampaignLiveKeywordsData?.map((row:any) => row.location))
   );
 
   useEffect(() => {
@@ -94,36 +111,10 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
     }
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
-  // useEffect(() => {
-  //   let data = [...tableData];
-
-  //   // Filter by location if applied
-  //   if (locationFilter !== "all") {
-  //     data = data.filter((row) => row.location === locationFilter);
-  //   }
-
-  //   // Apply sorting by Group_Rank
-  //   if (sortOrder) {
-  //     data = data
-  //       .filter((row) => Number(row.Group_Rank) > 0) // 🚫 exclude 0 rank
-  //       .sort((a, b) => {
-  //         const valA = Number(a.Group_Rank) || 0;
-  //         const valB = Number(b.Group_Rank) || 0;
-  //         return sortOrder === "asc" ? valA - valB : valB - valA;
-  //       });
-  //   }
-
-  //   setSortedData(data);
-
-  //   if (setExelData) {
-  //     setExelData(data);
-  //   }
-  // }, [tableData, locationFilter, sortOrder]);
 
   useEffect(() => {
     let data = [...tableData];
 
-   
     if (locationFilter !== "all") {
       data = data.filter((row) => row.location === locationFilter);
     }
@@ -145,7 +136,14 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
     if (setExelData) {
       setExelData(data);
     }
-  }, [tableData, locationFilter, sortOrder, excludeZero]);
+  }, [tableData, sortOrder, excludeZero]);
+  useEffect(() => {
+    if (locationFilter) {
+      fetchCardDatafilterLocation(locationFilter);
+    }
+  }, [locationFilter]);
+
+  console.log(locationFilter, "location filter");
 
   useEffect(() => {
     const FetchKeyWordsDb = async () => {
@@ -229,15 +227,101 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
         console.error("Failed to copy URL:", err);
       });
   };
+  //   const handleBulkDelete = () => {
+  //     console.log("delete")
+  //   // setTableBody((prev) => prev.filter((row) => !selectedKeywords.includes(row.keywordId)));
+
+  // };
+  const handleBulkDelete = async (
+    selectedKeywords: string[],
+    campaignId: string
+  ) => {
+    console.log(selectedKeywords, "selectedKeywords");
+    try {
+      const res = await deleteKeywordData(selectedKeywords);
+      if (res.success) {
+        const campaignLiveKeywordsData = await getDbLiveKeywordData(
+          campaignId || ""
+        );
+        console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+        let data: any = [];
+        if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+          data = campaignLiveKeywordsData?.newLiveKeywordDbData.map(
+            (item: any) => ({
+              // select: false,
+              type: item?.type || "",
+              keywordId: item?.keywordId || "",
+              keyword: item?.keyword || "",
+              location: item?.location_name?.locationName?.locationName || "",
+              intent: item?.intent || "",
+              start: item?.start || 0,
+              page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
+              Absolute_Rank: String(item?.rank_absolute) || 0,
+              Group_Rank: item?.rank_group || 0,
+              // oneDay: "1",
+              sevenDays: "-",
+              // thirtyDays: "-",
+              life: item?.rank_group || 0,
+              comp: item?.competition || 0,
+              sv: item?.searchVolumn || 0,
+              date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "2-digit",
+              }),
+              rankingUrl: item.url || "",
+              // rankingUrl: new URL(item.url) || "/",
+            })
+          );
+        }
+        console.log(data, "data after delete");
+        if (setTableBody) {
+          setTableBody(data);
+        }
+        toast.success("Keyword(s) deleted successfully");
+        // setOpen(false);
+      } else {
+        toast.error(res.error || "Failed to delete keyword");
+      }
+    } catch (err) {
+      toast.error("An error occurred during deletion");
+      console.error(err);
+    }
+  };
+
+  const handleBulkRefresh = () => {
+    // call your API for each selected keywordId
+    // selectedKeywords.forEach((id) => {
+    //   // refreshKeywordApi(campaignId, id);
+    // });
+    console.log("refresh");
+    setSelectedKeywords([]);
+    setSelectAll(false);
+  };
 
   return (
     <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
       {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
+      <div className="flex gap-3 mb-3">
+        <button
+          disabled={selectedKeywords.length === 0}
+          onClick={() => handleBulkDelete(selectedKeywords, campaignId || "")}
+          className="px-3 flex items-center gap-2 py-1 bg-red-500 text-white rounded disabled:opacity-50"
+        >
+          <MdDeleteSweep className="text-2xl" /> Delete
+        </button>
+        {/* <button
+    disabled={selectedKeywords.length === 0}
+    onClick={handleBulkRefresh}
+    className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+  >
+    Refresh Selected
+  </button> */}
+      </div>
+
       <table className="min-w-[1000px] w-full table-auto">
         <thead>
           <tr className="sticky top-0 bg-gradient-to-r bg-gray-200 text-black">
-            
-
             {tableHeader.map((header, id) => (
               <th
                 key={id}
@@ -250,13 +334,10 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
                   {header.label}
 
                   {/* Group_Rank sorting button */}
-                
 
                   {header.key === "Group_Rank" && (
                     <div className="flex items-center gap-1">
-                     
                       <Button
-                     
                         variant="ghost"
                         size="sm"
                         onClick={() =>
@@ -266,15 +347,50 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
                         <LuArrowUpDown className="h-4 w-4" />
                       </Button>
 
-                     
                       <Button
                         variant={excludeZero ? "default" : "ghost"}
                         size="sm"
                         onClick={() => setExcludeZero(!excludeZero)}
                       >
-                        {excludeZero ?<FaRegEyeSlash title="Show Zero" /> : <FaRegEye title="Hide Zero" />}
+                        {excludeZero ? (
+                          <FaRegEyeSlash title="Show Zero" />
+                        ) : (
+                          <FaRegEye title="Hide Zero" />
+                        )}
                       </Button>
                     </div>
+                  )}
+                  {header.key === "select" && (
+                    // <input
+                    //   type="checkbox"
+                    //   checked={selectAll}
+                    //   onChange={(e) => {
+                    //     setSelectAll(e.target.checked);
+                    //     if (e.target.checked) {
+                    //       setSelectedKeywords(
+                    //         sortedData.map((d) => d.keywordId)
+                    //       );
+                    //     } else {
+                    //       setSelectedKeywords([]);
+                    //     }
+                    //   }}
+                    // />
+                    <Checkbox
+                      checked={selectAll}
+                      onCheckedChange={(checked) => {
+                        setSelectAll(!!checked);
+                        if (checked) {
+                          setSelectedKeywords(
+                            sortedData.map((d) => d.keywordId)
+                          );
+                        } else {
+                          setSelectedKeywords([]);
+                        }
+                      }}
+                      className="data-[state=checked]:bg-orange-500 
+             data-[state=checked]:border-orange-500 
+             data-[state=checked]:text-white"
+                    />
                   )}
 
                   {/* Location dropdown filter */}
@@ -285,13 +401,21 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
                       onChange={(e) => setLocationFilter(e.target.value)}
                     >
                       <option value="all">All</option>
-                      {uniqueLocations.map((loc) => (
+                      {uniqueLocations.map((loc:any) => (
                         <option key={loc} value={loc}>
                           {loc}
                         </option>
                       ))}
                     </select>
-                  )}  
+                  )}
+                  {/* {header.key === "edit" && (
+                   //Button of delete and edit 
+                   <div className="flex flex-col gap-2">
+                   <MdDelete/>
+                   <IoRefreshCircle/>
+                   </div>
+
+                  )}   */}
                 </div>
               </th>
             ))}
@@ -317,6 +441,26 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
                   key={rowIndex}
                   className="hover:bg-indigo-50 transition-colors"
                 >
+                  <td className="text-center border p-1">
+                    <Checkbox
+                      className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 
+               data-[state=checked]:text-white"
+                      checked={selectedKeywords.includes(data.keywordId)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedKeywords((prev) => [
+                            ...prev,
+                            data.keywordId,
+                          ]);
+                        } else {
+                          setSelectedKeywords((prev) =>
+                            prev.filter((id) => id !== data.keywordId)
+                          );
+                        }
+                      }}
+                    />
+                  </td>
+
                   {/* <td
                     className="text-center text-[14px] text-wrap min-w-[200px]  border  p-1"
                     title={data.keyword}
@@ -448,12 +592,12 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
                         defaultData={defaultData}
                       />
 
-                      <DeleteConfirm
+                      {/* <DeleteConfirm
                         campaignId={campaignId || ""}
                         keywordId={keywordId}
                         keyword={data.keyword}
                         setTableBody={setTableBody}
-                      />
+                      /> */}
 
                       <SingleKeywordRefresh
                         campaignId={campaignId || ""}
@@ -469,7 +613,7 @@ const [sortMode, setSortMode] = useState<"normal" | "asc_all" | "desc_all" | "as
           )}
         </tbody>
       </table>
-     {/* )}  */}
+      {/* )}  */}
     </div>
   );
 };

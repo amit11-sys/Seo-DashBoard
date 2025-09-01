@@ -1,51 +1,32 @@
-// import { NextResponse, NextRequest } from "next/server";
-
-// export function middleware(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
-//   const token = request.cookies.get("accessToken")?.value;
-//   const isPublicPath =
-//     pathname === "/sign-in" || pathname === "/sign-up"
-//   if (isPublicPath && token) {
-//     return NextResponse.redirect(new URL("/dashboard", request.url));
-//   }
-
-//   if (!isPublicPath && !token) {
-//     return NextResponse.redirect(new URL("/sign-in", request.url));
-//   }
-
-//   return NextResponse.next();
-// }
-
-// export const config = {
-//   matcher: ['/', '/sign-up', '/sign-in', '/dashboard'],
-// };
-
-
-
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("accessToken")?.value;
 
   const isPublicPath =
-    pathname === "/sign-in" || pathname === "/sign-up";
+    pathname === "/sign-in" ||
+    pathname === "/sign-up";
 
+  // if logged in and trying to go to login/signup
   if (isPublicPath && token) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (!isPublicPath && !token) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+  if (!token) {
+    if (pathname.startsWith("/dashboard/detail")) {
+      return NextResponse.next();
+    }
+
+    // block all other private routes → sign-in
+    if (!isPublicPath) {
+      return NextResponse.redirect(new URL("/sign-in", request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|images|.*\\.png$|.*\\.jpg$|.*\\.svg$).*)",
-  ],
+  matcher: ["/((?!_next|.*\\..*|api).*)"], // exclude api, static, etc
 };
-

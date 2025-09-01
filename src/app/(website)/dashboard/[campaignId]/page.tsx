@@ -4,10 +4,12 @@ import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
+import { redirect } from "next/navigation";
+
 export default async function DashboardDetails({
   params,
 }: {
-  params: { campaignId: string };
+  params: { campaignId: string};
 }) {
   const { campaignId } =  params;
   const campignDataWithId = await getGetCampaignByid(campaignId);
@@ -17,6 +19,8 @@ export default async function DashboardDetails({
   console.log(campaignStatus, "campaignStatus");
 
   const archivedCampaignData = await getArchivedCampaign();
+
+
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
@@ -40,6 +44,7 @@ export default async function DashboardDetails({
             topRankData={campaignLiveKeywordsData.topRankData}
             campaignId={campaignId}
           />
+          
 
           <LiveKeywordComponent
           campaignStatus={campaignStatus}

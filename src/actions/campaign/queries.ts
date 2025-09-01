@@ -83,10 +83,10 @@ export const GetCampaignByid = async (campaignId: string) => {
   try {
     await connectToDB();
 
-    const user = await getUserFromToken();
-    if (!user) {
-      return { error: "Unauthorized" };
-    }
+    // const user = await getUserFromToken();
+    // if (!user) {
+    //   return { error: "Unauthorized" };
+    // }
     // console.log(user);
 
     // const campaign = await Campaign.find({ userId: user?.id });

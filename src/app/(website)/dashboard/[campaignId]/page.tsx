@@ -4,10 +4,12 @@ import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
+import { redirect } from "next/navigation";
+
 export default async function DashboardDetails({
   params,
 }: {
-  params: { campaignId: string };
+  params: { campaignId: string, share_token?: string };
 }) {
   const { campaignId } =  params;
   const campignDataWithId = await getGetCampaignByid(campaignId);
@@ -17,6 +19,25 @@ export default async function DashboardDetails({
   console.log(campaignStatus, "campaignStatus");
 
   const archivedCampaignData = await getArchivedCampaign();
+
+ const shareToken = params?.share_token;
+
+  if (shareToken) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/share/validate?share_token=${shareToken}`, {
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!data.valid) {
+      redirect("/sign-in"); // 🚀 secure redirect if token invalid
+    }
+
+    // you can even use `data.userId` to load user-specific data
+  }
+
+
+
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
@@ -40,6 +61,7 @@ export default async function DashboardDetails({
             topRankData={campaignLiveKeywordsData.topRankData}
             campaignId={campaignId}
           />
+          
 
           <LiveKeywordComponent
           campaignStatus={campaignStatus}

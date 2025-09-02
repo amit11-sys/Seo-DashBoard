@@ -33,19 +33,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
   const [openArchive, setOpenArchive] = useState(false);
   const router = useRouter();
 
-  const handleshareLink = async () => {
 
-    try {
-      const campaigndata = await getGetCampaignByid(campaignId);
-      const userId = campaigndata?.campaign?.userId ;
-      const shareLink = await getGenerateShareLink(userId,`/dashboard/detail/`,campaignId);
-      console.log(shareLink, "shareLink");
-      await navigator.clipboard.writeText(shareLink);
-      toast.success("Shareable link copied to clipboard!");
-    } catch (error) {
-      toast.error("Failed to generate shareable link.");
-    }
-  };
   // const handleCompaignDelete = async () => {
   //   setOpenDelete(false);
   //   startLoading();
@@ -102,17 +90,14 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
   return (
 
     <header className="flex items-end justify-end p-2 shadow-md rounded-md">
-      <div className="">
-
-     <BsShare className=" cursor-pointer text-xl text-green-600" title="Share" onClick={handleshareLink}/>
-      </div>
+      
       {campaignStatus === 1 && (
          <div className="flex items-center space-x-4 ml-auto">
         <button
           title="Download PDF"
           className="flex items-center text-red-400 px-3 py-1.5 rounded transition"
         >
-          <FaFilePdf className=" text-2xl" />
+          
         </button>
 
         {/* Dialog Trigger for archive */} 

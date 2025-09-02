@@ -1154,10 +1154,7 @@ type KeywordUpdateData = {
   keywordId: string;
 };
 
-export const deleteKeywordById = async (
-  selectedKeywords: string[],
-
-) => {
+export const deleteKeywordById = async (selectedKeywords: string[]) => {
   try {
     await connectToDB();
 
@@ -1165,15 +1162,14 @@ export const deleteKeywordById = async (
     if (!user) {
       return { error: "Unauthorized" };
     }
-    
 
     if (!Array.isArray(selectedKeywords) || selectedKeywords.length === 0) {
       return { error: "No keywords selected" };
     }
 
     const result = await KeywordTracking.updateMany(
-      { 
-        keywordId: { $in: selectedKeywords } 
+      {
+        keywordId: { $in: selectedKeywords },
       },
       { $set: { status: 3 } }
     );
@@ -1223,7 +1219,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     // const VolumnData = await getVolumnRank([updatedKeyword]);
     const intentData = await getRankIntent([updatedKeyword]);
 
-    console.log(rankdata?.rankResponses , "rankdata");
+    console.log(rankdata?.rankResponses, "rankdata");
     // console.log(VolumnData?.volumnResponses, "volumn data");
     console.log(intentData?.intentResponses, "intent data");
 
@@ -1283,8 +1279,6 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     //         };
     //       })
     //     : [];
-    
-
 
     // const finalData =
     //   rankdata && "rankResponses" in rankdata
@@ -1348,8 +1342,6 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     //       })
     //     : [];
 
-
-
     const allRankGroups =
       rankdata?.rankResponses?.flatMap((rankItem: any) => {
         const task = rankItem?.response?.tasks?.[0];
@@ -1388,7 +1380,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
               rank_group: rankGroup,
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: newKeyword || "",
-            checkUrl : data?.check_url || "no url",
+              checkUrl: data?.check_url || "no url",
               searchVolumn: 0,
               intent: "",
               competition: 0,
@@ -1401,8 +1393,6 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
             };
           })
         : [];
-
-
 
     const data = finalData?.[0];
     const addedTracking = await KeywordTracking.findOneAndUpdate(
@@ -1442,38 +1432,106 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
   //     });
   //   })
   // );
-  const addedKeywords = await Promise.all(
-  (formData?.keyword || []).map(async (kwStr: string) => {
-    // Check if keyword already exists for this user & campaign
-    const exists = await Keyword.findOne({
-      keywords: kwStr,
-      userId: user.id,
-      CampaignId: campaign._id,
-    });
 
-    if (exists) {
-      // Skip duplicates, return null so it won’t be added
-      return null;
-    }
 
-    return await Keyword.create({
-      ...formData, // includes language, device, location, etc.
-      keywords: kwStr, // the actual keyword string
-      userId: user.id,
-      CampaignId: campaign._id,
-    });
-  })
-);
+  //   const addedKeywords = await Promise.all(
+  //   (formData?.keyword || []).map(async (kwStr: string) => {
+  //     // Check if keyword already exists for this user & campaign
+  //     const exists = await Keyword.findOne({
+  //       keywords: kwStr,
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //     console.log(exists, "exists keyword");
 
-// Filter out nulls (duplicates)
-const filteredKeywords = addedKeywords.filter((kw) => kw !== null);
+  //     if (exists) {
+  //       // Skip duplicates, return null so it won’t be added
+  //       return null;
+  //     }
 
+  //     return await Keyword.create({
+  //       ...formData, // includes language, device, location, etc.
+  //       keywords: kwStr, // the actual keyword string
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //   })
+  // );
+
+  // const addedKeywords = await Promise.all(
+  //   (formData?.keyword || []).map(async (kwStr: string) => {
+  //     // Check if keyword already exists for this user & campaign
+  //     const exists = await Keyword.findOne({
+  //       keywords: kwStr,
+  //       // userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+
+  //     if (exists) {
+  //       console.log(exists, "exists keyword if");
+
+  //       console.log("duplicate entry", kwStr);
+  //       return null;
+  //     }
+  //     console.log("exists keyword else", kwStr);
+  //     const newKey = await Keyword.create({
+  //       ...formData,
+  //       keywords: kwStr,
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //     console.log(newKey);
+  //   })
+  // );
+
+  // console.log(addedKeywords, "added keywords");
+
+
+
+formData.keyword = Array.from(new Set(formData?.keyword || []));
+ 
+  
+  const existingKeywords = await Keyword.find({
+    keywords: { $in: formData.keyword },
+    userId: user.id,
+    CampaignId: campaign._id,
+  }).distinct("keywords");
+
+
+ console.log(existingKeywords,"existingKeywords");
+
+  formData.keyword = formData.keyword.filter(
+    (kwStr:any) => !existingKeywords.includes(kwStr)
+  );
+ 
+  const createdKeywords =
+    formData.keyword.length > 0
+      ? await Keyword.insertMany(
+          formData.keyword.map((kwStr: string) => ({
+            ...formData,
+            keywords: kwStr,
+            userId: user.id,
+            CampaignId: campaign._id,
+          }))
+        )
+      : [];
+ 
+ 
+      console.log(createdKeywords, "created keywords");
+
+
+
+  // Filter out nulls (duplicates)
+  // const filteredKeywords = addedKeywords.filter((kw) => kw !== null);
+
+  // console.log(filteredKeywords, "addedFilterkeywords");
 
   // Initialize progress in Redis
+
   const redis = getRedis();
   const progressKey = `campaign:${campaign._id.toString()}:progress`;
   await redis.hset(progressKey, {
-    total: String(filteredKeywords.length),
+    total: String(createdKeywords.length),
     processed: "0",
     lastUpdated: String(Date.now()),
   });
@@ -1481,7 +1539,7 @@ const filteredKeywords = addedKeywords.filter((kw) => kw !== null);
 
   // Enqueue jobs for each keyword
   await Promise.all(
-    filteredKeywords.map((kw) =>
+    createdKeywords.map((kw) =>
       keywordQueue.add("fetchKeywordRanking", {
         keywordId: kw._id.toString(),
         keyword: kw.keywords, // must match what you stored
@@ -1502,7 +1560,7 @@ const filteredKeywords = addedKeywords.filter((kw) => kw !== null);
   return {
     success: true,
     message: "Keywords queued for live ranking",
-    queued: filteredKeywords.length,
+    queued: createdKeywords.length,
     counts,
   };
 };

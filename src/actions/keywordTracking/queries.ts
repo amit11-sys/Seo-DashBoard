@@ -268,7 +268,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
     if (location !== "all" && location !== undefined) {
 
       const { allLocations = [] } = await fetchDBLocation(location);
-      console.log(allLocations, "allLocations");
+      
 
       const locationCode = allLocations[0]?.locationCode;
 
@@ -288,7 +288,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
       return { error: "Error while getting LiveKeywordDbData" };
     }
 
-    console.log(LiveKeywordDbData, "LiveKeywordDbDataServer");
+    // console.log(LiveKeywordDbData, "LiveKeywordDbDataServer");
 
     // const cardCounts = {
     //   top3: 0,
@@ -382,7 +382,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
     //   })
     // );
 
-    console.log(topRankData, "topRankDataServer");
+    // console.log(topRankData, "topRankDataServer");
     const newLiveKeywordDbData = await Promise.all(
       LiveKeywordDbData.map(async (item) => {
         const locationName = await fetchDBlocationData(item?.location_code);

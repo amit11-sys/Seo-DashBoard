@@ -23,7 +23,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { campaignSchema } from "@/lib/zod";
 import { useLoader } from "@/hooks/useLoader";
 import { toast } from "sonner";
-import { createCampaign, getUserCampaign } from "@/actions/campaign";
+import { createCampaign, getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
 import DropDownList from "@/components/DropDownList";
 import { HiMiniTag } from "react-icons/hi2";
 import { MdOutlineDevices } from "react-icons/md";
@@ -83,6 +83,8 @@ export function CampaignTabs() {
   const [activeTab, setActiveTab] = useState("account");
   const { setCampaignData } = useCampaignData();
   const [keywordError, setKeywordError] = useState<string | null>(null);
+  const [ activeCampigns,setActiveCampigns] = useState<any>()
+  const [ archivedCampigns,setArchivedCampigns] = useState<any>()
   // ✅ Memoize debounced function so it survives re-renders
   const debouncedFetch = useMemo(() => {
     return debounce((q: string) => {
@@ -123,32 +125,53 @@ export function CampaignTabs() {
         console.log(error, "language error");
       }
     };
+    const activeCampaign = async  () =>{
+      try {
+        const data = await getUserCampaign();
+        const archivedData = await getArchivedCampaign()
+  
+        setActiveCampigns(data?.campaign);
+        setArchivedCampigns(archivedData?.KeywordTrackingDataArchied);
+        
+      } catch (error) {
+        console.log(error, "activeCampaign error");
+        
+      }
+
+    }
+
+
     fetchlanguage();
+    activeCampaign();
   }, []);
-  // console.log("Results:", results, "Query:", query);
   const handleCampaignSubmit = async () => {
-    const values = form.getValues();
-    console.log(values);
+  const values = form.getValues();
+  const isValid = await form.trigger(["name", "url"]);
+ 
+  if (!isValid) {
+    if (form.formState.errors.name) {
+      toast.error(form.formState.errors.name.message || "Please provide Name.");
+    }
+    if (form.formState.errors.url) {
+      toast.error(form.formState.errors.url.message || "Please provide a valid URL.");
+    }
+    return;
+  }
+  const exists =
+    activeCampigns &&
+    [...activeCampigns, ...archivedCampigns].find((c: any) => c.projectUrl === values.url);
+  
+  if (exists) {
+    toast.error("A campaign with this URL already exists.");
+    return;
+  }
 
-    const isValid = await form.trigger(["name", "url"]);
+  setCampaignValid(true);
+  toast.success("Campaign Info validated!");
+  setActiveTab("keywords");
+};
 
-    // if (!isValid) {
-    //   if (form.formState.errors.keyword) {
-    //     toast.error(form.formState.errors.name.message || "Please provide Name.");
-    //   }
-    //   if (form.formState.errors.searchLocation) {
-    //     toast.error(form.formState.errors.url.message || "Please select a url.");
-    //   }
 
-    //   return;
-    // }
-
-    if (!isValid) return;
-
-    setCampaignValid(true);
-    toast("Campaign Info validated!");
-    setActiveTab("keywords");
-  };
   const keywords = Keywords;
 
   const onFinalSubmit = async () => {

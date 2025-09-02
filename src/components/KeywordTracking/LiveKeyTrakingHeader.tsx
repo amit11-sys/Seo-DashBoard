@@ -20,6 +20,9 @@ import {
 } from "@/actions/keywordTracking";
 // import { useCampaignProgress } from "@/hooks/useCampaignProgress";
 import { ProgressBar } from "../KeywordProgress";
+import { BsShare } from "react-icons/bs";
+import { getGetCampaignByid } from "@/actions/campaign";
+import { getGenerateShareLink } from "@/actions/generateShareLink";
 interface CampaignIdProps {
   campaignId: string;
 }
@@ -78,8 +81,8 @@ export default function LiveKeyTrakingHeader({
       //       refreshedCampaign.updatedRecords[0]?.updatedAt || ""
       //     )
       //   : "";
-      if(refreshedCampaign){
-        setRefresh((k: any) => k + 1)
+      if (refreshedCampaign) {
+        setRefresh((k: any) => k + 1);
       }
       if (!refreshedCampaign || refreshedCampaign.error) {
         console.error("Failed to refresh campaign:", refreshedCampaign?.error);
@@ -175,6 +178,19 @@ export default function LiveKeyTrakingHeader({
       onClick: handleRefreshCampaign, // Refresh button assigned
     },
   ];
+   const handleshareLink = async () => {
+
+    try {
+      const campaigndata = await getGetCampaignByid(campaignId);
+      const userId = campaigndata?.campaign?.userId ;
+      const shareLink = await getGenerateShareLink(userId,`/dashboard/detail/`,campaignId);
+      console.log(shareLink, "shareLink");
+      await navigator.clipboard.writeText(shareLink);
+      toast.success("Shareable link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to generate shareable link.");
+    }
+  };
 
   return (
     <div className=" flex flex-col md:flex-row items-center  justify-between text-black rounded-xl  gap-4">
@@ -198,7 +214,11 @@ export default function LiveKeyTrakingHeader({
         <div className="flex items-center gap-2">
           <ProgressBar processed={processed} total={total} done={done} />
           <span className="text-sm text-gray-600">
-          {done ? null : total > 0 ? ((processed / total) * 100).toFixed(0) + "%" : "0%"}{" "}
+            {done
+              ? null
+              : total > 0
+                ? ((processed / total) * 100).toFixed(0) + "%"
+                : "0%"}{" "}
             {/* {done ? "(Completed)" : "(Processing...)"} */}
           </span>
         </div>
@@ -210,7 +230,8 @@ export default function LiveKeyTrakingHeader({
           <DownloadKeywordExcelBtn
             tableHeader={tableHeader}
             tableData={tableData}
-          />{" "}
+          />
+         
         </>
       ) : (
         <div className="flex items-center gap-3 flex-wrap justify-end">
@@ -218,16 +239,29 @@ export default function LiveKeyTrakingHeader({
             campaignId={campaignId}
             onClose={() => setRefresh((k: any) => k + 1)}
           />
+         
           {/* <button>Add Keyword</button> */}
+            <div className="w-10 h-10  hover:bg-gray-200 flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer">
+
           <DownloadKeywordExcelBtn
             sortedDataExel={sortedDataExel}
             tableHeader={tableHeader}
             tableData={tableData}
           />
+          </div>
+          
+           <div className="w-10 h-10  hover:bg-gray-200 flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer">
+
+           <BsShare
+            className="  cursor-pointer text-xl text-green-600"
+            title="Share"
+            onClick={handleshareLink}
+          />
+          </div>
           {iconButtons.map((item, idx) => (
             <div
               key={idx}
-              className="w-10 h-10  rounded-full bg-gray-100 hover:bg-gray-200 shadow-sm flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer"
+              className="w-10 h-10  hover:bg-gray-200 flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer"
             >
               <button
                 title="Refresh"

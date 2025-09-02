@@ -1,5 +1,5 @@
 "use client";
-import React, { ReactNode, use, useEffect, useState } from "react";
+import React, { ReactNode, use, useCallback, useEffect, useMemo, useState } from "react";
 import CustomTrackingCard from "@/components/KeywordTracking/CustomTrackingCard";
 import TrackingChart from "@/components/Chart/TrackingChart";
 import DropDownList from "@/components/DropDownList";
@@ -171,7 +171,8 @@ const LiveKeywordComponent = ({
 
     fetchLiveKeywordData();
   }, [campaignId]);
-  const fetchCardDataFilterLocation = async (location: string) => {
+  // const fetchCardDataFilterLocation = async (location: string) => {
+  const fetchCardDataFilterLocation = useCallback(async (location: string) => {
     console.log("yes re render")
     try {
       console.log("Fetching card data for location:", location);
@@ -224,7 +225,7 @@ const LiveKeywordComponent = ({
     } catch (error) {
       console.error("Error fetching card data:", error);
     }
-  };
+  }, [campaignId, campaignStatus]);
 
   // useEffect(() => {
   //   const fetchDBLiveDatagain = async () => {
@@ -450,7 +451,6 @@ const LiveKeywordComponent = ({
       }
     }
   };
-
  
 
   const showAddedKeyword = (newItem: any) => {
@@ -492,18 +492,18 @@ const LiveKeywordComponent = ({
     keywordTableData();
   };
 
-  const cardData = {
-    title: "keywords",
-    data: cardCounts?.data?.map((item: any) => {
+  const cardData = useMemo(() => ({
+  title: "keywords",
+   data: cardCounts?.data?.map((item: any) => {
       return {
         title: item.title,
         data: item.data,
         id: item.id,
       };
     }),
-    type: "card",
-    totalKeywords: cardCounts?.totalKeywords || 0,
-  };
+  type: "card",
+  totalKeywords: cardCounts?.totalKeywords || 0,
+}), [cardCounts]);
   // console.log(cardData, "cardDataok");
 
   return (
@@ -549,30 +549,30 @@ const LiveKeywordComponent = ({
     ))
   )}
 </div> */}
-        <div className="flex justify-evenly items-center gap-5 w-full">
-          {!cardData || cardData?.data?.length === 0 ? (
-            // Skeleton loader
-            <>
-              {[...Array(4)].map((_, idx) => (
-                <div
-                  key={idx}
-                  className="w-[170px] h-[170px] bg-slate-300 rounded-xl animate-pulse"
-                />
-              ))}
-            </>
-          ) : (
-            cardData?.data?.map((item: any) => (
-              <div key={item.id}>
-                <CustomTrackingCard
-                  totalKeywords={cardData?.totalKeywords}
-                  className="w-[170px] h-[170px]"
-                  title={item?.title}
-                  data={item?.data}
-                />
-              </div>
-            ))
-          )}
-        </div>
+<div className="flex justify-evenly items-center gap-5 w-full">
+  {!cardData.data || cardData.data.length === 0 ? (
+    // Skeleton loader
+    <>
+      {[...Array(5)].map((_, idx) => (
+        <div
+          key={idx}
+          className="w-[170px] h-[170px] bg-slate-300 rounded-xl animate-pulse"
+        />
+      ))}
+    </>
+  ) : (
+    cardData.data.map((item: any) => (
+      <div key={item.id}>
+        <CustomTrackingCard
+          totalKeywords={cardData.totalKeywords}
+          className="w-[170px] h-[170px]"
+          title={item.title}
+          data={item.data}
+        />
+      </div>
+    ))
+  )}
+</div>
 
         {/* <div className="w-[60%]">
         <TrackingChart/>

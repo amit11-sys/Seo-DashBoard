@@ -137,10 +137,10 @@ export default function LiveKeyTrakingHeader({
           campaignStatus
         );
 
-        console.log(
-          refreshedCampaign?.newLiveKeywordDbData,
-          "refreshedCampaignok"
-        );
+        // console.log(
+        //   refreshedCampaign?.newLiveKeywordDbData,
+        //   "refreshedCampaignok"
+        // );
 
         if (
           refreshedCampaign?.newLiveKeywordDbData &&

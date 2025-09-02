@@ -109,7 +109,7 @@ const LiveKeywordComponent = ({
     3000,
     refreshKey
   );
-  console.log({campaignId,tokendata});
+  // console.log({campaignId,tokendata});
   const [tableBody, setTableBody] = useState<any[]>([]);
   const [cardCounts, setCardCounts] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
@@ -144,7 +144,7 @@ const LiveKeywordComponent = ({
     }
   }, [tableBody]);
 
-  console.log(cardCounts, "cardCounts");
+ 
   const { setActiveSingleCampaign } = useCampaignData();
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
   const setExelData = (data: any) => {
@@ -212,9 +212,9 @@ const LiveKeywordComponent = ({
         setTableBody(data);
       }
 
-      console.log(liveKeywordData, "liveKeywordDataOk");
+      // console.log(liveKeywordData, "liveKeywordDataOk");
 
-      console.log(topRankData, "topRankDataok");
+      // console.log(topRankData, "topRankDataok");
 
       if (topRankData.length > 0) {
         setCardCounts(topRankData);
@@ -441,7 +441,7 @@ const LiveKeywordComponent = ({
         };
       });
 
-      console.log(topRankData, "topRankDataok");
+      // console.log(topRankData, "topRankDataok");
 
       setTableBody(data);
       setFilterCampaignLiveKeywordsData(data);
@@ -451,7 +451,7 @@ const LiveKeywordComponent = ({
     }
   };
 
-  console.log(tableBody, "table body");
+ 
 
   const showAddedKeyword = (newItem: any) => {
     if (newItem && newItem.length > 0) {
@@ -504,7 +504,7 @@ const LiveKeywordComponent = ({
     type: "card",
     totalKeywords: cardCounts?.totalKeywords || 0,
   };
-  console.log(cardData, "cardDataok");
+  // console.log(cardData, "cardDataok");
 
   return (
     <div className="w-full min-h-[80vh]  text-gray-100">

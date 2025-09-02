@@ -40,7 +40,7 @@ export function Nav({ links = [], isCollapsed }: NavProps) {
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(
     null
   );
-  console.log(links,"links");
+
 
   // useEffect(() => {
   //   // setCampaignData(campaign);

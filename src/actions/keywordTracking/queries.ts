@@ -297,7 +297,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
     //   top30: 0,
     //   top100: 0,
     // };
-    // console.log(cardCounts, "cardCountsServer");
+ 
 
     // LiveKeywordDbData.forEach((keyword) => {
     //   const rank = keyword.rank_group;

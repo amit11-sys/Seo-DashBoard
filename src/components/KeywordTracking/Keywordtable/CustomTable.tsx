@@ -90,8 +90,8 @@ const CustomTable = ({
   const [sortMode, setSortMode] = useState<
     "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
   >("normal");
-  console.log(tableData, "tableDataNew");
-  console.log(filterCampaignLiveKeywordsData, "filterCampaignLiveKeywordsData");
+  // console.log(tableData, "tableDataNew");
+  // console.log(filterCampaignLiveKeywordsData, "filterCampaignLiveKeywordsData");
   const uniqueLocations = Array.from(
     new Set(filterCampaignLiveKeywordsData?.map((row:any) => row.location))
   );
@@ -143,7 +143,7 @@ const CustomTable = ({
     }
   }, [locationFilter]);
 
-  console.log(locationFilter, "location filter");
+  // console.log(locationFilter, "location filter");
 
   useEffect(() => {
     const FetchKeyWordsDb = async () => {

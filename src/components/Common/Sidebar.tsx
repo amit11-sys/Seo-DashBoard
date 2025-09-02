@@ -49,7 +49,7 @@ const Sidebar = ({ isCollapsed, archivedCampaignData,campaignId }: SidebarProps)
       icon: FaMinus,
     };
   });
-  console.log(organizedArchivedCompaignData,"organizedArchivedCompaignData");
+  // console.log(organizedArchivedCompaignData,"organizedArchivedCompaignData");
 
   return (
     <>

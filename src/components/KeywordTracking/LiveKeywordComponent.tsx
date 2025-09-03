@@ -607,6 +607,7 @@ const LiveKeywordComponent = ({
           </div>
         ) : (
           <CustomTable
+          ShareCampaignStatus={ShareCampaignStatus}
             filterCampaignLiveKeywordsData={filterCampaignLiveKeywordsData}
             fetchCardDatafilterLocation={fetchCardDataFilterLocation}
             setExelData={setExelData}

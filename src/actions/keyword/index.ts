@@ -34,10 +34,10 @@ export const createUpdateKeywordById = async (updatedDataform:KeywordUpdateData)
   const updatedData = await updateKeywordById(updatedDataform);
   return updatedData;
 };
-export const deleteKeywordData = async (deletedData:any) => {
+export const deleteKeywordData = async (selectedKeywords:any) => {
   // console.log(keyword,"rttdt");
 
-  const deleteKeyworddata = await deleteKeywordById(deletedData);
+  const deleteKeyworddata = await deleteKeywordById(selectedKeywords);
   return deleteKeyworddata;
 };
 interface compaigntype {

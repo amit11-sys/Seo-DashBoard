@@ -5,6 +5,7 @@ import Campaign from "@/lib/models/campaign.model";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import Location from "@/lib/models/Location.model";
+import { fetchDBLocation } from "../locations_Language/queries";
 
 export const createKeywordTracking = async (keywordData: any) => {
   try {
@@ -114,12 +115,11 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     const LiveKeywordDbData = await KeywordTracking.find({
       campaignId: newCompaignId,
       status: 1,
-    }).populate('campaignId');
+    }).populate("campaignId");
     // const campaignData = await KeywordTracking.populate(LiveKeywordDbData, {
-    //   path: "campaignId", 
+    //   path: "campaignId",
     // });
 
- 
     // Compute ranking counts
     const cardCounts = {
       top3: 0,
@@ -143,7 +143,6 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     const topRankData = {
       title: "Keywords",
       data: [
-
         {
           title: "Keywords Up",
           data: cardCounts?.top100,
@@ -223,7 +222,11 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
     return { error: "Internal Server Error." };
   }
 };
-export const DbLiveKeywordDataWithSatusCode = async (newCompaignId: string,campaignStatus:number) => {
+export const DbLiveKeywordDataWithSatusCode = async (
+  newCompaignId: string,
+  campaignStatus: number,
+  location?: string
+) => {
   try {
     await connectToDB();
 
@@ -233,18 +236,82 @@ export const DbLiveKeywordDataWithSatusCode = async (newCompaignId: string,campa
     // }
     // console.log(user);
     // console.log(newCompaignId,"newkeywordCampaign")
+    console.log(location, "loationServer");
 
-    const LiveKeywordDbData = await KeywordTracking.find({
-      campaignId: newCompaignId,
-      status: campaignStatus,
-    }).populate('campaignId');
-    // const campaignData = await KeywordTracking.populate(LiveKeywordDbData, {
-    //   path: "campaignId", 
+    // if (location !== "all") {
+    //   if (location) {
+    //     const { allLocations = [] } = await fetchDBLocation(location);
+    //     console.log(allLocations, "allLocations");
+
+    //     const locationCode = allLocations[0]?.locationCode;
+    //     const LiveKeywordDbData = await KeywordTracking.find({
+    //       location_code: locationCode,
+    //       campaignId: newCompaignId,
+    //       status: campaignStatus,
+    //     }).populate("campaignId");
+    //   }
+    // }
+
+    // // if(!location){
+
+    // const LiveKeywordDbData = await KeywordTracking.find({
+    //   campaignId: newCompaignId,
+    //   status: campaignStatus,
+    // }).populate("campaignId");
+
+    // // }
+
+    // Compute ranking counts
+
+    let LiveKeywordDbData: any[] = [];
+
+    if (location !== "all" && location !== undefined) {
+
+      const { allLocations = [] } = await fetchDBLocation(location);
+      
+
+      const locationCode = allLocations[0]?.locationCode;
+
+      LiveKeywordDbData = await KeywordTracking.find({
+        location_code: locationCode,
+        campaignId: newCompaignId,
+        status: campaignStatus,
+      }).populate("campaignId");
+    } else {
+      LiveKeywordDbData = await KeywordTracking.find({
+        campaignId: newCompaignId,
+        status: campaignStatus,
+      }).populate("campaignId");
+    }
+
+    if (!LiveKeywordDbData) {
+      return { error: "Error while getting LiveKeywordDbData" };
+    }
+
+    // console.log(LiveKeywordDbData, "LiveKeywordDbDataServer");
+
+    // const cardCounts = {
+    //   top3: 0,
+    //   top10: 0,
+    //   top20: 0,
+    //   top30: 0,
+    //   top100: 0,
+    // };
+ 
+
+    // LiveKeywordDbData.forEach((keyword) => {
+    //   const rank = keyword.rank_group;
+
+    //   if (rank > 0 && rank <= 3) cardCounts.top3 += 1;
+    //   if (rank > 0 && rank <= 10) cardCounts.top10 += 1;
+    //   if (rank > 0 && rank <= 20) cardCounts.top20 += 1;
+    //   if (rank > 0 && rank <= 30) cardCounts.top30 += 1;
+    //   if (rank > 0 && rank <= 100) cardCounts.top100 += 1;
     // });
 
- 
-    // Compute ranking counts
-    const cardCounts = {
+    // Format for card
+
+       const cardCounts = {
       top3: 0,
       top10: 0,
       top20: 0,
@@ -252,21 +319,32 @@ export const DbLiveKeywordDataWithSatusCode = async (newCompaignId: string,campa
       top100: 0,
     };
 
-    LiveKeywordDbData.forEach((keyword) => {
+    LiveKeywordDbData.forEach((doc) => {
+      const keyword = doc.toObject(); // ensure plain object
       const rank = keyword.rank_group;
 
-      if (rank > 0 && rank <= 3) cardCounts.top3 += 1;
-      if (rank > 0 && rank <= 10) cardCounts.top10 += 1;
-      if (rank > 0 && rank <= 20) cardCounts.top20 += 1;
-      if (rank > 0 && rank <= 30) cardCounts.top30 += 1;
-      if (rank > 0 && rank <= 100) cardCounts.top100 += 1;
+      if (!rank || rank <= 0) return;
+
+      if (rank <= 100) {
+        cardCounts.top100 += 1;
+        if (rank <= 30) {
+          cardCounts.top30 += 1;
+          if (rank <= 20) {
+            cardCounts.top20 += 1;
+            if (rank <= 10) {
+              cardCounts.top10 += 1;
+              if (rank <= 3) {
+                cardCounts.top3 += 1;
+              }
+            }
+          }
+        }
+      }
     });
 
-    // Format for card
     const topRankData = {
       title: "Keywords",
       data: [
-
         {
           title: "Keywords Up",
           data: cardCounts?.top100,
@@ -313,6 +391,8 @@ export const DbLiveKeywordDataWithSatusCode = async (newCompaignId: string,campa
     //     };
     //   })
     // );
+
+    // console.log(topRankData, "topRankDataServer");
     const newLiveKeywordDbData = await Promise.all(
       LiveKeywordDbData.map(async (item) => {
         const locationName = await fetchDBlocationData(item?.location_code);
@@ -567,10 +647,10 @@ export const DbTopLiveKeywordData = async () => {
   try {
     await connectToDB();
 
-    const TopLiveKeywordDbData = await KeywordTracking.find({status: 1});
+    const TopLiveKeywordDbData = await KeywordTracking.find({ status: 1 });
 
     // Format for card
-    console.log(TopLiveKeywordDbData,"TopLiveKeywordDbData");
+    console.log(TopLiveKeywordDbData, "TopLiveKeywordDbData");
 
     // console.log(newLiveKeywordDbData, "realdata");
 
@@ -663,10 +743,9 @@ export const DbKeywordStatusData = async (statusCode: number) => {
     // 3. Get keyword data related to those campaign IDs
     const keywordDatastatus = await KeywordTracking.find({
       campaignId: { $in: campaignIds },
-      status:statusCode,
-     
+      status: statusCode,
     });
-    console.log(keywordDatastatus,"keywordDatastatus");
+    console.log(keywordDatastatus, "keywordDatastatus");
 
     return {
       success: true,

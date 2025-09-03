@@ -245,54 +245,79 @@ const finalData: any =
   }
 };
 
-export const addkeywords= async (formData: any) => {
+
+
+
+import mongoose from "mongoose";
+
+export const addkeywords = async (formData: any) => {
   await connectToDB();
   const user = await getUserFromToken();
   if (!user) return { error: "Unauthorized" };
-const campaignId = formData?.campaignId; // ✅ FIXED
-    // console.log(campaignId, "formdat id");
-    const { keywords, ...rest } = formData;
-  // Save new keyword docs
-  // const addedKeywords = await Promise.all(
-  //   (formData?.keyword || []).map(async (kwStr: string) => {
-  //     return await Keyword.create({
-  //       ...formData, // includes language, device, location, etc.
-  //       keywords: kwStr, // the actual keyword string
-  //       userId: user.id,
-  //       CampaignId: campaign._id,
-  //     });
-  //   })
-  // );
-  const newAddKeyword = await Promise.all(
-      keywords.map(async (singleKeyword: string) => {
-        return await Keyword.create({
-          ...rest,
-          keywords: singleKeyword,
-          userId: user.id,
-          CampaignId: campaignId, // ✅ FIXED
-        });
-      })
-    );
 
+  const campaignId = formData?.campaignId;
+  console.log(campaignId, "campaignId");
+  console.log(formData, "formData input");
+
+  // Normalize keywords (dedupe + lowercase)
+  formData.keywords = Array.from(
+    new Set((formData?.keywords || []).map((k: string) => k.trim().toLowerCase()))
+  );
+
+  // Convert IDs to ObjectId if needed
+  const userIdObj = new mongoose.Types.ObjectId(user.id);
+  const campaignIdObj = new mongoose.Types.ObjectId(campaignId);
+
+  // Check for existing keywords
+  const existingKeywords = await Keyword.distinct("keywords", {
+    keywords: { $in: formData.keywords },
+    userId: userIdObj,
+    CampaignId: campaignIdObj,
+  });
+
+  console.log(existingKeywords, "existingKeywords");
+
+  // Filter out already existing ones
+  formData.keywords = formData.keywords.filter(
+    (kw: string) => !existingKeywords.includes(kw)
+  );
+
+  console.log(formData.keywords, "keywords to insert");
+
+  // Insert only unique, new keywords
+  const createdKeywords =
+    formData?.keywords?.length > 0
+      ? await Keyword.insertMany(
+          formData.keywords.map((kw: string) => ({
+            ...formData,
+            keywords: kw,
+            userId: userIdObj,
+            CampaignId: campaignIdObj,
+          }))
+        )
+      : [];
+
+  console.log(createdKeywords, "created keywords");
+
+  // Redis progress setup
   const redis = getRedis();
-  const progressKey = `campaign:${campaignId.toString()}:progress`;
+  const progressKey = `campaign:${campaignId}:progress`;
   await redis.hset(progressKey, {
-    total: String(newAddKeyword.length),
+    total: String(createdKeywords.length),
     processed: "0",
     lastUpdated: String(Date.now()),
   });
   await redis.expire(progressKey, 60 * 60);
 
-  // Enqueue jobs for each keyword
+  // Queue jobs
   await Promise.all(
-    newAddKeyword.map((kw) =>
+    createdKeywords.map((kw) =>
       keywordQueue.add("fetchKeywordRanking", {
         keywordId: kw._id.toString(),
-        keyword: kw.keywords, // must match what you stored
+        keyword: kw.keywords,
         location_code: kw.searchLocationCode,
         language_code: kw.language,
         target: kw.url,
-
         device: kw.deviceType,
         se_domain: kw.SearchEngine,
         campaignId: campaignId.toString(),
@@ -306,8 +331,7 @@ const campaignId = formData?.campaignId; // ✅ FIXED
   return {
     success: true,
     message: "Keywords queued for live ranking",
-    queued: newAddKeyword.length,
+    queued: createdKeywords.length,
     counts,
-
   };
 };

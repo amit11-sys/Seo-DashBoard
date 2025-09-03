@@ -1,5 +1,5 @@
 "use client";
-import { CreateArchivedCampaign } from "@/actions/campaign";
+import { CreateArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import { useLoader } from "@/hooks/useLoader";
 import React, { useState } from "react";
 import { FaTrashAlt, FaFilePdf, FaArchive } from "react-icons/fa";
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { getGenerateShareLink } from "@/actions/generateShareLink";
+import { BsShare } from "react-icons/bs";
 // import { getfirstCompaignData } from "@/actions/keywordTracking";
 // import { useCampaignData } from "@/app/context/CampaignContext";
 
@@ -30,6 +32,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
   const [openDelete, setOpenDelete] = useState(false);
   const [openArchive, setOpenArchive] = useState(false);
   const router = useRouter();
+
 
   // const handleCompaignDelete = async () => {
   //   setOpenDelete(false);
@@ -86,14 +89,15 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
 
   return (
 
-    <header className="flex items-center justify-between p-2 shadow-md rounded-md">
+    <header className="flex items-end justify-end p-2 shadow-md rounded-md">
+      
       {campaignStatus === 1 && (
          <div className="flex items-center space-x-4 ml-auto">
         <button
           title="Download PDF"
           className="flex items-center text-red-400 px-3 py-1.5 rounded transition"
         >
-          <FaFilePdf className=" text-2xl" />
+          
         </button>
 
         {/* Dialog Trigger for archive */} 

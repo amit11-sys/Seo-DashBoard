@@ -147,7 +147,7 @@ const DialogForm = ({
       }
     };
     fetchlanguage();
-  }, []);
+  }, [open]);
   useEffect(() => {
     setDefaultUrl();
   }, [campaignId]);

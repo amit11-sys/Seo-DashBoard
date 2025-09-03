@@ -311,7 +311,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
 
     // Format for card
 
-    const cardCounts = {
+       const cardCounts = {
       top3: 0,
       top10: 0,
       top20: 0,
@@ -323,13 +323,23 @@ export const DbLiveKeywordDataWithSatusCode = async (
       const keyword = doc.toObject(); // ensure plain object
       const rank = keyword.rank_group;
 
-      // if (!rank || rank <= 0) return; // skip invalid
+      if (!rank || rank <= 0) return;
 
-      if (rank <= 3) cardCounts.top3 += 1;
-      else if (rank <= 10) cardCounts.top10 += 1;
-      else if (rank <= 20) cardCounts.top20 += 1;
-      else if (rank <= 30) cardCounts.top30 += 1;
-      else if (rank <= 100) cardCounts.top100 += 1;
+      if (rank <= 100) {
+        cardCounts.top100 += 1;
+        if (rank <= 30) {
+          cardCounts.top30 += 1;
+          if (rank <= 20) {
+            cardCounts.top20 += 1;
+            if (rank <= 10) {
+              cardCounts.top10 += 1;
+              if (rank <= 3) {
+                cardCounts.top3 += 1;
+              }
+            }
+          }
+        }
+      }
     });
 
     const topRankData = {

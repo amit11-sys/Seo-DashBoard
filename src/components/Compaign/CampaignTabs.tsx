@@ -125,7 +125,12 @@ export function CampaignTabs() {
         console.log(error, "language error");
       }
     };
-    const activeCampaign = async  () =>{
+    fetchlanguage();
+   
+  }, [activeTab]);
+
+  useEffect(() => {
+       const activeCampaign = async  () =>{
       try {
         const data = await getUserCampaign();
         const archivedData = await getArchivedCampaign()
@@ -139,11 +144,8 @@ export function CampaignTabs() {
       }
 
     }
-
-
-    fetchlanguage();
-    activeCampaign();
-  }, []);
+     activeCampaign();
+  },[])
   const handleCampaignSubmit = async () => {
   const values = form.getValues();
   const isValid = await form.trigger(["name", "url"]);

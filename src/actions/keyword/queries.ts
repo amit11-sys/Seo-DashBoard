@@ -1172,6 +1172,18 @@ export const deleteKeywordById = async (selectedKeywords: string[]) => {
         keywordId: { $in: selectedKeywords },
       },
       { $set: { status: 3 } }
+
+
+      
+    );
+    const result2 = await Keyword.updateMany(
+      {
+        _id: { $in: selectedKeywords },
+      },
+      { $set: { status: 3 } }
+
+
+
     );
     console.log(result, "delete result");
 

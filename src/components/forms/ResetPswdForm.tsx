@@ -1,9 +1,10 @@
+
 "use client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { forgotPswdSchema, resetPswdSchema, signUpSchema } from "@/lib/zod";
-import { Button } from "@/components/ui/button";
+import { resetPswdSchema } from "@/lib/zod";
 import { toast } from "sonner";
 import {
   Form,
@@ -14,92 +15,103 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createUser, forgotPswd, resetPswd } from "@/actions/user";
+import { resetPswd } from "@/actions/user";
 import { useLoader } from "@/hooks/useLoader";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import CustomButton from "../ui/CustomButton"; // Optional, replace with Button if not using
+import {motion} from "framer-motion";
 const ResetPswdForm = () => {
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
+
   const form = useForm<z.infer<typeof resetPswdSchema>>({
     resolver: zodResolver(resetPswdSchema),
     defaultValues: {
-      // email: "",
       password: "",
       confirm_pswd: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof resetPswdSchema>) {
-    startLoading(); // ✅ Start loading
-
+  const onSubmit = async (values: z.infer<typeof resetPswdSchema>) => {
+    startLoading();
     try {
       const user = await resetPswd(values);
 
       if (user?.success) {
+        toast.success("Password changed successfully");
         router.push("/sign-in");
-        toast("Password Changed Successfully");
       } else {
-        toast(user?.error);
+        toast.error(user?.error || "Reset failed");
       }
     } catch (error) {
-      toast("Something went wrong");
+      toast.error("Something went wrong");
     } finally {
       stopLoading();
     }
-  }
+  };
 
   return (
-    <Form {...form}>
-      <h1 className="text-xl text-center font-semibold">FORGOT PASSWORD</h1>
-      <p className="text-sm my-2 text-center italic">
-        We will sent a reset link to your email, which redirects to a secure
-        reset page. There, you can set a new password. Once submitted, your
-        password is updated, and then you can log in with the new credentials.
+    <motion.div 
+    initial={{ opacity: 0, y: 30, scale: 0.80, }}
+  animate={{ opacity: 1, y: 0, scale: 1,  }}
+  transition={{
+    type: "spring",
+    stiffness: 80,
+    damping: 15,
+    duration: 0.6,
+  }}
+    className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-md">
+      <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
+        Reset Password
+      </h1>
+      <p className="text-sm text-gray-600 text-center mb-6 italic">
+        You will receive a secure link via email to reset your password. Once completed, use your new password to log in.
       </p>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirm_pswd"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your Password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* <div className="flex justify-end mt-0"> */}
 
-        {/* <Link href="/sign-in" className="text-sm text-right text-blue-600">Already have an account? Please Sign In!</Link> */}
-        {/* </div> */}
-        <div className="text-right">
-          <Link className="text-blue-600 text-sm text-right" href="/sign-in">
-            Return to Login
-          </Link>
-        </div>
-        <div className="flex flex-col items-center justify-between">
-          <Button type="submit" className="text-center">
-            Submit
-          </Button>
-        </div>
-      </form>
-    </Form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>New Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Enter new password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="confirm_pswd"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Confirm new password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-end">
+            <Link href="/sign-in" className="text-sm text-[#335488] hover:underline">
+              Return to Login
+            </Link>
+          </div>
+
+          <div className="pt-4">
+            <CustomButton type="submit" buttonName="Submit" />
+            {/* Or use: <Button type="submit">Submit</Button> */}
+          </div>
+        </form>
+      </Form>
+    </motion.div>
   );
 };
 

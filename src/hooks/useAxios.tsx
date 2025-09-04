@@ -1,11 +1,14 @@
-import axios from "axios";
+
 // import { useLoading } from "../context/LoadingContext";
 // import { useAuth } from "../context/AuthContext";
 // import { toast } from "react-toastify";
 const useAxios = () => {
 //   const { startLoading, stopLoading } = useLoading();
 //   const { logout } = useAuth();
-  const request = async (url: string, options: Record<string, any> = {}) => {
+  const request = async (
+    // url: string, 
+    // options: Record<string, any> = {}
+  ) => {
 //     if (!url) {
 //       throw new Error("URL is required and must be a string.");
 //     }

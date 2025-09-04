@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
-
 
 
 @layer base {
@@ -39,6 +39,7 @@
 
 
 
+
 @layer base {
   * {
     @apply border-border;
@@ -50,5 +51,23 @@
 }
 
 .error-msg {
-  @apply bg-yellow-100 text-red-400 p-1 italic
+  @apply  text-red-400 p-1 italic
 }
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
+.animate-shake {
+  animation: shake 0.3s;
+}
+
+
+/* loading css  */
+
+
+/* From Uiverse.io by mobinkakei */ 

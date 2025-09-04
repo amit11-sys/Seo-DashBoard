@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { createUpdateKeywordById } from "@/actions/keyword";
 import {
   getDbLiveKeywordData,
+  getDbLiveKeywordDataWithSatusCode,
   getEditDataFetchDb,
   getfetchDBlocationData,
   getTrackingData,
@@ -34,6 +35,7 @@ import {
   getlanguageData,
 } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
+import { getGetCampaignByid } from "@/actions/campaign";
 // import {editKeywordsSchema} from "@/lib/zod"
 
 // const editKeywordsSchema = z.object({
@@ -71,11 +73,13 @@ interface EditKeywordsProps {
   showAddedKeyword: any;
   setTableBody: any;
   addEditkeywordsData: any;
+  CardSetOnChanges?: any;
 }
 
 const EditKeywords = ({
   campaignId,
   defaultData,
+  CardSetOnChanges,
   keywordId,
   addEditkeywordsData,
   showAddedKeyword,
@@ -97,7 +101,7 @@ const EditKeywords = ({
     },
   });
   // console.log(defaultData, "defaultttt");
- 
+
   const searchLoc = form.watch("searchLocationCode");
 
   const [tagsInput, setTagsInput] = useState("");
@@ -119,7 +123,6 @@ const EditKeywords = ({
       });
     }, 300);
   }, []);
-
 
   useEffect(() => {
     if (query.trim().length > 1) debouncedFetch(query);
@@ -153,7 +156,6 @@ const EditKeywords = ({
     };
     fetchlanguage();
   }, [open]);
-  
 
   useEffect(() => {
     if (defaultData) {
@@ -229,44 +231,53 @@ const EditKeywords = ({
     startLoading();
     try {
       const Response = await createUpdateKeywordById(payload);
-      const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
+      const campaignDataWithId = await getGetCampaignByid(campaignId);
+      const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
+
+      const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
+        campaignId,
+        campaignStatus
+      );
+
+               const topRankData = liveKeywordData?.topRankData?.data ?? [];
+
+      console.log(liveKeywordData, "campaignLiveKeywordsData");
+
       let data: any = [];
-      if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
-        data = campaignLiveKeywordsData?.newLiveKeywordDbData.map(
-          (item: any) => {
-            console.log(
-              item?.location_name?.locationName,
-              "newLiveKeywordDbData inside new location name"
-            );
-            return {
-              // select: false,
-              status: item?.status,
-              keywordId: item?.keywordId,
-              keyword: item?.keyword,
-              location: item?.location_name?.locationName?.locationName,
-              intent: item?.intent || "",
-              start: String(item?.start),
-              page: Math.ceil(item?.rank_absolute / 10).toString(),
-              Absolute_Rank: String(item?.rank_absolute),
-              Group_Rank: String(item?.rank_group),
-              // oneDay: "1",
-              sevenDays: "-",
-              // thirtyDays: "-",
-              life: String(item?.rank_group),
-              comp: item?.competition || "0",
-              sv: item?.searchVolumn || "0",
-              date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "2-digit",
-              }),
-              rankingUrl: item?.url,
-              // rankingUrl: new URL(item.url) || "/",
-            };
-          }
-        );
+      if (liveKeywordData?.newLiveKeywordDbData) {
+        data = liveKeywordData?.newLiveKeywordDbData.map((item: any) => ({
+          // select: false,
+          type: item?.type || "",
+          keywordId: item?.keywordId || "",
+          keyword: item?.keyword || "",
+          location: item?.location_name?.locationName?.locationName || "",
+          intent: item?.intent || "",
+          start: item?.start || 0,
+          page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
+          Absolute_Rank: String(item?.rank_absolute) || 0,
+          Group_Rank: item?.rank_group || 0,
+          // oneDay: "1",
+          sevenDays: "-",
+          // thirtyDays: "-",
+          life: item?.rank_group || 0,
+          comp: item?.competition || 0,
+          sv: item?.searchVolumn || 0,
+          date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+          }),
+          rankingUrl: item.url || "",
+          // rankingUrl: new URL(item.url) || "/",
+        }));
       }
-      setTableBody(data);
+      console.log(data, "data after delete");
+      if (setTableBody) {
+        setTableBody(data);
+      }
+      if (topRankData) {
+        CardSetOnChanges(topRankData);
+      }
       if (!Response) throw new Error("Update failed");
       // console.log(Response.tracking,"tracking");
 

@@ -289,31 +289,32 @@ export const ArchivedCampaignCreate = async (
     // restore campaign
 
     if (status === 1) {
-      const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
-        { _id: CompaignId },
-        { status: 1 },
-        { new: true }
-      );
+  const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
+    { _id: CompaignId },
+    { status: 1 },
+    { new: true }
+  );
 
-      const updatedKeywords = await KeywordTracking.updateMany(
-        { campaignId: CompaignId },
-        { $set: { status: 1 } }
-      );
-    }
+  const updatedKeywords = await KeywordTracking.updateMany(
+    { campaignId: CompaignId, status: { $ne: 3 } }, // ✅ exclude status 3
+    { $set: { status: 1 } }
+  );
+}
 
-    // ARCHIVED campaign
-    if (status === 2) {
-      const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
-        { _id: CompaignId },
-        { status: 2 },
-        { new: true }
-      );
+ // ARCHIVED campaign
+if (status === 2) {
+  const KeywordTrackingDataArchived = await Campaign.findByIdAndUpdate(
+    { _id: CompaignId },
+    { status: 2 },
+    { new: true }
+  );
 
-      const updatedKeywords = await KeywordTracking.updateMany(
-        { campaignId: CompaignId },
-        { $set: { status: 2 } }
-      );
-    }
+  const updatedKeywords = await KeywordTracking.updateMany(
+    { campaignId: CompaignId, status: { $ne: 3 } }, // ✅ exclude status 3
+    { $set: { status: 2 } }
+  );
+}
+
 
     //  if(topRankData){
 

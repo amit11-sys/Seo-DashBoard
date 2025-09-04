@@ -1,5 +1,12 @@
 "use client";
-import React, { ReactNode, use, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  ReactNode,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import CustomTrackingCard from "@/components/KeywordTracking/CustomTrackingCard";
 import TrackingChart from "@/components/Chart/TrackingChart";
 import DropDownList from "@/components/DropDownList";
@@ -81,7 +88,7 @@ interface LiveKeywordComponentProps {
   campaignId: string;
   campaignStatus?: number;
   ShareCampaignStatus?: number;
-  tokendata?: any
+  tokendata?: any;
 }
 
 interface HeaderProps {
@@ -101,7 +108,7 @@ const LiveKeywordComponent = ({
   // campaignLiveKeywordsData,
   campaignId,
   ShareCampaignStatus,
-  tokendata
+  tokendata,
 }: LiveKeywordComponentProps) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const { total, processed, done } = useCampaignProgress(
@@ -111,7 +118,8 @@ const LiveKeywordComponent = ({
   );
   // console.log({campaignId,tokendata});
   const [tableBody, setTableBody] = useState<any[]>([]);
-  const [cardCounts, setCardCounts] = useState<any>([]);
+  // const [cardCounts, setCardCounts] = useState<any>([]);
+  const [cardData, setCardData] = useState<any>([]);
   const [topRankData, setTopRankData] = useState<any[]>([]);
   const [totalKeywords, setTotalKeywords] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -144,8 +152,6 @@ const LiveKeywordComponent = ({
     }
   }, [tableBody]);
 
- 
-  const { setActiveSingleCampaign } = useCampaignData();
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
   const setExelData = (data: any) => {
     setSortedDataForExel(data);
@@ -172,8 +178,8 @@ const LiveKeywordComponent = ({
     fetchLiveKeywordData();
   }, [campaignId]);
   // const fetchCardDataFilterLocation = async (location: string) => {
-  const fetchCardDataFilterLocation = useCallback(async (location: string) => {
-    console.log("yes re render")
+  const fetchCardDataFilterLocation = async (location: string) => {
+    console.log("yes re render");
     try {
       console.log("Fetching card data for location:", location);
       setLocationForfilterlable(location);
@@ -182,7 +188,7 @@ const LiveKeywordComponent = ({
         campaignStatus,
         location
       );
-      const topRankData = liveKeywordData?.topRankData?.data ?? [];
+      const topRankData:any = liveKeywordData?.topRankData?.data ?? [];
       const rawData = liveKeywordData?.newLiveKeywordDbData;
 
       const data = rawData?.map((item: any) => {
@@ -211,6 +217,8 @@ const LiveKeywordComponent = ({
 
       if (data) {
         setTableBody(data);
+          // setFilterCampaignLiveKeywordsData(data);
+
       }
 
       // console.log(liveKeywordData, "liveKeywordDataOk");
@@ -218,14 +226,25 @@ const LiveKeywordComponent = ({
       // console.log(topRankData, "topRankDataok");
 
       if (topRankData.length > 0) {
-        setCardCounts(topRankData);
+        setCardData({
+          title: "keywords",
+          data: topRankData?.map((item: any) => {
+            return {
+              title: item.title,
+              data: item.data,
+              id: item.id,
+            };
+          }),
+          type: "card",
+          totalKeywords: topRankData?.totalKeywords || 0,
+        });
       } else {
         console.warn("No ranking data available for location:", location);
       }
     } catch (error) {
       console.error("Error fetching card data:", error);
     }
-  }, [campaignId, campaignStatus]);
+  };
 
   // useEffect(() => {
   //   const fetchDBLiveDatagain = async () => {
@@ -267,28 +286,40 @@ const LiveKeywordComponent = ({
   //       console.log(topRankData, "topRankDataok");
 
   //       if (topRankData) {
-  //         setCardCounts(topRankData);
   //       }
   //     }
   //   };
   //   fetchDBLiveDatagain();
   // }, [tableBody]);
   useEffect(() => {
-  const fetchDBLiveDatagain = async () => {
-    const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
-      campaignId,
-      campaignStatus,
-      locationForfilterlable
-    );
+    const fetchDBLiveDatagain = async () => {
+      const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
+        campaignId,
+        campaignStatus,
+        locationForfilterlable
+      );
 
-    if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
-      const topRankData = campaignLiveKeywordsData?.topRankData;
-      if (topRankData) setCardCounts(topRankData);
-    }
-  };
-  fetchDBLiveDatagain();
-}, [campaignId, campaignStatus, locationForfilterlable]); // ✅ only when inputs change
+      if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+        const topRankData = campaignLiveKeywordsData?.topRankData;
+        if (topRankData) {
 
+          setCardData({
+          title: "keywords",
+          data: topRankData?.data?.map((item: any) => {
+            return {
+              title: item.title,
+              data: item.data,
+              id: item.id,
+            };
+          }),
+          type: "card",
+          totalKeywords: topRankData?.totalKeywords || 0,
+        });
+        };
+      }
+    };
+    fetchDBLiveDatagain();
+  }, [campaignId, campaignStatus, locationForfilterlable]); // ✅ only when inputs change
 
   const compaigndata = campaignLiveKeywordsData?.newLiveKeywordDbData?.map(
     (item: any) => {
@@ -353,7 +384,7 @@ const LiveKeywordComponent = ({
 
   // let tableBody: TablebodyItems[] = [];
   useEffect(() => {
-    // console.log(campaignLiveKeywordsData, "use effect");
+    console.log("use effect on delte");
     if (campaignLiveKeywordsData) {
       keywordTableData();
     }
@@ -371,7 +402,7 @@ const LiveKeywordComponent = ({
 
         if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
           const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
-          const topRankData = campaignLiveKeywordsData?.topRankData?.data;
+          const topRankData:any = campaignLiveKeywordsData?.topRankData?.data;
 
           const data = rawData.map((item: any) => ({
             keyword: item?.keyword || "",
@@ -397,14 +428,30 @@ const LiveKeywordComponent = ({
 
           setTableBody(data);
           setFilterCampaignLiveKeywordsData(data);
-          if (topRankData) setCardCounts(topRankData);
+          if (topRankData) {
+            
+           
+            setCardData({
+          title: "keywords",
+          data: topRankData?.data?.map((item: any) => {
+            return {
+              title: item.title,
+              data: item.data,
+              id: item.id,
+            };
+          }),
+          type: "card",
+          totalKeywords: topRankData?.totalKeywords || 0,
+        });
+          
+          };
         }
       })();
     }
   }, [done, campaignId]);
 
   const keywordTableData = () => {
-    console.log("calling fn");
+    console.log("calling fn on delte");
 
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
@@ -447,12 +494,60 @@ const LiveKeywordComponent = ({
       setTableBody(data);
       setFilterCampaignLiveKeywordsData(data);
       if (topRankData) {
-        setCardCounts(topRankData);
+        setCardData({
+          title: "keywords",
+          data: topRankData?.data?.map((item: any) => {
+            return {
+              title: item.title,
+              data: item.data,
+              id: item.id,
+            };
+          }),
+          type: "card",
+          totalKeywords: topRankData?.totalKeywords || 0,
+        });
       }
     }
   };
- 
+  // const CardSetOnDelete = (topRankData:any) =>{
+  //    setCardData({
+  //         title: "keywords",
+  //         data: topRankData?.data?.map((item: any) => {
+  //           return {
+  //             title: item.title,
+  //             data: item.data,
+  //             id: item.id,
+  //           };
+  //         }),
+  //         type: "card",
+  //         totalKeywords: topRankData?.totalKeywords || 0,
+  //       });
+  // }
+  const CardSetOnChanges = async () => {
+  const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
+    campaignId,
+    campaignStatus,
+  );
 
+  if (campaignLiveKeywordsData?.topRankData) {
+    const topRankData = campaignLiveKeywordsData.topRankData;
+    setCardData({
+      title: "keywords",
+      data: topRankData.data?.map((item: any) => ({
+        title: item.title,
+        data: item.data,
+        id: item.id,
+      })),
+      type: "card",
+      totalKeywords: topRankData.totalKeywords || 0,
+    });
+  }
+
+
+
+};
+
+ 
   const showAddedKeyword = (newItem: any) => {
     if (newItem && newItem.length > 0) {
       const mappedItems = newItem.map((item: any) => {
@@ -492,18 +587,18 @@ const LiveKeywordComponent = ({
     keywordTableData();
   };
 
-  const cardData = useMemo(() => ({
-  title: "keywords",
-   data: cardCounts?.data?.map((item: any) => {
-      return {
-        title: item.title,
-        data: item.data,
-        id: item.id,
-      };
-    }),
-  type: "card",
-  totalKeywords: cardCounts?.totalKeywords || 0,
-}), [cardCounts]);
+  //   const cardData = useMemo(() => ({
+  //   title: "keywords",
+  //    data: cardCounts?.data?.map((item: any) => {
+  //       return {
+  //         title: item.title,
+  //         data: item.data,
+  //         id: item.id,
+  //       };
+  //     }),
+  //   type: "card",
+  //   totalKeywords: cardCounts?.totalKeywords || 0,
+  // }), [cardCounts]);
   // console.log(cardData, "cardDataok");
 
   return (
@@ -549,30 +644,30 @@ const LiveKeywordComponent = ({
     ))
   )}
 </div> */}
-<div className="flex justify-evenly items-center gap-5 w-full">
-  {!cardData.data || cardData.data.length === 0 ? (
-    // Skeleton loader
-    <>
-      {[...Array(5)].map((_, idx) => (
-        <div
-          key={idx}
-          className="w-[170px] h-[170px] bg-slate-300 rounded-xl animate-pulse"
-        />
-      ))}
-    </>
-  ) : (
-    cardData.data.map((item: any) => (
-      <div key={item.id}>
-        <CustomTrackingCard
-          totalKeywords={cardData.totalKeywords}
-          className="w-[170px] h-[170px]"
-          title={item.title}
-          data={item.data}
-        />
-      </div>
-    ))
-  )}
-</div>
+        <div className="flex justify-evenly items-center gap-5 w-full">
+          {!cardData.data || cardData.data.length === 0 ? (
+            // Skeleton loader
+            <>
+              {[...Array(5)].map((_, idx) => (
+                <div
+                  key={idx}
+                  className="w-[170px] h-[170px] bg-slate-300 rounded-xl animate-pulse"
+                />
+              ))}
+            </>
+          ) : (
+            cardData.data.map((item: any) => (
+              <div key={item.id}>
+                <CustomTrackingCard
+                  totalKeywords={cardData.totalKeywords}
+                  className="w-[170px] h-[170px]"
+                  title={item.title}
+                  data={item.data}
+                />
+              </div>
+            ))
+          )}
+        </div>
 
         {/* <div className="w-[60%]">
         <TrackingChart/>
@@ -607,7 +702,13 @@ const LiveKeywordComponent = ({
           </div>
         ) : (
           <CustomTable
-          ShareCampaignStatus={ShareCampaignStatus}
+            // setCampaignLiveKeywordsData={setCampaignLiveKeywordsData}
+            // updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
+            CardSetOnChanges={CardSetOnChanges}
+            // setCardData={setCardData}
+            keywordTableData={keywordTableData}
+            ShareCampaignStatus={ShareCampaignStatus}
+             setFilterCampaignLiveKeywordsData={setFilterCampaignLiveKeywordsData}
             filterCampaignLiveKeywordsData={filterCampaignLiveKeywordsData}
             fetchCardDatafilterLocation={fetchCardDataFilterLocation}
             setExelData={setExelData}

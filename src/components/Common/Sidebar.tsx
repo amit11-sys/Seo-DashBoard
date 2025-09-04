@@ -28,7 +28,7 @@ const Sidebar = ({ isCollapsed, archivedCampaignData,campaignId }: SidebarProps)
       }
     };
     fetchData();
-  },[campaignId])
+  },[])
 
   // console.log(campaignData);
   const organizeCompaignData = campaignData?.map((c: any) => {

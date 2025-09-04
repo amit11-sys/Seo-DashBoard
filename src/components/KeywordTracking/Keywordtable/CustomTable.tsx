@@ -6,6 +6,7 @@ import DeleteConfirm from "./KeywordDel";
 
 import {
   getDbLiveKeywordData,
+  getDbLiveKeywordDataWithSatusCode,
   getTrackingData,
   updateStartDB,
 } from "@/actions/keywordTracking";
@@ -23,6 +24,8 @@ import { IoRefreshCircle } from "react-icons/io5";
 import { MdDelete, MdDeleteSweep } from "react-icons/md";
 import { deleteKeywordData } from "@/actions/keyword";
 import { Checkbox } from "@/components/ui/checkbox";
+import { getGetCampaignByid } from "@/actions/campaign";
+import BulkDeleteDialog from "./KeywordDeleteDialog";
 
 interface TableHeaderitems {
   key: string;
@@ -62,12 +65,24 @@ interface CustomTableProps {
   fetchCardDatafilterLocation?: any;
   filterCampaignLiveKeywordsData?: any;
   ShareCampaignStatus?: any;
+  // setCampaignLiveKeywordsData ?: any
+  updatedTopRankOnAddedKeyword?: any;
+  keywordTableData?: any;
+  setCardData?: any;
+  CardSetOnChanges?: any;
+  setFilterCampaignLiveKeywordsData?: any;
 }
 
 const CustomTable = ({
   setExelData,
+  CardSetOnChanges,
   tableHeader,
+  setCardData,
+  setFilterCampaignLiveKeywordsData,
+  // setCampaignLiveKeywordsData,
+  updatedTopRankOnAddedKeyword,
   ShareCampaignStatus,
+  keywordTableData,
   tableData,
   campaignId,
   showAddedKeyword,
@@ -95,7 +110,7 @@ const CustomTable = ({
   // console.log(tableData, "tableDataNew");
   // console.log(filterCampaignLiveKeywordsData, "filterCampaignLiveKeywordsData");
   const uniqueLocations = Array.from(
-    new Set(filterCampaignLiveKeywordsData?.map((row:any) => row.location))
+    new Set(filterCampaignLiveKeywordsData?.map((row: any) => row.location))
   );
 
   useEffect(() => {
@@ -242,44 +257,58 @@ const CustomTable = ({
     try {
       const res = await deleteKeywordData(selectedKeywords);
       if (res.success) {
-        const campaignLiveKeywordsData = await getDbLiveKeywordData(
-          campaignId || ""
+        const campaignDataWithId = await getGetCampaignByid(campaignId);
+        const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
+
+        const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
+          campaignId,
+          campaignStatus
         );
-        console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+        // setCampaignLiveKeywordsData(liveKeywordData);
+
+        const topRankData = liveKeywordData?.topRankData?.data ?? [];
+
+        console.log(liveKeywordData, "campaignLiveKeywordsData");
+
         let data: any = [];
-        if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
-          data = campaignLiveKeywordsData?.newLiveKeywordDbData.map(
-            (item: any) => ({
-              // select: false,
-              type: item?.type || "",
-              keywordId: item?.keywordId || "",
-              keyword: item?.keyword || "",
-              location: item?.location_name?.locationName?.locationName || "",
-              intent: item?.intent || "",
-              start: item?.start || 0,
-              page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
-              Absolute_Rank: String(item?.rank_absolute) || 0,
-              Group_Rank: item?.rank_group || 0,
-              // oneDay: "1",
-              sevenDays: "-",
-              // thirtyDays: "-",
-              life: item?.rank_group || 0,
-              comp: item?.competition || 0,
-              sv: item?.searchVolumn || 0,
-              date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "2-digit",
-              }),
-              rankingUrl: item.url || "",
-              // rankingUrl: new URL(item.url) || "/",
-            })
-          );
+        if (liveKeywordData?.newLiveKeywordDbData) {
+          data = liveKeywordData?.newLiveKeywordDbData.map((item: any) => ({
+            // select: false,
+            type: item?.type || "",
+            keywordId: item?.keywordId || "",
+            keyword: item?.keyword || "",
+            location: item?.location_name?.locationName?.locationName || "",
+            intent: item?.intent || "",
+            start: item?.start || 0,
+            page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
+            Absolute_Rank: String(item?.rank_absolute) || 0,
+            Group_Rank: item?.rank_group || 0,
+            // oneDay: "1",
+            sevenDays: "-",
+            // thirtyDays: "-",
+            life: item?.rank_group || 0,
+            comp: item?.competition || 0,
+            sv: item?.searchVolumn || 0,
+            date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "2-digit",
+            }),
+            rankingUrl: item.url || "",
+            // rankingUrl: new URL(item.url) || "/",
+          }));
         }
         console.log(data, "data after delete");
         if (setTableBody) {
           setTableBody(data);
         }
+        if (topRankData) {
+          CardSetOnChanges(topRankData);
+        }
+        if (setFilterCampaignLiveKeywordsData) {
+          setFilterCampaignLiveKeywordsData(data); // ✅ keep location filter data in sync
+        }
+
         toast.success("Keyword(s) deleted successfully");
         // setOpen(false);
       } else {
@@ -305,13 +334,12 @@ const CustomTable = ({
     <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
       {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
       <div className="flex gap-3 mb-3">
-        <button
-          disabled={selectedKeywords.length === 0}
-          onClick={() => handleBulkDelete(selectedKeywords, campaignId || "")}
-          className="px-3 flex items-center gap-2 py-1 bg-red-500 text-white rounded disabled:opacity-50"
-        >
-          <MdDeleteSweep className="text-2xl" /> Delete
-        </button>
+        <BulkDeleteDialog
+  selectedKeywords={selectedKeywords}
+  campaignId={campaignId || ""}
+  handleBulkDelete={handleBulkDelete}
+/>
+
         {/* <button
     disabled={selectedKeywords.length === 0}
     onClick={handleBulkRefresh}
@@ -321,247 +349,263 @@ const CustomTable = ({
   </button> */}
       </div>
 
-     <table className="min-w-[1000px] w-full table-auto">
-  <thead>
-    <tr className="sticky top-0 bg-gradient-to-r bg-gray-200 text-black">
-      {tableHeader.map((header, id) => {
-        // skip select and edit headers if ShareCampaignStatus === 2
-        if (
-          (header.key === "select" || header.key === "edit") &&
-          ShareCampaignStatus === 2
-        ) {
-          return null;
-        }
+      <table className="min-w-[1000px] w-full table-auto">
+        <thead>
+          <tr className="sticky top-0 bg-gradient-to-r bg-gray-200 text-black">
+            {tableHeader.map((header, id) => {
+              // skip select and edit headers if ShareCampaignStatus === 2
+              if (
+                (header.key === "select" || header.key === "edit") &&
+                ShareCampaignStatus === 2
+              ) {
+                return null;
+              }
 
-        return (
-          <th
-            key={id}
-            className="py-3 px-1 text-center text-sm font-medium"
-          >
-            <div className="flex items-center text-sm justify-center gap-1">
-              {header.icon && <span className="text-sm">{header.icon}</span>}
-              {header.label}
-
-              {/* Group_Rank sorting button */}
-              {header.key === "Group_Rank" && (
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                    }
-                  >
-                    <LuArrowUpDown className="h-4 w-4" />
-                  </Button>
-
-                  <Button
-                    variant={excludeZero ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setExcludeZero(!excludeZero)}
-                  >
-                    {excludeZero ? (
-                      <FaRegEyeSlash title="Show Zero" />
-                    ) : (
-                      <FaRegEye title="Hide Zero" />
+              return (
+                <th
+                  key={id}
+                  className="py-3 px-1 text-center text-sm font-medium"
+                >
+                  <div className="flex items-center text-sm justify-center gap-1">
+                    {header.icon && (
+                      <span className="text-sm">{header.icon}</span>
                     )}
-                  </Button>
-                </div>
-              )}
+                    {header.label}
 
-              {/* Select All checkbox */}
-              {header.key === "select" && (
-                <Checkbox
-                  checked={selectAll}
-                  onCheckedChange={(checked) => {
-                    setSelectAll(!!checked);
-                    if (checked) {
-                      setSelectedKeywords(sortedData.map((d) => d.keywordId));
-                    } else {
-                      setSelectedKeywords([]);
-                    }
-                  }}
-                  className="data-[state=checked]:bg-orange-500 
+                    {/* Group_Rank sorting button */}
+                    {header.key === "Group_Rank" && (
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                          }
+                        >
+                          <LuArrowUpDown className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          variant={excludeZero ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => setExcludeZero(!excludeZero)}
+                        >
+                          {excludeZero ? (
+                            <FaRegEyeSlash title="Show Zero" />
+                          ) : (
+                            <FaRegEye title="Hide Zero" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Select All checkbox */}
+                    {header.key === "select" && (
+                      <Checkbox
+                        checked={selectAll}
+                        onCheckedChange={(checked) => {
+                          setSelectAll(!!checked);
+                          if (checked) {
+                            setSelectedKeywords(
+                              sortedData.map((d) => d.keywordId)
+                            );
+                          } else {
+                            setSelectedKeywords([]);
+                          }
+                        }}
+                        className="data-[state=checked]:bg-orange-500 
                   data-[state=checked]:border-orange-500 
                   data-[state=checked]:text-white"
-                />
-              )}
+                      />
+                    )}
 
-              {/* Location filter */}
-              {header.key === "location" && (
-                <select
-                  className="ml-2 border-none rounded px-1 py-2 w-28 text-xs"
-                  value={locationFilter}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                >
-                  <option value="all">All</option>
-                  {uniqueLocations.map((loc: any) => (
-                    <option key={loc} value={loc}>
-                      {loc}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </th>
-        );
-      })}
-    </tr>
-  </thead>
+                    {/* Location filter */}
+                    {header.key === "location" && (
+                      <select
+                        className="ml-2 border-none rounded px-1 py-2 w-28 text-xs"
+                        value={locationFilter}
+                        onChange={(e) => setLocationFilter(e.target.value)}
+                      >
+                        <option value="all">All</option>
+                        {uniqueLocations.map((loc: any) => (
+                          <option key={loc} value={loc}>
+                            {loc}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
 
-  <tbody>
-    {sortedData.length === 0 ? (
-      <tr>
-        <td colSpan={15} className="text-center text-gray-500 py-6">
-          No keyword data found
-        </td>
-      </tr>
-    ) : (
-      sortedData.map((data, rowIndex) => {
-        const keywordId = data.keywordId;
-        const matchedKeywordData = keywordDbData?.find(
-          (item: { _id: string }) => item._id === keywordId
-        );
-
-        return (
-          <tr
-            key={rowIndex}
-            className="hover:bg-indigo-50 transition-colors"
-          >
-            {/* Checkbox column (hidden if ShareCampaignStatus === 2) */}
-            {ShareCampaignStatus !== 2 && (
-              <td className="text-center border p-1">
-                <Checkbox
-                  className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 
-                  data-[state=checked]:text-white"
-                  checked={selectedKeywords.includes(data.keywordId)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setSelectedKeywords((prev) => [
-                        ...prev,
-                        data.keywordId,
-                      ]);
-                    } else {
-                      setSelectedKeywords((prev) =>
-                        prev.filter((id) => id !== data.keywordId)
-                      );
-                    }
-                  }}
-                />
+        <tbody>
+          {sortedData.length === 0 ? (
+            <tr>
+              <td colSpan={15} className="text-center text-gray-500 py-6">
+                No keyword data found
               </td>
-            )}
+            </tr>
+          ) : (
+            sortedData.map((data, rowIndex) => {
+              const keywordId = data.keywordId;
+              const matchedKeywordData = keywordDbData?.find(
+                (item: { _id: string }) => item._id === keywordId
+              );
 
-            {/* Keyword column */}
-            <td
-              className="text-center text-[14px] overflow-hidden text-wrap min-w-[200px] border p-1 relative group"
-              title={data.keyword}
-            >
-              {data.keyword}
-              {/* Hover actions */}
-              <div
-                className="flex gap-5 justify-center w-full h-full bg-white items-center absolute right-0 top-0 -translate-y-[20px] opacity-0 
+              return (
+                <tr
+                  key={rowIndex}
+                  className="hover:bg-indigo-50 transition-colors"
+                >
+                  {/* Checkbox column (hidden if ShareCampaignStatus === 2) */}
+                  {ShareCampaignStatus !== 2 && (
+                    <td className="text-center border p-1">
+                      <Checkbox
+                        className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 
+                  data-[state=checked]:text-white"
+                        checked={selectedKeywords.includes(data.keywordId)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedKeywords((prev) => [
+                              ...prev,
+                              data.keywordId,
+                            ]);
+                          } else {
+                            setSelectedKeywords((prev) =>
+                              prev.filter((id) => id !== data.keywordId)
+                            );
+                          }
+                        }}
+                      />
+                    </td>
+                  )}
+
+                  {/* Keyword column */}
+                  <td
+                    className="text-center text-[14px] overflow-hidden text-wrap min-w-[200px] border p-1 relative group"
+                    title={data.keyword}
+                  >
+                    {data.keyword}
+                    {/* Hover actions */}
+                    <div
+                      className="flex gap-5 justify-center w-full h-full bg-white items-center absolute right-0 top-0 -translate-y-[20px] opacity-0 
                 group-hover:opacity-100 group-hover:translate-y-0
                 transition-all duration-300 ease-out"
-              >
-                <button onClick={() => handleSpyGlass(data?.checkUrl)}>
-                  <BsSearch
-                    title="Go To"
-                    className="text-orange-500 text-xl"
-                  />
-                </button>
-                <button onClick={() => handleCopy(data?.keyword)}>
-                  <FaCopy
-                    title="Copy"
-                    className="text-blue-400 text-xl"
-                  />
-                </button>
-              </div>
-            </td>
+                    >
+                      <button onClick={() => handleSpyGlass(data?.checkUrl)}>
+                        <BsSearch
+                          title="Go To"
+                          className="text-orange-500 text-xl"
+                        />
+                      </button>
+                      <button onClick={() => handleCopy(data?.keyword)}>
+                        <FaCopy
+                          title="Copy"
+                          className="text-blue-400 text-xl"
+                        />
+                      </button>
+                    </div>
+                  </td>
 
-            <td className="text-center text-[12px] border  min-w-[50px] p-1">
-              {data.location}
-            </td>
-            <td className="text-center text-[12px] border p-3">
-              {data.intent}
-            </td>
+                  <td className="text-center text-[12px] border  min-w-[50px] p-1">
+                    {data.location}
+                  </td>
+                  <td className="text-center text-[12px] border p-3">
+                    {data.intent}
+                  </td>
 
-            {/* Editable start column */}
-            <td
-              className="text-center text-[12px] border cursor-pointer p-1"
-              onClick={() => handleStartClick(rowIndex)}
-            >
-              {editableRowIndex === rowIndex ? (
-                <input
-                  type="text"
-                  value={data.start}
-                  onChange={(e) =>
-                    handleStartChange(e, rowIndex, keywordId)
-                  }
-                  onBlur={handleBlur}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleBlur();
-                  }}
-                  className="w-14 px-2 text-black text-center rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  autoFocus
-                />
-              ) : (
-                <span className="font-semibold text-indigo-600">
-                  {data.start}
-                </span>
-              )}
-            </td>
+                  {/* Editable start column */}
+                  <td
+                    className="text-center text-[12px] border cursor-pointer p-1"
+                    onClick={() => handleStartClick(rowIndex)}
+                  >
+                    {editableRowIndex === rowIndex ? (
+                      <input
+                        type="text"
+                        value={data.start}
+                        onChange={(e) =>
+                          handleStartChange(e, rowIndex, keywordId)
+                        }
+                        onBlur={handleBlur}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleBlur();
+                        }}
+                        className="w-14 px-2 text-black text-center rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="font-semibold text-indigo-600">
+                        {data.start}
+                      </span>
+                    )}
+                  </td>
 
-            <td className="text-center text-[12px] border p-1">{data.page}</td>
-            <td className="text-center text-[12px] border p-3">{data.Absolute_Rank}</td>
-            <td className="text-center text-[12px] border p-1">{data.Group_Rank}</td>
-            <td className="text-center text-[12px] border p-1">{data.sevenDays}</td>
-            <td className="text-center text-[12px] border p-1">{data.life}</td>
-            <td className="text-center text-[12px] border text-nowrap p-1">{data.date}</td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.page}
+                  </td>
+                  <td className="text-center text-[12px] border p-3">
+                    {data.Absolute_Rank}
+                  </td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.Group_Rank}
+                  </td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.sevenDays}
+                  </td>
+                  <td className="text-center text-[12px] border p-1">
+                    {data.life}
+                  </td>
+                  <td className="text-center text-[12px] border text-nowrap p-1">
+                    {data.date}
+                  </td>
 
-            <td className="text-center text-[12px] border p-1">
-              <div className="flex justify-center items-center">
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                  href={data.rankingUrl}
-                >
-                  View
-                </a>
-              </div>
-            </td>
+                  <td className="text-center text-[12px] border p-1">
+                    <div className="flex justify-center items-center">
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                        href={data.rankingUrl}
+                      >
+                        View
+                      </a>
+                    </div>
+                  </td>
 
-            {/* Edit/Action column (hidden if ShareCampaignStatus === 2) */}
-            {ShareCampaignStatus !== 2 && (
-              <td className="text-center text-[12px] border p-1">
-                <div className="flex justify-center items-center gap-2">
-                  <KeywordEdit
-                    campaignId={campaignId || ""}
-                    keywordId={keywordId}
-                    addEditkeywordsData={addEditkeywordsData}
-                    showAddedKeyword={showAddedKeyword}
-                    setTableBody={setTableBody}
-                    defaultData={defaultData}
-                  />
+                  {/* Edit/Action column (hidden if ShareCampaignStatus === 2) */}
+                  {ShareCampaignStatus !== 2 && (
+                    <td className="text-center text-[12px] border p-1">
+                      <div className="flex justify-center items-center gap-2">
+                        <KeywordEdit
+                          CardSetOnChanges={CardSetOnChanges}
+                          campaignId={campaignId || ""}
+                          keywordId={keywordId}
+                          addEditkeywordsData={addEditkeywordsData}
+                          showAddedKeyword={showAddedKeyword}
+                          setTableBody={setTableBody}
+                          defaultData={defaultData}
+                        />
 
-                  <SingleKeywordRefresh
-                    campaignId={campaignId || ""}
-                    keywordId={keywordId}
-                    keyword={data.keyword}
-                    setTableBody={setTableBody}
-                  />
-                </div>
-              </td>
-            )}
-          </tr>
-        );
-      })
-    )}
-  </tbody>
-</table>
+                        <SingleKeywordRefresh
+                          CardSetOnChanges={CardSetOnChanges}
+                          campaignId={campaignId || ""}
+                          keywordId={keywordId}
+                          keyword={data.keyword}
+                          setTableBody={setTableBody}
+                        />
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
 
-
-      
       {/* )}  */}
     </div>
   );

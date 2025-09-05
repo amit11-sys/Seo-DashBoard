@@ -119,7 +119,14 @@ const LiveKeywordComponent = ({
   // console.log({campaignId,tokendata});
   const [tableBody, setTableBody] = useState<any[]>([]);
   // const [cardCounts, setCardCounts] = useState<any>([]);
-  const [cardData, setCardData] = useState<any>();
+  const [cardData, setCardData] = useState<any>({
+
+    title: "keywords",
+    data: [],
+    type: "card",
+    totalKeywords: 0,
+
+  });
 
   const [topRankData, setTopRankData] = useState<any[]>([]);
   const [totalKeywords, setTotalKeywords] = useState<number>(0);
@@ -226,7 +233,7 @@ const LiveKeywordComponent = ({
       // console.log(topRankData, "topRankDataok");
 
       if (topRankData.length > 0) {
-        setCardData({
+      const  cardRawData = {
           title: "keywords",
           data:
             topRankData?.data?.map((item: any) => ({
@@ -243,7 +250,8 @@ const LiveKeywordComponent = ({
             })) ?? [],
           type: "card",
           totalKeywords: topRankData?.totalKeywords || 0,
-        });
+        }
+        setCardData(cardRawData);
       } else {
         console.warn("No ranking data available for location:", location);
       }
@@ -308,24 +316,25 @@ const LiveKeywordComponent = ({
       if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
         const topRankData = campaignLiveKeywordsData?.topRankData;
         if (topRankData) {
-          setCardData({
-            title: "keywords",
-            data:
-              topRankData?.data?.map((item: any) => ({
-                title: item.title,
-                // 🔑 Ensure data is always a primitive
-                data:
-                  item?.data === null || item?.data === undefined
-                    ? 0
-                    : typeof item.data === "object"
-                      ? JSON.stringify(item.data)
-                      : item.data,
-                id: item.id,
-                totalKeywords: topRankData?.totalKeywords || 0,
-              })) ?? [],
-            type: "card",
-            totalKeywords: topRankData?.totalKeywords || 0,
-          });
+          const  cardRawData = {
+          title: "keywords",
+          data:
+            topRankData?.data?.map((item: any) => ({
+              title: item.title,
+              // 🔑 Ensure data is always a primitive
+              data:
+                item?.data === null || item?.data === undefined
+                  ? 0
+                  : typeof item.data === "object"
+                    ? JSON.stringify(item.data)
+                    : item.data,
+              id: item.id,
+              totalKeywords: topRankData?.totalKeywords || 0,
+            })) ?? [],
+          type: "card",
+          totalKeywords: topRankData?.totalKeywords || 0,
+        }
+        setCardData(cardRawData);
         }
       }
     };
@@ -441,25 +450,7 @@ const LiveKeywordComponent = ({
           setTableBody(data);
           setFilterCampaignLiveKeywordsData(data);
           if (topRankData) {
-            // const rawData ={
-            //   title: "keywords",
-            //   data:
-            //     topRankData?.data?.map((item: any) => ({
-            //       title: item.title,
-            //       // 🔑 Ensure data is always a primitive
-            //       data:
-            //         item?.data === null || item?.data === undefined
-            //           ? 0
-            //           : typeof item.data === "object"
-            //             ? JSON.stringify(item.data)
-            //             : item.data,
-            //       id: item.id,
-            //       totalKeywords: topRankData?.totalKeywords || 0,
-            //     })) ?? [],
-            //   type: "card",
-            //   totalKeywords: topRankData?.totalKeywords || 0,
-            // }
-            // setCardData(rawData);
+            
           CardSetOnChanges()
           }
         }
@@ -472,7 +463,6 @@ const LiveKeywordComponent = ({
 
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
-      const topRankData = campaignLiveKeywordsData?.topRankData?.data;
 
       const data = rawData.map((item: any) => {
         // const rankGroup = item?.rank_group || 0;
@@ -511,10 +501,10 @@ const LiveKeywordComponent = ({
       setTableBody(data);
       setFilterCampaignLiveKeywordsData(data);
       if (topRankData) {
-        setCardData({
+        const  cardRawData = {
           title: "keywords",
           data:
-            topRankData?.data?.map((item: any) => ({
+            topRankData?.map((item: any) => ({
               title: item.title,
               // 🔑 Ensure data is always a primitive
               data:
@@ -528,7 +518,8 @@ const LiveKeywordComponent = ({
             })) ?? [],
           type: "card",
           totalKeywords: topRankData?.totalKeywords || 0,
-        });
+        }
+        setCardData(cardRawData);
       }
     }
   };
@@ -554,24 +545,25 @@ const LiveKeywordComponent = ({
 
     if (campaignLiveKeywordsData?.topRankData) {
       const topRankData = campaignLiveKeywordsData.topRankData;
-      setCardData({
-        title: "keywords",
-        data:
-          topRankData?.data?.map((item: any) => ({
-            title: item.title,
-            // 🔑 Ensure data is always a primitive
-            data:
-              item?.data === null || item?.data === undefined
-                ? 0
-                : typeof item.data === "object"
-                  ? JSON.stringify(item.data)
-                  : item.data,
-            id: item.id,
-            totalKeywords: topRankData?.totalKeywords || 0,
-          })) ?? [],
-        type: "card",
-        totalKeywords: topRankData?.totalKeywords || 0,
-      });
+     const  cardRawData = {
+          title: "keywords",
+          data:
+            topRankData?.data?.map((item: any) => ({
+              title: item.title,
+              // 🔑 Ensure data is always a primitive
+              data:
+                item?.data === null || item?.data === undefined
+                  ? 0
+                  : typeof item.data === "object"
+                    ? JSON.stringify(item.data)
+                    : item.data,
+              id: item.id,
+              totalKeywords: topRankData?.totalKeywords || 0,
+            })) ?? [],
+          type: "card",
+          totalKeywords: topRankData?.totalKeywords || 0,
+        }
+        setCardData(cardRawData);
     }
   };
 

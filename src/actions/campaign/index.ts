@@ -1,6 +1,6 @@
 "use server";
 
-import { getCampaign, newCampaign } from "./queries";
+import { CurrentCampaignIdData, DbCompaignDataUpdate, DBcompaignGoogleData, getCampaign, newCampaign, propertyIdForDB } from "./queries";
 import { addMultipleKeyword } from "../keyword";
 import {
   // createNewKeywordTrackingData,
@@ -9,7 +9,7 @@ import {
 // import { getKeywordLiveData } from "../liveKeywords";
 
 export const createCampaign = async (formData: any) => {
-  console.log(formData);
+  console.log(formData,"in index campaign");
 
   const campaign = await newCampaign(formData);
   // console.log(campaign,"from index")
@@ -38,7 +38,7 @@ export const createCampaign = async (formData: any) => {
     //     };
     //   });
 
-    //   // const dbResult = await createNewKeywordTrackingData(keywordData);
+    //   const dbResult = await createNewKeywordTrackingData(keywordData);
 
       
     //   console.log(dbResult, "Tracking DB Result");
@@ -59,3 +59,25 @@ export const getUserCampaign = async () => {
 
   return campaign;
 };
+export const getDbCompaignDataUpdate = async (newCompaignId: string,tokenResult:{}) => {
+  const updatedcampaign = await DbCompaignDataUpdate(newCompaignId,tokenResult);
+
+  return updatedcampaign;
+};
+export const getDBcompaignGoogleData = async (newCompaignId: string) => {
+  const data = await DBcompaignGoogleData(newCompaignId);
+
+  return data;
+};
+
+export const getCurrentCampaignIdData = async (campaignId: string) => {
+  const data = await CurrentCampaignIdData(campaignId);
+
+  return data;
+};
+export const setPropertyIdForDB = async (campaignId: string,tokenResult:{},projectUrl:any) => {
+  const data = await propertyIdForDB(campaignId,tokenResult,projectUrl);
+
+  return data;
+};
+

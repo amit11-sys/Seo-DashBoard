@@ -4,24 +4,37 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Lege
 // Register chart elements
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const BarChart = ({}: any) => {
-    const chartData = {
-        "Organic Search": "620",
-        "Direct": "559",
-        "Referral": "75",
-        "Organic Social": "51",
-        "Unassigned": "18",
-        "Email": "17",
-        "Organic Video": "8"
-    };
+const BarChart = ({chartData}: any) => {
+    // console.log(chartData,"chartData in chart");    
+    // console.log(Object.keys(chartData),"chartData in chart  (console data)");
+    // {
+    // "Direct": "27",
+    // "Organic Search": "22",
+    // "Referral": "17",
+    // "Organic Social": "2"
+    // } chartData in chart  (console data)
+
+
+
+
+    // const chartData = {
+    //     "Organic Search": "620",
+    //     "Direct": "559",
+    //     "Referral": "75",
+    //     "Organic Social": "51",
+    //     "Unassigned": "18",
+    //     "Email": "17",
+    //     "Organic Video": "8"
+    // };
+ 
 
     // Convert data into chart format with attractive multi-color palette
     const data = {
-        labels: Object.keys(chartData), // Categories (keys)
+        labels: Object?.keys(chartData || {}), // Categories (keys)
         datasets: [
             {
                 label: "Traffic Sources",
-                data: Object.values(chartData).map(Number), // Convert values to numbers
+                data: Object.values(chartData || {}).map(Number), // Convert values to numbers
                 backgroundColor: [
                     "rgba(255, 99, 132, 0.7)",   // Red
                     "rgba(54, 162, 235, 0.7)",   // Blue
@@ -63,3 +76,5 @@ const BarChart = ({}: any) => {
 };
 
 export default BarChart;
+
+

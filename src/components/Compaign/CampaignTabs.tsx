@@ -38,11 +38,13 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import KeywordTextArea from "../KeywordTextArea";
 import debounce from "lodash.debounce";
+
 // import { getLocationData } from "@/actions/locations_Language";
 
 import AutocompleteInput, { OptionType } from "@/components/AutocompleteInput";
 import { getfetchDBLocation, getlanguageData } from "@/actions/locations_Language";
 import { log } from "console";
+import GoogleIntegrations from "../GoogleConsole/googleIntegration";
 // import GoogleSignIn from "../GoogleConsole/GoogleIntegration/GoogleSignIn";
 
 // import { getTrackingData } from "@/actions/keywordTracking";
@@ -60,6 +62,8 @@ interface CampaignTabsProps {
 
 export function CampaignTabs() {
   const { startLoading, stopLoading } = useLoader();
+  const [showIntegrationDialog, setShowIntegrationDialog] = useState(false);
+const [createdCampaignId, setCreatedCampaignId] = useState<string >("");
   // const [searchText, setSearchText] = useState("");
   // const [locations, setLocations] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
@@ -169,45 +173,7 @@ fetchlanguage()
     []
   );
 
-  // const fetchCitiesByCountry = async (country: string) => {
-  //   if (!country) {
-  //     setVolumeLocationOptions([]);
-  //     return;
-  //   }
-  //   try {
-  //     const res = await fetch(
-  //       `${process.env.NEXT_PUBLIC_COUNTRIESNOW_URL}countries/cities`,
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({ country }),
-  //       }
-  //     );
-
-  //     const data = await res.json();
-  //     // console.log();
-
-  //     if (data) {
-  //       // const stateData = data.data.states.map((state: any) => state?.name);
-  //       setVolumeLocationOptions(data.data);
-  //     } else {
-  //       setVolumeLocationOptions([]);
-  //       toast.error("No cities found for selected country.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching cities:", error);
-  //     toast.error("Failed to fetch cities.");
-  //   }
-  // };
-
-  // const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME ?? "";
-  // const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD ?? "";
-
-  // useEffect(() => {
-  //   setLanguage(location_and_language.allLanguages);
-  //   setLocation(location_and_language.allLocations);
-  // }, []);
-
+  
   const onHandleVolumn = (countryCode: number) => {};
   const handleCampaignSubmit = async () => {
     const values = form.getValues();
@@ -255,8 +221,14 @@ fetchlanguage()
     };
 
     console.log(payload, "pyaload of caompgin form");
-
-    startLoading();
+    // localStorage.setItem("payloadData", JSON.stringify(payload));
+    // const savedPayload = JSON.parse(localStorage.getItem("payloadData") || "{}");
+    //   console.log(savedPayload, "saved payload in localStorage");
+      
+      // router.push(`/dashboard/${campaignId}?showIntegrations=true`);
+      
+      
+      startLoading();
     try {
       const response = await createCampaign(payload);
 
@@ -264,8 +236,11 @@ fetchlanguage()
         const campaign = await getUserCampaign();
         // console.log(campaign, "from on submit");
         const campaignId = response.campaign._id;
+         setCreatedCampaignId(campaignId); // Save for dashboard redirect
+      setShowIntegrationDialog(true); // Show dialog
 
-        router.push(`/dashboard/${campaignId}`);
+    //  router.push(`/dashboard/${campaignId}?showIntegrations=true`);
+
 
         toast("Campaign created successfully");
         form.reset();
@@ -382,6 +357,7 @@ fetchlanguage()
   ];
 
   return (
+    <>
     <Form {...form}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* <AnimatedBackground /> */}
@@ -745,6 +721,20 @@ fetchlanguage()
         </TabsContent>
       </Tabs>
     </Form>
+    {showIntegrationDialog && (
+  <GoogleIntegrations
+    onClose={() => setShowIntegrationDialog(false)}
+    onSkip={() => {
+      if (createdCampaignId) {
+        router.push(`/dashboard/${createdCampaignId}`);
+      }
+    }}
+     createdCampaignId={createdCampaignId}
+
+  />
+)}
+    
+    </>
   );
 }
 

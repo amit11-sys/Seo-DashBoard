@@ -115,7 +115,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
       campaignId: newCompaignId,
       status: 1,
     });
-    console.log(LiveKeywordDbData, "live datat from db to table");
+    // console.log(LiveKeywordDbData, "live datat from db to table");
 
     //  add location in data
     // const newLiveKeywordDbData = await Promise.all(
@@ -142,7 +142,7 @@ export const DbLiveKeywordData = async (newCompaignId: string) => {
   })
 );
 
-    console.log(newLiveKeywordDbData, "realdata");
+    // console.log(newLiveKeywordDbData, "realdata");
 
     if (!LiveKeywordDbData) {
       return { error: "Error while getting LiveKeywordDbData" };
@@ -300,7 +300,7 @@ export const firstCompaignData = async () => {
     // console.log(user);
     // console.log(newCompaignId,"newkeywordCampaign")
     const firstCompagin = await Campaign.findOne()
-    console.log(firstCompagin,"first compaign")
+    // console.log(firstCompagin,"first compaign")
      
 
     // console.log(campaignKeywords,"fromkeywordtracking")

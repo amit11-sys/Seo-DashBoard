@@ -20,7 +20,6 @@ export default function Home() {
 // useEffect(() => {
 //   const fetchCitiesByCountry = async () => {
 //     try {
-//       const res = await fetch(`https://api.dataforseo.com/v3/serp/google/locations`, {
 //         method: "GET",
 //         headers: {
 //           "Content-Type": "application/json",

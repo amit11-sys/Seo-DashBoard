@@ -5,6 +5,7 @@ import KeywordEdit from "./KeywordEdit";
 import DeleteConfirm from "./KeywordDel";
 
 import { getTrackingData, updateStartDB } from "@/actions/keywordTracking";
+import { table } from "console";
 
 interface TableHeaderitems {
   key: string;
@@ -37,6 +38,8 @@ interface CustomTableProps {
   showAddedKeyword: any;
   setTableBody: React.Dispatch<React.SetStateAction<TablebodyItems[]>>;
 }
+let tabledata:any = [];
+ 
 const CustomTable = ({
   tableHeader,
   tableData,
@@ -45,9 +48,9 @@ const CustomTable = ({
   setTableBody,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
-  console.log(tableData, "table data");
   const [keywordDbData, setkeywordDbData] = useState<any>([]);
   const [defaultData, setDefaultData] = useState<any>([]);
+      console.log(tableData, "tableData");
   useEffect(() => {
     const FetchKeyWordsDb = async () => {
       const CampaignId = campaignId;
@@ -62,7 +65,7 @@ const CustomTable = ({
     };
     FetchKeyWordsDb();
   }, []);
-  console.log(keywordDbData, "keyworddb data");
+  // console.log(keywordDbData, "keyworddb data");
   // const [tableValues, setTableValues] = useState<TablebodyItems[]>(tableData);
 
   // useEffect(() => {
@@ -114,35 +117,31 @@ const CustomTable = ({
 
 
   return (
-    <div className="w-full shadow-lg text-black rounded-md mt-4 max-h-96 overflow-x-auto relative">
-      <table className="min-w-[1000px] w-full table-auto">
-        <thead>
-          <tr className="sticky top-0 bg-gradient-to-r bg-gray-300 text-black">
-            {tableHeader.map((header, id) => (
-              <th
-                key={id}
-                className="px-4 py-2 text-center text-sm font-medium"
-              >
-                <div className="flex items-center justify-center gap-1">
-                  {header.icon && (
-                    <span className="text-xl">{header.icon}</span>
-                  )}
-                  {header.label}
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {tableData.length === 0 ? (
-            <tr>
-              <td colSpan={15} className="text-center text-gray-500 py-6">
-                No keyword data found
-              </td>
-            </tr>
-          ) : (
-            tableData.map((data, rowIndex) => {
+   
+    <div className="w-full shadow-lg text-black rounded-md max-h-[650px] overflow-y-auto">
+  <table  className="min-w-full table-auto text-sm">
+    <thead className="sticky top-0 bg-gray-300 text-black z-10">
+      <tr>
+        {tableHeader.map((header, id) => (
+          <th key={id} className="px-4 py-2 text-center font-medium">
+            <div className="flex items-center justify-center gap-1">
+              {header.icon && <span className="text-xl">{header.icon}</span>}
+              {header.label}
+            </div>
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {tableData.length === 0 ? (
+        <tr>
+          <td colSpan={15} className="text-center text-gray-500 py-6">
+            No keyword data found
+          </td>
+        </tr>
+      ) : (
+        tableData.map((data, rowIndex) => {
+       
               const keywordId = data.keywordId;
 
               const matchedKeywordData = keywordDbData?.find(
@@ -247,12 +246,14 @@ const CustomTable = ({
                   </td>
                 </tr>
               );
-            })
-          )}
-        </tbody>
-      </table>
-    </div>
+        })
+      )}
+    </tbody>
+  </table>
+</div>
+
   );
 };
 
 export default CustomTable;
+

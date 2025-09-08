@@ -24,11 +24,12 @@ interface Campaign {
 interface SidebarWrapperProps {
   // children: React.ReactNode;
   // Convertedcampaign: Campaign[];
+ 
 }
 
 export default function SidebarWrapper({
   // children,
-  // Convertedcampaign,
+ 
 }: SidebarWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { setCampaignData } = useCampaignData();

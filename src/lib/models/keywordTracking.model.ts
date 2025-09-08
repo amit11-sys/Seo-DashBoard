@@ -6,6 +6,7 @@ const KeywordTrackingSchema = new mongoose.Schema(
     location_code: { type: Number }, // 2124
     language_code: { type: String },
     url: { type: String },
+    checkUrl: { type: String },
     keywordTag: { type: String }, // 
     rank_group: { type: Number }, // 2
     rank_absolute: { type: Number },

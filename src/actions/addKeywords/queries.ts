@@ -28,7 +28,7 @@ export const addkeywords = async (formData: any) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-    console.log(formData, "formdata addd");
+    // console.log(formData, "formdata addd");
     const campaignId = formData?.campaignId; // ✅ FIXED
     // console.log(campaignId, "formdat id");
     const { keywords, ...rest } = formData;
@@ -44,7 +44,7 @@ export const addkeywords = async (formData: any) => {
       })
     );
 
-    console.log(newAddKeyword,"newAddKeyword in add")
+    // console.log(newAddKeyword,"newAddKeyword in add")
 
 const rankdata = await getKewordRank(newAddKeyword)
     const VolumnData = await getVolumnRank(newAddKeyword)
@@ -107,16 +107,16 @@ const rankdata = await getKewordRank(newAddKeyword)
 const finalData =
       rankdata && "rankResponses" in rankdata
         ? rankdata?.rankResponses?.map((rankItem: any) => {
-            console.log(rankItem, "rankItem");
+            // console.log(rankItem, "rankItem");
             const task = rankItem?.response?.tasks?.[0];
             const data = task?.result?.[0];
             const newKeyword = rankItem?.keyword;
             const keyword = data?.keyword;
-            console.log(keyword, "keyword");
+            // console.log(keyword, "keyword");
             const matchedKeyword = newAddKeyword.find(
               (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
             );
-            console.log(matchedKeyword, "matchedKeyword");
+            // console.log(matchedKeyword, "matchedKeyword");
             // Get corresponding volume data for this keyword
             const volumnResponse = VolumnData?.volumnResponses?.find(
               (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
@@ -135,12 +135,12 @@ const finalData =
             const intentItem =
               intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find(
                 (i: any) => {
-                  console.log(i, "inside intemt items");
+                  // console.log(i, "inside intemt items");
                   return i.keyword?.toLowerCase() === keyword?.toLowerCase();
                 }
               );
-            console.log(intentResponse, "intent itmes");
-            console.log(intentItem, "intent item itmes");
+            // console.log(intentResponse, "intent itmes");
+            // console.log(intentItem, "intent item itmes");
             const matchIntent = intentItem?.keyword_intent?.label ?? "";
 
             // const matchLangName = locationData?.find(loc => loc.location_code === data?.location_code);
@@ -155,6 +155,7 @@ const finalData =
               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
               keyword: newKeyword || "",
               searchVolumn: matchSearchVolumn,
+              checkUrl : data?.check_url || "no url",
               intent: matchIntent,
               competition: matchcompetition,
               campaignId: campaignId,
@@ -165,7 +166,7 @@ const finalData =
         : [];
 
     const addedKeywords = await KeywordTracking.insertMany(finalData);
-    console.log(addedKeywords,"return keywrods add")
+    // console.log(addedKeywords,"return keywrods add")
 
     return {
       success: true,

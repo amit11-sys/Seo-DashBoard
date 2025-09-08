@@ -15,6 +15,7 @@ import { log, table } from "console";
 import KeywordTextArea from "../KeywordTextArea";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import Header from "../Common/Header";
+import DeleteConfirm from "./Keywordtable/KeywordDel";
 
 type Tableitems = {
   key: string;
@@ -60,11 +61,15 @@ interface LiveKeywordComponentProps {
     newLiveKeywordDbData?: any[];
   };
   campaignId: string;
+  setPdfTableDatakeywords: any;
+  handleGeneratePDF: any;
 }
 
 const LiveKeywordComponent = ({
   campaignLiveKeywordsData,
   campaignId,
+  setPdfTableDatakeywords,
+  handleGeneratePDF,
 }: LiveKeywordComponentProps) => {
   const [tableBody, setTableBody] = useState<any[]>([]);
 
@@ -105,7 +110,22 @@ const LiveKeywordComponent = ({
     }
   }, [campaignLiveKeywordsData]);
   // console.log(campaignLiveKeywordsData, "use effect data");
+  const now = Date.now(); // gives current timestamp in ms
 
+  const readableDate = new Date(now).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  useEffect(() =>{
+
+      setPdfTableDatakeywords(getHtmlKewyordTable());
+  },[handleGeneratePDF])
+
+  console.log(readableDate, "realtime date");
   const keywordTableData = async () => {
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const data = campaignLiveKeywordsData.newLiveKeywordDbData.map(
@@ -135,7 +155,7 @@ const LiveKeywordComponent = ({
       setTableBody(data);
     }
   };
-  console.log(tableBody, "table body");
+  // console.log(tableBody, "table body");
 
   // const showAddedKeyword = async (newItem: any) => {
   //   // console.log(newItem, "showadded ok hai");
@@ -174,11 +194,10 @@ const LiveKeywordComponent = ({
   const showAddedKeyword = (newItem: any) => {
     if (newItem && newItem.length > 0) {
       const mappedItems = newItem.map((item: any) => {
-
         console.log(item, "new added dataa");
         return {
           keyword: item?.keyword || "",
-        //  location: item?.location_code?.toString() || "",
+          //  location: item?.location_code?.toString() || "",
           location: item?.location_name || "",
           // location: item?.location_name?.locationName?.locationName || "",
           intent: item?.intent || "",
@@ -205,11 +224,59 @@ const LiveKeywordComponent = ({
       setTableBody((prev) => [...prev, ...mappedItems]);
     }
   };
+  const getHtmlKewyordTable = () => {
+  return `
+   
+      
+        <table>
+          <thead>
+            <tr>
+              ${tableHeader
+                .map(
+                  (header) =>
+                    `<th> ${header.label}</th>`
+                )
+                .join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              tableBody.length === 0
+                ? `<tr><td colspan="15">No keyword data found</td></tr>`
+                : tableBody
+                    .map((data) => {
+                      return `
+                        <tr>
+                          <td>${data.keyword}</td>
+                          <td>${data.location}</td>
+                          <td>${data.intent}</td>
+                          <td><strong>${data.start}</strong></td>
+                          <td>${data.page}</td>
+                          <td>${data.Absolute_Rank}</td>
+                          <td>${data.Group_Rank}</td>
+                          <td>${data.sevenDays}</td>
+                          <td>${data.life}</td>
+                          <td>${data.comp}</td>
+                          <td>${data.sv}</td>
+                          <td>${data.date}</td>
+                          <td><a href="${data.rankingUrl}" target="_blank">View</a></td>
+                          <td>Deleted</td>
+                        </tr>
+                      `;
+                    })
+                    .join("")
+            }
+          </tbody>
+        </table>
+     
+  `;
+};
+
 
   return (
-    <div className="w-full min-h-[80vh]  text-gray-100  space-y-12">
+    <div className="w-full min-h-[80vh]  text-gray-100  ">
       {/* Header */}
-      <div className="my-14  backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
+      <div className="mt-14  backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
           campaignId={campaignId}
           showAddedKeyword={showAddedKeyword}

@@ -41,6 +41,8 @@ export default function LiveKeyTrakingHeader({
   processed,
   done,
   setRefresh,
+  CardSetOnChanges,
+  setTableBody
 }: any) {
   const { startLoading, stopLoading } = useLoader();
   const [refreshData, setRefreshData] = useState("");
@@ -81,6 +83,8 @@ export default function LiveKeyTrakingHeader({
       //       refreshedCampaign.updatedRecords[0]?.updatedAt || ""
       //     )
       //   : "";
+
+
       if (refreshedCampaign) {
         setRefresh((k: any) => k + 1);
       }
@@ -103,29 +107,29 @@ export default function LiveKeyTrakingHeader({
     }
   };
 
-  // useEffect(() => {
-  // const fetchUpdatedDate = async () => {
+  useEffect(() => {
+  const fetchUpdatedDate = async () => {
 
-  //   try {
-  //     const refreshedCampaign:any = await getDbLiveKeywordDataWithSatusCode(campaignId,campaignStatus);
-  //     // console.log(refreshData, "refreshedCampaignok");
-  //     if (refreshedCampaign?.newLiveKeywordDbData) {
-  //       const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
-  //       setRefreshData(formatLastUpdated(lastUpdated));
-  //     } else {
-  //       setRefreshData("No updates available");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching campaign data:", error);
-  //     setRefreshData("Failed to fetch update time");
-  //   }
+    try {
+      const refreshedCampaign:any = await getDbLiveKeywordDataWithSatusCode(campaignId,campaignStatus);
+      // console.log(refreshData, "refreshedCampaignok");
+      if (refreshedCampaign?.newLiveKeywordDbData) {
+        const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
+        setRefreshData(formatLastUpdated(lastUpdated));
+      } else {
+        setRefreshData("No updates available");
+      }
+    } catch (error) {
+      console.error("Error fetching campaign data:", error);
+      setRefreshData("Failed to fetch update time");
+    }
 
-  // }
+  }
 
-  // ;
-  // fetchUpdatedDate();
+  ;
+  fetchUpdatedDate();
 
-  // }, []);
+  }, [done]);
 
   useEffect(() => {
     const fetchUpdatedDate = async () => {
@@ -141,6 +145,7 @@ export default function LiveKeyTrakingHeader({
         //   refreshedCampaign?.newLiveKeywordDbData,
         //   "refreshedCampaignok"
         // );
+        
 
         if (
           refreshedCampaign?.newLiveKeywordDbData &&

@@ -120,14 +120,20 @@ export function CampaignTabs() {
         const data = await getlanguageData();
 
         const langdata = data?.allLanguages;
+
+        // if(data?.error){
+        //   toast.error(data?.error)
+        //   return
+        // }
         setLanguages(langdata ?? []);
+
       } catch (error) {
         console.log(error, "language error");
       }
     };
     fetchlanguage();
    
-  }, [activeTab]);
+  }, []);
 
   useEffect(() => {
        const activeCampaign = async  () =>{
@@ -202,6 +208,10 @@ export function CampaignTabs() {
     try {
     
       const response = await createCampaign(payload);
+       if(response?.error === "Unauthorized"){
+          window.dispatchEvent(new Event("session-expired"));
+          return
+        }
 
       if (response?.success) {
         const campaign = await getUserCampaign();

@@ -253,7 +253,7 @@ import mongoose from "mongoose";
 export const addkeywords = async (formData: any) => {
   await connectToDB();
   const user = await getUserFromToken();
-  if (!user) return { error: "Unauthorized" };
+  if (!user) return { error: "Unauthorized please login" };
 
   const campaignId = formData?.campaignId;
   console.log(campaignId, "campaignId");

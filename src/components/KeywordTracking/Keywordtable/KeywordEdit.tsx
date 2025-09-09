@@ -155,7 +155,7 @@ const EditKeywords = ({
       }
     };
     fetchlanguage();
-  }, [open]);
+  }, []);
 
   useEffect(() => {
     if (defaultData) {

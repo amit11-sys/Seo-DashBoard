@@ -11,7 +11,7 @@ export const newCampaign = async (formData: any) => {
     await connectToDB();
     // console.log("finding user");
 
-    const user = await getUserFromToken();
+    const user:any = await getUserFromToken();
     if (!user) {
       return { error: "Unauthorized" };
     }
@@ -52,9 +52,9 @@ export const getCampaign = async () => {
   try {
     await connectToDB();
 
-    const user = await getUserFromToken();
+    const user:any = await getUserFromToken();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
     // console.log(user);
 
@@ -188,7 +188,7 @@ export const archivedCampaign = async () => {
 
     const user = await getUserFromToken();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
 
     const KeywordTrackingDataArchied = await Campaign.find({ status: 2 });
@@ -263,7 +263,7 @@ export const ArchivedCampaignCreate = async (
 
     const user = await getUserFromToken();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
 
     if (!CompaignId) {
@@ -355,7 +355,7 @@ export const CompaignCount = async () => {
 
     const user = await getUserFromToken();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
 
     const campaignCount = await Campaign.find({

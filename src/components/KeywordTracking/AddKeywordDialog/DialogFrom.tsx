@@ -147,7 +147,7 @@ const DialogForm = ({
       }
     };
     fetchlanguage();
-  }, [open]);
+  }, []);
   useEffect(() => {
     setDefaultUrl();
   }, [campaignId]);
@@ -172,18 +172,22 @@ const DialogForm = ({
     console.log(payload, "add kewywords front end data payloadd");
     // startLoading();
     try {
-      const res = await fetch("/api/add-keywords", {
+      const res: any = await fetch("/api/add-keywords", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
-
+      
       if (!res.ok) throw new Error("Failed to create keywords");
       if (!res.ok) throw new Error("Failed to create keywords");
-
+      
       const response = await res.json();
+      if(response.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return
+      }
       onClose();
       console.log(response, "res addd");
       // if (!response.success) {
@@ -414,10 +418,10 @@ const DialogForm = ({
                   )}
                 />
 
-                {results.length > 0 && (
+                {results?.length > 0 && (
                   <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
                     {isPending && <p className="text-green-500">Loading...</p>}
-                    {results.map((loc: any) => {
+                    {results?.map((loc: any) => {
                       return (
                         <li
                           key={loc._id}
@@ -483,7 +487,7 @@ const DialogForm = ({
                   {form.formState.errors.volumeLocationCode?.message}
                 </div>
 
-                {VolumeLocation.length > 0 && (
+                {VolumeLocation?.length > 0 && (
                   <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
                     {isPendingvolumndata && (
                       <p className="text-green-500">Loading...</p>

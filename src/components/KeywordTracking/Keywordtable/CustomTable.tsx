@@ -335,10 +335,10 @@ const CustomTable = ({
       {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
       <div className="flex gap-3 mb-3">
         <BulkDeleteDialog
-  selectedKeywords={selectedKeywords}
-  campaignId={campaignId || ""}
-  handleBulkDelete={handleBulkDelete}
-/>
+          selectedKeywords={selectedKeywords}
+          campaignId={campaignId || ""}
+          handleBulkDelete={handleBulkDelete}
+        />
 
         {/* <button
     disabled={selectedKeywords.length === 0}
@@ -562,16 +562,21 @@ const CustomTable = ({
                     {data.date}
                   </td>
 
-                  <td className="text-center text-[12px] border p-1">
+                  <td className="text-center max-w-[150px] text-[12px] border p-1">
                     <div className="flex justify-center items-center">
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                        href={data.rankingUrl}
-                      >
-                        View
-                      </a>
+                      {data.rankingUrl === "no ranking" ? (
+                        <span className="text-black">__</span>
+                      ) : (
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline truncate block max-w-[140px]"
+                          href={data.rankingUrl}
+                          title={data.rankingUrl} // full URL on hover
+                        >
+                          {data.rankingUrl}
+                        </a>
+                      )}
                     </div>
                   </td>
 

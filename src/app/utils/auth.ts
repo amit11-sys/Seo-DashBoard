@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
+const TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET ?? "";
+
 export function getUserFromToken() {
   const token = cookies().get("accessToken")?.value;
   // console.log(token);

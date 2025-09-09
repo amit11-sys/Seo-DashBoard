@@ -6,6 +6,7 @@ import Loader from "@/components/global/Loader";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 
 import { CampaignDataProvider } from "@/app/context/CampaignContext";
+import SessionExpiredDialog from "@/components/Common/SessionExpiredDialog";
 
 
 
@@ -34,6 +35,7 @@ export default function RootLayout({
           <ReactQueryProvider>
          
             {children}
+            <SessionExpiredDialog/> 
           </ReactQueryProvider>
           <Toaster />
         </CampaignDataProvider>

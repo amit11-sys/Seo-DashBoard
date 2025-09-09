@@ -81,6 +81,14 @@ export default function LiveKeyTrakingHeader({
       //       refreshedCampaign.updatedRecords[0]?.updatedAt || ""
       //     )
       //   : "";
+
+      
+         if(refreshedCampaign.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+              stopLoading();
+
+        return
+      }
       if (refreshedCampaign) {
         setRefresh((k: any) => k + 1);
       }
@@ -183,7 +191,15 @@ export default function LiveKeyTrakingHeader({
     try {
       const campaigndata = await getGetCampaignByid(campaignId);
       const userId = campaigndata?.campaign?.userId ;
-      const shareLink = await getGenerateShareLink(userId,`/dashboard/detail/`,campaignId);
+      
+
+      const shareLink :any  = await getGenerateShareLink(userId,`/dashboard/detail/`,campaignId);
+
+      
+    if (shareLink?.error === "Unauthorized please login") {
+  window.dispatchEvent(new Event("session-expired"));
+  return
+}
       console.log(shareLink, "shareLink");
       await navigator.clipboard.writeText(shareLink);
       toast.success("Shareable link copied to clipboard!");

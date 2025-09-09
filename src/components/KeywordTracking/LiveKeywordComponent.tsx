@@ -165,10 +165,15 @@ const LiveKeywordComponent = ({
         const campaignDataWithId = await getGetCampaignByid(campaignId);
         const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
         setCampaignStatus(campaignStatus);
-        const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
+        const liveKeywordData = await getDbLiveKeywordDataWithSatusCode(
           campaignId,
           campaignStatus
         );
+
+         if(liveKeywordData.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return
+      }
 
         setCampaignLiveKeywordsData(liveKeywordData);
       } catch (error) {

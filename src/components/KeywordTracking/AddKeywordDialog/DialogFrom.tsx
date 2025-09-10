@@ -86,6 +86,9 @@ const DialogForm = ({
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
   const [languages, setLanguages] = useState<string[]>([]);
   const [defaultUrl, setDefaulturl] = useState<string>("");
+useEffect(() => {
+  form.setValue("searchLocationCode", 0);
+}, []);
 
   const setDefaultUrl = async () => {
     if (!campaignId) {
@@ -106,13 +109,25 @@ const DialogForm = ({
   };
 
   // ✅ Memoize debounced function so it survives re-renders
-  const debouncedFetch = useMemo(() => {
-    return debounce((q: string) => {
+const debouncedFetch = useMemo(
+  () =>
+    debounce((q: string) => {
       startTransition(() => {
-        getfetchDBLocation(q).then(setResults).catch(console.error);
+        getfetchDBLocation(q)
+          .then((response) => {
+            console.log(response, "response");
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setResults(response?.allLocations);
+          })
+          .catch(console.error);
       });
-    }, 300);
-  }, []);
+    }, 300),
+  []
+);
+
 
   useEffect(() => {
     if (query.trim().length > 1) debouncedFetch(query);
@@ -123,7 +138,14 @@ const DialogForm = ({
   const debouncedFetchvolumn = useMemo(() => {
     return debounce((q: string) => {
       startTransitionVolumndata(() => {
-        getfetchDBLocation(q).then(setVolumeLocation).catch(console.error);
+        getfetchDBLocation(q).then((response) => {
+            
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setVolumeLocation(response?.allLocations);
+          }).catch(console.error);
       });
     }, 300);
   }, []);
@@ -154,6 +176,13 @@ const DialogForm = ({
 
   const onSubmit = async () => {
     const isValid = await form.trigger();
+    form.setValue("keywords", Keywords);
+console.log(form.getValues(),"all value");
+
+    if (!isValid){
+      toast.error("Please fill all the fields")
+      return
+    }
     if (Keywords.length === 0) {
       setKeywordError("Please enter at least one keyword.");
       return;
@@ -165,7 +194,7 @@ const DialogForm = ({
 
     const payload = {
       ...form.getValues(),
-      keywords: Keywords,
+      // keywords: Keywords,
       campaignId,
     };
 
@@ -410,7 +439,7 @@ const DialogForm = ({
                       value={query}
                       onChange={(e) => {
                         setQuery(e.target.value);
-                        field.onChange(e.target.value); // Update form state
+                        field.onChange(e.target.value ||0); // Update form state
                       }}
                       className=" w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm "
                       placeholder="Search for location"
@@ -428,7 +457,7 @@ const DialogForm = ({
                           onClick={() => {
                             form.setValue(
                               "searchLocationCode",
-                              loc.locationCode
+                              loc.locationCode || 0
                             );
                             setQuery(loc.locationName); // Update input with selected location
                             setResults([]); // Clear results after selection

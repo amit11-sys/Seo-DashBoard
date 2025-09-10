@@ -6,7 +6,7 @@ const TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET ?? "";
 export function getUserFromToken() {
   const token = cookies().get("accessToken")?.value;
   // console.log(token);
-
+  
   if (!token) return null;
   // console.log('not returned');
 

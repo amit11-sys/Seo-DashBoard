@@ -194,6 +194,12 @@ const LiveKeywordComponent = ({
         campaignStatus,
         location
       );
+     
+            if (liveKeywordData?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+         
       const topRankData:any = liveKeywordData?.topRankData?.data ?? [];
       const rawData = liveKeywordData?.newLiveKeywordDbData;
 
@@ -232,7 +238,7 @@ const LiveKeywordComponent = ({
       // console.log(topRankData, "topRankDataok");
 
       if (topRankData.length > 0) {
-     setCardData({
+        const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -248,7 +254,8 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
       } else {
         console.warn("No ranking data available for location:", location);
       }
@@ -313,8 +320,7 @@ const LiveKeywordComponent = ({
       if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
         const topRankData = campaignLiveKeywordsData?.topRankData;
         if (topRankData) {
-
-      setCardData({
+     const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -330,7 +336,8 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
         };
       }
     };
@@ -446,24 +453,7 @@ const LiveKeywordComponent = ({
           setFilterCampaignLiveKeywordsData(data);
           if (topRankData) {
             
-           
-       setCardData({
-  title: "keywords",
-  data: topRankData?.data?.map((item: any) => ({
-    title: item.title,
-    // 🔑 Ensure data is always a primitive
-    data:
-      item?.data === null || item?.data === undefined
-        ? 0
-        : typeof item.data === "object"
-        ? JSON.stringify(item.data)
-        : item.data,
-    id: item.id,
-    totalKeywords: topRankData?.totalKeywords || 0,
-  })) ?? [],
-  type: "card",
-  totalKeywords: topRankData?.totalKeywords || 0,
-});
+         CardSetOnChanges();
           
           };
         }
@@ -515,7 +505,7 @@ const LiveKeywordComponent = ({
       setTableBody(data);
       setFilterCampaignLiveKeywordsData(data);
       if (topRankData) {
- setCardData({
+        const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -531,7 +521,9 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
+
       }
     }
   };
@@ -557,7 +549,8 @@ const LiveKeywordComponent = ({
 
   if (campaignLiveKeywordsData?.topRankData) {
     const topRankData = campaignLiveKeywordsData.topRankData;
- setCardData({
+
+    const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -573,7 +566,9 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
+
 
   }
 

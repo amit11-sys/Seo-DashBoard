@@ -196,8 +196,9 @@ export const fetchLocation = async () => {
 export const fetchDBLocation = async (query: string) => {
   try {
     await connectToDB();
-    // const user = await getUserFromToken();
-    // if (!user) return { error: "Unauthorized please login" };
+    
+    const user = await getUserFromToken();
+    if (!user) return { error: "Unauthorized please login" };
 
     // Case-insensitive search in MongoDB for partial match
     // console.log(query,"fetch quary")

@@ -89,7 +89,14 @@ export function CampaignTabs() {
   const debouncedFetch = useMemo(() => {
     return debounce((q: string) => {
       startTransition(() => {
-        getfetchDBLocation(q).then(setResults).catch(console.error);
+        getfetchDBLocation(q).then((response) => {
+            console.log(response, "response");
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setResults(response?.allLocations);
+          }).catch(console.error);
       });
     }, 300);
   }, []);
@@ -103,7 +110,14 @@ export function CampaignTabs() {
   const debouncedFetchvolumn = useMemo(() => {
     return debounce((q: string) => {
       startTransitionVolumndata(() => {
-        getfetchDBLocation(q).then(setVolumeLocation).catch(console.error);
+        getfetchDBLocation(q).then((response) => {
+            
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setVolumeLocation(response?.allLocations);
+          }).catch(console.error);
       });
     }, 300);
   }, []);

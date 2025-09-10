@@ -119,7 +119,14 @@ const EditKeywords = ({
   const debouncedFetch = useMemo(() => {
     return debounce((q: string) => {
       startTransition(() => {
-        getfetchDBLocation(q).then(setResults).catch(console.error);
+        getfetchDBLocation(q).then((response) => {
+            console.log(response, "response");
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setResults(response?.allLocations);
+          }).catch(console.error);
       });
     }, 300);
   }, []);
@@ -133,7 +140,14 @@ const EditKeywords = ({
   const debouncedFetchvolumn = useMemo(() => {
     return debounce((q: string) => {
       startTransitionVolumndata(() => {
-        getfetchDBLocation(q).then(setVolumeLocation).catch(console.error);
+        getfetchDBLocation(q).then((response) => {
+            
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setVolumeLocation(response?.allLocations);
+          }).catch(console.error);
       });
     }, 300);
   }, []);
@@ -155,7 +169,7 @@ const EditKeywords = ({
       }
     };
     fetchlanguage();
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     if (defaultData) {
@@ -207,6 +221,14 @@ const EditKeywords = ({
   // };
 
   const onSubmit = async () => {
+     const isValid = await form.trigger();
+        // form.setValue("keywords", Keywords);
+    console.log(form.getValues(),"all value");
+    
+        if (!isValid){
+          toast.error("Please fill all the fields")
+          return
+        }
     const keywordInput = form.getValues("keywords");
     console.log("okokoko", form.getValues());
     console.log("keywodsINput", keywordInput);
@@ -489,7 +511,7 @@ const EditKeywords = ({
                       value={query}
                       onChange={(e) => {
                         setQuery(e.target.value);
-                        field.onChange(e.target.value); // Update form state
+                        field.onChange(e.target.value || 0); // Update form state
                       }}
                       className=" w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm "
                       placeholder="Search for location"
@@ -508,7 +530,7 @@ const EditKeywords = ({
                           onClick={() => {
                             form.setValue(
                               "searchLocationCode",
-                              loc.locationCode
+                              loc.locationCode || 0
                             );
                             setQuery(loc.locationName); // Update input with selected location
                             setResults([]); // Clear results after selection
@@ -552,7 +574,7 @@ const EditKeywords = ({
                       value={volumnQuery}
                       onChange={(e) => {
                         setVolumnQuery(e.target.value);
-                        field.onChange(e.target.value);
+                        field.onChange(e.target.value || 0);
                       }}
                       className="w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm"
                       placeholder="Search for Volume location"
@@ -560,7 +582,7 @@ const EditKeywords = ({
                   )}
                 />
                 <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.volumeLocationCode?.message}
+                  {form.formState.errors.volumeLocationCode?.message && "required" }
                 </div>
 
                 {VolumeLocation.length > 0 && (
@@ -572,7 +594,7 @@ const EditKeywords = ({
                       <li
                         key={loc._id}
                         onClick={() => {
-                          form.setValue("volumeLocationCode", loc.locationCode);
+                          form.setValue("volumeLocationCode", loc.locationCode  || 0);
                           setVolumnQuery(loc.locationName);
                           setVolumeLocation([]);
                         }}

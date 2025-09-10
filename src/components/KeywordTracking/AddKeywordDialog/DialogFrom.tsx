@@ -171,8 +171,9 @@ const debouncedFetch = useMemo(
     fetchlanguage();
   }, []);
   useEffect(() => {
+    
     setDefaultUrl();
-  }, [campaignId]);
+  }, []);
 
   const onSubmit = async () => {
     const isValid = await form.trigger();

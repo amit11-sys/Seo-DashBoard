@@ -65,7 +65,7 @@ function generateAccessToken(user: any) {
     email: user.email,
   };
 
-  const secret: Secret = `${process.env.REFRESH_TOKEN_SECRET}`; // Type explicitly
+  const secret: Secret = `${process.env.ACCESS_TOKEN_SECRET}`; // Type explicitly
   const options: SignOptions = { expiresIn: "2h" }; // Type explicitly
 
   return jwt.sign(payload, secret, options);

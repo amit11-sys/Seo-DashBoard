@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
@@ -248,7 +249,7 @@ const finalData: any =
 
 
 
-import mongoose from "mongoose";
+
 
 export const addkeywords = async (formData: any) => {
   await connectToDB();
@@ -268,19 +269,39 @@ export const addkeywords = async (formData: any) => {
   const userIdObj = new mongoose.Types.ObjectId(user.id);
   const campaignIdObj = new mongoose.Types.ObjectId(campaignId);
 
-  // Check for existing keywords
-  const existingKeywords = await Keyword.distinct("keywords", {
-    keywords: { $in: formData.keywords },
-    userId: userIdObj,
-    CampaignId: campaignIdObj,
-  });
+  // // Check for existing keywords
+  // const existingKeywords = await Keyword.distinct("keywords", {
+  //   keywords: { $in: formData.keywords },
+  //   userId: userIdObj,
+  //   CampaignId: campaignIdObj,
+  // });
 
-  console.log(existingKeywords, "existingKeywords");
+  // console.log(existingKeywords, "existingKeywords");
 
-  // Filter out already existing ones
-  formData.keywords = formData.keywords.filter(
-    (kw: string) => !existingKeywords.includes(kw)
-  );
+  // // Filter out already existing ones
+  // formData.keywords = formData.keywords.filter(
+  //   (kw: string) => !existingKeywords.includes(kw)
+  // );
+  // Check for existing keyword + location combos
+const existingKeywordDocs = await Keyword.find({
+  keywords: { $in: formData.keywords },
+  userId: userIdObj,
+  CampaignId: campaignIdObj,
+  searchLocationCode: formData.searchLocationCode, // ✅ include location
+}).select("keywords searchLocationCode");
+
+// Build a set of "keyword|location" strings for faster lookup
+const existingSet = new Set(
+  existingKeywordDocs.map(
+    (doc) => `${doc.keywords}|${doc.searchLocationCode}`
+  )
+);
+
+// Filter out duplicates only if keyword + locationCode exist together
+formData.keywords = formData.keywords.filter(
+  (kw: string) => !existingSet.has(`${kw}|${formData.searchLocationCode}`)
+);
+
 
   console.log(formData.keywords, "keywords to insert");
 

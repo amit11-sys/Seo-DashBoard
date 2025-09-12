@@ -221,11 +221,10 @@ interface ErrorResponse {
 //     KeywordTracking.findOneAndUpdate(
 //       { keywordId: d.keywordId, campaignId },
 //       { $set: { ...d, updatedAt: now }, $setOnInsert: { createdAt: now } },
-//       { upsert: true, new: true } 
+//       { upsert: true, new: true }
 //     )
 //   )
 // );
-
 
 //     console.log("refresh All records updated:", updatedRecords);
 
@@ -242,7 +241,7 @@ interface ErrorResponse {
 //     return { error: "Internal Server Error." };
 //   }
 // };
-export const RefreshSingleKeyword = async (keywordId: string) => {
+export const RefreshSingleKeywordRaw = async (keywordId: string) => {
   try {
     await connectToDB();
 
@@ -279,59 +278,56 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
       top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
     };
 
-  const finalData: any =
-  rankdata && "rankResponses" in rankdata
-    ? rankdata?.rankResponses?.map((rankItem: any) => {
-        const task = rankItem?.response?.tasks?.[0];
-        const data = task?.result?.[0];
-        const newKeyword = rankItem?.keyword;
+    const finalData: any =
+      rankdata && "rankResponses" in rankdata
+        ? rankdata?.rankResponses?.map((rankItem: any) => {
+            const task = rankItem?.response?.tasks?.[0];
+            const data = task?.result?.[0];
+            const newKeyword = rankItem?.keyword;
 
-        const matchedKeyword = [singleKeywordForUpdate].find(
-          (k: any) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
-        );
+            const matchedKeyword = [singleKeywordForUpdate].find(
+              (k: any) =>
+                k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+            );
 
-        const rankGroup = data?.items?.[0]?.rank_group || 0;
+            const rankGroup = data?.items?.[0]?.rank_group || 0;
 
-        return {
-          type: task?.data?.se_type || "organic",
-          location_code: matchedKeyword?.searchLocationCode || 2124,
-          language_code: data?.language_code || "en",
-          url: data?.items?.[0]?.url?.trim() || "no ranking",
-          rank_group: rankGroup,
-          rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-          keyword: newKeyword || "",
-          searchVolumn: 0,
-          checkUrl: data?.check_url || "no url",
-          intent: "",
-          competition: 0,
-          campaignId: singleKeywordForUpdate?.CampaignId || "",
-          keywordId: matchedKeyword?._id,
-          start: rankGroup,
+            return {
+              type: task?.data?.se_type || "organic",
+              location_code: matchedKeyword?.searchLocationCode || 2124,
+              language_code: data?.language_code || "en",
+              url: data?.items?.[0]?.url?.trim() || "no ranking",
+              rank_group: rankGroup,
+              rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+              keyword: newKeyword || "",
+              searchVolumn: 0,
+              checkUrl: data?.check_url || "no url",
+              intent: "",
+              competition: 0,
+              campaignId: singleKeywordForUpdate?.CampaignId || "",
+              keywordId: matchedKeyword?._id,
+              start: rankGroup,
 
-          // shared top rank values
-          ...totalTopRanks,
+              // shared top rank values
+              ...totalTopRanks,
 
-          updatedAt: new Date(),
-        };
-      })
-    : [];
+              updatedAt: new Date(),
+            };
+          })
+        : [];
 
-// ✅ pick the first object
-const keywordUpdate = finalData[0] || null;
+    // ✅ pick the first object
+    const keywordUpdate = finalData[0] || null;
 
-if (!keywordUpdate) {
-  return { error: "No keyword data to update" };
-}
+    if (!keywordUpdate) {
+      return { error: "No keyword data to update" };
+    }
 
-const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
-  { keywordId: keywordId },
-  { $set: keywordUpdate, $setOnInsert: { createdAt: new Date() } },
-  { upsert: true, new: true }
-);
-
-
-  
-
+    const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
+      { keywordId: keywordId },
+      { $set: keywordUpdate, $setOnInsert: { createdAt: new Date() } },
+      { upsert: true, new: true }
+    );
 
     console.log("refresh All records updated:", SingleKeywordUpdated);
 
@@ -349,7 +345,138 @@ const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
   }
 };
 
+export const RefreshSingleKeyword = async (keywordId: string) => {
+  try {
+    await connectToDB();
 
+    // 🔐 Check auth
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    // 🔎 Find keyword from DB
+    const singleKeywordForUpdate = await Keyword.findById({ _id: keywordId });
+    if (!singleKeywordForUpdate) {
+      return { error: "Keyword not found" };
+    }
+
+    // 📡 Fetch rank & intent data
+    const rankdata = await getKewordRank([singleKeywordForUpdate]);
+    const intentData = await getRankIntent([singleKeywordForUpdate]);
+
+    // 🏗️ Build finalData
+    const finalData: any =
+      rankdata && "rankResponses" in rankdata
+        ? rankdata?.rankResponses?.map((rankItem: any) => {
+            const task = rankItem?.response?.tasks?.[0];
+            const data = task?.result?.[0];
+            const newKeyword = rankItem?.keyword;
+
+            const matchedKeyword = [singleKeywordForUpdate].find(
+              (k: any) =>
+                k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+            );
+
+            const rankGroup = data?.items?.[0]?.rank_group || 0;
+
+            return {
+              type: task?.data?.se_type || "organic",
+              location_code: matchedKeyword?.searchLocationCode || 2124,
+              language_code: data?.language_code || "en",
+              url: data?.items?.[0]?.url?.trim() || "no ranking",
+              rank_group: rankGroup,
+              rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+              keyword: newKeyword || "",
+              searchVolumn: 0,
+              checkUrl: data?.check_url || "no url",
+              intent: "",
+              competition: 0,
+              campaignId: singleKeywordForUpdate?.CampaignId || "",
+              keywordId: matchedKeyword?._id,
+              start: rankGroup,
+              updatedAt: new Date(),
+            };
+          })
+        : [];
+
+    const keywordUpdate = finalData[0] || null;
+    if (!keywordUpdate) {
+      return { error: "No keyword data to update" };
+    }
+
+    // 🔄 Find previous record
+    const prevKeywordTracking = await KeywordTracking.findOne({
+      keywordId: keywordId,
+    });
+    const now = new Date();
+
+    // 🟢 Update rankChange and changeDirection only if 7 days passed
+    let rankChange = null;
+    let changeDirection: "up" | "down" | null = null;
+
+    if (prevKeywordTracking) {
+      const oldRank = prevKeywordTracking.rank_group || 0;
+      const newRank = keywordUpdate.rank_group || 0;
+
+      // calculate diff
+      const diff = oldRank - newRank;
+
+      // check 7-day rule
+      if (prevKeywordTracking.lastUpdatedAt) {
+        const diffMs =
+          now.getTime() - prevKeywordTracking.lastUpdatedAt.getTime();
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+        if (
+          diffDays >= 7 &&
+          oldRank > 0 &&
+          newRank > 0 &&
+          oldRank !== newRank
+        ) {
+          if (diff > 0) {
+            rankChange = diff;
+            changeDirection = "up";
+          } else {
+            rankChange = Math.abs(diff);
+            changeDirection = "down";
+          }
+        }
+      }
+    }
+
+    // ➕ Only set rankChange & changeDirection if 7-day rule allows
+    if (rankChange && changeDirection) {
+      keywordUpdate.rankChange = rankChange;
+      keywordUpdate.changeDirection = changeDirection;
+
+      keywordUpdate.lastUpdatedAt = now;
+    } else if (prevKeywordTracking) {
+      // keep old values if not updated
+      keywordUpdate.rankChange = prevKeywordTracking.rankChange;
+      keywordUpdate.changeDirection = prevKeywordTracking.changeDirection;
+    }
+
+    // 💾 Update or insert record
+    const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
+      { keywordId: keywordId },
+      {
+        $set: keywordUpdate,
+        $setOnInsert: { createdAt: now },
+      },
+      { upsert: true, new: true }
+    );
+
+    return {
+      success: true,
+      message: "Keyword Refresh Successfully",
+      SingleKeywordUpdated,
+    };
+  } catch (error) {
+    console.log(error);
+    return { error: "Internal Server Error." };
+  }
+};
 
 // import { addToQueue } from "@/lib/jobQueue"
 
@@ -359,7 +486,10 @@ export async function refreshAddedKeywords(campaignId: string) {
     const user = await getUserFromToken();
     if (!user) return { error: "Unauthorized" };
 
-    const refreshCampaign = await Keyword.find({ CampaignId:campaignId, status: 1 });
+    const refreshCampaign = await Keyword.find({
+      CampaignId: campaignId,
+      status: 1,
+    });
     if (!refreshCampaign.length) {
       return { error: "No active keywords to refresh" };
     }
@@ -383,36 +513,33 @@ export async function refreshAddedKeywords(campaignId: string) {
       { upsert: true }
     );
 
-   await Promise.all(
-    refreshCampaign.map((kw) =>
-      keywordQueue.add("fetchKeywordRanking", {
-        keywordId: kw._id.toString(),
-        keyword: kw.keywords,
-        location_code: kw.searchLocationCode,
-        language_code: kw.language,
-        target: kw.url,
+    await Promise.all(
+      refreshCampaign.map((kw) =>
+        keywordQueue.add("fetchKeywordRanking", {
+          keywordId: kw._id.toString(),
+          keyword: kw.keywords,
+          location_code: kw.searchLocationCode,
+          language_code: kw.language,
+          target: kw.url,
 
-        device: kw.deviceType,
-        se_domain: kw.SearchEngine,
-        campaignId: campaignId,
-        userId: user.id.toString(),
-      })
-    )
-  );
+          device: kw.deviceType,
+          se_domain: kw.SearchEngine,
+          campaignId: campaignId,
+          userId: user.id.toString(),
+        })
+      )
+    );
 
-  const counts = await keywordQueue.getJobCounts();
+    const counts = await keywordQueue.getJobCounts();
 
-  return {
-    success: true,
-    message: "Keywords queued for live ranking",
-    queued: refreshCampaign.length,
-    counts,
-  };
+    return {
+      success: true,
+      message: "Keywords queued for live ranking",
+      queued: refreshCampaign.length,
+      counts,
+    };
   } catch (err) {
     console.error("refreshAddedKeywords failed:", err);
     return { error: "Internal Server Error." };
   }
 }
-
-
-

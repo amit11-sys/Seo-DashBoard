@@ -26,13 +26,14 @@ import { deleteKeywordData } from "@/actions/keyword";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getGetCampaignByid } from "@/actions/campaign";
 import BulkDeleteDialog from "./KeywordDeleteDialog";
-
+import { TiArrowDown, TiArrowUp } from "react-icons/ti";
 interface TableHeaderitems {
   key: string;
   label: string;
   icon?: ReactNode;
 }
 interface TablebodyItems {
+  rankChange?: number;
   keyword: string;
   keywordId: string;
   status: number;
@@ -51,6 +52,7 @@ interface TablebodyItems {
   sv: any;
   date: string;
   rankingUrl: string;
+  changeDirection?: string;
 }
 interface CustomTableProps {
   tableHeader: TableHeaderitems[];
@@ -284,7 +286,8 @@ const CustomTable = ({
             Absolute_Rank: String(item?.rank_absolute) || 0,
             Group_Rank: item?.rank_group || 0,
             // oneDay: "1",
-            sevenDays: "-",
+            sevenDays: item?.rankChange || 0,
+            changeDirection: item?.changeDirection || "",
             // thirtyDays: "-",
             life: item?.rank_group || 0,
             comp: item?.competition || 0,
@@ -335,10 +338,10 @@ const CustomTable = ({
       {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
       <div className="flex gap-3 mb-3">
         <BulkDeleteDialog
-  selectedKeywords={selectedKeywords}
-  campaignId={campaignId || ""}
-  handleBulkDelete={handleBulkDelete}
-/>
+          selectedKeywords={selectedKeywords}
+          campaignId={campaignId || ""}
+          handleBulkDelete={handleBulkDelete}
+        />
 
         {/* <button
     disabled={selectedKeywords.length === 0}
@@ -554,7 +557,24 @@ const CustomTable = ({
                   </td>
                   <td className="text-center text-[12px] border p-1">
                     {data.sevenDays}
+
+                    {/* ✅ if improved */}
+                    {data.changeDirection === "up" && (
+                      <span className="inline-flex items-center ml-1 text-green-500 text-[15px]">
+                        {data.rankChange}
+                        <TiArrowUp className="ml-0.5" />
+                      </span>
+                    )}
+
+                    {/* ✅ if dropped */}
+                    {data.changeDirection === "down" && (
+                      <span className="inline-flex items-center ml-1 text-red-500 text-[15px]">
+                        {data.rankChange}
+                        <TiArrowDown className="ml-0.5" />
+                      </span>
+                    )}
                   </td>
+
                   <td className="text-center text-[12px] border p-1">
                     {data.life}
                   </td>

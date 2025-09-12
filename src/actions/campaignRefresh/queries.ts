@@ -345,6 +345,140 @@ export const RefreshSingleKeywordRaw = async (keywordId: string) => {
   }
 };
 
+// export const RefreshSingleKeyword = async (keywordId: string) => {
+//   try {
+//     await connectToDB();
+
+//     // 🔐 Check auth
+//     const user = await getUserFromToken();
+//     if (!user) {
+//       return { error: "Unauthorized" };
+//     }
+
+//     // 🔎 Find keyword from DB
+//     const singleKeywordForUpdate = await Keyword.findById({ _id: keywordId });
+//     if (!singleKeywordForUpdate) {
+//       return { error: "Keyword not found" };
+//     }
+
+//     // 📡 Fetch rank & intent data
+//     const rankdata = await getKewordRank([singleKeywordForUpdate]);
+//     const intentData = await getRankIntent([singleKeywordForUpdate]);
+
+//     // 🏗️ Build finalData
+//     const finalData: any =
+//       rankdata && "rankResponses" in rankdata
+//         ? rankdata?.rankResponses?.map((rankItem: any) => {
+//             const task = rankItem?.response?.tasks?.[0];
+//             const data = task?.result?.[0];
+//             const newKeyword = rankItem?.keyword;
+
+//             const matchedKeyword = [singleKeywordForUpdate].find(
+//               (k: any) =>
+//                 k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+//             );
+
+//             const rankGroup = data?.items?.[0]?.rank_group || 0;
+
+//             return {
+//               type: task?.data?.se_type || "organic",
+//               location_code: matchedKeyword?.searchLocationCode || 2124,
+//               language_code: data?.language_code || "en",
+//               url: data?.items?.[0]?.url?.trim() || "no ranking",
+//               rank_group: rankGroup,
+//               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+//               keyword: newKeyword || "",
+//               searchVolumn: 0,
+//               checkUrl: data?.check_url || "no url",
+//               intent: "",
+//               competition: 0,
+//               campaignId: singleKeywordForUpdate?.CampaignId || "",
+//               keywordId: matchedKeyword?._id,
+//               start: rankGroup,
+//               updatedAt: new Date(),
+//             };
+//           })
+//         : [];
+
+//     const keywordUpdate = finalData[0] || null;
+//     if (!keywordUpdate) {
+//       return { error: "No keyword data to update" };
+//     }
+
+//     // 🔄 Find previous record
+//     const prevKeywordTracking = await KeywordTracking.findOne({
+//       keywordId: keywordId,
+//     });
+//     const now = new Date();
+
+//     // 🟢 Update rankChange and changeDirection only if 7 days passed
+//     let rankChange = null;
+//     let changeDirection: "up" | "down" | null = null;
+
+//     if (prevKeywordTracking) {
+//       const oldRank = prevKeywordTracking.rank_group || 0;
+//       const newRank = keywordUpdate.rank_group || 0;
+
+//       // calculate diff
+//       const diff = oldRank - newRank;
+
+//       // check 7-day rule
+//       if (prevKeywordTracking.lastUpdatedAt) {
+//         const diffMs =
+//           now.getTime() - prevKeywordTracking.lastUpdatedAt.getTime();
+//         const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+//         if (
+//           diffDays >= 7 &&
+//           oldRank > 0 &&
+//           newRank > 0 &&
+//           oldRank !== newRank
+//         ) {
+//           if (diff > 0) {
+//             rankChange = diff;
+//             changeDirection = "up";
+//           } else {
+//             rankChange = Math.abs(diff);
+//             changeDirection = "down";
+//           }
+//         }
+//       }
+//     }
+
+//     // ➕ Only set rankChange & changeDirection if 7-day rule allows
+//     if (rankChange && changeDirection) {
+//       keywordUpdate.rankChange = rankChange;
+//       keywordUpdate.changeDirection = changeDirection;
+
+//       keywordUpdate.lastUpdatedAt = now;
+//     } else if (prevKeywordTracking) {
+//       // keep old values if not updated
+//       keywordUpdate.rankChange = prevKeywordTracking.rankChange;
+//       keywordUpdate.changeDirection = prevKeywordTracking.changeDirection;
+//     }
+
+//     // 💾 Update or insert record
+//     const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
+//       { keywordId: keywordId },
+//       {
+//         $set: keywordUpdate,
+//         $setOnInsert: { createdAt: now },
+//       },
+//       { upsert: true, new: true }
+//     );
+
+//     return {
+//       success: true,
+//       message: "Keyword Refresh Successfully",
+//       SingleKeywordUpdated,
+//     };
+//   } catch (error) {
+//     console.log(error);
+//     return { error: "Internal Server Error." };
+//   }
+// };
+
+// import { addToQueue } from "@/lib/jobQueue"
 export const RefreshSingleKeyword = async (keywordId: string) => {
   try {
     await connectToDB();
@@ -411,7 +545,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     });
     const now = new Date();
 
-    // 🟢 Update rankChange and changeDirection only if 7 days passed
+    // 🟢 Update rankChange and changeDirection only if 7 days passed or previous is null/zero
     let rankChange = null;
     let changeDirection: "up" | "down" | null = null;
 
@@ -419,21 +553,20 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
       const oldRank = prevKeywordTracking.rank_group || 0;
       const newRank = keywordUpdate.rank_group || 0;
 
+      const needRefresh =
+        !prevKeywordTracking.rankChange || prevKeywordTracking.rankChange === 0;
+
       // calculate diff
       const diff = oldRank - newRank;
 
-      // check 7-day rule
-      if (prevKeywordTracking.lastUpdatedAt) {
-        const diffMs =
-          now.getTime() - prevKeywordTracking.lastUpdatedAt.getTime();
-        const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-        if (
-          diffDays >= 7 &&
-          oldRank > 0 &&
-          newRank > 0 &&
-          oldRank !== newRank
-        ) {
+      if (
+        needRefresh || // force refresh if null/0
+        (prevKeywordTracking.lastUpdatedAt &&
+          (now.getTime() - prevKeywordTracking.lastUpdatedAt.getTime()) /
+            (1000 * 60 * 60 * 24) >=
+            7)
+      ) {
+        if (oldRank > 0 && newRank > 0 && oldRank !== newRank) {
           if (diff > 0) {
             rankChange = diff;
             changeDirection = "up";
@@ -443,18 +576,26 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
           }
         }
       }
+    } else {
+      // no previous record, force update
+      const newRank = keywordUpdate.rank_group || 0;
+      if (newRank > 0) {
+        rankChange = newRank;
+        changeDirection = "up";
+      }
     }
 
-    // ➕ Only set rankChange & changeDirection if 7-day rule allows
     if (rankChange && changeDirection) {
       keywordUpdate.rankChange = rankChange;
       keywordUpdate.changeDirection = changeDirection;
-
       keywordUpdate.lastUpdatedAt = now;
     } else if (prevKeywordTracking) {
-      // keep old values if not updated
       keywordUpdate.rankChange = prevKeywordTracking.rankChange;
       keywordUpdate.changeDirection = prevKeywordTracking.changeDirection;
+    } else {
+      keywordUpdate.rankChange = 0;
+      keywordUpdate.changeDirection = null;
+      keywordUpdate.lastUpdatedAt = now;
     }
 
     // 💾 Update or insert record
@@ -477,8 +618,6 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     return { error: "Internal Server Error." };
   }
 };
-
-// import { addToQueue } from "@/lib/jobQueue"
 
 export async function refreshAddedKeywords(campaignId: string) {
   try {

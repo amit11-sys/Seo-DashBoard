@@ -545,7 +545,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     });
     const now = new Date();
 
-    // 🟢 Calculate rankChange/changeDirection (7-day rule)
+    // 🟢 Calculate rankChange/changeDirection ONLY if 7+ days passed
     let rankChange = 0;
     let changeDirection: "up" | "down" | "" = "";
 
@@ -553,18 +553,14 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
       const oldRank = prevKeywordTracking.rank_group ?? 0;
       const newRank = keywordUpdate.rank_group ?? 0;
 
-      const needRefresh =
-        !prevKeywordTracking.rankChange || prevKeywordTracking.rankChange === 0;
+      const lastUpdate = prevKeywordTracking.lastUpdatedAt;
+      const daysSinceUpdate = lastUpdate
+        ? (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24)
+        : 999; // force update if never set
 
-      const diff = oldRank - newRank;
-
-      if (
-        needRefresh ||
-        (prevKeywordTracking.lastUpdatedAt &&
-          (now.getTime() - prevKeywordTracking.lastUpdatedAt.getTime()) /
-            (1000 * 60 * 60 * 24) >=
-            7)
-      ) {
+      if (daysSinceUpdate >= 7) {
+        // Only update if 7+ days passed
+        const diff = oldRank - newRank;
         if (oldRank > 0 && newRank > 0 && oldRank !== newRank) {
           if (diff > 0) {
             rankChange = diff;
@@ -574,6 +570,12 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
             changeDirection = "down";
           }
         }
+        keywordUpdate.lastUpdatedAt = now;
+      } else {
+        // ❌ Less than 7 days → keep previous values
+        rankChange = prevKeywordTracking.rankChange ?? 0;
+        changeDirection = prevKeywordTracking.changeDirection ?? "";
+        keywordUpdate.lastUpdatedAt = prevKeywordTracking.lastUpdatedAt ?? now;
       }
     } else {
       // No previous record
@@ -582,11 +584,11 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
         rankChange = newRank;
         changeDirection = "up";
       }
+      keywordUpdate.lastUpdatedAt = now;
     }
 
-    keywordUpdate.rankChange = rankChange ?? 0;
-    keywordUpdate.changeDirection = changeDirection || "";
-    keywordUpdate.lastUpdatedAt = now;
+    keywordUpdate.rankChange = rankChange;
+    keywordUpdate.changeDirection = changeDirection;
 
     // 🛑 Ensure no null values before saving
     Object.keys(keywordUpdate).forEach((key) => {
@@ -615,6 +617,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     return { error: "Internal Server Error." };
   }
 };
+
 
 // export async function refreshAddedKeywords(campaignId: string) {
 //   try {

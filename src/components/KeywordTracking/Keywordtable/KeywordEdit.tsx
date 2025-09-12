@@ -239,7 +239,7 @@ const EditKeywords = ({
         campaignStatus
       );
 
-               const topRankData = liveKeywordData?.topRankData?.data ?? [];
+      const topRankData = liveKeywordData?.topRankData?.data ?? [];
 
       console.log(liveKeywordData, "campaignLiveKeywordsData");
 
@@ -257,7 +257,8 @@ const EditKeywords = ({
           Absolute_Rank: String(item?.rank_absolute) || 0,
           Group_Rank: item?.rank_group || 0,
           // oneDay: "1",
-          sevenDays: "-",
+          sevenDays: item?.rankChange || 0,
+          changeDirection: item?.changeDirection || "",
           // thirtyDays: "-",
           life: item?.rank_group || 0,
           comp: item?.competition || 0,

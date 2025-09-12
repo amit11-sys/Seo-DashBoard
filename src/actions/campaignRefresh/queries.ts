@@ -619,12 +619,77 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
   }
 };
 
+// export async function refreshAddedKeywords(campaignId: string) {
+//   try {
+//     await connectToDB();
+//     const user = await getUserFromToken();
+//     if (!user) return { error: "Unauthorized" };
+
+//     const refreshCampaign = await Keyword.find({
+//       CampaignId: campaignId,
+//       status: 1,
+//     });
+//     if (!refreshCampaign.length) {
+//       return { error: "No active keywords to refresh" };
+//     }
+
+//     const redis = getRedis();
+//     const progressKey = `campaign:${campaignId}:progress`;
+//     await redis.hset(progressKey, {
+//       total: refreshCampaign.length,
+//       processed: 0,
+//       lastUpdated: String(Date.now()),
+//     });
+
+//     await Campaign.updateOne(
+//       { _id: campaignId },
+//       {
+//         total: refreshCampaign.length,
+//         processed: 0,
+//         done: false,
+//         lastUpdated: new Date(),
+//       },
+//       { upsert: true }
+//     );
+
+//     await Promise.all(
+//       refreshCampaign.map((kw) =>
+//         keywordQueue.add("fetchKeywordRanking", {
+//           keywordId: kw._id.toString(),
+//           keyword: kw.keywords,
+//           location_code: kw.searchLocationCode,
+//           language_code: kw.language,
+//           target: kw.url,
+
+//           device: kw.deviceType,
+//           se_domain: kw.SearchEngine,
+//           campaignId: campaignId,
+//           userId: user.id.toString(),
+//         })
+//       )
+//     );
+
+//     const counts = await keywordQueue.getJobCounts();
+
+//     return {
+//       success: true,
+//       message: "Keywords queued for live ranking",
+//       queued: refreshCampaign.length,
+//       counts,
+//     };
+//   } catch (err) {
+//     console.error("refreshAddedKeywords failed:", err);
+//     return { error: "Internal Server Error." };
+//   }
+// }
+
 export async function refreshAddedKeywords(campaignId: string) {
   try {
     await connectToDB();
     const user = await getUserFromToken();
     if (!user) return { error: "Unauthorized" };
 
+    // ✅ Only active keywords of this campaign
     const refreshCampaign = await Keyword.find({
       CampaignId: campaignId,
       status: 1,
@@ -635,6 +700,7 @@ export async function refreshAddedKeywords(campaignId: string) {
 
     const redis = getRedis();
     const progressKey = `campaign:${campaignId}:progress`;
+
     await redis.hset(progressKey, {
       total: refreshCampaign.length,
       processed: 0,
@@ -660,7 +726,6 @@ export async function refreshAddedKeywords(campaignId: string) {
           location_code: kw.searchLocationCode,
           language_code: kw.language,
           target: kw.url,
-
           device: kw.deviceType,
           se_domain: kw.SearchEngine,
           campaignId: campaignId,

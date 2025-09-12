@@ -483,23 +483,23 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
   try {
     await connectToDB();
 
-    // 🔐 Check auth
+    // 🔐 Auth check
     const user = await getUserFromToken();
     if (!user) {
       return { error: "Unauthorized" };
     }
 
-    // 🔎 Find keyword from DB
+    // 🔎 Fetch keyword
     const singleKeywordForUpdate = await Keyword.findById({ _id: keywordId });
     if (!singleKeywordForUpdate) {
       return { error: "Keyword not found" };
     }
 
-    // 📡 Fetch rank & intent data
+    // 📡 Fetch rank + intent data
     const rankdata = await getKewordRank([singleKeywordForUpdate]);
     const intentData = await getRankIntent([singleKeywordForUpdate]);
 
-    // 🏗️ Build finalData
+    // 🏗 Build finalData
     const finalData: any =
       rankdata && "rankResponses" in rankdata
         ? rankdata?.rankResponses?.map((rankItem: any) => {
@@ -512,29 +512,29 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
                 k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
             );
 
-            const rankGroup = data?.items?.[0]?.rank_group || 0;
+            const rankGroup = data?.items?.[0]?.rank_group ?? 0;
 
             return {
-              type: task?.data?.se_type || "organic",
-              location_code: matchedKeyword?.searchLocationCode || 2124,
-              language_code: data?.language_code || "en",
-              url: data?.items?.[0]?.url?.trim() || "no ranking",
+              type: task?.data?.se_type ?? "organic",
+              location_code: matchedKeyword?.searchLocationCode ?? 2124,
+              language_code: data?.language_code ?? "en",
+              url: data?.items?.[0]?.url?.trim() ?? "no ranking",
               rank_group: rankGroup,
-              rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-              keyword: newKeyword || "",
+              rank_absolute: data?.items?.[0]?.rank_absolute ?? 0,
+              keyword: newKeyword ?? "",
               searchVolumn: 0,
-              checkUrl: data?.check_url || "no url",
+              checkUrl: data?.check_url ?? "no url",
               intent: "",
               competition: 0,
-              campaignId: singleKeywordForUpdate?.CampaignId || "",
-              keywordId: matchedKeyword?._id,
+              campaignId: singleKeywordForUpdate?.CampaignId ?? "",
+              keywordId: matchedKeyword?._id ?? "",
               start: rankGroup,
               updatedAt: new Date(),
             };
           })
         : [];
 
-    const keywordUpdate = finalData[0] || null;
+    const keywordUpdate = finalData[0] ?? null;
     if (!keywordUpdate) {
       return { error: "No keyword data to update" };
     }
@@ -545,22 +545,21 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     });
     const now = new Date();
 
-    // 🟢 Update rankChange and changeDirection only if 7 days passed or previous is null/zero
-    let rankChange = null;
-    let changeDirection: "up" | "down" | null = null;
+    // 🟢 Calculate rankChange/changeDirection (7-day rule)
+    let rankChange = 0;
+    let changeDirection: "up" | "down" | "" = "";
 
     if (prevKeywordTracking) {
-      const oldRank = prevKeywordTracking.rank_group || 0;
-      const newRank = keywordUpdate.rank_group || 0;
+      const oldRank = prevKeywordTracking.rank_group ?? 0;
+      const newRank = keywordUpdate.rank_group ?? 0;
 
       const needRefresh =
         !prevKeywordTracking.rankChange || prevKeywordTracking.rankChange === 0;
 
-      // calculate diff
       const diff = oldRank - newRank;
 
       if (
-        needRefresh || // force refresh if null/0
+        needRefresh ||
         (prevKeywordTracking.lastUpdatedAt &&
           (now.getTime() - prevKeywordTracking.lastUpdatedAt.getTime()) /
             (1000 * 60 * 60 * 24) >=
@@ -577,28 +576,26 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
         }
       }
     } else {
-      // no previous record, force update
-      const newRank = keywordUpdate.rank_group || 0;
+      // No previous record
+      const newRank = keywordUpdate.rank_group ?? 0;
       if (newRank > 0) {
         rankChange = newRank;
         changeDirection = "up";
       }
     }
 
-    if (rankChange && changeDirection) {
-      keywordUpdate.rankChange = rankChange;
-      keywordUpdate.changeDirection = changeDirection;
-      keywordUpdate.lastUpdatedAt = now;
-    } else if (prevKeywordTracking) {
-      keywordUpdate.rankChange = prevKeywordTracking.rankChange;
-      keywordUpdate.changeDirection = prevKeywordTracking.changeDirection;
-    } else {
-      keywordUpdate.rankChange = 0;
-      keywordUpdate.changeDirection = null;
-      keywordUpdate.lastUpdatedAt = now;
-    }
+    keywordUpdate.rankChange = rankChange ?? 0;
+    keywordUpdate.changeDirection = changeDirection || "";
+    keywordUpdate.lastUpdatedAt = now;
 
-    // 💾 Update or insert record
+    // 🛑 Ensure no null values before saving
+    Object.keys(keywordUpdate).forEach((key) => {
+      if (keywordUpdate[key] === null) {
+        keywordUpdate[key] = typeof keywordUpdate[key] === "string" ? "" : 0;
+      }
+    });
+
+    // 💾 Save / Update
     const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
       { keywordId: keywordId },
       {

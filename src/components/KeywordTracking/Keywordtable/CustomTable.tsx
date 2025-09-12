@@ -45,7 +45,7 @@ interface TablebodyItems {
   Group_Rank: string;
   checkUrl: string;
   // oneDay: string;
-  sevenDays: string;
+  sevenDays: number;
   // thirtyDays: string;
   life: string;
   comp: any;
@@ -556,12 +556,12 @@ const CustomTable = ({
                     {data.Group_Rank}
                   </td>
                   <td className="text-center text-[12px] border p-1">
-                    {data.sevenDays}
+                    {data?.sevenDays === 0 && "-"}
 
                     {/* ✅ if improved */}
                     {data.changeDirection === "up" && (
                       <span className="inline-flex items-center ml-1 text-green-500 text-[15px]">
-                        {data.rankChange}
+                         { data.sevenDays}
                         <TiArrowUp className="ml-0.5" />
                       </span>
                     )}
@@ -569,7 +569,7 @@ const CustomTable = ({
                     {/* ✅ if dropped */}
                     {data.changeDirection === "down" && (
                       <span className="inline-flex items-center ml-1 text-red-500 text-[15px]">
-                        {data.rankChange}
+                         {data.sevenDays}
                         <TiArrowDown className="ml-0.5" />
                       </span>
                     )}

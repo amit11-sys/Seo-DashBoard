@@ -517,7 +517,30 @@ const CustomTable = ({
                     {data.location}
                   </td>
                   <td className="text-center text-[12px] border p-3">
-                    {data.intent}
+                    <span
+                      className="px-2 py-1 rounded text-white text-xs cursor-default"
+                      title={data?.intent} // hover shows full string
+                      style={{
+                        backgroundColor: (() => {
+                          if (!data?.intent) return "#999"; // default gray
+                          const firstLetter = data.intent[0].toLowerCase(); // first letter only
+                          switch (firstLetter) {
+                            case "c": // commercial
+                              return "#f97316"; // orange
+                            case "i": // informational
+                              return "#3b82f6"; // blue
+                            case "n": // navigational
+                              return "#10b981"; // green
+                            case "t": // transactional
+                              return "#ef4444"; // red
+                            default:
+                              return "#fff"; // white
+                          }
+                        })(),
+                      }}
+                    >
+                      {data?.intent ? data.intent[0].toUpperCase() : "-"}
+                    </span>
                   </td>
 
                   {/* Editable start column */}
@@ -561,7 +584,7 @@ const CustomTable = ({
                     {/* ✅ if improved */}
                     {data.changeDirection === "up" && (
                       <span className="inline-flex items-center ml-1 text-green-500 text-[15px]">
-                         { data.sevenDays}
+                        {data.sevenDays}
                         <TiArrowUp className="ml-0.5" />
                       </span>
                     )}
@@ -569,7 +592,7 @@ const CustomTable = ({
                     {/* ✅ if dropped */}
                     {data.changeDirection === "down" && (
                       <span className="inline-flex items-center ml-1 text-red-500 text-[15px]">
-                         {data.sevenDays}
+                        {data.sevenDays}
                         <TiArrowDown className="ml-0.5" />
                       </span>
                     )}

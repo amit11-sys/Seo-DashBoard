@@ -258,7 +258,7 @@ export const RefreshSingleKeywordRaw = async (keywordId: string) => {
     const intentData = await getRankIntent([singleKeywordForUpdate]);
 
     console.log(rankdata?.rankResponses, "rankdata add");
-    console.log(intentData?.intentResponses, "intent data add");
+    
 
     // build finalData (unchanged)
     const allRankGroups =
@@ -302,7 +302,7 @@ export const RefreshSingleKeywordRaw = async (keywordId: string) => {
               keyword: newKeyword || "",
               searchVolumn: 0,
               checkUrl: data?.check_url || "no url",
-              intent: "",
+              intent: intentData?.intentData || "",
               competition: 0,
               campaignId: singleKeywordForUpdate?.CampaignId || "",
               keywordId: matchedKeyword?._id,
@@ -524,7 +524,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
               keyword: newKeyword ?? "",
               searchVolumn: 0,
               checkUrl: data?.check_url ?? "no url",
-              intent: "",
+              intent: intentData?.intentData || "",
               competition: 0,
               campaignId: singleKeywordForUpdate?.CampaignId ?? "",
               keywordId: matchedKeyword?._id ?? "",

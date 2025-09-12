@@ -387,7 +387,8 @@ const connection = getRedis();
 const LOGIN = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
 const PASSWORD = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
 const BASE = process.env.DATAFORSEO_BASE ?? "https://api.dataforseo.com/v3/";
-const endpoint = `${BASE}serp/google/organic/live/advanced`;
+const rankEndpoint = `${BASE}serp/google/organic/live/advanced`;
+const intentEndpoint = `${BASE}serp/google/organic/live/advanced`;
 
 // ✅ helper: build last 6 months history
 function getLast6Months(currentRank: number | string = "-") {
@@ -453,9 +454,19 @@ export const keywordWorker = new Worker(
     const progressKey = `campaign:${campaignId}:progress`;
 
     const basicAuth = Buffer.from(`${LOGIN}:${PASSWORD}`).toString("base64");
-    const payload = [
+    const rankPayload = [
       {
         keyword,
+        location_code,
+        language_name: language_code,
+        device,
+        se_domain,
+        target: `*${target}*`,
+      },
+    ];
+    const intentPayload = [
+      {
+        keyword: [keyword],
         location_code,
         language_name: language_code,
         device,
@@ -467,25 +478,44 @@ export const keywordWorker = new Worker(
     try {
       await connectToDB();
 
-      const res = await fetch(endpoint, {
+      const rankResponse = await fetch(rankEndpoint, {
         method: "POST",
         headers: {
           Authorization: `Basic ${basicAuth}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(rankPayload),
+      });
+      const intentRankResponse = await fetch(intentEndpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basicAuth}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(intentPayload),
       });
 
-      if (!res.ok) {
-        const errorBody = await res.text();
-        throw new Error(`❌ DataForSEO failed: ${res.status} - ${errorBody}`);
+      if (!rankResponse.ok) {
+        const errorBody = await rankResponse.text();
+        throw new Error(`❌ DataForSEO failed: ${rankResponse.status} - ${errorBody}`);
       }
 
-      const json: any = await res.json();
+      const json: any = await rankResponse.json();
       const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
       const data = json?.tasks?.[0]?.data;
       const meta = json?.tasks?.[0]?.result?.[0];
+      
+      
+      // intent response 
+  const intentJson: any = await intentRankResponse.json();
+  const intentTask = intentJson?.tasks?.[0];
+  const intentResult = intentTask?.result?.[0];
+  const intentItem = intentResult?.items?.[0];
 
+   const intent = intentItem?.keyword_intent?.label ?? ""
+   
+
+  
       // 🔄 Fetch previous record
       const prevKeywordTracking: any = await KeywordTracking.findOne({
         keywordId,
@@ -546,6 +576,7 @@ export const keywordWorker = new Worker(
             changeDirection,
             lastUpdatedAt,
             pastData,
+            intent,
           },
           $setOnInsert: {
             keywordId,

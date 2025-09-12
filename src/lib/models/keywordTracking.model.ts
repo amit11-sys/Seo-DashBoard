@@ -29,6 +29,7 @@ interface IKeywordTracking extends Document {
   rankChange?: number; // how many positions moved
   changeDirection?: "up" | "down"; // direction of movement
   lastUpdatedAt?: Date;
+  
 }
 
 const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(

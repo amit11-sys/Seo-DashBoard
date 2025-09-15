@@ -29,6 +29,7 @@ interface CampaignIdProps {
 export default function LiveKeyTrakingHeader({
   sortedDataExel,
   campaignStatus,
+  refreshDate,
   setIsLoading,
   campaignId,
   ShareCampaignStatus,
@@ -43,45 +44,17 @@ export default function LiveKeyTrakingHeader({
   setRefresh,
 }: any) {
   const { startLoading, stopLoading } = useLoader();
-  const [refreshData, setRefreshData] = useState("");
+ 
   // const [refreshKey, setRefreshKey] = useState(0);
   //  const { total, processed, done } = useCampaignProgress(campaignId);
   // const campaignStatus = compaigndata[0]?.status || 1
 
-  function formatLastUpdated(createdAt: string) {
-    const date = new Date(createdAt);
-
-    // Format absolute date like: Jun 19, 2025
-    const formattedDate = date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-
-    const diffMs = Date.now() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    let timeAgo = "";
-    if (diffMins < 1) timeAgo = "just now";
-    else if (diffMins < 60) timeAgo = `${diffMins} min ago`;
-    else if (diffHours < 24) timeAgo = `${diffHours} hr ago`;
-    else timeAgo = `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-
-    return `Last Updated: ${timeAgo} (${formattedDate})`;
-  }
   const handleRefreshCampaign = async () => {
     startLoading();
     try {
       const refreshedCampaign = await getRefreshCampaign(campaignId);
       console.log(refreshedCampaign, "refreshedCampaign");
-      // const lastUpdated = refreshedCampaign?.updatedRecords
-      //   ? formatLastUpdated(
-      //       refreshedCampaign.updatedRecords[0]?.updatedAt || ""
-      //     )
-      //   : "";
-
+  
       
          if(refreshedCampaign.error === "Unauthorized please login") {
         window.dispatchEvent(new Event("session-expired"));
@@ -111,63 +84,6 @@ export default function LiveKeyTrakingHeader({
     }
   };
 
-  // useEffect(() => {
-  // const fetchUpdatedDate = async () => {
-
-  //   try {
-  //     const refreshedCampaign:any = await getDbLiveKeywordDataWithSatusCode(campaignId,campaignStatus);
-  //     // console.log(refreshData, "refreshedCampaignok");
-  //     if (refreshedCampaign?.newLiveKeywordDbData) {
-  //       const lastUpdated = refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || '';
-  //       setRefreshData(formatLastUpdated(lastUpdated));
-  //     } else {
-  //       setRefreshData("No updates available");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching campaign data:", error);
-  //     setRefreshData("Failed to fetch update time");
-  //   }
-
-  // }
-
-  // ;
-  // fetchUpdatedDate();
-
-  // }, []);
-
-  useEffect(() => {
-    const fetchUpdatedDate = async () => {
-      try {
-        if (!campaignId || !campaignStatus) return; // guard for missing data
-
-        const refreshedCampaign: any = await getDbLiveKeywordDataWithSatusCode(
-          campaignId,
-          campaignStatus
-        );
-
-        // console.log(
-        //   refreshedCampaign?.newLiveKeywordDbData,
-        //   "refreshedCampaignok"
-        // );
-
-        if (
-          refreshedCampaign?.newLiveKeywordDbData &&
-          refreshedCampaign.newLiveKeywordDbData.length > 0
-        ) {
-          const lastUpdated =
-            refreshedCampaign.newLiveKeywordDbData[0]?.updatedAt || "";
-          setRefreshData(formatLastUpdated(lastUpdated));
-        } else {
-          setRefreshData("No updates available");
-        }
-      } catch (error) {
-        console.error("Error fetching campaign data:", error);
-        setRefreshData("Failed to fetch update time");
-      }
-    };
-
-    fetchUpdatedDate();
-  }, [campaignId, campaignStatus]);
 
   const iconButtons = [
     // {
@@ -221,7 +137,7 @@ export default function LiveKeyTrakingHeader({
               ? "Archived Keywords"
               : "Live Keyword Tracking"}
           </h2>
-          <p className="text-sm text-black">{refreshData}</p>
+          <p className="text-sm text-black">{refreshDate}</p>
         </div>
       </div>
 

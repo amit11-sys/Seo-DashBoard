@@ -7,12 +7,9 @@ const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
 
 export const getlanguage = async () => {
   try {
-    const user = await getUserFromToken();
-    if (!user) {
-      return { error: "Unauthorized" };
-    }
+   
 
-    if (user) {
+    
       const basicAuth = Buffer.from(`${username}:${password}`).toString(
         "base64"
       );
@@ -44,7 +41,7 @@ export const getlanguage = async () => {
             ) ?? []
         ) ?? [];
       return { allLanguages };
-    }
+    
   } catch (error) {
     console.log(error);
 
@@ -199,8 +196,9 @@ export const fetchLocation = async () => {
 export const fetchDBLocation = async (query: string) => {
   try {
     await connectToDB();
-    // const user = await getUserFromToken();
-    // if (!user) return { error: "Unauthorized" };
+    
+    const user = await getUserFromToken();
+    if (!user) return { error: "Unauthorized please login" };
 
     // Case-insensitive search in MongoDB for partial match
     // console.log(query,"fetch quary")

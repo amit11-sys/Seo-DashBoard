@@ -15,7 +15,7 @@ export const getDbLocationData = async () => {
 export const getfetchDBLocation = async (quary:string) => {
   const getLocationData = await fetchDBLocation(quary);
   
-  return getLocationData?.allLocations || [];
+  return getLocationData;
 };
 export const getlanguageData = async () => {
   const getLocationData = await getlanguage();

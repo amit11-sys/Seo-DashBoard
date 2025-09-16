@@ -104,6 +104,33 @@ interface HeaderProps {
   };
 }
 
+ function formatLastUpdated(createdAt: string) {
+    const date = new Date(createdAt);
+
+    // Format absolute date like: Jun 19, 2025
+    const formattedDate = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+
+    const diffMs = Date.now() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    let timeAgo = "";
+    if (diffMins < 1) timeAgo = "just now";
+    else if (diffMins < 60) timeAgo = `${diffMins} min ago`;
+    else if (diffHours < 24) timeAgo = `${diffHours} hr ago`;
+    else timeAgo = `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+
+    return `Last Updated: ${timeAgo} (${formattedDate})`;
+  }
+
+
+
+
 const LiveKeywordComponent = ({
   // campaignLiveKeywordsData,
   campaignId,
@@ -133,7 +160,7 @@ const LiveKeywordComponent = ({
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [locationForfilterlable, setLocationForfilterlable] = useState("");
-
+  const [refreshDate, setRefreshDate] = useState("");
   //  const [campaignStatus, setCampaignStatus] = useState<number>(campaignStatus
   const [loading, setLoading] = useState(true);
 
@@ -165,10 +192,15 @@ const LiveKeywordComponent = ({
         const campaignDataWithId = await getGetCampaignByid(campaignId);
         const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
         setCampaignStatus(campaignStatus);
-        const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
+        const liveKeywordData = await getDbLiveKeywordDataWithSatusCode(
           campaignId,
           campaignStatus
         );
+
+         if(liveKeywordData.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return
+      }
 
         setCampaignLiveKeywordsData(liveKeywordData);
       } catch (error) {
@@ -189,6 +221,12 @@ const LiveKeywordComponent = ({
         campaignStatus,
         location
       );
+     
+            if (liveKeywordData?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+         
       const topRankData:any = liveKeywordData?.topRankData?.data ?? [];
       const rawData = liveKeywordData?.newLiveKeywordDbData;
 
@@ -227,7 +265,7 @@ const LiveKeywordComponent = ({
       // console.log(topRankData, "topRankDataok");
 
       if (topRankData.length > 0) {
-     setCardData({
+        const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -243,7 +281,8 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
       } else {
         console.warn("No ranking data available for location:", location);
       }
@@ -308,8 +347,7 @@ const LiveKeywordComponent = ({
       if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
         const topRankData = campaignLiveKeywordsData?.topRankData;
         if (topRankData) {
-
-      setCardData({
+     const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -325,7 +363,8 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
         };
       }
     };
@@ -410,7 +449,7 @@ const LiveKeywordComponent = ({
           await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
         // console.log(campaignLiveKeywordsData, "getDbLiveKeywordDataWithSatusCode");
         // const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
-
+          setRefreshDate(formatLastUpdated(campaignLiveKeywordsData?.newLiveKeywordDbData?.[0].updatedAt))
         if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
           const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
           const topRankData:any = campaignLiveKeywordsData?.topRankData?.data;
@@ -441,24 +480,7 @@ const LiveKeywordComponent = ({
           setFilterCampaignLiveKeywordsData(data);
           if (topRankData) {
             
-           
-       setCardData({
-  title: "keywords",
-  data: topRankData?.data?.map((item: any) => ({
-    title: item.title,
-    // 🔑 Ensure data is always a primitive
-    data:
-      item?.data === null || item?.data === undefined
-        ? 0
-        : typeof item.data === "object"
-        ? JSON.stringify(item.data)
-        : item.data,
-    id: item.id,
-    totalKeywords: topRankData?.totalKeywords || 0,
-  })) ?? [],
-  type: "card",
-  totalKeywords: topRankData?.totalKeywords || 0,
-});
+         CardSetOnChanges();
           
           };
         }
@@ -510,7 +532,7 @@ const LiveKeywordComponent = ({
       setTableBody(data);
       setFilterCampaignLiveKeywordsData(data);
       if (topRankData) {
- setCardData({
+        const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -526,7 +548,9 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
+
       }
     }
   };
@@ -552,7 +576,8 @@ const LiveKeywordComponent = ({
 
   if (campaignLiveKeywordsData?.topRankData) {
     const topRankData = campaignLiveKeywordsData.topRankData;
- setCardData({
+
+    const rawCardData:any = {
   title: "keywords",
   data: topRankData?.data?.map((item: any) => ({
     title: item.title,
@@ -568,7 +593,9 @@ const LiveKeywordComponent = ({
   })) ?? [],
   type: "card",
   totalKeywords: topRankData?.totalKeywords || 0,
-});
+}
+     setCardData(rawCardData);
+
 
   }
 
@@ -637,6 +664,7 @@ const LiveKeywordComponent = ({
         <LiveKeyTrakingHeader
           sortedDataExel={sortedDataExel}
           setIsLoading={setIsLoading}
+          refreshDate={refreshDate}
           campaignStatus={campaignStatus}
           ShareCampaignStatus={ShareCampaignStatus}
           tableHeader={tableHeader}

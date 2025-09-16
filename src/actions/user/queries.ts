@@ -65,8 +65,8 @@ function generateAccessToken(user: any) {
     email: user.email,
   };
 
-  const secret: Secret = "swayam"; // Type explicitly
-  const options: SignOptions = { expiresIn: "10h" }; // Type explicitly
+  const secret: Secret = `${process.env.ACCESS_TOKEN_SECRET}`; // Type explicitly
+  const options: SignOptions = { expiresIn: "2h" }; // Type explicitly
 
   return jwt.sign(payload, secret, options);
 }
@@ -77,7 +77,7 @@ function generateRefreshToken(user: any) {
     email: user.email,
   };
 
-  const secret = "your-refresh-token-secret";
+  const secret =  `${process.env.REFRESH_TOKEN_SECRET}`;
   const options = { expiresIn: 7 };
 
   return jwt.sign(payload, secret, options);

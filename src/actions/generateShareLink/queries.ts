@@ -1,28 +1,48 @@
 "use server";
 
+import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import ShareLink from "@/lib/models/ShareLink.model";
 import { generateShareToken } from "@/lib/utils/token";
 
 
-export async function GenerateShareLink(userId: string, path: string,campignId:string) {
-  await connectToDB();
 
-  const token = generateShareToken(campignId);
+export async function GenerateShareLink(
+  userId: string,
+  path: string,
+  campaignId: string
+) {
+  try {
+    await connectToDB();
 
+    // Check authentication
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
 
-  
-  await ShareLink.create({
-   token,
-    userId,
-    createdAt: new Date(),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-  });
+    // Generate unique token
+    const token = generateShareToken(campaignId);
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ;
-  const shareUrl = `${baseUrl}${path}${token}`;
+    // Save to DB
+    await ShareLink.create({
+      token,
+      userId,
+      campaignId,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    });
 
-  return shareUrl;
+    // Build shareable URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const normalizedPath = path.endsWith("/") ? path : `${path}/`; // ensure slash
+    const shareUrl = `${baseUrl}${normalizedPath}${token}`;
+
+    return { url: shareUrl, token };
+  } catch (error) {
+    console.error("Error generating share link:", error);
+    return { error: "Failed to generate share link" };
+  }
 }
 
 

@@ -68,6 +68,11 @@ const DashboardClient = () => {
         const campaignStatus1 = await getUserCampaign();
         const campaignCountData = await getCompaignCount();
 
+
+             if(archived.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return
+      }
         setArchivedComapignCount(
           archived?.KeywordTrackingDataArchied?.length ?? 0
         );
@@ -341,7 +346,10 @@ const DashboardClient = () => {
           const keywords = await getDbTopLiveKeywordData();
           const campaignStatus1 = await getUserCampaign();
           const campaignCountData = await getCompaignCount();
-
+                  if(archived.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return
+      }
           setArchivedComapignCount(
             archived?.KeywordTrackingDataArchied?.length ?? 0
           );

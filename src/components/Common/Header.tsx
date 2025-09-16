@@ -65,7 +65,11 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
     try {
       const addedCampaignData = await CreateArchivedCampaign(campaignId,status,topRankData);
 
-      console.log(addedCampaignData, "addedCampaignDataIndata");
+      // console.log(addedCampaignData, "addedCampaignDataIndata");
+           if(addedCampaignData.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return
+      }
 
       // const {setCampaignId} = useCampaignData()
 

@@ -16,7 +16,7 @@ export default async function DashboardDetails({
   const campaignStatus = campignDataWithId?.campaign?.status;
   
   const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
-  console.log(campaignStatus, "campaignStatus");
+  // console.log(campaignStatus, "campaignStatus");
 
   const archivedCampaignData = await getArchivedCampaign();
 
@@ -48,7 +48,7 @@ export default async function DashboardDetails({
 
           <LiveKeywordComponent
           campaignStatus={campaignStatus}
-            campaignLiveKeywordsData={campaignLiveKeywordsData}
+            // campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}
           />
         </main>

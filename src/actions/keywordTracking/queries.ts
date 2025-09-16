@@ -230,10 +230,10 @@ export const DbLiveKeywordDataWithSatusCode = async (
   try {
     await connectToDB();
 
-    // const user = await getUserFromToken();
-    // if (!user) {
-    //   return { error: "Unauthorized" };
-    // }
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
     // console.log(user);
     // console.log(newCompaignId,"newkeywordCampaign")
     console.log(location, "loationServer");
@@ -646,6 +646,10 @@ export const topKewordsData = async (campaignId: string) => {
 export const DbTopLiveKeywordData = async () => {
   try {
     await connectToDB();
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
 
     const TopLiveKeywordDbData = await KeywordTracking.find({ status: 1 });
 

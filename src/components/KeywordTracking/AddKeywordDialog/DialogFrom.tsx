@@ -33,6 +33,8 @@ import {
 import { useLoader } from "@/hooks/useLoader";
 import { getfetchDBlocationData } from "@/actions/keywordTracking";
 import { GetCampaignByid } from "@/actions/campaign/queries";
+import { useLanguages } from "@/app/context/LanguageContext";
+import { googleDomains } from "@/lib/Constant";
 // import { getDbLiveKeywordData } from "@/actions/keywordTracking";
 
 // const schema = z.object({
@@ -71,7 +73,8 @@ const DialogForm = ({
       keywords: [],
     },
   });
-
+      const { languages, loading } = useLanguages();
+  // if (loading) return <p>Loading languages...</p>;
   const [tagsInput, setTagsInput] = useState("");
   const [Keywords, setKeywords] = useState<string[]>([]);
   const [KeywordsText, setKeywordsText] = useState<any>("");
@@ -84,8 +87,9 @@ const DialogForm = ({
   const [VolumeLocation, setVolumeLocation] = useState<any>([]);
   const [isPending, startTransition] = useTransition();
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
-  const [languages, setLanguages] = useState<string[]>([]);
+  // const [languages, setLanguages] = useState<string[]>([]);
   const [defaultUrl, setDefaulturl] = useState<string>("");
+  
 useEffect(() => {
   form.setValue("searchLocationCode", 0);
 }, []);
@@ -157,19 +161,19 @@ const debouncedFetch = useMemo(
     };
   }, [volumnQuery, debouncedFetchvolumn]);
 
-  useEffect(() => {
-    const fetchlanguage = async () => {
-      try {
-        const data = await getlanguageData();
+  // useEffect(() => {
+  //   const fetchlanguage = async () => {
+  //     try {
+  //       const data = await getlanguageData();
 
-        const langdata = data?.allLanguages;
-        setLanguages(langdata ?? []);
-      } catch (error) {
-        console.log(error, "language error");
-      }
-    };
-    fetchlanguage();
-  }, []);
+  //       const langdata = data?.allLanguages;
+  //       setLanguages(langdata ?? []);
+  //     } catch (error) {
+  //       console.log(error, "language error");
+  //     }
+  //   };
+  //   fetchlanguage();
+  // }, []);
   useEffect(() => {
     
     setDefaultUrl();
@@ -272,99 +276,7 @@ console.log(form.getValues(),"all value");
     setKeywords(keywords);
   };
 
-  const googleDomains: string[] = [
-    "google.com",
-    "google.com.au",
-    "google.co.uk",
-    "google.ca",
-    "google.co.in",
-    "google.de",
-    "google.fr",
-    "google.it",
-    "google.es",
-    "google.com.br",
-    "google.com.mx",
-    "google.co.jp",
-    "google.com.hk",
-    "google.cn",
-    "google.ru",
-    "google.com.tr",
-    "google.com.sa",
-    "google.co.za",
-    "google.nl",
-    "google.be",
-    "google.se",
-    "google.no",
-    "google.dk",
-    "google.fi",
-    "google.ch",
-    "google.at",
-    "google.pl",
-    "google.cz",
-    "google.hu",
-    "google.gr",
-    "google.pt",
-    "google.ie",
-    "google.co.kr",
-    "google.com.sg",
-    "google.co.id",
-    "google.com.my",
-    "google.co.th",
-    "google.com.vn",
-    "google.com.ph",
-    "google.ae",
-    "google.com.eg",
-    "google.com.ar",
-    "google.cl",
-    "google.com.co",
-    "google.com.pe",
-    "google.com.uy",
-    "google.com.ve",
-    "google.com.ng",
-    "google.com.gh",
-    "google.com.pk",
-    "google.com.bd",
-    "google.lk",
-    "google.com.np",
-    "google.co.il",
-    "google.com.qa",
-    "google.com.kw",
-    "google.com.om",
-    "google.kz",
-    "google.com.tw",
-    "google.com.ua",
-    "google.co.nz",
-    "google.com.lb",
-    "google.com.mt",
-    "google.is",
-    "google.li",
-    "google.ee",
-    "google.lv",
-    "google.lt",
-    "google.hr",
-    "google.rs",
-    "google.ba",
-    "google.mk",
-    "google.al",
-    "google.ge",
-    "google.am",
-    "google.com.cy",
-    "google.md",
-    "google.by",
-    "google.mn",
-    "google.com.kh",
-    "google.la",
-    "google.com.mm",
-    "google.com.bn",
-    "google.com.fj",
-    "google.vu",
-    "google.fm",
-    "google.ws",
-    "google.to",
-    "google.as",
-    "google.co.ck",
-    "google.com.sb",
-  ];
+  
 
   return (
     <Dialog

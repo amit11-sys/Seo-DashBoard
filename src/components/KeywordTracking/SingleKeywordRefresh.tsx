@@ -21,6 +21,7 @@ import {
 import { getRefreshSingleKeyword } from "@/actions/campaignRefresh";
 import { IoRefreshCircle } from "react-icons/io5";
 import { getGetCampaignByid } from "@/actions/campaign";
+import {useLoader} from "../../hooks/useLoader"
 
 interface TablebodyItems {
   keyword: string;
@@ -48,16 +49,19 @@ interface DeleteConfirmProps {
   keywordId: string;
   setTableBody?: any;
   CardSetOnChanges?: any;
+  getKeywordData: () => void;
 }
 
 const SingleKeywordRefresh = ({
   keywordId,
   campaignId,
-  CardSetOnChanges,
+  // CardSetOnChanges,
   keyword,
   setTableBody,
+  getKeywordData,
 }: DeleteConfirmProps) => {
   const [open, setOpen] = useState(false);
+  const {stopLoading,startLoading} = useLoader()
   //  const handleSingleRefreshKeyword = async (keywordId: string) => {
   // //   setIsLoading(true)
   //   try {
@@ -85,62 +89,67 @@ const SingleKeywordRefresh = ({
   //   }
   // };
   const handleSingleRefreshKeyword = async (keywordId: string) => {
+    startLoading()
     try {
       const res = await getRefreshSingleKeyword(keywordId);
       if (res.success) {
-        const campaignDataWithId = await getGetCampaignByid(campaignId);
-        const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
+        // const campaignDataWithId = await getGetCampaignByid(campaignId);
+        // const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
 
-        const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
-          campaignId,
-          campaignStatus
-        );
+        // const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
+        //   campaignId,
+        //   campaignStatus
+        // );
 
-        const topRankData = liveKeywordData?.topRankData?.data ?? [];
+        // const topRankData = liveKeywordData?.topRankData?.data ?? [];
 
-        let data: any = [];
-        if (liveKeywordData?.newLiveKeywordDbData) {
-          data = liveKeywordData?.newLiveKeywordDbData.map((item: any) => ({
-            // select: false,
-            type: item?.type || "",
-            keywordId: item?.keywordId || "",
-            keyword: item?.keyword || "",
-            location: item?.location_name?.locationName?.locationName || "",
-            intent: item?.intent || "",
-            start: item?.start || 0,
-            page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
-            Absolute_Rank: String(item?.rank_absolute) || 0,
-            Group_Rank: item?.rank_group || 0,
-            // oneDay: "1",
-            sevenDays: "-",
-            // thirtyDays: "-",
-            life: item?.rank_group || 0,
-            comp: item?.competition || 0,
-            sv: item?.searchVolumn || 0,
-            date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "2-digit",
-            }),
-            rankingUrl: item.url || "",
-            // rankingUrl: new URL(item.url) || "/",
-          }));
-        }
-        console.log(data, "data after delete");
-        if (setTableBody) {
-          setTableBody(data);
-        }
-        if (topRankData) {
-          CardSetOnChanges(topRankData);
-        }
+        // let data: any = [];
+        // if (liveKeywordData?.newLiveKeywordDbData) {
+        //   data = liveKeywordData?.newLiveKeywordDbData.map((item: any) => ({
+        //     // select: false,
+        //     type: item?.type || "",
+        //     keywordId: item?.keywordId || "",
+        //     keyword: item?.keyword || "",
+        //     location: item?.location_name?.locationName?.locationName || "",
+        //     intent: item?.intent || "",
+        //     start: item?.start || 0,
+        //     page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
+        //     Absolute_Rank: String(item?.rank_absolute) || 0,
+        //     Group_Rank: item?.rank_group || 0,
+        //     // oneDay: "1",
+        //     sevenDays: "-",
+        //     // thirtyDays: "-",
+        //     life: item?.rank_group || 0,
+        //     comp: item?.competition || 0,
+        //     sv: item?.searchVolumn || 0,
+        //     date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
+        //       day: "2-digit",
+        //       month: "short",
+        //       year: "2-digit",
+        //     }),
+        //     rankingUrl: item.url || "",
+        //     // rankingUrl: new URL(item.url) || "/",
+        //   }));
+        // }
+        // console.log(data, "data after delete");
+        // if (setTableBody) {
+        //   setTableBody(data);
+        // }
+        // if (topRankData) {
+        //   CardSetOnChanges(topRankData);
+        // }
+        await getKeywordData();
+       
         toast.success("Keyword Updated successfully");
         setOpen(false);
       } else {
-        toast.error(res.error || "Failed to delete keyword");
+        toast.error(res.error || "Failed to refresh keyword");
       }
     } catch (err) {
-      toast.error("An error occurred during deletion");
+      toast.error("An error occurred during refresh");
       console.error(err);
+    } finally {
+       stopLoading()
     }
   };
 

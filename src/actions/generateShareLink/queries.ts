@@ -8,7 +8,7 @@ import { generateShareToken } from "@/lib/utils/token";
 
 
 export async function GenerateShareLink(
-  userId: string,
+  // userId: string,
   path: string,
   campaignId: string
 ) {
@@ -23,6 +23,7 @@ export async function GenerateShareLink(
 
     // Generate unique token
     const token = generateShareToken(campaignId);
+    const userId = user?.id
 
     // Save to DB
     await ShareLink.create({
@@ -38,7 +39,7 @@ export async function GenerateShareLink(
     const normalizedPath = path.endsWith("/") ? path : `${path}/`; // ensure slash
     const shareUrl = `${baseUrl}${normalizedPath}${token}`;
 
-    return { url: shareUrl, token };
+    return shareUrl;
   } catch (error) {
     console.error("Error generating share link:", error);
     return { error: "Failed to generate share link" };

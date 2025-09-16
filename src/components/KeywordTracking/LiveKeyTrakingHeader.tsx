@@ -33,9 +33,9 @@ export default function LiveKeyTrakingHeader({
   setIsLoading,
   campaignId,
   ShareCampaignStatus,
-  showAddedKeyword,
-  compaigndata,
-  updatedTopRankOnAddedKeyword,
+  // showAddedKeyword,
+  // compaigndata,
+  // updatedTopRankOnAddedKeyword,
   tableHeader,
   tableData,
   total,
@@ -105,11 +105,11 @@ export default function LiveKeyTrakingHeader({
    const handleshareLink = async () => {
 
     try {
-      const campaigndata = await getGetCampaignByid(campaignId);
-      const userId = campaigndata?.campaign?.userId ;
+      // const campaigndata = await getGetCampaignByid(campaignId);
+      // const userId = campaigndata?.campaign?._id ;
       
 
-      const shareLink :any  = await getGenerateShareLink(userId,`/dashboard/detail/`,campaignId);
+      const shareLink :any  = await getGenerateShareLink(`/dashboard/detail/`,campaignId);
 
       
     if (shareLink?.error === "Unauthorized please login") {

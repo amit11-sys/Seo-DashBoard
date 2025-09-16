@@ -884,49 +884,50 @@ export const getKewordRank = async (KeywordData: any) => {
     // console.log(addKeyword, "campgin kewywords");
 
     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    const payload = [
+      {
+        keyword: KeywordData.keywords,
+        location_code: Number(KeywordData.searchLocationCode),
+        language_name: KeywordData.language,
+        target: `*${KeywordData.url}*`,
+        device: KeywordData.deviceType,
+        se_domain: KeywordData.SearchEngine,
+      },
+    ];
+    // const rankPayload: KeywordPayload[] = KeywordData.map(
 
-    const rankPayload: KeywordPayload[] = KeywordData.map(
-      (keywordObj: any) => ({
-        keyword: keywordObj.keywords,
-        location_code: Number(keywordObj.searchLocationCode),
-        language_name: keywordObj.language,
-        target: `*${keywordObj.url}*`,
-        device: keywordObj.deviceType,
-        se_domain: keywordObj.SearchEngine,
-      })
-    );
+    // );
+    console.log(payload, "payload check");
 
-    console.log(rankPayload, "rank payload compaign");
+    // console.log(rankPayload, "rank payload compaign");
 
-    const rankResponses: KeywordResponse[] = [];
+    // const rankResponses: KeywordResponse[] = [];
 
-    for (const item of rankPayload) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${basicAuth}`,
-          },
-          body: JSON.stringify([item]),
-        }
-      );
-
-      if (!res.ok) {
-        const errorBody = await res.text();
-        console.error(
-          `Request failed for ${item.keyword}: ${res.status} - ${errorBody}`
-        );
-        rankResponses.push({ keyword: item.keyword, response: null });
-      } else {
-        const result = await res.json();
-
-        rankResponses.push({ keyword: item.keyword, response: result });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${basicAuth}`,
+        },
+        body: JSON.stringify(payload),
       }
+    );
+    let result;
+    if (!res.ok) {
+      const errorBody = await res.json();
+      // console.error(
+      //   `Request failed for ${item.keyword}: ${res.status} - ${errorBody}`
+      // );
+      // rankResponses.push({ keyword: item.keyword, response: null });
+    } else {
+      result = await res.json();
+
+      // rankResponses.push({ keyword: item.keyword, response: result });
     }
 
-    console.log(rankResponses[0].response.tasks[0].result, "rank response");
+    // console.log(rankResponses[0].response.tasks[0].result, "rank response");
 
     // const res = await getLocation_languageData();
     // const locationData = res?.allLocations;
@@ -1131,7 +1132,7 @@ export const getKewordRank = async (KeywordData: any) => {
     return {
       success: true,
       message: "rank Data Successfully",
-      rankResponses,
+      result,
     };
   } catch (error) {
     console.log(error);
@@ -1191,7 +1192,7 @@ export const deleteKeywordById = async (selectedKeywords: string[]) => {
 export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
   try {
     await connectToDB();
-
+    console.log(updatedData, "update data backend");
     const user = await getUserFromToken();
     if (!user) {
       return { error: "Unauthorized" };
@@ -1203,25 +1204,47 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     // console.log(updatedData,"edit form data ")
 
     // Update keyword document
-    const updatedKeyword = await Keyword.findByIdAndUpdate(
-      { _id: keywordId },
-      { $set: updatedData },
+    // const updatedKeyword = await Keyword.findByIdAndUpdate(
+    //   { _id: keywordId },
+    //   // { $set: updatedData },
+    //   // { new: true }
+    // );
+
+    // console.log(updatedKeyword, "updated keywoerds");
+    // if (!updatedKeyword) {
+    //   return { error: "Keyword not found" };
+    // }
+
+    const rankdata = await getKewordRank(updatedData);
+
+    const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
+     const meta = rankdata?.result?.tasks?.[0]?.result?.[0];
+     console.log(item,"item update")
+     console.log(meta,"meta update")
+    const editedKeyword = await KeywordTracking.findOneAndUpdate(
+      { keywordId },
+      {
+        $set: {
+          rank_group: item?.rank_group ?? 0,
+          rank_absolute: item?.rank_absolute ?? 0,
+          type: updatedData?.serpType,
+          location_code: meta?.location_code,
+            language_code: meta?.language_code,
+          url: item?.url.trim() || "no ranking",
+          keyword: updatedData?.keywords || "",
+         
+          updatedAt: new Date(),
+        },
+      },
       { new: true }
     );
-
-    console.log(updatedKeyword, "updated keywoerds");
-    if (!updatedKeyword) {
-      return { error: "Keyword not found" };
-    }
-    console.log(updatedKeyword, ";updated keywoerds");
-
-    const rankdata = await getKewordRank([updatedKeyword]);
+    console.log(editedKeyword,"edited keyword")
     // const VolumnData = await getVolumnRank([updatedKeyword]);
-    const intentData = await getRankIntent([updatedKeyword]);
+    // const intentData = await getRankIntent([updatedKeyword]);
 
-    console.log(rankdata?.rankResponses, "rankdata");
-    // console.log(VolumnData?.volumnResponses, "volumn data");
-    console.log(intentData?.intentResponses, "intent data");
+    // console.log(rankdata?.rankResponses, "rankdata");
+    // // console.log(VolumnData?.volumnResponses, "volumn data");
+    // console.log(intentData?.intentResponses, "intent data");
 
     // const finalData =
     //   rankdata && "rankResponses" in rankdata
@@ -1342,71 +1365,71 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
     //       })
     //     : [];
 
-    const allRankGroups =
-      rankdata?.rankResponses?.flatMap((rankItem: any) => {
-        const task = rankItem?.response?.tasks?.[0];
-        const data = task?.result?.[0];
-        const rankGroup = data?.items?.[0]?.rank_group;
-        return rankGroup !== undefined ? [rankGroup] : [];
-      }) || [];
+    // const allRankGroups =
+    //   rankdata?.rankResponses?.flatMap((rankItem: any) => {
+    //     const task = rankItem?.response?.tasks?.[0];
+    //     const data = task?.result?.[0];
+    //     const rankGroup = data?.items?.[0]?.rank_group;
+    //     return rankGroup !== undefined ? [rankGroup] : [];
+    //   }) || [];
 
-    const totalTopRanks = {
-      keywordsUp: allRankGroups.filter((r) => r > 0).length,
-      top3: allRankGroups.filter((r) => r > 0 && r <= 3).length,
-      top10: allRankGroups.filter((r) => r > 0 && r <= 10).length,
-      top20: allRankGroups.filter((r) => r > 0 && r <= 20).length,
-      top30: allRankGroups.filter((r) => r > 0 && r <= 30).length,
-      top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
-    };
+    // const totalTopRanks = {
+    //   keywordsUp: allRankGroups.filter((r) => r > 0).length,
+    //   top3: allRankGroups.filter((r) => r > 0 && r <= 3).length,
+    //   top10: allRankGroups.filter((r) => r > 0 && r <= 10).length,
+    //   top20: allRankGroups.filter((r) => r > 0 && r <= 20).length,
+    //   top30: allRankGroups.filter((r) => r > 0 && r <= 30).length,
+    //   top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
+    // };
 
-    const finalData: any =
-      rankdata && "rankResponses" in rankdata
-        ? rankdata?.rankResponses?.map((rankItem: any) => {
-            const task = rankItem?.response?.tasks?.[0];
-            const data = task?.result?.[0];
-            const newKeyword = rankItem?.keyword;
+    // const finalData: any =
+    //   rankdata && "rankResponses" in rankdata
+    //     ? rankdata?.rankResponses?.map((rankItem: any) => {
+    //         const task = rankItem?.response?.tasks?.[0];
+    //         const data = task?.result?.[0];
+    //         const newKeyword = rankItem?.keyword;
 
-            const matchedKeyword = [updatedKeyword].find(
-              (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
-            );
+    //         const matchedKeyword = [updatedKeyword].find(
+    //           (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+    //         );
 
-            const rankGroup = data?.items?.[0]?.rank_group || 0;
+    //         const rankGroup = data?.items?.[0]?.rank_group || 0;
 
-            return {
-              type: task?.data?.se_type,
-              location_code: matchedKeyword?.searchLocationCode || 2124,
-              language_code: data?.language_code || "en",
-              url: data?.items?.[0]?.url?.trim() || "no ranking",
-              rank_group: rankGroup,
-              rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-              keyword: newKeyword || "",
-              checkUrl: data?.check_url || "no url",
-              searchVolumn: 0,
-              intent: "",
-              competition: 0,
-              campaignId: campaignId,
-              keywordId: matchedKeyword?._id,
-              start: rankGroup,
+    //         return {
+    //           type: task?.data?.se_type,
+    //           location_code: matchedKeyword?.searchLocationCode || 2124,
+    //           language_code: data?.language_code || "en",
+    //           url: data?.items?.[0]?.url?.trim() || "no ranking",
+    //           rank_group: rankGroup,
+    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //           keyword: newKeyword || "",
+    //           checkUrl: data?.check_url || "no url",
+    //           searchVolumn: 0,
+    //           intent: "",
+    //           competition: 0,
+    //           campaignId: campaignId,
+    //           keywordId: matchedKeyword?._id,
+    //           start: rankGroup,
 
-              //rank top
-              ...totalTopRanks,
-            };
-          })
-        : [];
+    //           //rank top
+    //           ...totalTopRanks,
+    //         };
+    //       })
+    //     : [];
 
-    const data = finalData?.[0];
-    const addedTracking = await KeywordTracking.findOneAndUpdate(
-      { keywordId: keywordId },
-      { $set: data },
-      { new: true }
-    );
-    console.log(finalData, "final data");
+    // const data = finalData?.[0];
+    // const addedTracking = await KeywordTracking.findOneAndUpdate(
+    //   { keywordId: keywordId },
+    //   { $set: data },
+    //   { new: true }
+    // );
+    // console.log(finalData, "final data");
 
     return {
       success: true,
       message: "Keyword updated ",
-      editedKeyword: [updatedKeyword],
-      tracking: addedTracking,
+      editedKeyword,
+      // tracking: addedTracking,
     };
   } catch (error: any) {
     console.error("Update failed:", error);
@@ -1432,7 +1455,6 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
   //     });
   //   })
   // );
-
 
   //   const addedKeywords = await Promise.all(
   //   (formData?.keyword || []).map(async (kwStr: string) => {
@@ -1486,24 +1508,20 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
 
   // console.log(addedKeywords, "added keywords");
 
+  formData.keyword = Array.from(new Set(formData?.keyword || []));
 
-
-formData.keyword = Array.from(new Set(formData?.keyword || []));
- 
-  
   const existingKeywords = await Keyword.find({
     keywords: { $in: formData.keyword },
     userId: user.id,
     CampaignId: campaign._id,
   }).distinct("keywords");
 
-
- console.log(existingKeywords,"existingKeywords");
+  console.log(existingKeywords, "existingKeywords");
 
   formData.keyword = formData.keyword.filter(
-    (kwStr:any) => !existingKeywords.includes(kwStr)
+    (kwStr: any) => !existingKeywords.includes(kwStr)
   );
- 
+
   const createdKeywords =
     formData.keyword.length > 0
       ? await Keyword.insertMany(
@@ -1515,11 +1533,8 @@ formData.keyword = Array.from(new Set(formData?.keyword || []));
           }))
         )
       : [];
- 
- 
-      console.log(createdKeywords, "created keywords");
 
-
+  console.log(createdKeywords, "created keywords");
 
   // Filter out nulls (duplicates)
   // const filteredKeywords = addedKeywords.filter((kw) => kw !== null);

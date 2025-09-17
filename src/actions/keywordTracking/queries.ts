@@ -426,6 +426,109 @@ export const DbLiveKeywordDataWithSatusCode = async (
     return { error: "Internal Server Error." };
   }
 };
+export const getKeywordLiveData = async (
+  newCompaignId: string,
+  campaignStatus: number,
+  location?: string
+) => {
+  console.log('in fn');
+  
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized. Please login." };
+    }
+
+    let LiveKeywordDbData: any[] = [];
+
+    if (location && location !== "all") {
+      const { allLocations = [] } = await fetchDBLocation(location);
+      const locationCode = allLocations[0]?.locationCode;
+      console.log(locationCode, "locationCode");
+      
+      LiveKeywordDbData = await KeywordTracking.find({
+        location_code: locationCode,
+        campaignId: newCompaignId,
+        status: campaignStatus,
+      }).populate("campaignId");
+    } else {
+      LiveKeywordDbData = await KeywordTracking.find({
+        campaignId: newCompaignId,
+        status: campaignStatus,
+      }).populate("campaignId");
+    }
+
+    if (!LiveKeywordDbData || LiveKeywordDbData.length === 0) {
+      return { error: "No keyword data found." };
+    }
+
+    const thresholds = [
+      { key: "top3", limit: 3, title: "In Top 3", id: 2 },
+      { key: "top10", limit: 10, title: "In Top 10", id: 3 },
+      { key: "top20", limit: 20, title: "In Top 20", id: 4 },
+      { key: "top30", limit: 30, title: "In Top 30", id: 5 },
+      { key: "top100", limit: 100, title: "In Top 100", id: 6 },
+    ];
+
+
+    const cardCounts: Record<string, number> = Object.fromEntries(
+      thresholds.map((t) => [t.key, 0])
+    );
+
+
+    for (const doc of LiveKeywordDbData) {
+      const { rank_group: rank } = doc.toObject();
+      if (!rank || rank <= 0) continue;
+
+      for (const { key, limit } of thresholds) {
+        if (rank <= limit) cardCounts[key]++;
+      }
+    }
+
+
+    const topRankData = {
+      title: "Keywords",
+      data: [
+        { title: "Keywords Up", data: cardCounts.top100, id: 1 },
+        ...thresholds.map(({ key, title, id }) => ({
+          title,
+          data: cardCounts[key],
+          id,
+        })),
+      ],
+      totalKeywords: LiveKeywordDbData.length,
+      type: "card",
+    };
+
+   const newLiveKeywordDbData = await Promise.all(
+      LiveKeywordDbData.map(async (item) => {
+        const locationName = await fetchDBlocationData(item?.location_code);
+        // console.log(item, "location map");
+
+        const plainItem = item.toObject(); // convert to plain JS object
+
+        return {
+          ...plainItem,
+          location_name: locationName || "",
+        };
+      })
+    );
+    console.log(newLiveKeywordDbData?.length, "newLiveKeywordDbData");
+    
+    return {
+      success: true,
+      message: "LiveKeywordDbData Successfully Found",
+      newLiveKeywordDbData,
+      topRankData,
+    };
+  } catch (error) {
+    console.error("Error in DbLiveKeywordDataWithSatusCode:", error);
+    return { error: "Internal Server Error." };
+  }
+};
+
 export const LiveKeywordDatabyKeyID = async (keywordId: string) => {
   try {
     await connectToDB();
@@ -520,6 +623,20 @@ export const fetchDBlocationData = async (locationcode: number) => {
     return { error: "Internal Server Error." };
   }
 };
+
+// export const fetchKeywordLocation = async (locationCode: string): Promise<string> => {
+//   try {
+//     if (!locationCode) return "";
+
+//     const location = await Location.findOne({ locationCode }).lean();
+
+//     return location?.locationName || "";
+//   } catch (error) {
+//     console.error("Error fetching location data:", error);
+//     return ""; // fallback to empty string on error
+//   }
+// };
+
 export const getStartData = async (keywordId: string, newStartData: number) => {
   try {
     await connectToDB();

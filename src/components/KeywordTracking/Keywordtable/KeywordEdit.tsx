@@ -36,6 +36,9 @@ import {
 } from "@/actions/locations_Language";
 import { useLoader } from "@/hooks/useLoader";
 import { getGetCampaignByid } from "@/actions/campaign";
+import { useLanguages } from "@/app/context/LanguageContext";
+import { googleDomains } from "@/lib/Constant";
+
 // import {editKeywordsSchema} from "@/lib/zod"
 
 // const editKeywordsSchema = z.object({
@@ -70,22 +73,26 @@ interface EditKeywordsProps {
   campaignId: string;
   defaultData?: any; // for editing existing values
   keywordId: string;
-  showAddedKeyword: any;
+  // showAddedKeyword: any;
   setTableBody: any;
   addEditkeywordsData: any;
   CardSetOnChanges?: any;
+  getKeywordData: () => void;
 }
 
 const EditKeywords = ({
   campaignId,
   defaultData,
-  CardSetOnChanges,
+  // CardSetOnChanges,
+  getKeywordData,
   keywordId,
   addEditkeywordsData,
-  showAddedKeyword,
+  // showAddedKeyword,
   setTableBody, // Optional: if you want to update the table body after editing
 }: EditKeywordsProps) => {
   const { startLoading, stopLoading } = useLoader();
+      const { languages, loading } = useLanguages();
+  // if (loading) return <p>Loading languages...</p>;
   const form = useForm<z.infer<typeof editKeywordsSchema>>({
     resolver: zodResolver(editKeywordsSchema),
     defaultValues: {
@@ -100,12 +107,6 @@ const EditKeywords = ({
       deviceType: "",
     },
   });
-  // console.log(defaultData, "defaultttt");
-
-  const searchLoc = form.watch("searchLocationCode");
-
-  const [tagsInput, setTagsInput] = useState("");
-  const [keywords, setKeywords] = useState<string>("");
   const [keywordError, setKeywordError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -114,19 +115,22 @@ const EditKeywords = ({
   const [VolumeLocation, setVolumeLocation] = useState<any>([]);
   const [isPending, startTransition] = useTransition();
   const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
-  const [languages, setLanguages] = useState<string[]>([]);
+  // const [language, setLanguage] = useState<string[]>([]);
   // ✅ Memoize debounced function so it survives re-renders
   const debouncedFetch = useMemo(() => {
     return debounce((q: string) => {
       startTransition(() => {
-        getfetchDBLocation(q).then((response) => {
+        getfetchDBLocation(q)
+          .then((response) => {
             console.log(response, "response");
             if (response?.error === "Unauthorized please login") {
               window.dispatchEvent(new Event("session-expired"));
               return;
             }
             setResults(response?.allLocations);
-          }).catch(console.error);
+            // setVolumeLocation(response?.allLocations);
+          })
+          .catch(console.error);
       });
     }, 300);
   }, []);
@@ -141,7 +145,7 @@ const EditKeywords = ({
     return debounce((q: string) => {
       startTransitionVolumndata(() => {
         getfetchDBLocation(q).then((response) => {
-            
+
             if (response?.error === "Unauthorized please login") {
               window.dispatchEvent(new Event("session-expired"));
               return;
@@ -158,18 +162,6 @@ const EditKeywords = ({
       debouncedFetchvolumn.cancel();
     };
   }, [volumnQuery, debouncedFetchvolumn]);
-  useEffect(() => {
-    const fetchlanguage = async () => {
-      try {
-        const data = await getlanguageData();
-        const langdata = data?.allLanguages;
-        setLanguages(langdata ?? []);
-      } catch (error) {
-        console.log(error, "language error");
-      }
-    };
-    fetchlanguage();
-  }, [open]);
 
   useEffect(() => {
     if (defaultData) {
@@ -194,7 +186,7 @@ const EditKeywords = ({
         setVolumnQuery(defaultData.volumeLocationName);
       }
     }
-  }, [defaultData, form]);
+  }, [defaultData]);
 
   // const editclick = async () => {
 
@@ -221,14 +213,14 @@ const EditKeywords = ({
   // };
 
   const onSubmit = async () => {
-     const isValid = await form.trigger();
-        // form.setValue("keywords", Keywords);
-    console.log(form.getValues(),"all value");
-    
-        if (!isValid){
-          toast.error("Please fill all the fields")
-          return
-        }
+    const isValid = await form.trigger();
+    // form.setValue("keywords", Keywords);
+    console.log(form.getValues(), "all value");
+
+    if (!isValid) {
+      toast.error("Please fill all the fields");
+      return;
+    }
     const keywordInput = form.getValues("keywords");
     console.log("okokoko", form.getValues());
     console.log("keywodsINput", keywordInput);
@@ -253,59 +245,13 @@ const EditKeywords = ({
     startLoading();
     try {
       const Response = await createUpdateKeywordById(payload);
-      const campaignDataWithId = await getGetCampaignByid(campaignId);
-      const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
-
-      const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
-        campaignId,
-        campaignStatus
-      );
-
-               const topRankData = liveKeywordData?.topRankData?.data ?? [];
-
-      console.log(liveKeywordData, "campaignLiveKeywordsData");
-
-      let data: any = [];
-      if (liveKeywordData?.newLiveKeywordDbData) {
-        data = liveKeywordData?.newLiveKeywordDbData.map((item: any) => ({
-          // select: false,
-          type: item?.type || "",
-          keywordId: item?.keywordId || "",
-          keyword: item?.keyword || "",
-          location: item?.location_name?.locationName?.locationName || "",
-          intent: item?.intent || "",
-          start: item?.start || 0,
-          page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
-          Absolute_Rank: String(item?.rank_absolute) || 0,
-          Group_Rank: item?.rank_group || 0,
-          // oneDay: "1",
-          sevenDays: "-",
-          // thirtyDays: "-",
-          life: item?.rank_group || 0,
-          comp: item?.competition || 0,
-          sv: item?.searchVolumn || 0,
-          date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item.url || "",
-          // rankingUrl: new URL(item.url) || "/",
-        }));
-      }
-      console.log(data, "data after delete");
-      if (setTableBody) {
-        setTableBody(data);
-      }
-      if (topRankData) {
-        CardSetOnChanges(topRankData);
-      }
+     await getKeywordData();
       if (!Response) throw new Error("Update failed");
       // console.log(Response.tracking,"tracking");
 
       // await addEditkeywordsData(Response.tracking);
 
-      await showAddedKeyword(Response.tracking);
+      // await showAddedKeyword(Response.tracking);
 
       toast.success("Keywords updated successfully");
       form.reset({
@@ -326,102 +272,18 @@ const EditKeywords = ({
     } catch (error) {
       console.error("Edit Error:", error);
       toast.error("Failed to update keywords");
+    }finally{
+      
+      stopLoading();
     }
   };
 
-  const googleDomains: string[] = [
-    "google.com",
-    "google.com.au",
-    "google.co.uk",
-    "google.ca",
-    "google.co.in",
-    "google.de",
-    "google.fr",
-    "google.it",
-    "google.es",
-    "google.com.br",
-    "google.com.mx",
-    "google.co.jp",
-    "google.com.hk",
-    "google.cn",
-    "google.ru",
-    "google.com.tr",
-    "google.com.sa",
-    "google.co.za",
-    "google.nl",
-    "google.be",
-    "google.se",
-    "google.no",
-    "google.dk",
-    "google.fi",
-    "google.ch",
-    "google.at",
-    "google.pl",
-    "google.cz",
-    "google.hu",
-    "google.gr",
-    "google.pt",
-    "google.ie",
-    "google.co.kr",
-    "google.com.sg",
-    "google.co.id",
-    "google.com.my",
-    "google.co.th",
-    "google.com.vn",
-    "google.com.ph",
-    "google.ae",
-    "google.com.eg",
-    "google.com.ar",
-    "google.cl",
-    "google.com.co",
-    "google.com.pe",
-    "google.com.uy",
-    "google.com.ve",
-    "google.com.ng",
-    "google.com.gh",
-    "google.com.pk",
-    "google.com.bd",
-    "google.lk",
-    "google.com.np",
-    "google.co.il",
-    "google.com.qa",
-    "google.com.kw",
-    "google.com.om",
-    "google.kz",
-    "google.com.tw",
-    "google.com.ua",
-    "google.co.nz",
-    "google.com.lb",
-    "google.com.mt",
-    "google.is",
-    "google.li",
-    "google.ee",
-    "google.lv",
-    "google.lt",
-    "google.hr",
-    "google.rs",
-    "google.ba",
-    "google.mk",
-    "google.al",
-    "google.ge",
-    "google.am",
-    "google.com.cy",
-    "google.md",
-    "google.by",
-    "google.mn",
-    "google.com.kh",
-    "google.la",
-    "google.com.mm",
-    "google.com.bn",
-    "google.com.fj",
-    "google.vu",
-    "google.fm",
-    "google.ws",
-    "google.to",
-    "google.as",
-    "google.co.ck",
-    "google.com.sb",
-  ];
+ 
+  // useEffect(() => {
+  //   if (keywordId) {
+  //     onEdithandler(keywordId);
+  //   }
+  // }, [keywordId]);
   const onEdithandler = async (keywordId: string) => {
     const defaultData = await getEditDataFetchDb(keywordId);
     console.log(defaultData, "data default");
@@ -442,9 +304,9 @@ const EditKeywords = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button
-          onClick={() => {
-            onEdithandler(keywordId);
-          }}
+        onClick={() => {
+          onEdithandler(keywordId);
+        }}
         >
           <HiOutlineKey className="text-xl text-blue-600 cursor-pointer" />
         </button>
@@ -582,7 +444,8 @@ const EditKeywords = ({
                   )}
                 />
                 <div className="w-full text-sm text-red-500">
-                  {form.formState.errors.volumeLocationCode?.message && "required" }
+                  {form.formState.errors.volumeLocationCode?.message &&
+                    "required"}
                 </div>
 
                 {VolumeLocation.length > 0 && (
@@ -594,7 +457,10 @@ const EditKeywords = ({
                       <li
                         key={loc._id}
                         onClick={() => {
-                          form.setValue("volumeLocationCode", loc.locationCode  || 0);
+                          form.setValue(
+                            "volumeLocationCode",
+                            loc.locationCode || 0
+                          );
                           setVolumnQuery(loc.locationName);
                           setVolumeLocation([]);
                         }}

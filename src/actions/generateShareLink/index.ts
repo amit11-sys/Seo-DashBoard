@@ -1,7 +1,7 @@
 import { GenerateShareLink, validateShareToken } from "./queries"
 
-export const getGenerateShareLink=async (userId: string,path: string,campignId:string)=>{
-  const SharedLink= await GenerateShareLink(userId,path,campignId)
+export const getGenerateShareLink=async (path: string,campignId:string)=>{
+  const SharedLink= await GenerateShareLink(path,campignId)
  
   return SharedLink
 }

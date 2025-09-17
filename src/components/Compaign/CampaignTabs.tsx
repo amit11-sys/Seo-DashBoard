@@ -37,10 +37,12 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import KeywordTextArea from "../KeywordTextArea";
 import debounce from "lodash.debounce";
+import { googleDomains } from "@/lib/Constant";
 import {
   getfetchDBLocation,
   getlanguageData,
 } from "@/actions/locations_Language";
+import { useLanguages } from "@/app/context/LanguageContext";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
 interface LocationAndLanguageType {
@@ -70,7 +72,8 @@ export function CampaignTabs() {
     },
   });
   const { startLoading, stopLoading } = useLoader();
-  const [languages, setLanguages] = useState<string[]>([]);
+  const { languages, loading } = useLanguages();
+    // if (loading) return <p>Loading languages...</p>;
   const [query, setQuery] = useState("");
   const [volumnQuery, setVolumnQuery] = useState("");
   const [results, setResults] = useState<any>([]);
@@ -128,26 +131,26 @@ export function CampaignTabs() {
       debouncedFetchvolumn.cancel();
     };
   }, [volumnQuery, debouncedFetchvolumn]);
-  useEffect(() => {
-    const fetchlanguage = async () => {
-      try {
-        const data = await getlanguageData();
+  // useEffect(() => {
+  //   const fetchlanguage = async () => {
+  //     try {
+  //       const data = await getlanguageData();
 
-        const langdata = data?.allLanguages;
+  //       const langdata = data?.allLanguages;
 
-        // if(data?.error){
-        //   toast.error(data?.error)
-        //   return
-        // }
-        setLanguages(langdata ?? []);
+  //       // if(data?.error){
+  //       //   toast.error(data?.error)
+  //       //   return
+  //       // }
+  //       setLanguages(langdata ?? []);
 
-      } catch (error) {
-        console.log(error, "language error");
-      }
-    };
-    fetchlanguage();
+  //     } catch (error) {
+  //       console.log(error, "language error");
+  //     }
+  //   };
+  //   fetchlanguage();
    
-  }, []);
+  // }, []);
 
   useEffect(() => {
        const activeCampaign = async  () =>{
@@ -194,7 +197,7 @@ export function CampaignTabs() {
 };
 
 
-  const keywords = Keywords;
+  // const keywords = Keywords;
 
   const onFinalSubmit = async () => {
     const values = form.getValues();
@@ -254,99 +257,7 @@ export function CampaignTabs() {
     setKeywordsText(rawText);
     setKeywords(keywords);
   };
-  const googleDomains: string[] = [
-    "google.com",
-    "google.com.au",
-    "google.co.uk",
-    "google.ca",
-    "google.co.in",
-    "google.de",
-    "google.fr",
-    "google.it",
-    "google.es",
-    "google.com.br",
-    "google.com.mx",
-    "google.co.jp",
-    "google.com.hk",
-    "google.cn",
-    "google.ru",
-    "google.com.tr",
-    "google.com.sa",
-    "google.co.za",
-    "google.nl",
-    "google.be",
-    "google.se",
-    "google.no",
-    "google.dk",
-    "google.fi",
-    "google.ch",
-    "google.at",
-    "google.pl",
-    "google.cz",
-    "google.hu",
-    "google.gr",
-    "google.pt",
-    "google.ie",
-    "google.co.kr",
-    "google.com.sg",
-    "google.co.id",
-    "google.com.my",
-    "google.co.th",
-    "google.com.vn",
-    "google.com.ph",
-    "google.ae",
-    "google.com.eg",
-    "google.com.ar",
-    "google.cl",
-    "google.com.co",
-    "google.com.pe",
-    "google.com.uy",
-    "google.com.ve",
-    "google.com.ng",
-    "google.com.gh",
-    "google.com.pk",
-    "google.com.bd",
-    "google.lk",
-    "google.com.np",
-    "google.co.il",
-    "google.com.qa",
-    "google.com.kw",
-    "google.com.om",
-    "google.kz",
-    "google.com.tw",
-    "google.com.ua",
-    "google.co.nz",
-    "google.com.lb",
-    "google.com.mt",
-    "google.is",
-    "google.li",
-    "google.ee",
-    "google.lv",
-    "google.lt",
-    "google.hr",
-    "google.rs",
-    "google.ba",
-    "google.mk",
-    "google.al",
-    "google.ge",
-    "google.am",
-    "google.com.cy",
-    "google.md",
-    "google.by",
-    "google.mn",
-    "google.com.kh",
-    "google.la",
-    "google.com.mm",
-    "google.com.bn",
-    "google.com.fj",
-    "google.vu",
-    "google.fm",
-    "google.ws",
-    "google.to",
-    "google.as",
-    "google.co.ck",
-    "google.com.sb",
-  ];
+ 
 
   return (
     <Form {...form}>

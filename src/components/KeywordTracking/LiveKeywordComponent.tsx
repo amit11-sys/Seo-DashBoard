@@ -20,6 +20,7 @@ import LiveKeyTrakingHeader from "@/components/KeywordTracking/LiveKeyTrakingHea
 import {
   getDbLiveKeywordData,
   getDbLiveKeywordDataWithSatusCode,
+  keywordLiveData,
 } from "@/actions/keywordTracking";
 import { log, table } from "console";
 import KeywordTextArea from "../KeywordTextArea";
@@ -30,7 +31,7 @@ import { set } from "mongoose";
 import DeleteConfirm from "./Keywordtable/KeywordDel";
 import { useCampaignProgress } from "@/hooks/useCampaignProgress";
 import { getGetCampaignByid } from "@/actions/campaign";
-
+import TopRankCard from "./TopRankCard";
 type Tableitems = {
   key: string;
   label: string;
@@ -103,7 +104,29 @@ interface HeaderProps {
     type: string;
   };
 }
-
+const tableHeader: Tableitems[] = [
+  { key: "select", label: "", icon: null }, // checkbox column
+  { key: "keyword", label: "Keyword" },
+  { key: "location", label: "Location" },
+  { key: "intent", label: "Intent" },
+  { key: "start", label: "Start" },
+  { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
+  {
+    key: "Absolute-Rank",
+    label: "A-Rank",
+    icon: <FcGoogle className="inline mr-1" />,
+  },
+  {
+    key: "Group_Rank",
+    label: "Group_Rank",
+    icon: <FcGoogle className="inline mr-1" />,
+  },
+  { key: "seven_days", label: "7 Days" },
+  { key: "life", label: "Life" },
+  { key: "date", label: "Date" },
+  { key: "ranking_url", label: "Ranking URL" },
+  { key: "edit", label: "Actions" }, // edit/delete/refresh buttons
+];
  function formatLastUpdated(createdAt: string) {
     const date = new Date(createdAt);
 
@@ -147,7 +170,7 @@ const LiveKeywordComponent = ({
   const [tableBody, setTableBody] = useState<any[]>([]);
   // const [cardCounts, setCardCounts] = useState<any>([]);
   const [cardData, setCardData] = useState<any>([]);
- 
+  const [locationFilter, setLocationFilter] = useState<string>("all");
   const [topRankData, setTopRankData] = useState<any[]>([]);
   const [totalKeywords, setTotalKeywords] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -162,134 +185,159 @@ const LiveKeywordComponent = ({
   const [locationForfilterlable, setLocationForfilterlable] = useState("");
   const [refreshDate, setRefreshDate] = useState("");
   //  const [campaignStatus, setCampaignStatus] = useState<number>(campaignStatus
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  // useEffect(() => {
+  //   // Remove skeleton after 30s max
+  //   const timer = setTimeout(() => {
+  //     setLoading(false);
+  //   }, 20000);
 
-  useEffect(() => {
-    // Remove skeleton after 30s max
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 20000);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    // If data arrives before 30s, stop skeleton immediately
-    if (tableBody.length > 0) {
-      setLoading(false);
-    }
-  }, [tableBody]);
+  // useEffect(() => {
+  //   // If data arrives before 30s, stop skeleton immediately
+  //   if (tableBody.length > 0) {
+  //     setLoading(false);
+  //   }
+  // }, [tableBody]);
 
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
   const setExelData = (data: any) => {
     setSortedDataForExel(data);
   };
   useEffect(() => {
-    const fetchLiveKeywordData = async () => {
-      try {
-        if (!campaignId) return;
-
-        const campaignDataWithId = await getGetCampaignByid(campaignId);
-        const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
-        setCampaignStatus(campaignStatus);
-        const liveKeywordData = await getDbLiveKeywordDataWithSatusCode(
-          campaignId,
-          campaignStatus
-        );
-
-         if(liveKeywordData.error === "Unauthorized please login") {
-        window.dispatchEvent(new Event("session-expired"));
-        return
-      }
-
-        setCampaignLiveKeywordsData(liveKeywordData);
-      } catch (error) {
-        console.error("Error fetching live keyword data:", error);
-      }
-    };
-
-    fetchLiveKeywordData();
+    getCampaignStatus();
   }, [campaignId]);
-  // const fetchCardDataFilterLocation = async (location: string) => {
-  const fetchCardDataFilterLocation = async (location: string) => {
-    console.log("yes re render");
-    try {
-      console.log("Fetching card data for location:", location);
-      setLocationForfilterlable(location);
-      const liveKeywordData = await getDbLiveKeywordDataWithSatusCode(
+
+  useEffect(() => {
+    // console.log(locationFilter, "locationFilter");
+    if (campaignStatus && locationFilter && done) {
+      getkeywordData();
+    }
+  }, [campaignStatus, locationFilter, done]);
+
+  
+  const getCampaignStatus = async () => {
+    const campaignDataWithId = await getGetCampaignByid(campaignId);
+    const campaignStatus = campaignDataWithId?.campaign?.status ;
+    setCampaignStatus(campaignStatus);
+  };
+
+  const getkeywordData = async () => {
+     try {
+      if (!campaignId) return;
+      const liveKeywordData = await keywordLiveData(
         campaignId,
         campaignStatus,
-        location
+        locationFilter
       );
-     
-            if (liveKeywordData?.error === "Unauthorized please login") {
-              window.dispatchEvent(new Event("session-expired"));
-              return;
-            }
-         
-      const topRankData:any = liveKeywordData?.topRankData?.data ?? [];
-      const rawData = liveKeywordData?.newLiveKeywordDbData;
+      setRefreshDate(formatLastUpdated(liveKeywordData?.newLiveKeywordDbData?.[0]?.updatedAt));
 
-      const data = rawData?.map((item: any) => {
-        return {
-          keyword: item?.keyword || "",
-          keywordId: item.keywordId,
-          location: item?.location_name?.locationName?.locationName || "",
-          intent: item?.intent || "",
-          start: item?.start || 0,
-          checkUrl: item?.checkUrl || "",
-          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-          Absolute_Rank: item?.rank_absolute || 0,
-          Group_Rank: item?.rank_group || 0,
-          sevenDays: "-",
-          life: item?.rank_absolute || 0,
-          comp: item?.competition || 0,
-          sv: item?.searchVolumn || 0,
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item?.url || "",
-        };
-      });
-
-      if (data) {
-        setTableBody(data);
-          // setFilterCampaignLiveKeywordsData(data);
-
+      if (liveKeywordData.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return;
       }
+      // console.log(liveKeywordData, "liveKeywordData final");
 
-      // console.log(liveKeywordData, "liveKeywordDataOk");
-
-      // console.log(topRankData, "topRankDataok");
-
-      if (topRankData.length > 0) {
-        const rawCardData:any = {
-  title: "keywords",
-  data: topRankData?.data?.map((item: any) => ({
-    title: item.title,
-    // 🔑 Ensure data is always a primitive
-    data:
-      item?.data === null || item?.data === undefined
-        ? 0
-        : typeof item.data === "object"
-        ? JSON.stringify(item.data)
-        : item.data,
-    id: item.id,
-    totalKeywords: topRankData?.totalKeywords || 0,
-  })) ?? [],
-  type: "card",
-  totalKeywords: topRankData?.totalKeywords || 0,
-}
-     setCardData(rawCardData);
-      } else {
-        console.warn("No ranking data available for location:", location);
-      }
+      setCampaignLiveKeywordsData(liveKeywordData);
+      await keywordTableData(liveKeywordData);
     } catch (error) {
-      console.error("Error fetching card data:", error);
+      console.error("Error fetching live keyword data:", error);
     }
   };
+    // useEffect(() => {
+    //   const fetchlanguage = async () => {
+    //     try {
+    //       const data = await getlanguageData();
+    //       const langdata = data?.allLanguages;
+    //       setLanguages(langdata ?? []);
+    //     } catch (error) {
+    //       console.log(error, "language error");
+    //     }
+    //   };
+    //   fetchlanguage();
+    // }, []);
+  // const fetchCardDataFilterLocation = async (location: string) => {
+  //   const fetchCardDataFilterLocation = async (location: string) => {
+  //     console.log("yes re render");
+  //     try {
+  //       console.log("Fetching card data for location:", location);
+  //       setLocationForfilterlable(location);
+  //       const liveKeywordData = await getDbLiveKeywordDataWithSatusCode(
+  //         campaignId,
+  //         campaignStatus,
+  //         location
+  //       );
+
+  //             if (liveKeywordData?.error === "Unauthorized please login") {
+  //               window.dispatchEvent(new Event("session-expired"));
+  //               return;
+  //             }
+
+  //       const topRankData:any = liveKeywordData?.topRankData?.data ?? [];
+  //       const rawData = liveKeywordData?.newLiveKeywordDbData;
+
+  //       const data = rawData?.map((item: any) => {
+  //         return {
+  //           keyword: item?.keyword || "",
+  //           keywordId: item.keywordId,
+  //           location: item?.location_name?.locationName?.locationName || "",
+  //           intent: item?.intent || "",
+  //           start: item?.start || 0,
+  //           checkUrl: item?.checkUrl || "",
+  //           page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+  //           Absolute_Rank: item?.rank_absolute || 0,
+  //           Group_Rank: item?.rank_group || 0,
+  //           sevenDays: "-",
+  //           life: item?.rank_absolute || 0,
+  //           comp: item?.competition || 0,
+  //           sv: item?.searchVolumn || 0,
+  //           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+  //             day: "2-digit",
+  //             month: "short",
+  //             year: "2-digit",
+  //           }),
+  //           rankingUrl: item?.url || "",
+  //         };
+  //       });
+
+  //       if (data) {
+  //         setTableBody(data);
+  //           // setFilterCampaignLiveKeywordsData(data);
+
+  //       }
+
+  //       // console.log(liveKeywordData, "liveKeywordDataOk");
+
+  //       // console.log(topRankData, "topRankDataok");
+
+  //       if (topRankData.length > 0) {
+  //         const rawCardData:any = {
+  //   title: "keywords",
+  //   data: topRankData?.data?.map((item: any) => ({
+  //     title: item.title,
+  //     // 🔑 Ensure data is always a primitive
+  //     data:
+  //       item?.data === null || item?.data === undefined
+  //         ? 0
+  //         : typeof item.data === "object"
+  //         ? JSON.stringify(item.data)
+  //         : item.data,
+  //     id: item.id,
+  //     totalKeywords: topRankData?.totalKeywords || 0,
+  //   })) ?? [],
+  //   type: "card",
+  //   totalKeywords: topRankData?.totalKeywords || 0,
+  // }
+  //      setCardData(rawCardData);
+  //       } else {
+  //         console.warn("No ranking data available for location:", location);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching card data:", error);
+  //     }
+  //   };
 
   // useEffect(() => {
   //   const fetchDBLiveDatagain = async () => {
@@ -336,46 +384,47 @@ const LiveKeywordComponent = ({
   //   };
   //   fetchDBLiveDatagain();
   // }, [tableBody]);
-  useEffect(() => {
-    const fetchDBLiveDatagain = async () => {
-      const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
-        campaignId,
-        campaignStatus,
-        locationForfilterlable
-      );
 
-      if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
-        const topRankData = campaignLiveKeywordsData?.topRankData;
-        if (topRankData) {
-     const rawCardData:any = {
-  title: "keywords",
-  data: topRankData?.data?.map((item: any) => ({
-    title: item.title,
-    // 🔑 Ensure data is always a primitive
-    data:
-      item?.data === null || item?.data === undefined
-        ? 0
-        : typeof item.data === "object"
-        ? JSON.stringify(item.data)
-        : item.data,
-    id: item.id,
-    totalKeywords: topRankData?.totalKeywords || 0,
-  })) ?? [],
-  type: "card",
-  totalKeywords: topRankData?.totalKeywords || 0,
-}
-     setCardData(rawCardData);
-        };
-      }
-    };
-    fetchDBLiveDatagain();
-  }, [campaignId, campaignStatus, locationForfilterlable]); // ✅ only when inputs change
+  //   useEffect(() => {
+  //     const fetchDBLiveDatagain = async () => {
+  //       const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
+  //         campaignId,
+  //         campaignStatus,
+  //         locationForfilterlable
+  //       );
 
-  const compaigndata = campaignLiveKeywordsData?.newLiveKeywordDbData?.map(
-    (item: any) => {
-      return item.campaignId;
-    }
-  );
+  //       if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+  //         const topRankData = campaignLiveKeywordsData?.topRankData;
+  //         if (topRankData) {
+  //      const rawCardData:any = {
+  //   title: "keywords",
+  //   data: topRankData?.data?.map((item: any) => ({
+  //     title: item.title,
+  //     // 🔑 Ensure data is always a primitive
+  //     data:
+  //       item?.data === null || item?.data === undefined
+  //         ? 0
+  //         : typeof item.data === "object"
+  //         ? JSON.stringify(item.data)
+  //         : item.data,
+  //     id: item.id,
+  //     totalKeywords: topRankData?.totalKeywords || 0,
+  //   })) ?? [],
+  //   type: "card",
+  //   totalKeywords: topRankData?.totalKeywords || 0,
+  // }
+  //      setCardData(rawCardData);
+  //         };
+  //       }
+  //     };
+  //     fetchDBLiveDatagain();
+  //   }, [campaignId, campaignStatus, locationForfilterlable]); // ✅ only when inputs change
+
+  // const compaigndata = campaignLiveKeywordsData?.newLiveKeywordDbData?.map(
+  //   (item: any) => {
+  //     return item.campaignId;
+  //   }
+  // );
   // console.log(compaigndata, "compaign data new");
 
   // const tableHeader: Tableitems[] = [
@@ -406,89 +455,66 @@ const LiveKeywordComponent = ({
   //   { key: "ranking_url", label: "Ranking URL" },
   //   { key: "edit", label: "Edit keyword" },
   // ];
-  const tableHeader: Tableitems[] = [
-    { key: "select", label: "", icon: null }, // checkbox column
-    { key: "keyword", label: "Keyword" },
-    { key: "location", label: "Location" },
-    { key: "intent", label: "Intent" },
-    { key: "start", label: "Start" },
-    { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
-    {
-      key: "Absolute-Rank",
-      label: "A-Rank",
-      icon: <FcGoogle className="inline mr-1" />,
-    },
-    {
-      key: "Group_Rank",
-      label: "Group_Rank",
-      icon: <FcGoogle className="inline mr-1" />,
-    },
-    { key: "seven_days", label: "7 Days" },
-    { key: "life", label: "Life" },
-    { key: "date", label: "Date" },
-    { key: "ranking_url", label: "Ranking URL" },
-    { key: "edit", label: "Actions" }, // edit/delete/refresh buttons
-  ];
 
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
 
   // let tableBody: TablebodyItems[] = [];
-  useEffect(() => {
-    console.log("use effect on delte");
-    if (campaignLiveKeywordsData) {
-      keywordTableData();
-    }
-  }, [campaignLiveKeywordsData]);
+  // useEffect(() => {
+  //   console.log("use effect on delte");
+  //   if (campaignLiveKeywordsData) {
+  //     // keywordTableData();
+  //   }
+  // }, [campaignLiveKeywordsData]);
 
-  useEffect(() => {
-    if (done) {
-      (async () => {
-        // console.log("✅ Done detected, fetching latest keyword data...");
+  // useEffect(() => {
+  //   if (done) {
+  //     (async () => {
+  //       // console.log("✅ Done detected, fetching latest keyword data...");
 
-        const campaignLiveKeywordsData =
-          await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
-        // console.log(campaignLiveKeywordsData, "getDbLiveKeywordDataWithSatusCode");
-        // const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
-          setRefreshDate(formatLastUpdated(campaignLiveKeywordsData?.newLiveKeywordDbData?.[0].updatedAt))
-        if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
-          const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
-          const topRankData:any = campaignLiveKeywordsData?.topRankData?.data;
+  //       const campaignLiveKeywordsData =
+  //         await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
+  //       // console.log(campaignLiveKeywordsData, "getDbLiveKeywordDataWithSatusCode");
+  //       // const campaignLiveKeywordsData = await getDbLiveKeywordData(campaignId);
 
-          const data = rawData.map((item: any) => ({
-            keyword: item?.keyword || "",
-            keywordId: item.keywordId,
-            location: item?.location_name?.locationName?.locationName || "",
-            intent: item?.intent || "",
-            start: item?.start || 0,
-            checkUrl: item?.checkUrl || "",
-            page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-            Absolute_Rank: item?.rank_absolute || 0,
-            Group_Rank: item?.rank_group || 0,
-            sevenDays: "-",
-            life: item?.rank_absolute || 0,
-            comp: item?.competition || 0,
-            sv: item?.searchVolumn || 0,
-            date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "2-digit",
-            }),
-            rankingUrl: item?.url || "",
-          }));
+  //       if (campaignLiveKeywordsData?.newLiveKeywordDbData) {
+  //         const rawData = campaignLiveKeywordsData.newLiveKeywordDbData;
+  //         const topRankData:any = campaignLiveKeywordsData?.topRankData?.data;
 
-          setTableBody(data);
-          setFilterCampaignLiveKeywordsData(data);
-          if (topRankData) {
-            
-         CardSetOnChanges();
-          
-          };
-        }
-      })();
-    }
-  }, [done, campaignId]);
+  //         const data = rawData.map((item: any) => ({
+  //           keyword: item?.keyword || "",
+  //           keywordId: item.keywordId,
+  //           location: item?.location_name?.locationName?.locationName || "",
+  //           intent: item?.intent || "",
+  //           start: item?.start || 0,
+  //           checkUrl: item?.checkUrl || "",
+  //           page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+  //           Absolute_Rank: item?.rank_absolute || 0,
+  //           Group_Rank: item?.rank_group || 0,
+  //           sevenDays: "-",
+  //           life: item?.rank_absolute || 0,
+  //           comp: item?.competition || 0,
+  //           sv: item?.searchVolumn || 0,
+  //           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+  //             day: "2-digit",
+  //             month: "short",
+  //             year: "2-digit",
+  //           }),
+  //           rankingUrl: item?.url || "",
+  //         }));
 
-  const keywordTableData = () => {
+  //         setTableBody(data);
+  //         setFilterCampaignLiveKeywordsData(data);
+  //         if (topRankData) {
+
+  //       //  CardSetOnChanges();
+
+  //         };
+  //       }
+  //     })();
+  //   }
+  // }, [done, campaignId]);
+
+  const keywordTableData = (campaignLiveKeywordsData: any) => {
     console.log("calling fn on delte");
 
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
@@ -496,14 +522,6 @@ const LiveKeywordComponent = ({
       const topRankData = campaignLiveKeywordsData?.topRankData?.data;
 
       const data = rawData.map((item: any) => {
-        // const rankGroup = item?.rank_group || 0;
-
-        // if (rankGroup > 0 && rankGroup <= 3) top3++;
-        // if (rankGroup > 0 && rankGroup <= 10) top10++;
-        // if (rankGroup > 0 && rankGroup <= 20) top20++;
-        // if (rankGroup > 0 && rankGroup <= 30) top30++;
-        // if (rankGroup > 0 && rankGroup <= 100) top100++;
-
         return {
           keyword: item?.keyword || "",
           keywordId: item.keywordId,
@@ -527,33 +545,33 @@ const LiveKeywordComponent = ({
         };
       });
 
-      // console.log(topRankData, "topRankDataok");
-
       setTableBody(data);
       setFilterCampaignLiveKeywordsData(data);
-      if (topRankData) {
-        const rawCardData:any = {
-  title: "keywords",
-  data: topRankData?.data?.map((item: any) => ({
-    title: item.title,
-    // 🔑 Ensure data is always a primitive
-    data:
-      item?.data === null || item?.data === undefined
-        ? 0
-        : typeof item.data === "object"
-        ? JSON.stringify(item.data)
-        : item.data,
-    id: item.id,
-    totalKeywords: topRankData?.totalKeywords || 0,
-  })) ?? [],
-  type: "card",
-  totalKeywords: topRankData?.totalKeywords || 0,
-}
-     setCardData(rawCardData);
 
-      }
+      //       if (topRankData) {
+      //         const rawCardData:any = {
+      //   title: "keywords",
+      //   data: topRankData?.data?.map((item: any) => ({
+      //     title: item.title,
+      //     // 🔑 Ensure data is always a primitive
+      //     data:
+      //       item?.data === null || item?.data === undefined
+      //         ? 0
+      //         : typeof item.data === "object"
+      //         ? JSON.stringify(item.data)
+      //         : item.data,
+      //     id: item.id,
+      //     totalKeywords: topRankData?.totalKeywords || 0,
+      //   })) ?? [],
+      //   type: "card",
+      //   totalKeywords: topRankData?.totalKeywords || 0,
+      // }
+      //      setCardData(rawCardData);
+
+      //       }
     }
   };
+
   // const CardSetOnDelete = (topRankData:any) =>{
   //    setCardData({
   //         title: "keywords",
@@ -568,80 +586,72 @@ const LiveKeywordComponent = ({
   //         totalKeywords: topRankData?.totalKeywords || 0,
   //       });
   // }
-  const CardSetOnChanges = async () => {
-  const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
-    campaignId,
-    campaignStatus,
-  );
+  //   const CardSetOnChanges = async () => {
+  //   const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
+  //     campaignId,
+  //     campaignStatus,
+  //   );
 
-  if (campaignLiveKeywordsData?.topRankData) {
-    const topRankData = campaignLiveKeywordsData.topRankData;
+  //   if (campaignLiveKeywordsData?.topRankData) {
+  //     const topRankData = campaignLiveKeywordsData.topRankData;
 
-    const rawCardData:any = {
-  title: "keywords",
-  data: topRankData?.data?.map((item: any) => ({
-    title: item.title,
-    // 🔑 Ensure data is always a primitive
-    data:
-      item?.data === null || item?.data === undefined
-        ? 0
-        : typeof item.data === "object"
-        ? JSON.stringify(item.data)
-        : item.data,
-    id: item.id,
-    totalKeywords: topRankData?.totalKeywords || 0,
-  })) ?? [],
-  type: "card",
-  totalKeywords: topRankData?.totalKeywords || 0,
-}
-     setCardData(rawCardData);
+  //     const rawCardData:any = {
+  //   title: "keywords",
+  //   data: topRankData?.data?.map((item: any) => ({
+  //     title: item.title,
+  //     // 🔑 Ensure data is always a primitive
+  //     data:
+  //       item?.data === null || item?.data === undefined
+  //         ? 0
+  //         : typeof item.data === "object"
+  //         ? JSON.stringify(item.data)
+  //         : item.data,
+  //     id: item.id,
+  //     totalKeywords: topRankData?.totalKeywords || 0,
+  //   })) ?? [],
+  //   type: "card",
+  //   totalKeywords: topRankData?.totalKeywords || 0,
+  // }
+  //      setCardData(rawCardData);
 
+  //   }
 
-  }
+  // };
 
+  // const showAddedKeyword = (newItem: any) => {
+  //   if (newItem && newItem.length > 0) {
+  //     const mappedItems = newItem.map((item: any) => {
+  //       console.log(item, "new added dataa");
+  //       return {
+  //         keyword: item?.keyword || "",
+  //         //  location: item?.location_code?.toString() || "",
+  //         location: item?.location_name || "",
+  //         // location: item?.location_name?.locationName?.locationName || "",
+  //         intent: item?.intent || "",
+  //         keywordId: item.keywordId,
+  //         start: item?.start || 0,
+  //         checkUrl: item?.checkUrl || "",
+  //         page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
+  //         Absolute_Rank: item?.rank_absolute || 0,
+  //         Group_Rank: item?.rank_group || 0,
+  //         // oneDay: "1",
+  //         sevenDays: "-",
+  //         // thirtyDays: "-",
+  //         life: item?.rank_absolute || 0,
+  //         comp: item?.competition || 0,
+  //         sv: item?.searchVolumn || 0,
+  //         date: new Date(item.createdAt).toLocaleDateString("en-GB", {
+  //           day: "2-digit",
+  //           month: "short",
+  //           year: "2-digit",
+  //         }),
+  //         rankingUrl: item?.url || "",
+  //       };
+  //     });
 
-
-};
-
- 
-  const showAddedKeyword = (newItem: any) => {
-    if (newItem && newItem.length > 0) {
-      const mappedItems = newItem.map((item: any) => {
-        console.log(item, "new added dataa");
-        return {
-          keyword: item?.keyword || "",
-          //  location: item?.location_code?.toString() || "",
-          location: item?.location_name || "",
-          // location: item?.location_name?.locationName?.locationName || "",
-          intent: item?.intent || "",
-          keywordId: item.keywordId,
-          start: item?.start || 0,
-          checkUrl: item?.checkUrl || "",
-          page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
-          Absolute_Rank: item?.rank_absolute || 0,
-          Group_Rank: item?.rank_group || 0,
-          // oneDay: "1",
-          sevenDays: "-",
-          // thirtyDays: "-",
-          life: item?.rank_absolute || 0,
-          comp: item?.competition || 0,
-          sv: item?.searchVolumn || 0,
-          date: new Date(item.createdAt).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "2-digit",
-          }),
-          rankingUrl: item?.url || "",
-        };
-      });
-
-      setTableBody((prev) => [...prev, ...mappedItems]);
-    }
-  };
-  const updatedTopRankOnAddedKeyword = () => {
-    console.log("run updatedTopRankOnAddedKeyword");
-    keywordTableData();
-  };
+  //     setTableBody((prev) => [...prev, ...mappedItems]);
+  //   }
+  // };
 
   //   const cardData = useMemo(() => ({
   //   title: "keywords",
@@ -669,10 +679,10 @@ const LiveKeywordComponent = ({
           ShareCampaignStatus={ShareCampaignStatus}
           tableHeader={tableHeader}
           tableData={tableBody}
-          updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
-          compaigndata={compaigndata}
+          // updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
+          // compaigndata={compaigndata}
           campaignId={campaignId}
-          showAddedKeyword={showAddedKeyword}
+          // showAddedKeyword={showAddedKeyword}
           total={total}
           processed={processed}
           done={done}
@@ -701,29 +711,12 @@ const LiveKeywordComponent = ({
     ))
   )}
 </div> */}
-        <div className="flex justify-evenly items-center gap-5 w-full">
-          {!cardData.data || cardData.data.length === 0 ? (
-            // Skeleton loader
-            <>
-              {[...Array(5)].map((_, idx) => (
-                <div
-                  key={idx}
-                  className="w-[170px] h-[170px] bg-slate-300 rounded-xl animate-pulse"
-                />
-              ))}
-            </>
-          ) : (
-            cardData.data.map((item: any) => (
-              <div key={item.id}>
-                <CustomTrackingCard
-                  totalKeywords={cardData.totalKeywords}
-                  className="w-[170px] h-[170px]"
-                  title={item.title}
-                  data={item.data}
-                />
-              </div>
-            ))
-          )}
+        <div className=" w-full">
+          <TopRankCard
+            title={campaignLiveKeywordsData?.topRankData?.title}
+            data={campaignLiveKeywordsData?.topRankData?.data}
+            totalKeywords={campaignLiveKeywordsData?.topRankData?.totalKeywords}
+          />
         </div>
 
         {/* <div className="w-[60%]">
@@ -744,7 +737,6 @@ const LiveKeywordComponent = ({
               <div className="h-5 w-16 bg-slate-300 rounded animate-pulse"></div>
             </div>
 
-            {/* Table Rows */}
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
@@ -761,20 +753,25 @@ const LiveKeywordComponent = ({
           <CustomTable
             // setCampaignLiveKeywordsData={setCampaignLiveKeywordsData}
             // updatedTopRankOnAddedKeyword={updatedTopRankOnAddedKeyword}
-            CardSetOnChanges={CardSetOnChanges}
+            // CardSetOnChanges={CardSetOnChanges}
             // setCardData={setCardData}
-            keywordTableData={keywordTableData}
+            // keywordTableData={keywordTableData}
             ShareCampaignStatus={ShareCampaignStatus}
-             setFilterCampaignLiveKeywordsData={setFilterCampaignLiveKeywordsData}
+            setFilterCampaignLiveKeywordsData={
+              setFilterCampaignLiveKeywordsData
+            }
             filterCampaignLiveKeywordsData={filterCampaignLiveKeywordsData}
-            fetchCardDatafilterLocation={fetchCardDataFilterLocation}
+            // fetchCardDatafilterLocation={fetchCardDataFilterLocation}
             setExelData={setExelData}
             tableHeader={tableHeader}
             setSortedDataForExel={setSortedDataForExel}
             tableData={tableBody}
             campaignId={campaignId}
-            showAddedKeyword={showAddedKeyword}
+            // showAddedKeyword={showAddedKeyword}
             setTableBody={setTableBody}
+            locationFilter={locationFilter}
+            setLocationFilter={setLocationFilter}
+            getKeywordData={getkeywordData}
           />
         )}
       </div>

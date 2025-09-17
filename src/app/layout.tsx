@@ -7,6 +7,7 @@ import ReactQueryProvider from "@/components/ReactQueryProvider";
 
 import { CampaignDataProvider } from "@/app/context/CampaignContext";
 import SessionExpiredDialog from "@/components/Common/SessionExpiredDialog";
+import { LanguageProvider } from "./context/LanguageContext";
 
 
 
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body className={` antialiased  relative `}>
        
         <CampaignDataProvider>
+          <LanguageProvider>
           <Loader />
           <ReactQueryProvider>
          
@@ -38,6 +40,7 @@ export default function RootLayout({
             <SessionExpiredDialog/> 
           </ReactQueryProvider>
           <Toaster />
+          </LanguageProvider>
         </CampaignDataProvider>
       </body>
     </html>

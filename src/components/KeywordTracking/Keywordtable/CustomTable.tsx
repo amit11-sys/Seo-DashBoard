@@ -71,30 +71,36 @@ interface CustomTableProps {
   setCardData?: any;
   CardSetOnChanges?: any;
   setFilterCampaignLiveKeywordsData?: any;
+  locationFilter: string;
+  setLocationFilter: React.Dispatch<React.SetStateAction<string>>;
+  getKeywordData:()=>void
 }
 
 const CustomTable = ({
   setExelData,
-  CardSetOnChanges,
+  // CardSetOnChanges,
   tableHeader,
-  setCardData,
+  // setCardData,
   setFilterCampaignLiveKeywordsData,
   // setCampaignLiveKeywordsData,
-  updatedTopRankOnAddedKeyword,
+  // updatedTopRankOnAddedKeyword,
   ShareCampaignStatus,
-  keywordTableData,
+  // keywordTableData,
   tableData,
   campaignId,
   showAddedKeyword,
   setTableBody,
   filterCampaignLiveKeywordsData,
-  fetchCardDatafilterLocation,
+  // fetchCardDatafilterLocation,
+  locationFilter,
+  setLocationFilter,
+  getKeywordData
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const { startLoading, stopLoading } = useLoader();
-  const [keywordDbData, setkeywordDbData] = useState<any>([]);
+  // const [keywordDbData, setkeywordDbData] = useState<any>([]);
   const [defaultData, setDefaultData] = useState<any>([]);
-  const [locationFilter, setLocationFilter] = useState<string>("all");
+
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
 
   const [selectAll, setSelectAll] = useState(false);
@@ -104,9 +110,9 @@ const CustomTable = ({
 
   const [excludeZero, setExcludeZero] = useState<boolean>(false); // 👈 new toggle
   // sortMode can be: "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
-  const [sortMode, setSortMode] = useState<
-    "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
-  >("normal");
+  // const [sortMode, setSortMode] = useState<
+  //   "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
+  // >("normal");
   // console.log(tableData, "tableDataNew");
   // console.log(filterCampaignLiveKeywordsData, "filterCampaignLiveKeywordsData");
   const uniqueLocations = Array.from(
@@ -116,18 +122,18 @@ const CustomTable = ({
   useEffect(() => {
     setSortedData(tableData);
   }, [tableData]);
-  const handleSort = () => {
-    const sorted = [...sortedData].sort((a, b) => {
-      const valA = Number(a.Group_Rank) || 0;
-      const valB = Number(b.Group_Rank) || 0;
-      return sortOrder === "asc" ? valA - valB : valB - valA;
-    });
-    setSortedData(sorted);
-    if (setExelData) {
-      setExelData(sorted);
-    }
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  };
+  // const handleSort = () => {
+  //   const sorted = [...sortedData].sort((a, b) => {
+  //     const valA = Number(a.Group_Rank) || 0;
+  //     const valB = Number(b.Group_Rank) || 0;
+  //     return sortOrder === "asc" ? valA - valB : valB - valA;
+  //   });
+  //   setSortedData(sorted);
+  //   if (setExelData) {
+  //     setExelData(sorted);
+  //   }
+  //   setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  // };
 
   useEffect(() => {
     let data = [...tableData];
@@ -154,28 +160,28 @@ const CustomTable = ({
       setExelData(data);
     }
   }, [tableData, sortOrder, excludeZero]);
-  useEffect(() => {
-    if (locationFilter) {
-      fetchCardDatafilterLocation(locationFilter);
-    }
-  }, [locationFilter]);
+  // useEffect(() => {
+  //   if (locationFilter) {
+  //     fetchCardDatafilterLocation(locationFilter);
+  //   }
+  // }, [locationFilter]);
 
   // console.log(locationFilter, "location filter");
 
-  useEffect(() => {
-    const FetchKeyWordsDb = async () => {
-      const CampaignId = campaignId;
-      try {
-        const res = await getTrackingData({ CampaignId });
-        // console.log(campaignId)
-        const data = res.campaignKeywords;
-        setkeywordDbData(data);
-      } catch (error) {
-        console.log(error, "DB DATA NOT FOUND");
-      }
-    };
-    FetchKeyWordsDb();
-  }, []);
+  // useEffect(() => {
+  //   const FetchKeyWordsDb = async () => {
+  //     const CampaignId = campaignId;
+  //     try {
+  //       const res = await getTrackingData({ CampaignId });
+  //       // console.log(campaignId)
+  //       const data = res.campaignKeywords;
+  //       setkeywordDbData(data);
+  //     } catch (error) {
+  //       console.log(error, "DB DATA NOT FOUND");
+  //     }
+  //   };
+  //   FetchKeyWordsDb();
+  // }, []);
 
   const handleStartClick = (index: number) => {
     setEditableRowIndex(index);
@@ -257,60 +263,8 @@ const CustomTable = ({
     try {
       const res = await deleteKeywordData(selectedKeywords);
       if (res.success) {
-        const campaignDataWithId = await getGetCampaignByid(campaignId);
-        const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
-
-        const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
-          campaignId,
-          campaignStatus
-        );
-        // setCampaignLiveKeywordsData(liveKeywordData);
-
-        const topRankData = liveKeywordData?.topRankData?.data ?? [];
-
-        console.log(liveKeywordData, "campaignLiveKeywordsData");
-
-        let data: any = [];
-        if (liveKeywordData?.newLiveKeywordDbData) {
-          data = liveKeywordData?.newLiveKeywordDbData.map((item: any) => ({
-            // select: false,
-            type: item?.type || "",
-            keywordId: item?.keywordId || "",
-            keyword: item?.keyword || "",
-            location: item?.location_name?.locationName?.locationName || "",
-            intent: item?.intent || "",
-            start: item?.start || 0,
-            page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
-            Absolute_Rank: String(item?.rank_absolute) || 0,
-            Group_Rank: item?.rank_group || 0,
-            // oneDay: "1",
-            sevenDays: "-",
-            // thirtyDays: "-",
-            life: item?.rank_group || 0,
-            comp: item?.competition || 0,
-            sv: item?.searchVolumn || 0,
-            date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "2-digit",
-            }),
-            rankingUrl: item.url || "",
-            // rankingUrl: new URL(item.url) || "/",
-          }));
-        }
-        console.log(data, "data after delete");
-        if (setTableBody) {
-          setTableBody(data);
-        }
-        if (topRankData) {
-          CardSetOnChanges(topRankData);
-        }
-        if (setFilterCampaignLiveKeywordsData) {
-          setFilterCampaignLiveKeywordsData(data); // ✅ keep location filter data in sync
-        }
-
         toast.success("Keyword(s) deleted successfully");
-        // setOpen(false);
+        getKeywordData()
       } else {
         toast.error(res.error || "Failed to delete keyword");
       }
@@ -320,15 +274,15 @@ const CustomTable = ({
     }
   };
 
-  const handleBulkRefresh = () => {
-    // call your API for each selected keywordId
-    // selectedKeywords.forEach((id) => {
-    //   // refreshKeywordApi(campaignId, id);
-    // });
-    console.log("refresh");
-    setSelectedKeywords([]);
-    setSelectAll(false);
-  };
+  // const handleBulkRefresh = () => {
+  //   // call your API for each selected keywordId
+  //   // selectedKeywords.forEach((id) => {
+  //   //   // refreshKeywordApi(campaignId, id);
+  //   // });
+  //   console.log("refresh");
+  //   setSelectedKeywords([]);
+  //   setSelectAll(false);
+  // };
 
   return (
     <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
@@ -451,9 +405,9 @@ const CustomTable = ({
           ) : (
             sortedData.map((data, rowIndex) => {
               const keywordId = data.keywordId;
-              const matchedKeywordData = keywordDbData?.find(
-                (item: { _id: string }) => item._id === keywordId
-              );
+              // const matchedKeywordData = keywordDbData?.find(
+              //   (item: { _id: string }) => item._id === keywordId
+              // );
 
               return (
                 <tr
@@ -585,21 +539,23 @@ const CustomTable = ({
                     <td className="text-center text-[12px] border p-1">
                       <div className="flex justify-center items-center gap-2">
                         <KeywordEdit
-                          CardSetOnChanges={CardSetOnChanges}
+                          // CardSetOnChanges={CardSetOnChanges}
                           campaignId={campaignId || ""}
                           keywordId={keywordId}
                           addEditkeywordsData={addEditkeywordsData}
-                          showAddedKeyword={showAddedKeyword}
+                          // showAddedKeyword={showAddedKeyword}
                           setTableBody={setTableBody}
                           defaultData={defaultData}
+                          getKeywordData={getKeywordData}
                         />
 
                         <SingleKeywordRefresh
-                          CardSetOnChanges={CardSetOnChanges}
+                          // CardSetOnChanges={CardSetOnChanges}
                           campaignId={campaignId || ""}
                           keywordId={keywordId}
                           keyword={data.keyword}
                           setTableBody={setTableBody}
+                          getKeywordData={getKeywordData}
                         />
                       </div>
                     </td>

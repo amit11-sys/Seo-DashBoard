@@ -62,15 +62,9 @@ export default function SignInForm() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 1, y: 30, scale: 0.8 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{
-        type: "spring",
-        stiffness: 80,
-        damping: 15,
-        duration: 0.6,
-      }}
+    <div
+    
+     
       className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl"
     >
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
@@ -129,6 +123,6 @@ export default function SignInForm() {
           </div>
         </form>
       </Form>
-    </motion.div>
+    </div>
   );
 }

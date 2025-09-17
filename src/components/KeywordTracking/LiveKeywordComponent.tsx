@@ -220,7 +220,7 @@ const LiveKeywordComponent = ({
   
   const getCampaignStatus = async () => {
     const campaignDataWithId = await getGetCampaignByid(campaignId);
-    const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
+    const campaignStatus = campaignDataWithId?.campaign?.status ;
     setCampaignStatus(campaignStatus);
   };
 
@@ -232,7 +232,7 @@ const LiveKeywordComponent = ({
         campaignStatus,
         locationFilter
       );
-      // console.log(liveKeywordData, 'got data');
+      setRefreshDate(formatLastUpdated(liveKeywordData?.newLiveKeywordDbData?.[0]?.updatedAt));
 
       if (liveKeywordData.error === "Unauthorized please login") {
         window.dispatchEvent(new Event("session-expired"));

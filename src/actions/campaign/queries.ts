@@ -5,13 +5,19 @@ import Campaign from "@/lib/models/campaign.model";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import User from "@/lib/models/user.model";
+import { getRefreshGoogleAccessToken } from "../googleConsole";
+import {
+  googleAnalyticsAccountID,
+  googleAnalyticsPropertyID,
+} from "../analytics/queries";
+import { fetchLocations } from "../KeywordsGmb/queries";
 
 export const newCampaign = async (formData: any) => {
   try {
     await connectToDB();
     // console.log("finding user");
 
-    const user:any = await getUserFromToken();
+    const user: any = await getUserFromToken();
     if (!user) {
       return { error: "Unauthorized" };
     }
@@ -52,7 +58,7 @@ export const getCampaign = async () => {
   try {
     await connectToDB();
 
-    const user:any = await getUserFromToken();
+    const user: any = await getUserFromToken();
     if (!user) {
       return { error: "Unauthorized please login" };
     }
@@ -289,32 +295,31 @@ export const ArchivedCampaignCreate = async (
     // restore campaign
 
     if (status === 1) {
-  const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
-    { _id: CompaignId },
-    { status: 1 },
-    { new: true }
-  );
+      const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 1 },
+        { new: true }
+      );
 
-  const updatedKeywords = await KeywordTracking.updateMany(
-    { campaignId: CompaignId, status: { $ne: 3 } }, // ✅ exclude status 3
-    { $set: { status: 1 } }
-  );
-}
+      const updatedKeywords = await KeywordTracking.updateMany(
+        { campaignId: CompaignId, status: { $ne: 3 } }, // ✅ exclude status 3
+        { $set: { status: 1 } }
+      );
+    }
 
- // ARCHIVED campaign
-if (status === 2) {
-  const KeywordTrackingDataArchived = await Campaign.findByIdAndUpdate(
-    { _id: CompaignId },
-    { status: 2 },
-    { new: true }
-  );
+    // ARCHIVED campaign
+    if (status === 2) {
+      const KeywordTrackingDataArchived = await Campaign.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 2 },
+        { new: true }
+      );
 
-  const updatedKeywords = await KeywordTracking.updateMany(
-    { campaignId: CompaignId, status: { $ne: 3 } }, // ✅ exclude status 3
-    { $set: { status: 2 } }
-  );
-}
-
+      const updatedKeywords = await KeywordTracking.updateMany(
+        { campaignId: CompaignId, status: { $ne: 3 } }, // ✅ exclude status 3
+        { $set: { status: 2 } }
+      );
+    }
 
     //  if(topRankData){
 
@@ -369,6 +374,263 @@ export const CompaignCount = async () => {
     };
   } catch (error) {
     console.error(error);
+    return { error: "Internal Server Error." };
+  }
+};
+
+type GoogleTokenResult = {
+  access_token: string;
+  expires_in: number;
+  refresh_token?: string;
+  scope: string;
+  token_type: "Bearer" | string;
+  id_token: string;
+  refresh_token_expires_in?: number;
+};
+export const DbCompaignDataUpdate = async (
+  newCompaignId: string,
+  tokenResult: {}
+) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const {
+      access_token,
+      expires_in,
+      refresh_token,
+      id_token,
+      refresh_token_expires_in,
+    } = tokenResult as GoogleTokenResult;
+    console.log(tokenResult, "tokenResultIN DB update");
+
+    const now = Date.now();
+
+    // convert to absolute timestamps (in ms)
+    const googleAccessTokenExpiry = now + expires_in * 1000;
+    const googleRefreshTokenExpiry =
+      now + (refresh_token_expires_in ?? 0) * 1000;
+
+    const campaignGoogleData = await Campaign.findByIdAndUpdate(
+      { _id: newCompaignId },
+      {
+        $set: {
+          googleAccessToken: access_token,
+          googleAccessTokenExpiry: googleAccessTokenExpiry,
+          googleRefreshToken: refresh_token,
+          googleRefreshTokenExpiry: googleRefreshTokenExpiry,
+          googleId_token: id_token,
+        },
+      },
+      { new: true }
+    );
+
+// const campaignGoogleData = await Campaign.findByIdAndUpdate(
+//   newCompaignId, // ✅ only ID
+//   {
+//     $set: {
+//       googleAccessToken: access_token,
+//       googleAccessTokenExpiry,
+//       googleRefreshToken: refresh_token,
+//       googleRefreshTokenExpiry,
+//       googleId_token: id_token,
+//     },
+//   },
+//   { new: true } // return updated doc
+// );
+
+console.log("Updated campaign:", campaignGoogleData);
+
+
+
+
+
+    if (!campaignGoogleData) {
+      return { error: "Error while getting and update compaign" };
+    }
+
+    return {
+      success: true,
+      message: "capmaignData Successfully updated with token",
+      campaignGoogleData,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+
+export const DBcompaignGoogleData = async (newCompaignId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const compaignGoogleData = await Campaign.findById({
+      _id: newCompaignId,
+    }).lean();
+
+    // console.log(compaignGoogleData, "live datat from db with token");
+
+    if (!compaignGoogleData) {
+      return { error: "Error while getting compaign for token data" };
+    }
+
+    return {
+      success: true,
+      message: "compaign Google Data Successfully find",
+      compaignGoogleData,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+
+export async function getValidGoogleToken(campaignId: string) {
+  const campaign = await Campaign.findById({ _id: campaignId });
+
+  if (!campaign) throw new Error("Campaign not found");
+
+  // If expired, refresh token
+  if (Date.now() > Number(campaign.googleAccessTokenExpiry)) {
+    return await getRefreshGoogleAccessToken(campaignId);
+  }
+
+  return campaign;
+}
+export const CurrentCampaignIdData = async (campaignId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const CurrentCampaignIdData = await Campaign.findById({ _id: campaignId });
+
+    if (!campaignId) {
+      return { error: "Error while getting campaign New Id" };
+    }
+
+    return {
+      success: true,
+      message: "New CompaignId Successfully Found",
+      CurrentCampaignIdData,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+type Property = {
+  name: string;
+  displayName: string;
+  parent: string;
+};
+
+function findMatchingProperty(
+  properties: Property[],
+  accountId: string,
+  nameMatch: string
+): Property[] {
+  const normalizedName = nameMatch.replace(/\s+/g, "").toLowerCase();
+
+  return properties.filter((property) => {
+    const normalizedDisplayName = property.displayName
+      .replace(/\s+/g, "")
+      .toLowerCase();
+    return (
+      property.parent.endsWith(accountId) &&
+      normalizedDisplayName.includes(normalizedName)
+    );
+  });
+}
+function extractDomain(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname; // e.g. 'www.handonawhiteboard.com'
+    const parts = hostname.split(".");
+    // Drop 'www' or subdomain if present
+    return parts.length > 2 ? parts[parts.length - 2] : parts[0];
+  } catch {
+    return null;
+  }
+}
+export const propertyIdForDB = async (
+  campaignId: string,
+  tokenResult: {},
+  nameMatch: any
+) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    // console.log(campaignId,"campaignId in propertyId");
+    // console.log(tokenResult,"tokenResult in propertyId");
+    // console.log(nameMatch,"campaignData in propertyId");
+
+    const { access_token } = tokenResult as GoogleTokenResult;
+
+    const acoountNameforMatch = extractDomain(nameMatch);
+    // console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
+    const data = await googleAnalyticsAccountID(
+      access_token,
+      acoountNameforMatch ?? ""
+    );
+
+    // console.log(data,"data in propertyId");
+    const accountId = Array.isArray(data)
+      ? data[0]?.accountId
+      : (data?.accountId ?? "");
+    console.log(accountId, "accountId in propertyId");
+
+    const location = await fetchLocations(access_token);
+
+    console.log(location, "locaion in propertyId");
+
+    const propertiesID = await googleAnalyticsPropertyID(
+      accountId,
+      access_token,
+      acoountNameforMatch ?? ""
+    );
+
+    // console.log(propertiesID,"propertiesID in propertyId");
+
+    //  const propertyId = propertiesID[0]?.name ?? "";
+    const propertyId = propertiesID.split("/")[1];
+
+    // console.log(propertyId,"proepertyId in propertyId");
+
+    const campaignDataWithPropertyIdData = await Campaign.findByIdAndUpdate(
+      { _id: campaignId },
+      { $set: { propertyId: propertyId } },
+      { new: true }
+    );
+
+    return {
+      success: true,
+      message: "New CompaignData with propertyId Successfully Found",
+      campaignDataWithPropertyIdData,
+    };
+  } catch (error) {
+    console.log(error);
+
     return { error: "Internal Server Error." };
   }
 };

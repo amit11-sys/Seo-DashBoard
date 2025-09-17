@@ -24,6 +24,11 @@ interface IKeywordTracking extends Document {
   campaignId?: mongoose.Schema.Types.ObjectId;
   keywordId?: mongoose.Schema.Types.ObjectId;
   status?: number;
+  googleAccessToken: String;
+  googleAccessTokenExpiry: Number;
+  googleRefreshToken: String;
+  googleRefreshTokenExpiry: Number;
+  googleId_token: String;
 }
 
 const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
@@ -51,8 +56,13 @@ const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
     campaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
     keywordId: { type: mongoose.Schema.Types.ObjectId, ref: "Keyword" },
     status: { type: Number, default: 1 },
+    googleAccessToken: { type: String },
+    googleAccessTokenExpiry: { type: Number },
+    googleRefreshToken: { type: String },
+    googleRefreshTokenExpiry: { type: Number },
+    googleId_token: { type: String },
   },
-  { timestamps: true }
+   { timestamps: true }
 );
 
 const KeywordTracking: Model<IKeywordTracking> =

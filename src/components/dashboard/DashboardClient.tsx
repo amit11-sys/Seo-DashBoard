@@ -547,7 +547,7 @@ const DashboardClient = () => {
       <div className="flex flex-1 pt-[80px] overflow-hidden">
         <aside className="w-[250px] h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
-            campaignId={"7887"}
+            
             archivedCampaignData={archivedCampaigns}
           />
         </aside>

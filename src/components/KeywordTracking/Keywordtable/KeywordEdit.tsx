@@ -1,0 +1,572 @@
+"use client";
+
+import React, { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { HiOutlineKey } from "react-icons/hi";
+import { MdOutlineDevices, MdOutlineLocationOn } from "react-icons/md";
+import { FcGoogle } from "react-icons/fc";
+import { LiaLanguageSolid, LiaSearchLocationSolid } from "react-icons/lia";
+import { TbTag } from "react-icons/tb";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import CustomButton from "../../ui/CustomButton";
+import { NewCustomInput } from "@/components/NewCustomInput";
+import DropDownList from "../../DropDownList";
+import { toast } from "sonner";
+import { createUpdateKeywordById } from "@/actions/keyword";
+import {
+  getDbLiveKeywordData,
+  getDbLiveKeywordDataWithSatusCode,
+  getEditDataFetchDb,
+  getfetchDBlocationData,
+  getTrackingData,
+} from "@/actions/keywordTracking";
+import debounce from "lodash.debounce";
+import {
+  getfetchDBLocation,
+  getlanguageData,
+} from "@/actions/locations_Language";
+import { useLoader } from "@/hooks/useLoader";
+import { getGetCampaignByid } from "@/actions/campaign";
+import { useLanguages } from "@/app/context/LanguageContext";
+import { googleDomains } from "@/lib/Constant";
+
+// import {editKeywordsSchema} from "@/lib/zod"
+
+// const editKeywordsSchema = z.object({
+//   url: z.string().url("Invalid URL"),
+//   keywordTag: z.string().optional(),
+//   searchLocationCode: z.number().min(1, "Location is required"),
+//   volumeLocationCode: z.number().min(1, "Location is required"),
+//   language: z.string().min(1, "Language is required"),
+//   SearchEngine: z.string().min(1, "Search engine is required"),
+//   serpType: z.string().optional(),
+//   deviceType: z.string().min(1, "Device type is required"),
+//   keywords: z.string().min(1, "Enter at least one keyword"),
+// });
+const editKeywordsSchema = z.object({
+  url: z.string().url({ message: "Please enter a valid URL" }),
+  searchLocationCode: z
+    .number()
+    .min(1, { message: "Search Location is required" }),
+  keywordTag: z.string().optional(),
+  SearchEngine: z.string().optional(),
+  // keywords: z.array( z.string().min(1, { message: "Please provide at least one keyword" })),
+  keywords: z
+    .string()
+    .min(1, { message: "Please provide at least one keyword" }),
+  volumeLocationCode: z.number().optional(),
+  language: z.string().min(1, { message: "Language is required" }),
+  serpType: z.string().optional(),
+  deviceType: z.string().min(1, { message: "DeviceType is required" }),
+});
+
+interface EditKeywordsProps {
+  campaignId: string;
+  defaultData?: any; // for editing existing values
+  keywordId: string;
+  // showAddedKeyword: any;
+  setTableBody: any;
+  addEditkeywordsData: any;
+  CardSetOnChanges?: any;
+  getKeywordData: () => void;
+}
+
+const EditKeywords = ({
+  campaignId,
+  defaultData,
+  // CardSetOnChanges,
+  getKeywordData,
+  keywordId,
+  addEditkeywordsData,
+  // showAddedKeyword,
+  setTableBody, // Optional: if you want to update the table body after editing
+}: EditKeywordsProps) => {
+  const { startLoading, stopLoading } = useLoader();
+      const { languages, loading } = useLanguages();
+  // if (loading) return <p>Loading languages...</p>;
+  const form = useForm<z.infer<typeof editKeywordsSchema>>({
+    resolver: zodResolver(editKeywordsSchema),
+    defaultValues: {
+      url: "",
+      searchLocationCode: 0,
+      keywordTag: "",
+      SearchEngine: "",
+      keywords: "",
+      volumeLocationCode: 0,
+      language: "",
+      serpType: "",
+      deviceType: "",
+    },
+  });
+  const [keywordError, setKeywordError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [volumnQuery, setVolumnQuery] = useState("");
+  const [results, setResults] = useState<any>([]);
+  const [VolumeLocation, setVolumeLocation] = useState<any>([]);
+  const [isPending, startTransition] = useTransition();
+  const [isPendingvolumndata, startTransitionVolumndata] = useTransition();
+  // const [language, setLanguage] = useState<string[]>([]);
+  // ✅ Memoize debounced function so it survives re-renders
+  const debouncedFetch = useMemo(() => {
+    return debounce((q: string) => {
+      startTransition(() => {
+        getfetchDBLocation(q)
+          .then((response) => {
+            console.log(response, "response");
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setResults(response?.allLocations);
+            // setVolumeLocation(response?.allLocations);
+          })
+          .catch(console.error);
+      });
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    if (query.trim().length > 1) debouncedFetch(query);
+    return () => {
+      debouncedFetch.cancel();
+    };
+  }, [query, debouncedFetch]);
+  const debouncedFetchvolumn = useMemo(() => {
+    return debounce((q: string) => {
+      startTransitionVolumndata(() => {
+        getfetchDBLocation(q).then((response) => {
+
+            if (response?.error === "Unauthorized please login") {
+              window.dispatchEvent(new Event("session-expired"));
+              return;
+            }
+            setVolumeLocation(response?.allLocations);
+          }).catch(console.error);
+      });
+    }, 300);
+  }, []);
+
+  useEffect(() => {
+    if (volumnQuery.trim().length > 1) debouncedFetchvolumn(volumnQuery);
+    return () => {
+      debouncedFetchvolumn.cancel();
+    };
+  }, [volumnQuery, debouncedFetchvolumn]);
+
+  useEffect(() => {
+    if (defaultData) {
+      form.reset({
+        url: defaultData?.url || "",
+        keywordTag: defaultData?.keywordTag || "",
+        searchLocationCode: defaultData?.searchLocationCode || 0,
+        volumeLocationCode: defaultData?.volumeLocationCode || 0,
+        language: defaultData?.language || "",
+        SearchEngine: defaultData?.SearchEngine || "",
+        serpType: defaultData?.serpType || "",
+        deviceType: defaultData?.deviceType || "",
+        keywords: defaultData?.keywords || "",
+      });
+
+      // Set query input display names for selected locations
+      if (defaultData?.searchLocationName) {
+        setQuery(defaultData.searchLocationName);
+      }
+
+      if (defaultData?.volumeLocationName) {
+        setVolumnQuery(defaultData.volumeLocationName);
+      }
+    }
+  }, [defaultData]);
+
+  // const editclick = async () => {
+
+  // };
+
+  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (
+  //     (e.key === "Enter" || e.key === "," || e.key === " ") &&
+  //     tagsInput.trim()
+  //   ) {
+  //     e.preventDefault();
+  //     const trimmed = tagsInput.trim();
+  //     if (!keywords.includes(trimmed)) {
+  //       setKeywords((prev) => [...prev, trimmed]);
+  //     }
+  //     setTagsInput("");
+  //   } else if (e.key === "Backspace" && !tagsInput && keywords.length) {
+  //     setKeywords((prev) => prev.slice(0, -1));
+  //   }
+  // };
+
+  // const removeKeyword = (index: number) => {
+  //   setKeywords((prev) => prev.filter((_, i) => i !== index));
+  // };
+
+  const onSubmit = async () => {
+    const isValid = await form.trigger();
+    // form.setValue("keywords", Keywords);
+    console.log(form.getValues(), "all value");
+
+    if (!isValid) {
+      toast.error("Please fill all the fields");
+      return;
+    }
+    const keywordInput = form.getValues("keywords");
+    console.log("okokoko", form.getValues());
+    console.log("keywodsINput", keywordInput);
+    if (!keywordInput || keywordInput[0].trim() === "") {
+      setKeywordError("Please enter at least one keyword.");
+      return;
+    } else {
+      setKeywordError(null);
+    }
+
+    if (!keywordInput) return;
+
+    const payload = {
+      ...form.getValues(),
+
+      campaignId,
+      keywordId,
+    };
+
+    console.log(payload, "edit");
+
+    startLoading();
+    try {
+      const Response = await createUpdateKeywordById(payload);
+     await getKeywordData();
+      if (!Response) throw new Error("Update failed");
+      // console.log(Response.tracking,"tracking");
+
+      // await addEditkeywordsData(Response.tracking);
+
+      // await showAddedKeyword(Response.tracking);
+
+      toast.success("Keywords updated successfully");
+      form.reset({
+        url: "",
+        keywordTag: "",
+        searchLocationCode: 0,
+        language: "",
+        SearchEngine: "",
+        serpType: "",
+        deviceType: "",
+        volumeLocationCode: 0,
+        keywords: "",
+      });
+      stopLoading();
+
+      setOpen(false);
+      // Optional: form.reset(); or refresh logic
+    } catch (error) {
+      console.error("Edit Error:", error);
+      toast.error("Failed to update keywords");
+    }finally{
+      
+      stopLoading();
+    }
+  };
+
+ 
+  // useEffect(() => {
+  //   if (keywordId) {
+  //     onEdithandler(keywordId);
+  //   }
+  // }, [keywordId]);
+  const onEdithandler = async (keywordId: string) => {
+    const defaultData = await getEditDataFetchDb(keywordId);
+    console.log(defaultData, "data default");
+    const locationCode = Number(defaultData.keywordsData.searchLocationCode);
+    console.log(locationCode, "location code");
+    const matchlocation = await getfetchDBlocationData(locationCode);
+    console.log(matchlocation, "match locations");
+
+    const modifiedKeywords = [defaultData?.keywordsData].map((item: {}) => ({
+      ...item,
+      location_name: matchlocation?.locationName?.locationName,
+    }));
+
+    addEditkeywordsData(modifiedKeywords);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button
+        onClick={() => {
+          onEdithandler(keywordId);
+        }}
+        >
+          <HiOutlineKey className="text-xl text-blue-600 cursor-pointer" />
+        </button>
+      </DialogTrigger>
+
+      <DialogContent className="max-w-4xl border-none shadow-2xl bg-white p-6">
+        <DialogHeader className="flex items-center gap-2">
+          <HiOutlineKey className="text-2xl text-orange-500" />
+          <DialogTitle className="text-2xl font-semibold text-gray-800">
+            Edit Keywords
+          </DialogTitle>
+        </DialogHeader>
+
+        <Form {...form}>
+          <div className="grid grid-cols-2 gap-6 mt-6">
+            <div className="space-y-4">
+              <Controller
+                name="url"
+                control={form.control}
+                render={({ field }) => (
+                  <NewCustomInput
+                    placeholder="Enter Domain URL"
+                    {...field}
+                    errorMessage={form.formState.errors.url?.message}
+                  />
+                )}
+              />
+              <Controller
+                name="keywordTag"
+                control={form.control}
+                render={({ field }) => (
+                  <NewCustomInput
+                    icon={<TbTag className="text-blue-500" />}
+                    placeholder="Keyword Tag"
+                    {...field}
+                  />
+                )}
+              />
+              {/* <Controller
+                  name="searchLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <DropDownList
+                      listData={countries}
+                      icon={
+                        <MdOutlineLocationOn className="text-blue-500 text-xl" />
+                      }
+                      listName="Search Location"
+                      value={field.value}
+                      onChange={(selected:any) => field.onChange(selected?.value)}
+                      errorMessage={
+                        form.formState.errors.searchLocationCode?.message
+                      }
+                    />
+                  )}
+                /> */}
+              <div className="relative">
+                <Controller
+                  name="searchLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      value={query}
+                      onChange={(e) => {
+                        setQuery(e.target.value);
+                        field.onChange(e.target.value || 0); // Update form state
+                      }}
+                      className=" w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm "
+                      placeholder="Search for location"
+                    />
+                  )}
+                />
+
+                {results.length > 0 && (
+                  <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
+                    {isPending && <p className="text-green-500">Loading...</p>}
+                    {results.map((loc: any) => {
+                      console.log("Location:", loc);
+                      return (
+                        <li
+                          key={loc._id}
+                          onClick={() => {
+                            form.setValue(
+                              "searchLocationCode",
+                              loc.locationCode || 0
+                            );
+                            setQuery(loc.locationName); // Update input with selected location
+                            setResults([]); // Clear results after selection
+                          }}
+                          className="cursor-pointer hover:bg-gray-100 border border-gray-200 p-2"
+                        >
+                          {loc.locationName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.searchLocationCode?.message}
+                </div>
+              </div>
+              {/* <Controller
+                  name="volumeLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <DropDownList
+                      listData={countries}
+                      icon={
+                        <MdOutlineLocationOn className="text-blue-500 text-xl" />
+                      }
+                      listName="Volume Location"
+                      value={field.value}
+                      onChange={(selected: any) =>
+                        field.onChange(selected?.value)
+                      }
+                    />
+                  )}
+                /> */}
+              <div className="relative">
+                <Controller
+                  name="volumeLocationCode"
+                  control={form.control}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      value={volumnQuery}
+                      onChange={(e) => {
+                        setVolumnQuery(e.target.value);
+                        field.onChange(e.target.value || 0);
+                      }}
+                      className="w-full flex items-center bg-transparent rounded-full gap-3 border border-input  px-3 py-3 shadow-sm"
+                      placeholder="Search for Volume location"
+                    />
+                  )}
+                />
+                <div className="w-full text-sm text-red-500">
+                  {form.formState.errors.volumeLocationCode?.message &&
+                    "required"}
+                </div>
+
+                {VolumeLocation.length > 0 && (
+                  <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
+                    {isPendingvolumndata && (
+                      <p className="text-green-500">Loading...</p>
+                    )}
+                    {VolumeLocation.map((loc: any) => (
+                      <li
+                        key={loc._id}
+                        onClick={() => {
+                          form.setValue(
+                            "volumeLocationCode",
+                            loc.locationCode || 0
+                          );
+                          setVolumnQuery(loc.locationName);
+                          setVolumeLocation([]);
+                        }}
+                        className="cursor-pointer hover:bg-gray-100 p-2"
+                      >
+                        {loc.locationName}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <Controller
+                name="language"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={languages}
+                    icon={
+                      <LiaLanguageSolid className="text-blue-500 text-xl" />
+                    }
+                    listName="Language"
+                    value={field.value}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
+                    errorMessage={form.formState.errors.language?.message}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <Controller
+                name="keywords"
+                control={form.control}
+                render={({ field }) => (
+                  <NewCustomInput
+                    icon={<TbTag className="text-blue-500" />}
+                    placeholder="Keywords"
+                    {...field}
+                  />
+                )}
+              />
+              {keywordError && (
+                <p className="text-red-500 text-sm">{keywordError}</p>
+              )}
+
+              <Controller
+                name="SearchEngine"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={googleDomains}
+                    icon={<FcGoogle className="text-xl" />}
+                    listName="Search Engine"
+                    value={field.value}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
+                  />
+                )}
+              />
+              <Controller
+                name="serpType"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["organic + local", "organic", "Local"]}
+                    icon={
+                      <LiaSearchLocationSolid className="text-blue-500 text-xl" />
+                    }
+                    listName="SERP Type"
+                    value={field.value}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
+                  />
+                )}
+              />
+              <Controller
+                name="deviceType"
+                control={form.control}
+                render={({ field }) => (
+                  <DropDownList
+                    listData={["desktop", "mobile"]}
+                    icon={
+                      <MdOutlineDevices className="text-blue-500 text-xl" />
+                    }
+                    listName="Device Type"
+                    value={field.value}
+                    onChange={(selected: any) =>
+                      field.onChange(selected?.value)
+                    }
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-start">
+            <CustomButton buttonName="Update" onClick={onSubmit} />
+          </div>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default EditKeywords;

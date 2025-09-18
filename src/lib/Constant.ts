@@ -1,0 +1,112 @@
+export function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
+  let timer: ReturnType<typeof setTimeout> | null;
+
+  const debounced = (...args: Parameters<T>) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+
+  // debounced.cancel = () => {
+  //   if (timer) {
+  //     clearTimeout(timer);
+  //     timer = null;
+  //   }
+  // };
+
+  return debounced;
+}
+
+
+export const googleDomains: string[] = [
+    "google.com",
+    "google.com.au",
+    "google.co.uk",
+    "google.ca",
+    "google.co.in",
+    "google.de",
+    "google.fr",
+    "google.it",
+    "google.es",
+    "google.com.br",
+    "google.com.mx",
+    "google.co.jp",
+    "google.com.hk",
+    "google.cn",
+    "google.ru",
+    "google.com.tr",
+    "google.com.sa",
+    "google.co.za",
+    "google.nl",
+    "google.be",
+    "google.se",
+    "google.no",
+    "google.dk",
+    "google.fi",
+    "google.ch",
+    "google.at",
+    "google.pl",
+    "google.cz",
+    "google.hu",
+    "google.gr",
+    "google.pt",
+    "google.ie",
+    "google.co.kr",
+    "google.com.sg",
+    "google.co.id",
+    "google.com.my",
+    "google.co.th",
+    "google.com.vn",
+    "google.com.ph",
+    "google.ae",
+    "google.com.eg",
+    "google.com.ar",
+    "google.cl",
+    "google.com.co",
+    "google.com.pe",
+    "google.com.uy",
+    "google.com.ve",
+    "google.com.ng",
+    "google.com.gh",
+    "google.com.pk",
+    "google.com.bd",
+    "google.lk",
+    "google.com.np",
+    "google.co.il",
+    "google.com.qa",
+    "google.com.kw",
+    "google.com.om",
+    "google.kz",
+    "google.com.tw",
+    "google.com.ua",
+    "google.co.nz",
+    "google.com.lb",
+    "google.com.mt",
+    "google.is",
+    "google.li",
+    "google.ee",
+    "google.lv",
+    "google.lt",
+    "google.hr",
+    "google.rs",
+    "google.ba",
+    "google.mk",
+    "google.al",
+    "google.ge",
+    "google.am",
+    "google.com.cy",
+    "google.md",
+    "google.by",
+    "google.mn",
+    "google.com.kh",
+    "google.la",
+    "google.com.mm",
+    "google.com.bn",
+    "google.com.fj",
+    "google.vu",
+    "google.fm",
+    "google.ws",
+    "google.to",
+    "google.as",
+    "google.co.ck",
+    "google.com.sb",
+  ];

@@ -1,69 +1,1581 @@
+// import { useCampaignData } from "@/app/context/CampaignContext";
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
-import Campaign from "@/lib/models/campaign.model";
 import Keyword from "@/lib/models/keyword.model";
-import User from "@/lib/models/user.model";
-export const saveKeyword=async (keyword:string)=>{
-     try {
-        await connectToDB();
-        // console.log("finding user");
-    
-        const user = await getUserFromToken();
-        if (!user) {
-          return { error: "Unauthorized" };
-        }
-        // const nameExists = await Campaign.findOne({ campaignName: formData?.name });
-        // const urlExists = await Campaign.findOne({ projectUrl: formData?.url });
-    
-        // if (nameExists) {
-        //   return { error: "Campaign name must be unique" };
-        // }
-        // if (urlExists) {
-        //   return { error: "Domain must be unique" };
-        // }
-        const addKeyword = await Keyword.create({
-          //   data: {
-            keyword,
-          userId: user?.id, // ✅ saving user ID here
-          //   },
-        });
-        if (!addKeyword) {
-          return { error: "Error while adding keyword" };
-        }
-        // if (campaign) {
-        return {
-          success: true,
-          message: "Keyword Added Successfully",
-        };
-        // }
-      } catch (error) {
-        console.log(error);
-    
-        return { error: "Internal Server Error." };
-      }
+// import User from "@/lib/models/user.model";
+// import { getUserCampaign } from "../campaign";
+import KeywordTracking from "@/lib/models/keywordTracking.model";
+import { keywordQueue } from "@/lib/queue/keywordQueue";
+import { getRedis } from "@/lib/redis";
+// import { getLocation_languageData } from "../locations_Language";
+// import { getKewordRank, getRankIntent, getVolumnRank } from ".";
+const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME;
+const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD;
+
+// export const saveKeyword = async (keyword: {}) => {
+//   try {
+//     await connectToDB();
+//     // console.log("finding user");
+
+//     const user = await getUserFromToken();
+//     if (!user) {
+//       return { error: "Unauthorized" };
+//     }
+//     // const nameExists = await Campaign.findOne({ campaignName: formData?.name });
+//     // const urlExists = await Campaign.findOne({ projectUrl: formData?.url });
+
+//     // if (nameExists) {
+//     //   return { error: "Campaign name must be unique" };
+//     // }
+//     // if (urlExists) {
+//     //   return { error: "Domain must be unique" };
+//     // }
+//     const addKeyword = await Keyword.create({
+//       //   data: {
+//       ...keyword,
+//       userId: user?.id, // ✅ saving user ID here
+//       //   },
+//     });
+//     console.log("addkeuwords", addKeyword);
+//     if (!addKeyword) {
+//       return { error: "Error while adding keyword" };
+//     }
+//     // if (campaign) {
+//     return {
+//       success: true,
+//       message: "Keyword Added Successfully",
+//     };
+//     // }
+//   } catch (error) {
+//     console.log(error);
+
+//     return { error: "Internal Server Error." };
+//   }
+// };
+interface compaigntype {
+  _id: string;
+}
+interface KeywordPayload {
+  keyword: string;
+  location_code: number;
+  language_name: string;
 }
 
-export const saveMultipleKeyword=async (keyword:[])=>{
-    try {
-        await connectToDB();
-        const user = await getUserFromToken();
-        if (!user) {
-          return { error: "Unauthorized" };
-        }
-        const addKeyword = await Keyword.create({
-            keyword,
-          userId: user?.id,
-        });
-        if (!addKeyword) {
-          return { error: "Error while adding keyword" };
-        }
-        return {
-          success: true,
-          message: "Keyword Added Successfully",
-        };
-      } catch (error) {
-        console.log(error);
-    
-        return { error: "Internal Server Error." };
-      }
+interface KeywordResponse {
+  keyword: any;
+  response: any;
 }
+
+interface ErrorResponse {
+  error: string;
+}
+
+// export const saveMultipleKeyword = async (
+//   formData: any,
+//   campaign: compaigntype
+// ) => {
+//   try {
+//     await connectToDB();
+//     const user = await getUserFromToken();
+//     if (!user) {
+//       return { error: "Unauthorized" };
+//     }
+
+//     const addKeyword = await Promise.all(
+//       formData?.keyword?.map(async (singleKeyword: string) => {
+//         const { keywords, ...rest } = formData;
+//         return await Keyword.create({
+//           ...rest,
+//           keywords: singleKeyword,
+//           userId: user?.id,
+//           CampaignId: campaign?._id,
+//         });
+//       })
+//     );
+
+//     console.log(addKeyword, "campgin kewywords");
+
+//     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+
+//     const rankPayload: KeywordPayload[] = addKeyword.map((keywordObj: any) => ({
+//       keyword: keywordObj.keywords,
+//       location_code: Number(keywordObj.searchLocationCode),
+//       language_name: keywordObj.language,
+//       target: keywordObj.url,
+//       device: keywordObj.deviceType,
+//       se_domain: keywordObj.SearchEngine,
+//     }));
+//     const volumnPayload = addKeyword.map((keywordObj: any) => ({
+//       keywords: [keywordObj.keywords],
+//       location_code: Number(keywordObj.volumeLocationCode),
+//       language_name: keywordObj.language,
+//       target: keywordObj.url,
+//       device: keywordObj.deviceType,
+//       se_domain: keywordObj.SearchEngine,
+//     }));
+//     // const intentPayload = addKeyword.map((keywordObj: any) => ({
+//     //   keywords: [keywordObj.keywords],
+//     //   location_code: Number(keywordObj.searchLocationCode),
+//     //   language_name: keywordObj.language,
+//     //   target: keywordObj.url,
+//     //   device: keywordObj.deviceType,
+//     //   se_domain: keywordObj.SearchEngine,
+//     // }));
+
+//     // console.log(volumnPayload, "vaoumn payload");
+
+//     console.log(rankPayload, "rank payload compaign");
+//     // console.log(intentPayload, "intent payload compaign");
+
+//     const rankResponses: KeywordResponse[] = [];
+//     const volumnResponses: KeywordResponse[] = [];
+//     // const intentResponses: KeywordResponse[] = [];
+
+//     for (const item of rankPayload) {
+//       const res = await fetch(
+//         `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
+//         {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: `Basic ${basicAuth}`,
+//           },
+//           body: JSON.stringify([item]),
+//         }
+//       );
+
+//       if (!res.ok) {
+//         const errorBody = await res.text();
+//         console.error(
+//           `Request failed for ${item.keyword}: ${res.status} - ${errorBody}`
+//         );
+//         rankResponses.push({ keyword: item.keyword, response: null });
+//       } else {
+//         const result = await res.json();
+
+//         rankResponses.push({ keyword: item.keyword, response: result });
+//       }
+//     }
+//     for (const item of volumnPayload) {
+//       const res = await fetch(
+//         `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"keywords_data/google/search_volume/live"}`,
+//         {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: `Basic ${basicAuth}`,
+//           },
+//           body: JSON.stringify([item]),
+//         }
+//       );
+
+//       if (!res.ok) {
+//         const errorBody = await res.text();
+//         console.error(
+//           `Request failed for ${item.keywords}: ${res.status} - ${errorBody}`
+//         );
+//         volumnResponses.push({ keyword: item.keywords, response: null });
+//       } else {
+//         const result = await res.json();
+
+//         volumnResponses.push({ keyword: item.keywords, response: result });
+//       }
+//     }
+
+//     // for (const item of intentPayload) {
+//     //   const res = await fetch(
+//     //     `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"keywords_data/google/search_volume/live"}`,
+//     //     {
+//     //       method: "POST",
+//     //       headers: {
+//     //         "Content-Type": "application/json",
+//     //         Authorization: `Basic ${basicAuth}`,
+//     //       },
+//     //       body: JSON.stringify([item]),
+//     //     }
+//     //   );
+
+//     //   if (!res.ok) {
+//     //     const errorBody = await res.text();
+//     //     console.error(
+//     //       `Request failed for ${item.keywords}: ${res.status} - ${errorBody}`
+//     //     );
+//     //     intentResponses.push({ keyword: item.keywords, response: null });
+//     //   } else {
+//     //     const result = await res.json();
+
+//     //     intentResponses.push({ keyword: item.keywords, response: result });
+//     //   }
+//     // }
+
+//     console.log(rankResponses, "rank response");
+//     console.log(volumnResponses, "volumn response");
+//     // console.log(intentResponses, "intent response");
+
+//     const createdRecords: any[] = [];
+//     const res = await getLocation_languageData();
+//     const locationData = res?.allLocations;
+
+//     // intentResponses.forEach((int)=>{
+
+//     // })
+
+//     volumnResponses.forEach((vol) => {
+//       rankResponses.forEach((item: any) => {
+//         console.log(item?.response?.tasks, "response a gyea task");
+
+//         item?.response?.tasks?.forEach((task: any) => {
+//           console.log(task, "task in response");
+//           const keyword = task?.data?.keyword;
+
+//           const results = task?.result?.flatMap((data: any) => {
+//             console.log(task?.result, "locations check");
+
+//             // Find the matching keyword document
+//             const matchedKeyword = addKeyword.find(
+//               (addDataKeyword) => addDataKeyword.keywords === keyword
+//             );
+
+//             const matchLangName = locationData?.find(
+//               (lang) => lang.locationCode === data?.location_code
+//             );
+
+//             // Find the corresponding search volume for the keyword and location
+//             const matchSearchVolumn =
+//               vol?.response?.tasks?.flatMap((vTask: any) =>
+//                 vTask?.result?.filter(
+//                   (volData: any) =>
+//                     volData.keyword === keyword &&
+//                     volData.location_code === data?.location_code
+//                 )
+//               )[0]?.search_volume || 0;
+//             console.log(matchSearchVolumn, "match serach location");
+//             // const matchcompetition =
+//             //   vol?.response?.tasks?.flatMap((vTask: any) =>
+//             //     vTask?.result?.filter(
+//             //       (volData: any) =>
+//             //         volData.keyword === keyword &&
+//             //         volData.location_code === data?.location_code
+//             //     )
+//             //   )[0]?.competition || 0;
+
+//             console.log(matchedKeyword, "during campaign match data");
+//             // const matchIntent =
+//   return [
+//     {
+//       type: task?.data?.se_type,
+//       location_code: data?.location_code || 2124,
+//       language_code: data?.language_code || "en",
+//       location_name: matchLangName?.locationName || "",
+//       url: task?.data?.target || "no ranking",
+//       rank_group: data?.items?.[0]?.rank_group || 0,
+//       rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+//       keyword: keyword || "",
+//       searchVolumn: matchSearchVolumn,
+//       // competition: matchcompetition,
+//       // intent: matchIntent ,
+//       // SearchEngine:  task?.data?.se_domain,
+//       // language: task?.data?.language_name,
+//       // deviceType:task?.data?.device,
+//       campaignId: campaign?._id,
+//       keywordId: matchedKeyword?._id,
+//     },
+//   ];
+// });
+
+//           if (results?.length) {
+//             createdRecords.push(...results);
+//           }
+//         });
+//       });
+//     });
+
+//     // rankResponses.forEach((item: any) => {
+//     //   console.log(item?.response?.tasks, "response a gyea task");
+
+//     //   item?.response?.tasks?.forEach((task: any) => {
+//     //     const keyword = task?.data?.keyword;
+//     //     const results = task?.result?.flatMap((data: any) => {
+//     //       console.log(task?.result, "locations check");
+
+//     //       // const location_name =
+//     //       // Find the matching keyword document
+//     //       const matchedKeyword = addKeyword.find(
+//     //         (addDataKeyword) => addDataKeyword.keywords === keyword
+//     //       );
+//     //       const matchLangName = locationData?.find((lang) => {
+//     //         return lang.locationCode === data?.location_code;
+//     //       });
+//     //       // const matchSearchVolumn =
+
+//     //       console.log(matchedKeyword, "during capmaign match data");
+//     //       return [
+//     //         {
+//     //           type: task?.data?.se_type,
+//     //           location_code: data?.location_code || 2124,
+//     //           language_code: data?.language_code || "en",
+//     //           location_name: matchLangName?.locationName || "",
+//     //           url: task?.data?.target || "no ranking",
+//     //           rank_group: data?.items?.[0]?.rank_group || 0,
+//     //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+//     //           keyword: keyword || "",
+//     //           searchVolumn: matchSearchVolumn || 0,
+//     //           // SearchEngine:  task?.data?.se_domain,
+//     //           // language: task?.data?.language_name, // "en"
+//     //           // deviceType:task?.data?.device,
+//     //           campaignId: campaign?._id,
+//     //           keywordId: matchedKeyword._id,
+//     //         },
+//     //       ];
+//     //     });
+
+//     //     if (results?.length) {
+//     //       createdRecords.push(...results);
+//     //     }
+//     //   });
+//     // });
+
+//     // intentResponses.forEach((int) => {
+
+//     // volumnResponses.forEach((vol) => {
+
+//     // });
+
+//     // });
+
+//     //  rankResponses.forEach((item: any) => {
+//     //       item?.response?.tasks?.forEach((task: any) => {
+//     //         const keyword = task?.data?.keyword;
+
+//     //         const results = task?.result?.flatMap((data: any) => {
+//     //           // Matching keyword from initial input
+//     //           const matchedKeyword = addKeyword.find(
+//     //             (addDataKeyword) => addDataKeyword.keywords === keyword
+//     //           );
+
+//     //           const matchLangName = locationData?.find(
+//     //             (lang) => lang.locationCode === data?.location_code
+//     //           );
+
+//     //           // Get search volume & competition
+//     //           // const volumeMatch = vol?.response?.tasks?.flatMap((vTask: any) =>
+//     //           //   vTask?.result?.filter(
+//     //           //     (volData: any) =>
+//     //           //       volData.keyword === keyword &&
+//     //           //       volData.location_code === data?.location_code
+//     //           //   )
+//     //           // )[0];
+
+//     //           // const matchSearchVolumn = volumeMatch?.search_volume || 0;
+//     //           // const matchCompetition = volumeMatch?.competition || 0;
+
+//     //           // Get intent from intentResponses
+//     //           // const intentMatch = int?.response?.tasks?.flatMap(
+//     //           //   (intentTask: any) =>
+//     //           //     intentTask?.result?.flatMap((intentResult: any) =>
+//     //           //       intentResult?.items?.filter(
+//     //           //         (intentItem: any) => intentItem.keyword === keyword
+//     //           //       )
+//     //           //     )
+//     //           // )[0];
+
+//     //           // const matchIntent =
+//     //           //   intentMatch?.keyword_intent?.label || "unknown";
+
+//     //           return [
+//     //             {
+//     //               type: task?.data?.se_type,
+//     //               location_code: data?.location_code || 2124,
+//     //               language_code: data?.language_code || "en",
+//     //               location_name: matchLangName?.locationName || "",
+//     //               url: task?.data?.target || "no ranking",
+//     //               rank_group: data?.items?.[0]?.rank_group || 0,
+//     //               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+//     //               keyword: keyword || "",
+//     //               // searchVolumn: matchSearchVolumn,
+//     //               // competition: matchCompetition,
+//     //               // intent: matchIntent,
+//     //               campaignId: campaign?._id,
+//     //               keywordId: matchedKeyword?._id,
+//     //             },
+//     //           ];
+//     //         });
+
+//     //         if (results?.length) {
+//     //           createdRecords.push(...results);
+//     //         }
+//     //       });
+//     //     });
+
+//     console.log(createdRecords, "campaign all records pushed ✅");
+
+//     // console.log(createdRecords, "one keyword add");
+
+//     const addedKeywords = await KeywordTracking.insertMany(createdRecords);
+//     console.log(addedKeywords, "campagign return keywrods");
+
+//     if (!addKeyword) {
+//       return { error: "Error while adding keyword" };
+//     }
+//     return {
+//       success: true,
+//       message: "Keyword & compaign Added Successfully",
+//       addedKeywords,
+//     };
+//   } catch (error) {
+//     console.log(error);
+
+//     return { error: "Internal Server Error." };
+//   }
+// };
+
+export const getVolumnRank = async (KeywordData: any) => {
+  try {
+    await connectToDB();
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    // const addKeyword = await Promise.all(
+    //   formData?.keyword?.map(async (singleKeyword: string) => {
+    //     const { keywords, ...rest } = formData;
+    //     return await Keyword.create({
+    //       ...rest,
+    //       keywords: singleKeyword,
+    //       userId: user?.id,
+    //       CampaignId: campaign?._id,
+    //     });
+    //   })
+    // );
+
+    // console.log(addKeyword, "campgin kewywords");
+
+    const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+
+    const volumnPayload = KeywordData.map((keywordObj: any) => ({
+      keywords: [keywordObj.keywords],
+      location_code: Number(keywordObj.volumeLocationCode),
+      language_name: keywordObj.language,
+      target: keywordObj.url,
+      device: keywordObj.deviceType,
+      se_domain: keywordObj.SearchEngine,
+    }));
+
+    const volumnResponses: KeywordResponse[] = [];
+
+    for (const item of volumnPayload) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"keywords_data/google/search_volume/liveee"}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${basicAuth}`,
+          },
+          body: JSON.stringify([item]),
+        }
+      );
+
+      if (!res.ok) {
+        const errorBody = await res.text();
+        console.error(
+          `Request failed for ${item.keywords}: ${res.status} - ${errorBody}`
+        );
+        volumnResponses.push({ keyword: item.keywords, response: null });
+      } else {
+        const result = await res.json();
+
+        volumnResponses.push({ keyword: item.keywords, response: result });
+      }
+    }
+
+    console.log(volumnResponses, "volumn response");
+
+    // const createdRecords: any[] = [];
+    // const res = await getLocation_languageData();
+    // const locationData = res?.allLocations;
+
+    // volumnResponses.forEach((vol) => {
+    //   rankResponses.forEach((item: any) => {
+    //     console.log(item?.response?.tasks, "response a gyea task");
+
+    //     item?.response?.tasks?.forEach((task: any) => {
+    //       console.log(task, "task in response");
+    //       const keyword = task?.data?.keyword;
+
+    //       const results = task?.result?.flatMap((data: any) => {
+    //         console.log(task?.result, "locations check");
+
+    //         // Find the matching keyword document
+    //         const matchedKeyword = addKeyword.find(
+    //           (addDataKeyword) => addDataKeyword.keywords === keyword
+    //         );
+
+    //         const matchLangName = locationData?.find(
+    //           (lang) => lang.locationCode === data?.location_code
+    //         );
+
+    //         // Find the corresponding search volume for the keyword and location
+    //         const matchSearchVolumn =
+    //           vol?.response?.tasks?.flatMap((vTask: any) =>
+    //             vTask?.result?.filter(
+    //               (volData: any) =>
+    //                 volData.keyword === keyword &&
+    //                 volData.location_code === data?.location_code
+    //             )
+    //           )[0]?.search_volume || 0;
+    //           console.log(matchSearchVolumn,"match serach location")
+    //         // const matchcompetition =
+    //         //   vol?.response?.tasks?.flatMap((vTask: any) =>
+    //         //     vTask?.result?.filter(
+    //         //       (volData: any) =>
+    //         //         volData.keyword === keyword &&
+    //         //         volData.location_code === data?.location_code
+    //         //     )
+    //         //   )[0]?.competition || 0;
+
+    //         console.log(matchedKeyword, "during campaign match data");
+    //         // const matchIntent =
+    //         return [
+    //           {
+    //             type: task?.data?.se_type,
+    //             location_code: data?.location_code || 2124,
+    //             language_code: data?.language_code || "en",
+    //             location_name: matchLangName?.locationName || "",
+    //             url: task?.data?.target || "no ranking",
+    //             rank_group: data?.items?.[0]?.rank_group || 0,
+    //             rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //             keyword: keyword || "",
+    //             searchVolumn: matchSearchVolumn,
+    //             // competition: matchcompetition,
+    //             // intent: matchIntent ,
+    //             // SearchEngine:  task?.data?.se_domain,
+    //             // language: task?.data?.language_name,
+    //             // deviceType:task?.data?.device,
+    //             campaignId: campaign?._id,
+    //             keywordId: matchedKeyword?._id,
+    //           },
+    //         ];
+    //       });
+
+    //       if (results?.length) {
+    //         createdRecords.push(...results);
+    //       }
+    //     });
+    //   });
+    // });
+
+    // console.log(createdRecords, "volumn records ✅");
+
+    // const addedKeywords = await KeywordTracking.insertMany(createdRecords);
+    // console.log(addedKeywords, "campagign return keywrods");
+
+    if (!KeywordData) {
+      return { error: "Error while adding keyword" };
+    }
+    return {
+      success: true,
+      message: "volumn data  Successfully",
+      volumnResponses,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+export const getRankIntent = async (KeywordData: any) => {
+  try {
+    await connectToDB();
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    // const addKeyword = await Promise.all(
+    //   formData?.keyword?.map(async (singleKeyword: string) => {
+    //     const { keywords, ...rest } = formData;
+    //     return await Keyword.create({
+    //       ...rest,
+    //       keywords: singleKeyword,
+    //       userId: user?.id,
+    //       CampaignId: campaign?._id,
+    //     });
+    //   })
+    // );
+
+    // console.log(addKeyword, "campgin kewywords");
+
+    const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+
+    const intentPayload = KeywordData.map((keywordObj: any) => ({
+      keywords: [keywordObj.keywords],
+      location_code: Number(keywordObj.searchLocationCode),
+      language_name: keywordObj.language,
+      target: keywordObj.url,
+      device: keywordObj.deviceType,
+      se_domain: keywordObj.SearchEngine,
+    }));
+
+    console.log(intentPayload, "intent payload compaign");
+
+    const intentResponses: KeywordResponse[] = [];
+
+    for (const item of intentPayload) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"dataforseo_labs/google/search_intent/liveee"}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${basicAuth}`,
+          },
+          body: JSON.stringify([item]),
+        }
+      );
+
+      if (!res.ok) {
+        const errorBody = await res.text();
+        console.error(
+          `Request failed for ${item.keywords}: ${res.status} - ${errorBody}`
+        );
+        intentResponses.push({ keyword: item.keywords, response: null });
+      } else {
+        const result = await res.json();
+
+        intentResponses.push({ keyword: item.keywords, response: result });
+      }
+    }
+
+    console.log(intentResponses, "intent response");
+
+    // const res = await getLocation_languageData();
+    // const locationData = res?.allLocations;
+
+    // intentResponses.forEach((int)=>{
+
+    // })
+
+    // volumnResponses.forEach((vol) => {
+    //   rankResponses.forEach((item: any) => {
+    //     console.log(item?.response?.tasks, "response a gyea task");
+
+    //     item?.response?.tasks?.forEach((task: any) => {
+    //       console.log(task, "task in response");
+    //       const keyword = task?.data?.keyword;
+
+    //       const results = task?.result?.flatMap((data: any) => {
+    //         console.log(task?.result, "locations check");
+
+    //         // Find the matching keyword document
+    //         const matchedKeyword = addKeyword.find(
+    //           (addDataKeyword) => addDataKeyword.keywords === keyword
+    //         );
+
+    //         const matchLangName = locationData?.find(
+    //           (lang) => lang.locationCode === data?.location_code
+    //         );
+
+    //         // Find the corresponding search volume for the keyword and location
+    //         const matchSearchVolumn =
+    //           vol?.response?.tasks?.flatMap((vTask: any) =>
+    //             vTask?.result?.filter(
+    //               (volData: any) =>
+    //                 volData.keyword === keyword &&
+    //                 volData.location_code === data?.location_code
+    //             )
+    //           )[0]?.search_volume || 0;
+    //           console.log(matchSearchVolumn,"match serach location")
+    //         // const matchcompetition =
+    //         //   vol?.response?.tasks?.flatMap((vTask: any) =>
+    //         //     vTask?.result?.filter(
+    //         //       (volData: any) =>
+    //         //         volData.keyword === keyword &&
+    //         //         volData.location_code === data?.location_code
+    //         //     )
+    //         //   )[0]?.competition || 0;
+
+    //         console.log(matchedKeyword, "during campaign match data");
+    //         // const matchIntent =
+    //         return [
+    //           {
+    //             type: task?.data?.se_type,
+    //             location_code: data?.location_code || 2124,
+    //             language_code: data?.language_code || "en",
+    //             location_name: matchLangName?.locationName || "",
+    //             url: task?.data?.target || "no ranking",
+    //             rank_group: data?.items?.[0]?.rank_group || 0,
+    //             rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //             keyword: keyword || "",
+    //             searchVolumn: matchSearchVolumn,
+    //             // competition: matchcompetition,
+    //             // intent: matchIntent ,
+    //             // SearchEngine:  task?.data?.se_domain,
+    //             // language: task?.data?.language_name,
+    //             // deviceType:task?.data?.device,
+    //             campaignId: campaign?._id,
+    //             keywordId: matchedKeyword?._id,
+    //           },
+    //         ];
+    //       });
+
+    //       if (results?.length) {
+    //         createdRecords.push(...results);
+    //       }
+    //     });
+    //   });
+    // });
+
+    // rankResponses.forEach((item: any) => {
+    //   console.log(item?.response?.tasks, "response a gyea task");
+
+    //   item?.response?.tasks?.forEach((task: any) => {
+    //     const keyword = task?.data?.keyword;
+    //     const results = task?.result?.flatMap((data: any) => {
+    //       console.log(task?.result, "locations check");
+
+    //       // const location_name =
+    //       // Find the matching keyword document
+    //       const matchedKeyword = addKeyword.find(
+    //         (addDataKeyword) => addDataKeyword.keywords === keyword
+    //       );
+    //       const matchLangName = locationData?.find((lang) => {
+    //         return lang.locationCode === data?.location_code;
+    //       });
+    //       // const matchSearchVolumn =
+
+    //       console.log(matchedKeyword, "during capmaign match data");
+    //       return [
+    //         {
+    //           type: task?.data?.se_type,
+    //           location_code: data?.location_code || 2124,
+    //           language_code: data?.language_code || "en",
+    //           location_name: matchLangName?.locationName || "",
+    //           url: task?.data?.target || "no ranking",
+    //           rank_group: data?.items?.[0]?.rank_group || 0,
+    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //           keyword: keyword || "",
+    //           searchVolumn: matchSearchVolumn || 0,
+    //           // SearchEngine:  task?.data?.se_domain,
+    //           // language: task?.data?.language_name, // "en"
+    //           // deviceType:task?.data?.device,
+    //           campaignId: campaign?._id,
+    //           keywordId: matchedKeyword._id,
+    //         },
+    //       ];
+    //     });
+
+    //     if (results?.length) {
+    //       createdRecords.push(...results);
+    //     }
+    //   });
+    // });
+
+    // intentResponses.forEach((int) => {
+
+    // volumnResponses.forEach((vol) => {
+
+    // });
+
+    // });
+
+    //  rankResponses.forEach((item: any) => {
+    //       item?.response?.tasks?.forEach((task: any) => {
+    //         const keyword = task?.data?.keyword;
+
+    //         const results = task?.result?.flatMap((data: any) => {
+    //           // Matching keyword from initial input
+    //           const matchedKeyword = addKeyword.find(
+    //             (addDataKeyword) => addDataKeyword.keywords === keyword
+    //           );
+
+    //           const matchLangName = locationData?.find(
+    //             (lang) => lang.locationCode === data?.location_code
+    //           );
+
+    //           // Get search volume & competition
+    //           // const volumeMatch = vol?.response?.tasks?.flatMap((vTask: any) =>
+    //           //   vTask?.result?.filter(
+    //           //     (volData: any) =>
+    //           //       volData.keyword === keyword &&
+    //           //       volData.location_code === data?.location_code
+    //           //   )
+    //           // )[0];
+
+    //           // const matchSearchVolumn = volumeMatch?.search_volume || 0;
+    //           // const matchCompetition = volumeMatch?.competition || 0;
+
+    //           // Get intent from intentResponses
+    //           // const intentMatch = int?.response?.tasks?.flatMap(
+    //           //   (intentTask: any) =>
+    //           //     intentTask?.result?.flatMap((intentResult: any) =>
+    //           //       intentResult?.items?.filter(
+    //           //         (intentItem: any) => intentItem.keyword === keyword
+    //           //       )
+    //           //     )
+    //           // )[0];
+
+    //           // const matchIntent =
+    //           //   intentMatch?.keyword_intent?.label || "unknown";
+
+    //           return [
+    //             {
+    //               type: task?.data?.se_type,
+    //               location_code: data?.location_code || 2124,
+    //               language_code: data?.language_code || "en",
+    //               location_name: matchLangName?.locationName || "",
+    //               url: task?.data?.target || "no ranking",
+    //               rank_group: data?.items?.[0]?.rank_group || 0,
+    //               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //               keyword: keyword || "",
+    //               // searchVolumn: matchSearchVolumn,
+    //               // competition: matchCompetition,
+    //               // intent: matchIntent,
+    //               campaignId: campaign?._id,
+    //               keywordId: matchedKeyword?._id,
+    //             },
+    //           ];
+    //         });
+
+    //         if (results?.length) {
+    //           createdRecords.push(...results);
+    //         }
+    //       });
+    //     });
+
+    // const addedKeywords = await KeywordTracking.insertMany(createdRecords);
+    // console.log(addedKeywords, "campagign return keywrods");
+
+    if (!KeywordData) {
+      return { error: "Error while adding keyword" };
+    }
+    return {
+      success: true,
+      message: "intent Responses Successfully",
+      intentResponses,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+export const getKewordRank = async (KeywordData: any) => {
+  try {
+    await connectToDB();
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    // const addKeyword = await Promise.all(
+    //   formData?.keyword?.map(async (singleKeyword: string) => {
+    //     const { keywords, ...rest } = formData;
+    //     return await Keyword.create({
+    //       ...rest,
+    //       keywords: singleKeyword,
+    //       userId: user?.id,
+    //       CampaignId: campaign?._id,
+    //     });
+    //   })
+    // );
+
+    // console.log(addKeyword, "campgin kewywords");
+
+    const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
+    const payload = [
+      {
+        keyword: KeywordData.keywords,
+        location_code: Number(KeywordData.searchLocationCode),
+        language_name: KeywordData.language,
+        target: `*${KeywordData.url}*`,
+        device: KeywordData.deviceType,
+        se_domain: KeywordData.SearchEngine,
+      },
+    ];
+    // const rankPayload: KeywordPayload[] = KeywordData.map(
+
+    // );
+    console.log(payload, "payload check");
+
+    // console.log(rankPayload, "rank payload compaign");
+
+    // const rankResponses: KeywordResponse[] = [];
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/advanced"}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${basicAuth}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+    let result;
+    if (!res.ok) {
+      const errorBody = await res.json();
+      // console.error(
+      //   `Request failed for ${item.keyword}: ${res.status} - ${errorBody}`
+      // );
+      // rankResponses.push({ keyword: item.keyword, response: null });
+    } else {
+      result = await res.json();
+
+      // rankResponses.push({ keyword: item.keyword, response: result });
+    }
+
+    // console.log(rankResponses[0].response.tasks[0].result, "rank response");
+
+    // const res = await getLocation_languageData();
+    // const locationData = res?.allLocations;
+
+    // intentResponses.forEach((int)=>{
+
+    // })
+
+    // volumnResponses.forEach((vol) => {
+    //   rankResponses.forEach((item: any) => {
+    //     console.log(item?.response?.tasks, "response a gyea task");
+
+    //     item?.response?.tasks?.forEach((task: any) => {
+    //       console.log(task, "task in response");
+    //       const keyword = task?.data?.keyword;
+
+    //       const results = task?.result?.flatMap((data: any) => {
+    //         console.log(task?.result, "locations check");
+
+    //         // Find the matching keyword document
+    //         const matchedKeyword = addKeyword.find(
+    //           (addDataKeyword) => addDataKeyword.keywords === keyword
+    //         );
+
+    //         const matchLangName = locationData?.find(
+    //           (lang) => lang.locationCode === data?.location_code
+    //         );
+
+    //         // Find the corresponding search volume for the keyword and location
+    //         const matchSearchVolumn =
+    //           vol?.response?.tasks?.flatMap((vTask: any) =>
+    //             vTask?.result?.filter(
+    //               (volData: any) =>
+    //                 volData.keyword === keyword &&
+    //                 volData.location_code === data?.location_code
+    //             )
+    //           )[0]?.search_volume || 0;
+    //           console.log(matchSearchVolumn,"match serach location")
+    //         // const matchcompetition =
+    //         //   vol?.response?.tasks?.flatMap((vTask: any) =>
+    //         //     vTask?.result?.filter(
+    //         //       (volData: any) =>
+    //         //         volData.keyword === keyword &&
+    //         //         volData.location_code === data?.location_code
+    //         //     )
+    //         //   )[0]?.competition || 0;
+
+    //         console.log(matchedKeyword, "during campaign match data");
+    //         // const matchIntent =
+    //         return [
+    //           {
+    //             type: task?.data?.se_type,
+    //             location_code: data?.location_code || 2124,
+    //             language_code: data?.language_code || "en",
+    //             location_name: matchLangName?.locationName || "",
+    //             url: task?.data?.target || "no ranking",
+    //             rank_group: data?.items?.[0]?.rank_group || 0,
+    //             rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //             keyword: keyword || "",
+    //             searchVolumn: matchSearchVolumn,
+    //             // competition: matchcompetition,
+    //             // intent: matchIntent ,
+    //             // SearchEngine:  task?.data?.se_domain,
+    //             // language: task?.data?.language_name,
+    //             // deviceType:task?.data?.device,
+    //             campaignId: campaign?._id,
+    //             keywordId: matchedKeyword?._id,
+    //           },
+    //         ];
+    //       });
+
+    //       if (results?.length) {
+    //         createdRecords.push(...results);
+    //       }
+    //     });
+    //   });
+    // });
+
+    // rankResponses.forEach((item: any) => {
+    //   console.log(item?.response?.tasks, "response a gyea task");
+
+    //   item?.response?.tasks?.forEach((task: any) => {
+    //     const keyword = task?.data?.keyword;
+    //     const results = task?.result?.flatMap((data: any) => {
+    //       console.log(task?.result, "locations check");
+
+    //       // const location_name =
+    //       // Find the matching keyword document
+    //       const matchedKeyword = addKeyword.find(
+    //         (addDataKeyword) => addDataKeyword.keywords === keyword
+    //       );
+    //       const matchLangName = locationData?.find((lang) => {
+    //         return lang.locationCode === data?.location_code;
+    //       });
+    //       // const matchSearchVolumn =
+
+    //       console.log(matchedKeyword, "during capmaign match data");
+    //       return [
+    //         {
+    //           type: task?.data?.se_type,
+    //           location_code: data?.location_code || 2124,
+    //           language_code: data?.language_code || "en",
+    //           location_name: matchLangName?.locationName || "",
+    //           url: task?.data?.target || "no ranking",
+    //           rank_group: data?.items?.[0]?.rank_group || 0,
+    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //           keyword: keyword || "",
+    //           searchVolumn: matchSearchVolumn || 0,
+    //           // SearchEngine:  task?.data?.se_domain,
+    //           // language: task?.data?.language_name, // "en"
+    //           // deviceType:task?.data?.device,
+    //           campaignId: campaign?._id,
+    //           keywordId: matchedKeyword._id,
+    //         },
+    //       ];
+    //     });
+
+    //     if (results?.length) {
+    //       createdRecords.push(...results);
+    //     }
+    //   });
+    // });
+
+    // intentResponses.forEach((int) => {
+
+    // volumnResponses.forEach((vol) => {
+
+    // });
+
+    // });
+
+    //  rankResponses.forEach((item: any) => {
+    //       item?.response?.tasks?.forEach((task: any) => {
+    //         const keyword = task?.data?.keyword;
+
+    //         const results = task?.result?.flatMap((data: any) => {
+    //           // Matching keyword from initial input
+    //           const matchedKeyword = addKeyword.find(
+    //             (addDataKeyword) => addDataKeyword.keywords === keyword
+    //           );
+
+    //           const matchLangName = locationData?.find(
+    //             (lang) => lang.locationCode === data?.location_code
+    //           );
+
+    //           // Get search volume & competition
+    //           // const volumeMatch = vol?.response?.tasks?.flatMap((vTask: any) =>
+    //           //   vTask?.result?.filter(
+    //           //     (volData: any) =>
+    //           //       volData.keyword === keyword &&
+    //           //       volData.location_code === data?.location_code
+    //           //   )
+    //           // )[0];
+
+    //           // const matchSearchVolumn = volumeMatch?.search_volume || 0;
+    //           // const matchCompetition = volumeMatch?.competition || 0;
+
+    //           // Get intent from intentResponses
+    //           // const intentMatch = int?.response?.tasks?.flatMap(
+    //           //   (intentTask: any) =>
+    //           //     intentTask?.result?.flatMap((intentResult: any) =>
+    //           //       intentResult?.items?.filter(
+    //           //         (intentItem: any) => intentItem.keyword === keyword
+    //           //       )
+    //           //     )
+    //           // )[0];
+
+    //           // const matchIntent =
+    //           //   intentMatch?.keyword_intent?.label || "unknown";
+
+    //           return [
+    //             {
+    //               type: task?.data?.se_type,
+    //               location_code: data?.location_code || 2124,
+    //               language_code: data?.language_code || "en",
+    //               location_name: matchLangName?.locationName || "",
+    //               url: task?.data?.target || "no ranking",
+    //               rank_group: data?.items?.[0]?.rank_group || 0,
+    //               rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //               keyword: keyword || "",
+    //               // searchVolumn: matchSearchVolumn,
+    //               // competition: matchCompetition,
+    //               // intent: matchIntent,
+    //               campaignId: campaign?._id,
+    //               keywordId: matchedKeyword?._id,
+    //             },
+    //           ];
+    //         });
+
+    //         if (results?.length) {
+    //           createdRecords.push(...results);
+    //         }
+    //       });
+    //     });
+
+    // const addedKeywords = await KeywordTracking.insertMany(createdRecords);
+    // console.log(addedKeywords, "campagign return keywrods");
+
+    if (!KeywordData) {
+      return { error: "Error while adding keyword" };
+    }
+    return {
+      success: true,
+      message: "rank Data Successfully",
+      result,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};
+
+type KeywordUpdateData = {
+  keywords?: string; // NOTE: your DB expects this as string (not array)
+  SearchEngine?: string;
+  deviceType?: string;
+  keywordTag?: string;
+  language?: string;
+  searchLocation?: string;
+  serpType?: string;
+  url?: string;
+  volumeLocation?: string;
+  campaignId?: string;
+  keywordId: string;
+};
+
+export const deleteKeywordById = async (selectedKeywords: string[]) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    if (!Array.isArray(selectedKeywords) || selectedKeywords.length === 0) {
+      return { error: "No keywords selected" };
+    }
+
+    const result = await KeywordTracking.updateMany(
+      {
+        keywordId: { $in: selectedKeywords },
+      },
+      { $set: { status: 3 } }
+    );
+    console.log(result, "delete result");
+
+    if (result.modifiedCount === 0) {
+      return { error: "No keywords were updated" };
+    }
+    console.log(selectedKeywords, "delete keyword");
+    return {
+      success: true,
+      // message: `${result.modifiedCount} keyword(s) deleted successfully`,
+    };
+  } catch (error: any) {
+    console.error("Delete failed:", error);
+    return { error: "Internal Server Error" };
+  }
+};
+export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
+  try {
+    await connectToDB();
+    console.log(updatedData, "update data backend");
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    const { keywordId, campaignId } = updatedData;
+    // console.log(updatedData,"edit data backend new")
+    // console.log(keywordId,campaignId,"idsies")
+    // console.log(updatedData,"edit form data ")
+
+    // Update keyword document
+    // const updatedKeyword = await Keyword.findByIdAndUpdate(
+    //   { _id: keywordId },
+    //   // { $set: updatedData },
+    //   // { new: true }
+    // );
+
+    // console.log(updatedKeyword, "updated keywoerds");
+    // if (!updatedKeyword) {
+    //   return { error: "Keyword not found" };
+    // }
+
+    const rankdata = await getKewordRank(updatedData);
+
+    const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
+     const meta = rankdata?.result?.tasks?.[0]?.result?.[0];
+     console.log(item,"item update")
+     console.log(meta,"meta update")
+    const editedKeyword = await KeywordTracking.findOneAndUpdate(
+      { keywordId },
+      {
+        $set: {
+          rank_group: item?.rank_group ?? 0,
+          rank_absolute: item?.rank_absolute ?? 0,
+          type: updatedData?.serpType,
+          location_code: meta?.location_code,
+            language_code: meta?.language_code,
+          url: item?.url.trim() || "no ranking",
+          keyword: updatedData?.keywords || "",
+         
+          updatedAt: new Date(),
+        },
+      },
+      { new: true }
+    );
+    console.log(editedKeyword,"edited keyword")
+    // const VolumnData = await getVolumnRank([updatedKeyword]);
+    // const intentData = await getRankIntent([updatedKeyword]);
+
+    // console.log(rankdata?.rankResponses, "rankdata");
+    // // console.log(VolumnData?.volumnResponses, "volumn data");
+    // console.log(intentData?.intentResponses, "intent data");
+
+    // const finalData =
+    //   rankdata && "rankResponses" in rankdata
+    //     ? rankdata?.rankResponses?.map((rankItem: any) => {
+    //         const task = rankItem?.response?.tasks?.[0];
+    //         const data = task?.result?.[0];
+    //         const newKeyword = rankItem?.keyword;
+    //         const keyword = data?.keyword;
+
+    //         const matchedKeyword = [updatedKeyword].find(
+    //           (k: any) =>
+    //             k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+    //         );
+    //         console.log(matchedKeyword, "indie map edit key");
+    //         // Get corresponding volume data for this keyword
+    //         const volumnResponse = VolumnData?.volumnResponses?.find(
+    //           (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+    //         );
+    //         const volumeItem =
+    //           volumnResponse?.response?.tasks?.[0]?.result?.find(
+    //             (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
+    //           );
+    //         const matchSearchVolumn = volumeItem?.search_volume ?? 0;
+    //         const matchcompetition = volumeItem?.competition ?? 0;
+
+    //         // Get corresponding intent data for this keyword
+    //         const intentResponse = intentData?.intentResponses?.find(
+    //           (i) => i.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+    //         );
+    //         const intentItem =
+    //           intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find(
+    //             (i: any) => {
+    //               console.log(i, "inside intemt items");
+    //               return i.keyword?.toLowerCase() === keyword?.toLowerCase();
+    //             }
+    //           );
+    //         console.log(intentResponse, "intent itmes");
+    //         console.log(intentItem, "intent item itmes");
+    //         const matchIntent = intentItem?.keyword_intent?.label ?? "";
+
+    //         return {
+    //           type: task?.data?.se_type,
+    //           location_code: matchedKeyword?.searchLocationCode || 2124,
+    //           language_code: data?.language_code || "en",
+
+    //           url: task?.data?.target?.trim() || "no ranking",
+    //           rank_group: data?.items?.[0]?.rank_group || 0,
+    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //           keyword: matchedKeyword?.keywords || "",
+    //           searchVolumn: matchSearchVolumn,
+    //           intent: matchIntent,
+    //           competition: matchcompetition,
+    //           campaignId: campaignId,
+    //           keywordId: matchedKeyword?._id,
+    //         };
+    //       })
+    //     : [];
+
+    // const finalData =
+    //   rankdata && "rankResponses" in rankdata
+    //     ? rankdata?.rankResponses?.map((rankItem: any) => {
+    //         console.log(rankItem, "rankItem");
+    //         const task = rankItem?.response?.tasks?.[0];
+    //         const data = task?.result?.[0];
+    //         const newKeyword = rankItem?.keyword;
+    //         const keyword = data?.keyword;
+    //         console.log(keyword, "keyword");
+    //         const matchedKeyword = [updatedKeyword].find(
+    //           (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+    //         );
+    //         console.log(matchedKeyword, "matchedKeyword");
+    //         // Get corresponding volume data for this keyword
+    //         // const volumnResponse = VolumnData?.volumnResponses?.find(
+    //         //   (v) => v.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+    //         // );
+    //         // const volumeItem =
+    //         //   volumnResponse?.response?.tasks?.[0]?.result?.find(
+    //         //     (v: any) => v.keyword?.toLowerCase() === keyword?.toLowerCase()
+    //         //   );
+    //         // const matchSearchVolumn = volumeItem?.search_volume ?? 0;
+    //         // const matchcompetition = volumeItem?.competition ?? 0;
+
+    //         // Get corresponding intent data for this keyword
+    //         const intentResponse = intentData?.intentResponses?.find(
+    //           (i) => i.keyword?.[0]?.toLowerCase() === keyword?.toLowerCase()
+    //         );
+    //         const intentItem =
+    //           intentResponse?.response?.tasks?.[0]?.result?.[0]?.items?.find(
+    //             (i: any) => {
+    //               console.log(i, "inside intemt items");
+    //               return i.keyword?.toLowerCase() === keyword?.toLowerCase();
+    //             }
+    //           );
+    //         console.log(intentResponse, "intent itmes");
+    //         console.log(intentItem, "intent item itmes");
+    //         const matchIntent = intentItem?.keyword_intent?.label ?? "";
+
+    //         // const matchLangName = locationData?.find(loc => loc.location_code === data?.location_code);
+
+    //         return {
+    //           type: task?.data?.se_type,
+    //           location_code: matchedKeyword?.searchLocationCode || 2124,
+    //           language_code: data?.language_code || "en",
+    //           // location_name: matchLangName?.locationName || "",
+    //           url: data?.items?.[0]?.url.trim() || "no ranking",
+    //           rank_group: data?.items?.[0]?.rank_group || 0,
+    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //           keyword: newKeyword || "",
+    //           searchVolumn:  0,
+    //           // searchVolumn: matchSearchVolumn || 0,
+    //           intent: matchIntent || "",
+    //           competition:  0,
+    //           // competition: matchcompetition || 0,
+    //           campaignId: campaignId || "",
+    //           keywordId: matchedKeyword?._id || "",
+    //           // start: data?.items?.[0]?.rank_group || 0,
+    //         };
+    //       })
+    //     : [];
+
+    // const allRankGroups =
+    //   rankdata?.rankResponses?.flatMap((rankItem: any) => {
+    //     const task = rankItem?.response?.tasks?.[0];
+    //     const data = task?.result?.[0];
+    //     const rankGroup = data?.items?.[0]?.rank_group;
+    //     return rankGroup !== undefined ? [rankGroup] : [];
+    //   }) || [];
+
+    // const totalTopRanks = {
+    //   keywordsUp: allRankGroups.filter((r) => r > 0).length,
+    //   top3: allRankGroups.filter((r) => r > 0 && r <= 3).length,
+    //   top10: allRankGroups.filter((r) => r > 0 && r <= 10).length,
+    //   top20: allRankGroups.filter((r) => r > 0 && r <= 20).length,
+    //   top30: allRankGroups.filter((r) => r > 0 && r <= 30).length,
+    //   top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
+    // };
+
+    // const finalData: any =
+    //   rankdata && "rankResponses" in rankdata
+    //     ? rankdata?.rankResponses?.map((rankItem: any) => {
+    //         const task = rankItem?.response?.tasks?.[0];
+    //         const data = task?.result?.[0];
+    //         const newKeyword = rankItem?.keyword;
+
+    //         const matchedKeyword = [updatedKeyword].find(
+    //           (k) => k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+    //         );
+
+    //         const rankGroup = data?.items?.[0]?.rank_group || 0;
+
+    //         return {
+    //           type: task?.data?.se_type,
+    //           location_code: matchedKeyword?.searchLocationCode || 2124,
+    //           language_code: data?.language_code || "en",
+    //           url: data?.items?.[0]?.url?.trim() || "no ranking",
+    //           rank_group: rankGroup,
+    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+    //           keyword: newKeyword || "",
+    //           checkUrl: data?.check_url || "no url",
+    //           searchVolumn: 0,
+    //           intent: "",
+    //           competition: 0,
+    //           campaignId: campaignId,
+    //           keywordId: matchedKeyword?._id,
+    //           start: rankGroup,
+
+    //           //rank top
+    //           ...totalTopRanks,
+    //         };
+    //       })
+    //     : [];
+
+    // const data = finalData?.[0];
+    // const addedTracking = await KeywordTracking.findOneAndUpdate(
+    //   { keywordId: keywordId },
+    //   { $set: data },
+    //   { new: true }
+    // );
+    // console.log(finalData, "final data");
+
+    return {
+      success: true,
+      message: "Keyword updated ",
+      editedKeyword,
+      // tracking: addedTracking,
+    };
+  } catch (error: any) {
+    console.error("Update failed:", error);
+    return {
+      error: "Internal Server Error",
+    };
+  }
+};
+
+export const saveMultipleKeyword = async (formData: any, campaign: any) => {
+  await connectToDB();
+  const user = await getUserFromToken();
+  if (!user) return { error: "Unauthorized" };
+
+  // Save new keyword docs
+  // const addedKeywords = await Promise.all(
+  //   (formData?.keyword || []).map(async (kwStr: string) => {
+  //     return await Keyword.create({
+  //       ...formData, // includes language, device, location, etc.
+  //       keywords: kwStr, // the actual keyword string
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //   })
+  // );
+
+  //   const addedKeywords = await Promise.all(
+  //   (formData?.keyword || []).map(async (kwStr: string) => {
+  //     // Check if keyword already exists for this user & campaign
+  //     const exists = await Keyword.findOne({
+  //       keywords: kwStr,
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //     console.log(exists, "exists keyword");
+
+  //     if (exists) {
+  //       // Skip duplicates, return null so it won’t be added
+  //       return null;
+  //     }
+
+  //     return await Keyword.create({
+  //       ...formData, // includes language, device, location, etc.
+  //       keywords: kwStr, // the actual keyword string
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //   })
+  // );
+
+  // const addedKeywords = await Promise.all(
+  //   (formData?.keyword || []).map(async (kwStr: string) => {
+  //     // Check if keyword already exists for this user & campaign
+  //     const exists = await Keyword.findOne({
+  //       keywords: kwStr,
+  //       // userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+
+  //     if (exists) {
+  //       console.log(exists, "exists keyword if");
+
+  //       console.log("duplicate entry", kwStr);
+  //       return null;
+  //     }
+  //     console.log("exists keyword else", kwStr);
+  //     const newKey = await Keyword.create({
+  //       ...formData,
+  //       keywords: kwStr,
+  //       userId: user.id,
+  //       CampaignId: campaign._id,
+  //     });
+  //     console.log(newKey);
+  //   })
+  // );
+
+  // console.log(addedKeywords, "added keywords");
+
+  formData.keyword = Array.from(new Set(formData?.keyword || []));
+
+  const existingKeywords = await Keyword.find({
+    keywords: { $in: formData.keyword },
+    userId: user.id,
+    CampaignId: campaign._id,
+  }).distinct("keywords");
+
+  console.log(existingKeywords, "existingKeywords");
+
+  formData.keyword = formData.keyword.filter(
+    (kwStr: any) => !existingKeywords.includes(kwStr)
+  );
+
+  const createdKeywords =
+    formData.keyword.length > 0
+      ? await Keyword.insertMany(
+          formData.keyword.map((kwStr: string) => ({
+            ...formData,
+            keywords: kwStr,
+            userId: user.id,
+            CampaignId: campaign._id,
+          }))
+        )
+      : [];
+
+  console.log(createdKeywords, "created keywords");
+
+  // Filter out nulls (duplicates)
+  // const filteredKeywords = addedKeywords.filter((kw) => kw !== null);
+
+  // console.log(filteredKeywords, "addedFilterkeywords");
+
+  // Initialize progress in Redis
+
+  const redis = getRedis();
+  const progressKey = `campaign:${campaign._id.toString()}:progress`;
+  await redis.hset(progressKey, {
+    total: String(createdKeywords.length),
+    processed: "0",
+    lastUpdated: String(Date.now()),
+  });
+  await redis.expire(progressKey, 60 * 60);
+
+  // Enqueue jobs for each keyword
+  await Promise.all(
+    createdKeywords.map((kw) =>
+      keywordQueue.add("fetchKeywordRanking", {
+        keywordId: kw._id.toString(),
+        keyword: kw.keywords, // must match what you stored
+        location_code: kw.searchLocationCode,
+        language_code: kw.language,
+        target: kw.url,
+
+        device: kw.deviceType,
+        se_domain: kw.SearchEngine,
+        campaignId: campaign._id.toString(),
+        userId: user.id.toString(),
+      })
+    )
+  );
+
+  const counts = await keywordQueue.getJobCounts();
+
+  return {
+    success: true,
+    message: "Keywords queued for live ranking",
+    queued: createdKeywords.length,
+    counts,
+  };
+};

@@ -232,7 +232,7 @@ export default function GoogleIntegrations({
       ].join(" "),
       response_type: "code",
       state,
-      redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/googleLogin`,
+      redirect_uri: `${process.env.NEXT_PUBLIC_REDIRECT_URI}api/googleLogin`,
       access_type: "offline",
       prompt: "consent",
       client_id:
@@ -268,7 +268,7 @@ export default function GoogleIntegrations({
             <div className="flex items-center justify-between border border-transparent bg-gradient-to-r from-slate-50 to-white dark:from-slate-900/60 dark:to-slate-900/30 p-4 rounded-xl hover:shadow-lg transition-all">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/images/google-search-console.png"
+                  src="/images/search-console.png"
                   alt="Google Search Console"
                   width={100}
                   height={100}
@@ -297,7 +297,7 @@ export default function GoogleIntegrations({
             <div className="flex items-center justify-between border border-transparent bg-gradient-to-r from-slate-50 to-white dark:from-slate-900/60 dark:to-slate-900/30 p-4 rounded-xl hover:shadow-lg transition-all">
               <div className="flex items-center gap-4">
                 <Image
-                  src="/images/google_analytics.webp"
+                  src="/images/search-analytics.png"
                   alt="Google Analytics"
                   width={100}
                   height={100}

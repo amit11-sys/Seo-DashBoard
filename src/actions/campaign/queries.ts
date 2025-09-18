@@ -11,6 +11,7 @@ import {
   googleAnalyticsPropertyID,
 } from "../analytics/queries";
 import { fetchLocations } from "../KeywordsGmb/queries";
+import { refreshGoogleAccessToken } from "../googleConsole/queries";
 
 export const newCampaign = async (formData: any) => {
   try {
@@ -496,16 +497,35 @@ export const DBcompaignGoogleData = async (newCompaignId: string) => {
   }
 };
 
+// export async function getValidGoogleToken(campaignId: string) {
+//   const campaign = await Campaign.findById({ _id: campaignId });
+
+//   if (!campaign) throw new Error("Campaign not found");
+
+//   // If expired, refresh token
+//   if (Date.now() > Number(campaign.googleAccessTokenExpiry)) {
+//     return await getRefreshGoogleAccessToken(campaignId);
+//   }
+
+//   return campaign;
+// }
+
 export async function getValidGoogleToken(campaignId: string) {
   const campaign = await Campaign.findById({ _id: campaignId });
-
   if (!campaign) throw new Error("Campaign not found");
 
-  // If expired, refresh token
-  if (Date.now() > Number(campaign.googleAccessTokenExpiry)) {
-    return await getRefreshGoogleAccessToken(campaignId);
+  const now = Date.now();
+
+  // If token is expired or missing → refresh it
+  if (
+    !campaign.googleAccessToken ||
+    !campaign.googleAccessTokenExpiry ||
+    now > Number(campaign.googleAccessTokenExpiry)
+  ) {
+    return await refreshGoogleAccessToken(campaignId);
   }
 
+  // Otherwise return the campaign with the valid token
   return campaign;
 }
 export const CurrentCampaignIdData = async (campaignId: string) => {

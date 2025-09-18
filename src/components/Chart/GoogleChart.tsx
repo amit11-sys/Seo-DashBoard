@@ -149,7 +149,7 @@ const AnalyticsChart = ({
       {/* <DashboardStats/> */}
         <div className="flex justify-end shadow-md p-5 items-center w-full my-4 gap-3">
           <div className="p-2 rounded-full hover:bg-gray-100" title="generate excel">
-         <DownloadExcelBtn analyticData={analyticData} />
+         {/* <DownloadExcelBtn analyticData={analyticData} /> */}
       </div>
    
       <div className="p-2 rounded-full hover:bg-gray-100" title="Select Date">

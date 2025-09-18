@@ -96,19 +96,19 @@ export async function GoogleConsoleDataByDate(
   };
   // console.log(newCompaignId, "newCompaignId in getGoogleSearchDataByDimension");
 
-  // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+  const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
   // console.log(testdata, "testdata");
-  const compaignGoogleData = (await getDBcompaignGoogleData(
-        newCompaignId
-      )) as any | null;
+  // const compaignGoogleData = (await getDBcompaignGoogleData(
+  //       newCompaignId
+  //     )) as any | null;
       console.log(compaignGoogleData,"compaignGoogleData ");
 
   // if (!compaignGoogleData?.compaignGoogleData) {
   //   throw new Error(compaignGoogleData?.error ?? "No campaign tokens found");
   // }
 
-  const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
-  const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl;
+  const access_token = compaignGoogleData?.googleAccessToken;
+  const CompaignUrl = compaignGoogleData?.projectUrl;
   // function extractDomain(url: string): string | null {
   //   const match = url.match(/\/\/(.*?)\.com/);
   //   return match ? match[1] : null;
@@ -194,16 +194,16 @@ export async function GoogleSearchDataByDimension(
       endDate: endDate || todayFormatted,
       dimensions: [dimension],
     };
-    // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+    const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
 
     // console.log(compaignGoogleData, "testdata");
     //
     // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
     // console.log(compaignGoogleData, "compaignGoogleData in getGoogleSearchDataByDimension");
-    const compaignGoogleData = (await getDBcompaignGoogleData(
-      newCompaignId
-    )) as any | null;
-    console.log(compaignGoogleData,"compaignGoogleData ");
+    // const compaignGoogleData = (await getDBcompaignGoogleData(
+    //   newCompaignId
+    // )) as any | null;
+    // console.log(compaignGoogleData,"compaignGoogleData ");
 
 
     
@@ -212,8 +212,8 @@ export async function GoogleSearchDataByDimension(
     //   throw new Error("No campaign tokens found");
     // }
     
-    const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
-    const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl;
+    const access_token = compaignGoogleData?.googleAccessToken;
+    const CompaignUrl = compaignGoogleData?.projectUrl;
     console.log(access_token,"tokken")
     console.log(CompaignUrl,"url in getGoogleSearchDataByDimension" )
     
@@ -335,11 +335,58 @@ const isTokenExpired = (expiry: string | number): boolean => {
   return Date.now() >= expiryTime;
 };
 
+// export async function refreshGoogleAccessToken(campaignId: string) {
+//   const campaign = await Campaign.findById({ _id: campaignId });
+//   if (!campaign) throw new Error("Campaign not found");
+
+//   const refresh_token = campaign.googleRefreshToken;
+
+//   const body = new URLSearchParams({
+//     client_id: client_id ?? "",
+//     client_secret: client_secret ?? "",
+//     refresh_token,
+//     grant_type: "refresh_token",
+//   });
+
+//   const res = await fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//     body,
+//   });
+
+//   const json: any = await res.json();
+
+//   // console.log(json, "json Refresh token data");
+
+//   if (!json) {
+//     throw new Error(`Refresh failed: ${json}`);
+//   }
+
+//   // Calculate new expiry time in ms
+//   const newExpiry = Date.now() + json.expires_in * 1000;
+
+//   // // Save updated token
+//   const updatedCampaign = await Campaign.findByIdAndUpdate(
+//     { _id: campaignId },
+//     {
+//       $set: {
+//         googleAccessToken: json.access_token,
+//         googleAccessTokenExpiry: newExpiry,
+//         // ...(json.refresh_token && { googleRefreshToken: json.refresh_token }),
+//       },
+//     }
+//   );
+//   // console.log(updatedCampaign, "updatedCampaign in refershGoogleAccessToken");
+
+//   return updatedCampaign;
+// }
+// ✅ Function to refresh Google access token
 export async function refreshGoogleAccessToken(campaignId: string) {
   const campaign = await Campaign.findById({ _id: campaignId });
   if (!campaign) throw new Error("Campaign not found");
 
   const refresh_token = campaign.googleRefreshToken;
+  if (!refresh_token) throw new Error("Missing Google refresh token");
 
   const body = new URLSearchParams({
     client_id: client_id ?? "",
@@ -348,7 +395,7 @@ export async function refreshGoogleAccessToken(campaignId: string) {
     grant_type: "refresh_token",
   });
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
+  const res = await fetch(process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN!, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
@@ -356,30 +403,29 @@ export async function refreshGoogleAccessToken(campaignId: string) {
 
   const json: any = await res.json();
 
-  // console.log(json, "json Refresh token data");
-
-  if (!json) {
-    throw new Error(`Refresh failed: ${json}`);
+  if (!json.access_token) {
+    throw new Error(`Failed to refresh Google token: ${JSON.stringify(json)}`);
   }
 
-  // Calculate new expiry time in ms
+  // Calculate new expiry timestamp (ms)
   const newExpiry = Date.now() + json.expires_in * 1000;
 
-  // // Save updated token
+  // Save updated tokens
   const updatedCampaign = await Campaign.findByIdAndUpdate(
     { _id: campaignId },
     {
       $set: {
         googleAccessToken: json.access_token,
         googleAccessTokenExpiry: newExpiry,
-        // ...(json.refresh_token && { googleRefreshToken: json.refresh_token }),
+        ...(json.refresh_token && { googleRefreshToken: json.refresh_token }),
       },
-    }
+    },
+    { new: true } // return updated document
   );
-  // console.log(updatedCampaign, "updatedCampaign in refershGoogleAccessToken");
 
   return updatedCampaign;
 }
+
 
 interface GoogleAnalyticsAccount {
   name: string; // e.g. "accounts/8095231"

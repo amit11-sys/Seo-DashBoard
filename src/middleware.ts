@@ -10,8 +10,13 @@ export function middleware(request: NextRequest) {
 
   // if logged in and trying to go to login/signup
   if (isPublicPath && token) {
+  
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
+    if(pathname === "/"  && token) {
+     
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
 
   if (!token) {
     if (pathname.startsWith("/dashboard/detail")) {

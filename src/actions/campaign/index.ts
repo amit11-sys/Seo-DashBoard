@@ -1,6 +1,6 @@
 "use server";
 
-import { archivedCampaign, ArchivedCampaignCreate, CampaignStatus2, CompaignCount, getCampaign, GetCampaignByid, newCampaign } from "./queries";
+import { archivedCampaign, ArchivedCampaignCreate, CampaignStatus2, CompaignCount, CurrentCampaignIdData, DbCompaignDataUpdate, DBcompaignGoogleData, getCampaign, GetCampaignByid, newCampaign, propertyIdForDB } from "./queries";
 import { addMultipleKeyword } from "../keyword";
 import {
   // createNewKeywordTrackingData,
@@ -90,3 +90,28 @@ export const getGetCampaignByid = async (campaignid: string) => {
   const data = await GetCampaignByid(campaignid);
   return data;
 };
+
+
+
+export const getDbCompaignDataUpdate = async (newCompaignId: string,tokenResult:{}) => {
+  const updatedcampaign = await DbCompaignDataUpdate(newCompaignId,tokenResult);
+
+  return updatedcampaign;
+};
+export const getDBcompaignGoogleData = async (newCompaignId: string) => {
+  const data = await DBcompaignGoogleData(newCompaignId);
+
+  return data;
+};
+
+export const getCurrentCampaignIdData = async (campaignId: string) => {
+  const data = await CurrentCampaignIdData(campaignId);
+
+  return data;
+};
+export const setPropertyIdForDB = async (campaignId: string,tokenResult:{},projectUrl:any) => {
+  const data = await propertyIdForDB(campaignId,tokenResult,projectUrl);
+
+  return data;
+};
+

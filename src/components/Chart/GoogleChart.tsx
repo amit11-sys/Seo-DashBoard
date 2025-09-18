@@ -17,19 +17,32 @@ import DashboardStats from "../GoogleConsole/CombinedCode";
 import DashboardStatsCollage from "../GoogleConsole/CombinedCode";
 import { FaFileExcel } from "react-icons/fa6";
 import DateRangeDialog from "../GoogleConsole/DateTable/DateTableDialog";
+import DownloadExcelBtn from "../GoogleConsole/DownloadExcelBtn";
 const AnalyticsChart = ({
   analyticData,
   tableData,
   setDimension,
+  setDataWithDimension,
+  setDate,
+  setPdfTableConsoleData,
+  // handleGeneratePDF,
+  setPdfChartData,
   dimension,
+  consoleRef
 }: {
   analyticData: any;
   tableData: any;
   setDimension: Dispatch<SetStateAction<string>>;
   dimension: string;
+  setDataWithDimension: Dispatch<SetStateAction<any>>,
+  setDate: Dispatch<SetStateAction<any>>,
+  setPdfTableConsoleData?: Dispatch<SetStateAction<any>>
+  // handleGeneratePDF?: () => void
+  setPdfChartData?: Dispatch<SetStateAction<any>>
+  consoleRef?: any
 }) => {
   const [chartData, setChartData] = useState<any>(null);
-  // console.log(analyticData);
+  console.log(dimension,"dimension");
 
   useEffect(() => {
     if (analyticData) {
@@ -44,38 +57,119 @@ const AnalyticsChart = ({
       setChartData(updatedChartData);
     }
   }, [analyticData]);
+ console.log(analyticData, "analyticData");
+  console.log(tableData, " tableData")
+
+// const consolehtmlForPdf = (tableData:any, analyticData:any) => {
+//   return `
+//     <!DOCTYPE html>
+//     <html>
+//       <head>
+//         <meta charset="utf-8" />
+//         <style>
+//           body {
+//             font-family: Arial, sans-serif;
+//             padding: 20px;
+//             background-color: #ffffff;
+//             color: #333;
+//           }
+
+//           .stats-grid {
+//             display: flex;
+//             gap: 16px;
+//             flex-wrap: wrap;
+//             justify-content: space-between;
+//             margin-bottom: 40px;
+//           }
+
+//           .stat-box {
+//             flex: 1 1 22%;
+//             background-color: #f3f3f3;
+//             padding: 16px;
+//             border-radius: 8px;
+//             text-align: center;
+//           }
+
+//           .stat-label {
+//             font-size: 14px;
+//             margin-bottom: 8px;
+//             color: #666;
+//           }
+
+//           .stat-value {
+//             font-size: 22px;
+//             font-weight: bold;
+//             color: #000;
+//           }
+
+//           .chart-placeholder {
+//             height: 300px;
+//             border: 2px dashed #ccc;
+//             border-radius: 8px;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             color: #888;
+//             font-size: 16px;
+//           }
+//         </style>
+//       </head>
+//       <body>
+//         <h2 style="text-align:center; margin-bottom: 32px;">Analytics Report</h2>
+
+//         <div class="stats-grid">
+//          ${<DashboardStatsCollage analyticData={tableData} />}
+//         </div>
+//          <div className="mt-6">
+//             ${<DualAxisChart data={analyticData} />}
+//           </div>
+//         <div class="chart-placeholder">
+//           Chart Placeholder (DualAxisChart image or data not renderable in HTML string)
+//         </div>
+//       </body>
+//     </html>
+//   `;
+// };
+
+  
+  //   useEffect(() => {
+  //     setPdfChartData(consoleRef.current?.innerHTML))
+  // },[handleGeneratePDF])
 
   return (
     <div className="space-y-6">
       {/* <CardsAnalysis /> */}
       {/* <FancyStatsBar analyticData={analyticData} /> */}
+      <div ref={consoleRef}>
+
 
       {/* <AnimatedStats/> */}
-      <DashboardStatsCollage analyticData={analyticData} />
+      <DashboardStatsCollage analyticData={tableData} />
 
       {/* <DashboardStats/> */}
         <div className="flex justify-end shadow-md p-5 items-center w-full my-4 gap-3">
-      <button className="p-2 rounded-full hover:bg-gray-100" title="Export to Excel">
-        <FaFileExcel className="text-green-600 text-4xl" />
-       
-      </button>
-      <div className="p-2 rounded-full hover:bg-gray-100" title="Select Date">
-        <DateRangeDialog/>
+          <div className="p-2 rounded-full hover:bg-gray-100" title="generate excel">
+         {/* <DownloadExcelBtn analyticData={analyticData} /> */}
       </div>
-      <button className="p-2 rounded-full hover:bg-gray-100" title="Refresh Data">
+   
+      <div className="p-2 rounded-full hover:bg-gray-100" title="Select Date">
+        <DateRangeDialog setDataWithDimension={setDataWithDimension} setDate={setDate}/>
+      </div>
+      {/* <button className="p-2 rounded-full hover:bg-gray-100" title="Refresh Data">
         <FaSync className="text-purple-500 text-4xl" />
-      </button>
+      </button> */}
     </div>
-      {chartData ? (
+      {analyticData ? (
         <>
           {/* Chart */}
           <div className="mt-6">
-            <DualAxisChart data={chartData} />
+            <DualAxisChart data={analyticData} />
           </div>
         </>
       ) : (
         <p className="text-center text-gray-600 mt-10">Loading chart data...</p>
       )}
+      </div>
 
       {/* Tabs */}
 
@@ -125,7 +219,9 @@ const AnalyticsChart = ({
 
       {/* Table */}
       {/* <div className="mt-6"> */}
-      <TableComponent analyticData={tableData} dimension={dimension} />
+      <TableComponent
+      //  handleGeneratePDF={handleGeneratePDF} 
+       setPdfTableConsoleData={setPdfTableConsoleData} analyticData={tableData} dimension={dimension} />
       {/* </div> */}
     </div>
   );

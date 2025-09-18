@@ -29,7 +29,7 @@ const campaignId = tokendata.campaignId
     campaignStatus
   );
 
-  const archivedCampaignData = await getArchivedCampaign();
+  // const archivedCampaignData = await getArchivedCampaign();
 
   if (token) {
     const { valid } = await getValidateShareToken(token);

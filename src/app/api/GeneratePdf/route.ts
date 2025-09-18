@@ -39,7 +39,7 @@
 
 // app/generate-pdf/route.ts (App Router)
 import { NextRequest, NextResponse } from "next/server";
-import { generatePDFWithTailwind } from "@/lib/GeneratePdf";
+// import { generatePDFWithTailwind } from "@/lib/GeneratePdf";
 
 export async function POST(req: NextRequest) {
   const { html } = await req.json();
@@ -48,14 +48,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing HTML content" }, { status: 400 });
   }
 
-  const pdfBuffer = await generatePDFWithTailwind(html);
+  // const pdfBuffer = await generatePDFWithTailwind(html);
 
-  return new NextResponse(pdfBuffer, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": "attachment; filename=report.pdf",
-    },
-  });
+  // return new NextResponse(pdfBuffer, {
+  //   status: 200,
+  //   headers: {
+  //     "Content-Type": "application/pdf",
+  //     "Content-Disposition": "attachment; filename=report.pdf",
+  //   },
+  // });
 }
 

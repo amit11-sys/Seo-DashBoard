@@ -415,7 +415,7 @@ const SearchConsoleData = ({
   consoleRef,
   campaignId,
   setPdfTableConsoleData,
-  handleGeneratePDF,
+  // handleGeneratePDF,
   setPdfChartData,
 }: SearchConsoleDataProps) => {
   console.log(campaignId, "campaignId in search console");

@@ -94,14 +94,14 @@ type Props = {
   analyticData: Row[] | { analyticData?: Row[] } | undefined;
   dimension: "Country" | "Device" | "Page" | "Query" | "Date" | string;
   setPdfTableConsoleData?: React.Dispatch<React.SetStateAction<any>>;
-  handleGeneratePDF: any;
+  handleGeneratePDF?: any;
 };
 
 const TableComponent = ({
   analyticData,
   dimension,
   setPdfTableConsoleData,
-  handleGeneratePDF,
+  // handleGeneratePDF,
 }: Props) => {
   // Normalize to an array of rows
   const [loading, setLoading] = useState<boolean>(true);

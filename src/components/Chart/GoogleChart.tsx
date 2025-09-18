@@ -25,7 +25,7 @@ const AnalyticsChart = ({
   setDataWithDimension,
   setDate,
   setPdfTableConsoleData,
-  handleGeneratePDF,
+  // handleGeneratePDF,
   setPdfChartData,
   dimension,
   consoleRef
@@ -37,7 +37,7 @@ const AnalyticsChart = ({
   setDataWithDimension: Dispatch<SetStateAction<any>>,
   setDate: Dispatch<SetStateAction<any>>,
   setPdfTableConsoleData?: Dispatch<SetStateAction<any>>
-  handleGeneratePDF?: () => void
+  // handleGeneratePDF?: () => void
   setPdfChartData?: Dispatch<SetStateAction<any>>
   consoleRef?: any
 }) => {
@@ -219,7 +219,9 @@ const AnalyticsChart = ({
 
       {/* Table */}
       {/* <div className="mt-6"> */}
-      <TableComponent handleGeneratePDF={handleGeneratePDF} setPdfTableConsoleData={setPdfTableConsoleData} analyticData={tableData} dimension={dimension} />
+      <TableComponent
+      //  handleGeneratePDF={handleGeneratePDF} 
+       setPdfTableConsoleData={setPdfTableConsoleData} analyticData={tableData} dimension={dimension} />
       {/* </div> */}
     </div>
   );

@@ -64,27 +64,39 @@ interface SimplifiedAccount {
   displayName: string;
   region: string;
 }
+
 type AccountItem = {
   accountId: string;
   displayName: string;
   region: string;
 };
 
-function normalizeString(str: string): string {
-  return str.toLowerCase().replace(/\s+/g, "");
+
+
+
+function normalizeString(str: string = ""): string {
+  return str.toLowerCase().replace(/\s+/g, ""); // lowercase + remove spaces
 }
 
 function findMatchingAccounts(
-  data: AccountItem[],
-  nameMatch: string
+  data: AccountItem[] = [],
+  nameMatch: string = ""
 ): AccountItem[] {
   const normalizedMatch = normalizeString(nameMatch);
-  // console.log(normalizedMatch, "normalizedMatch");
 
-  return data.filter((item) =>
-    normalizeString(item.displayName).includes(normalizedMatch)
-  );
+  return data.filter((item) => {
+    const normalizedName = normalizeString(item.displayName ?? "");
+
+    // ✅ Match if either contains the other OR shares a common prefix
+    return (
+      normalizedName.includes(normalizedMatch) ||
+      normalizedMatch.includes(normalizedName) ||
+      normalizedName.startsWith(normalizedMatch) ||
+      normalizedMatch.startsWith(normalizedName)
+    );
+  });
 }
+
 function refineUrl(url: string): string {
   // Remove protocol and "www."
   let clean = url.replace(/^https?:\/\//, "").replace(/^www\./, "");
@@ -100,7 +112,7 @@ export async function googleAnalyticsAccountID(
   try {
     // const payload = { startDate, endDate, dimensions };
     // console.log(nameMatch, "nameMatch in googleAnalyticsAccountID");
-    // console.log(access_token, "access_token in googleAnalyticsAccountID");
+    console.log(access_token, "access_token in googleAnalyticsAccountID");
     const res = await fetch(
   
       `${process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}accounts`,
@@ -115,25 +127,26 @@ export async function googleAnalyticsAccountID(
 
     // console.table({ access_token, nameMatch });
     const AccountIdData: any = await res.json();
+    console.log(AccountIdData, "AccountIdData");
 
     const accountsData: SimplifiedAccount[] = AccountIdData?.accounts?.map(
       (acc: { name: string; displayName: string; regionCode: string }) => ({
-        accountId: acc.name.split("/")[1],
-        displayName: acc.displayName,
-        region: acc.regionCode,
+        accountId: acc?.name.split("/")[1],
+        displayName: acc?.displayName,
+        region: acc?.regionCode,
       })
     );
 
-    // console.log(accountsData, "accountsData");
+    console.log(accountsData, "accountsDatauI");
     const nameMatchRefined = refineUrl(nameMatch);
-    // console.log(nameMatchRefined, "nameMatchRefined");
+    console.log(nameMatchRefined, "nameMatchRefined");
 
     const matchForAcountId = findMatchingAccounts(accountsData, nameMatchRefined);
 
-    // console.log(matchForAcountId, "matchForAcountId");
+    console.log(matchForAcountId, "matchForAcountId");
 
     const accountId = matchForAcountId[0]?.accountId;
-    const accountName = matchForAcountId[0]?.displayName;
+    const accountName = matchForAcountId[0]?.displayName; 
     return {
       accountId,
       accountName,
@@ -568,7 +581,7 @@ export async function AnalyticsData(access_token: string, propertyId: string) {
       results[name] = { error: error?.message ?? error };
     }
   }
-  // console.log(results, "resultsok");
+  console.log(results, "resultsok");
 
   return results;
 }

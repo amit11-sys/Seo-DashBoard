@@ -25,7 +25,7 @@ interface Campaign {
 interface SidebarWrapperProps {
   // children: React.ReactNode;
   // Convertedcampaign: Campaign[];
-  archivedCampaignData:any
+  archivedCampaignData?:any
   campaignId?:string
 }
 
@@ -33,23 +33,27 @@ export default  function SidebarWrapper({
   // children,
   // Convertedcampaign,
   campaignId,
-  archivedCampaignData
+  // archivedCampaignData
 }: SidebarWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+const [archivedCampaignData, setArchivedCampaignData] = useState<undefined | any[]>(undefined);
   // const { setCampaignData } = useCampaignData();
   // const archivedCampaignData = await getArchivedCampaign(campaignId);
 
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const data = await getUserCampaign();
-  //     console.log(data,"data in sidebar");
-  //     if (Array.isArray(data?.campaign)) {
-  //       setCampaignData(data.campaign);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+       const archivedCampaignData = await getArchivedCampaign();
+         if(archivedCampaignData.error === "Unauthorized please login") {
+        window.dispatchEvent(new Event("session-expired"));
+        return
+      }
+setArchivedCampaignData(archivedCampaignData?.KeywordTrackingDataArchied! || []);
+
+};
+    fetchData();
+
+  }, []);
 
   return (
     <>

@@ -451,51 +451,72 @@ const SearchConsoleData = ({
   console.log(dataWithDimension, "dataWithDimension in search console");
   console.log(date, "date in search console");
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const [tableData, graphData] = await Promise.all([
+  //         getGoogleSearchDataByDimension(campaignId, dimension, date),
+  //         getGoogleConsoleDataByDate(campaignId, date),
+  //       ]);
+  //       setSearchConsoleTableData(tableData);
+  //       setSearchConsoleGraphData(graphData);
+  //     } catch (error) {
+  //       console.error("Error fetching data", error);
+  //     } finally {
+  //       setLoading(false); // 🔹 Stop loading after fetch
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchAnalyticsData = async () => {
+  //     try {
+  //       const data = await getGoogleSearchDataByDimension(
+  //         campaignId,
+  //         dimension,
+  //         date
+  //       );
+  //       setSearchConsoleTableData(data);
+  //     } catch (error) {
+  //       console.error("Error fetching analytics data", error);
+  //     }
+  //   };
+  //   fetchAnalyticsData();
+  // }, [dimension, dataWithDimension]);
+
+  // useEffect(() => {
+  //   const fetchGoogleConsoleDataByDate = async () => {
+  //     try {
+  //       const data = await getGoogleConsoleDataByDate(campaignId, date);
+  //       setSearchConsoleGraphData(data);
+  //     } catch (error) {
+  //       console.error("Error fetching Google Console data by date", error);
+  //     }
+  //   };
+  //   fetchGoogleConsoleDataByDate();
+  // }, [date]);
+
+
+
+    // Fetch table and graph data once on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [tableData, graphData] = await Promise.all([
+        const [tableRes, graphRes] = await Promise.all([
           getGoogleSearchDataByDimension(campaignId, dimension, date),
           getGoogleConsoleDataByDate(campaignId, date),
         ]);
-        setSearchConsoleTableData(tableData);
-        setSearchConsoleGraphData(graphData);
+        setSearchConsoleTableData(tableRes);
+        setSearchConsoleGraphData(graphRes);
       } catch (error) {
-        console.error("Error fetching data", error);
+        console.error("Error fetching Google Console data:", error);
       } finally {
-        setLoading(false); // 🔹 Stop loading after fetch
+        setLoading(false);
       }
     };
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchAnalyticsData = async () => {
-      try {
-        const data = await getGoogleSearchDataByDimension(
-          campaignId,
-          dimension,
-          date
-        );
-        setSearchConsoleTableData(data);
-      } catch (error) {
-        console.error("Error fetching analytics data", error);
-      }
-    };
-    fetchAnalyticsData();
-  }, [dimension, dataWithDimension]);
-
-  useEffect(() => {
-    const fetchGoogleConsoleDataByDate = async () => {
-      try {
-        const data = await getGoogleConsoleDataByDate(campaignId, date);
-        setSearchConsoleGraphData(data);
-      } catch (error) {
-        console.error("Error fetching Google Console data by date", error);
-      }
-    };
-    fetchGoogleConsoleDataByDate();
-  }, [date]);
+  }, [campaignId, dimension, date]);
 
   console.log(searchConsoleGraphData, "searchConsoleGraphData");
   console.log(searchConsoleTableData, " searchConsoleTableData");
@@ -605,3 +626,156 @@ const SearchConsoleData = ({
 };
 
 export default SearchConsoleData;
+
+
+
+
+// "use client";
+// import { useEffect, useState } from "react";
+// import { Button } from "../ui/button";
+// import { FcGoogle } from "react-icons/fc";
+// import { FaInfoCircle } from "react-icons/fa";
+// import {
+//   getGoogleSearchDataByDimension,
+//   getGoogleConsoleDataByDate,
+// } from "@/actions/googleConsole";
+// import SearchConsoleHead from "./SearchConsoleHead";
+// import AnalyticsChart from "../Chart/GoogleChart";
+
+// interface SearchConsoleDataProps {
+//   consoleRef: React.RefObject<HTMLDivElement>;
+//   campaignId: string;
+//   setPdfTableConsoleData: any;
+//   setPdfChartData: any;
+// }
+
+// const SearchConsoleData = ({
+//   consoleRef,
+//   campaignId,
+//   setPdfTableConsoleData,
+//   setPdfChartData,
+// }: SearchConsoleDataProps) => {
+//   const [tableData, setTableData] = useState<any>();
+//   const [graphData, setGraphData] = useState<any>();
+//   const [loading, setLoading] = useState(true);
+
+//   const [date, setDate] = useState({
+//     startDate: "",
+//     endDate: "",
+//     dimensions: "date",
+//   });
+//   const [dimension, setDimension] = useState("country");
+
+//   const [selectedIntegration, setSelectedIntegration] = useState("");
+//   const [isAnalyticsData, setIsAnalyticsData] = useState(false);
+//   const [isConsolesData, setIsConsoleData] = useState(false);
+
+//   const handleConnectClick = (integration: string) => {
+//     setSelectedIntegration(integration);
+//     setIsConsoleData(integration === "Google Search Console");
+//     setIsAnalyticsData(integration === "Google Analytics");
+//   };
+
+//   const handleLoginGoogle = () => {
+//     const stateData = {
+//       campaignId,
+//       analyticsData: isAnalyticsData,
+//       consoleData: isConsolesData,
+//     };
+
+//     const url = process.env.NEXT_PUBLIC_GOOGLE_AUTH!;
+//     const options:any = {
+//       scope: [
+//         process.env.NEXT_PUBLIC_USER_INFO_PROFILE,
+//         process.env.NEXT_PUBLIC_USER_INFO_EMAIL,
+//         process.env.NEXT_PUBLIC_AUTH_ANALYTICS,
+//         process.env.NEXT_PUBLIC_AUTH_WEBMASTERS,
+//         process.env.NEXT_PUBLIC_AUTH_ANALYTICS_READONLY,
+//         process.env.NEXT_PUBLIC_AUTH_BUSINESS_MANAGE,
+//       ].join(" "),
+//       response_type: "code",
+//       state: encodeURIComponent(JSON.stringify(stateData)),
+//       redirect_uri: `${process.env.NEXT_PUBLIC_REDIRECT_URI}api/googleLogin`,
+//       access_type: "offline",
+//       prompt: "consent",
+//       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+//     };
+
+//     return `${url}?${new URLSearchParams(options).toString()}`;
+//   };
+
+  // // Fetch table and graph data once on mount
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const [tableRes, graphRes] = await Promise.all([
+  //         getGoogleSearchDataByDimension(campaignId, dimension, date),
+  //         getGoogleConsoleDataByDate(campaignId, date),
+  //       ]);
+  //       setTableData(tableRes);
+  //       setGraphData(graphRes);
+  //     } catch (error) {
+  //       console.error("Error fetching Google Console data:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [campaignId, dimension, date]);
+
+//   // 🔹 Loading fallback
+//   if (loading) {
+//     return (
+//       <div className="flex justify-center items-center h-[70vh] bg-gray-50">
+//         <div className="flex flex-col items-center gap-4">
+//           <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+//           <p className="text-gray-600 font-medium">Fetching search console data...</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // 🔹 No data fallback
+//   if (!tableData && !graphData) {
+//     return (
+//       <div className="relative w-full h-[70vh] flex items-center justify-center bg-gray-100">
+//         <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col justify-center items-center">
+//           <div className="flex items-center gap-3 mb-6">
+//             <FcGoogle className="text-blue-600 text-4xl" />
+//             <div className="font-bold text-4xl">Google Search Console</div>
+//             <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
+//           </div>
+
+//           <div className="bg-white shadow-lg rounded-xl p-8 text-center max-w-md mx-auto">
+//             <h2 className="text-2xl font-semibold text-gray-700 mb-4">No Data Available</h2>
+//             <p className="text-gray-500 mb-6">
+//               Please connect your Google Search Console to fetch analytics.
+//             </p>
+//             <a href={handleLoginGoogle()} onClick={() => handleConnectClick("Google Search Console")}>
+//               <Button className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white hover:opacity-90 transition">
+//                 Connect Google
+//               </Button>
+//             </a>
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // 🔹 Main UI
+//   return (
+//     <div>
+//       <SearchConsoleHead />
+//       <AnalyticsChart
+//         analyticData={searchConsoleGraphData}
+//         tableData={searchConsoleTableData}
+//        setDimension={setDimension}
+//           dimension={dimension}
+//          setDataWithDimension={setDataWithDimension}
+//          setDate={setDate}
+//        />
+//     </div>
+//   );
+// };
+
+// export default SearchConsoleData;

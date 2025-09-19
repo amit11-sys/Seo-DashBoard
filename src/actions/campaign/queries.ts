@@ -10,7 +10,7 @@ import {
   googleAnalyticsAccountID,
   googleAnalyticsPropertyID,
 } from "../analytics/queries";
-import { fetchLocations } from "../KeywordsGmb/queries";
+// import { fetchLocations } from "../KeywordsGmb/queries";
 import { refreshGoogleAccessToken } from "../googleConsole/queries";
 
 export const newCampaign = async (formData: any) => {
@@ -608,21 +608,25 @@ export const propertyIdForDB = async (
     const { access_token } = tokenResult as GoogleTokenResult;
 
     const acoountNameforMatch = extractDomain(nameMatch);
-    // console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
+
+    console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
+
     const data = await googleAnalyticsAccountID(
       access_token,
       acoountNameforMatch ?? ""
     );
-
+console.log(data,"data in propertyId");
     // console.log(data,"data in propertyId");
     const accountId = Array.isArray(data)
       ? data[0]?.accountId
       : (data?.accountId ?? "");
+
+
     console.log(accountId, "accountId in propertyId");
 
-    const location = await fetchLocations(access_token);
+    // const location = await fetchLocations(access_token);
 
-    console.log(location, "locaion in propertyId");
+    // console.log(location, "locaion in propertyId");
 
     const propertiesID = await googleAnalyticsPropertyID(
       accountId,
@@ -630,18 +634,20 @@ export const propertyIdForDB = async (
       acoountNameforMatch ?? ""
     );
 
-    // console.log(propertiesID,"propertiesID in propertyId");
+    console.log(propertiesID,"propertiesID in propertyId");
 
     //  const propertyId = propertiesID[0]?.name ?? "";
+
     const propertyId = propertiesID.split("/")[1];
 
     // console.log(propertyId,"proepertyId in propertyId");
 
     const campaignDataWithPropertyIdData = await Campaign.findByIdAndUpdate(
       { _id: campaignId },
-      { $set: { propertyId: propertyId } },
+      { $set: { propertyId: propertyId,accountId:accountId } },
       { new: true }
     );
+    console.log(campaignDataWithPropertyIdData,"campaignDataWithPropertyIdData in propertyId");
 
     return {
       success: true,

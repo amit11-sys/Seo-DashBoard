@@ -5,7 +5,7 @@ import { getDBcompaignGoogleData } from "../campaign";
 import fetch from "node-fetch";
 import { getValidGoogleToken } from "../campaign/queries";
 import { date } from "zod";
-import { fetchLocations } from "../KeywordsGmb/queries";
+// import { fetchLocations } from "../KeywordsGmb/queries";
 
 const client_secret = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET;
 const client_id = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;

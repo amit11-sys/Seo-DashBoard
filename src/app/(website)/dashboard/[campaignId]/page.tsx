@@ -9,6 +9,7 @@ import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordCompon
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import { redirect } from "next/navigation";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
+import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
 
 export default async function DashboardDetails({
   params,
@@ -25,7 +26,7 @@ export default async function DashboardDetails({
   );
   // console.log(campaignStatus, "campaignStatus");
 
-  const archivedCampaignData = await getArchivedCampaign();
+ 
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
@@ -37,9 +38,7 @@ export default async function DashboardDetails({
         <aside className="w-[250px]   h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
             campaignId={campaignId as string}
-            archivedCampaignData={
-              archivedCampaignData?.KeywordTrackingDataArchied ?? []
-            }
+           
           />
         </aside>
 
@@ -57,6 +56,8 @@ export default async function DashboardDetails({
             campaignId={campaignId}
             // setPdfTableConsoleData={setPdfTableConsoleData}
           />
+                <SearchAnalytics campignDataWithId={campignDataWithId} campaignId={campaignId}/>
+
           <LiveKeywordComponent
             campaignStatus={campaignStatus}
             // campaignLiveKeywordsData={campaignLiveKeywordsData}

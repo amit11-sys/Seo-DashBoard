@@ -68,6 +68,10 @@
 // };
 
 // export default TableComponent;
+
+
+
+
 "use client";
 import { use, useEffect, useState } from "react";
 import {
@@ -109,14 +113,10 @@ const TableComponent = ({
   const rows: Row[] = Array.isArray(analyticData)
     ? analyticData
     : (analyticData?.analyticData ?? []);
-  
-  
-  
+
   //   useEffect(() => {
   //   setPdfTableConsoleData(getHtmlconsoleTable());
   // }, [handleGeneratePDF]);
-
-
 
   const headerIcon = (() => {
     switch (dimension) {
@@ -135,8 +135,6 @@ const TableComponent = ({
     }
   })();
 
-
-
   useEffect(() => {
     setLoading(true);
     const timeout = setTimeout(() => {
@@ -145,9 +143,7 @@ const TableComponent = ({
     return () => clearTimeout(timeout);
   }, [dimension, analyticData]);
 
-
-
- const getHtmlconsoleTable = () => {
+  const getHtmlconsoleTable = () => {
     return `
     <html>
       <head>
@@ -203,10 +199,6 @@ const TableComponent = ({
   `;
   };
 
-
-
-
-
   if (!rows.length) {
     return (
       <div className="w-full h-40 flex items-center justify-center rounded-md border border-dashed text-gray-500">
@@ -214,8 +206,6 @@ const TableComponent = ({
       </div>
     );
   }
-
- 
 
   return (
     <div className="w-full shadow-lg rounded-md mt-4 max-h-96 overflow-y-auto relative">

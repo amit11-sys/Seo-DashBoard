@@ -1,16 +1,13 @@
 "use server";
 
-import {  deleteKeywordById,  saveMultipleKeyword, updateKeywordById } from "./queries";
+import {
+  deleteKeywordById,
+  saveMultipleKeyword,
+  updateKeywordById,
+} from "./queries";
 
-// export const addKeyword=async (keyword:{})=>{
-//     const addKeyword= await saveKeyword(keyword)
-//     return addKeyword
-// }
-
-export const addMultipleKeyword = async (formData: {},campaign:any) => {
-  // console.log(keyword,"rttdt");
-
-  const addKeyword = await saveMultipleKeyword(formData,campaign?.campaign);
+export const addMultipleKeyword = async (formData: {}, campaign: any) => {
+  const addKeyword = await saveMultipleKeyword(formData, campaign?.campaign);
   return addKeyword;
 };
 type KeywordUpdateData = {
@@ -27,14 +24,15 @@ type KeywordUpdateData = {
   keywordId: string;
 };
 
-
-export const createUpdateKeywordById = async (updatedDataform:KeywordUpdateData) => {
+export const createUpdateKeywordById = async (
+  updatedDataform: KeywordUpdateData
+) => {
   // console.log(keyword,"rttdt");
 
   const updatedData = await updateKeywordById(updatedDataform);
   return updatedData;
 };
-export const deleteKeywordData = async (selectedKeywords:any) => {
+export const deleteKeywordData = async (selectedKeywords: any) => {
   // console.log(keyword,"rttdt");
 
   const deleteKeyworddata = await deleteKeywordById(selectedKeywords);

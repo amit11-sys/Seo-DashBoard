@@ -10,14 +10,14 @@ import {
   FaCalendarAlt,
   FaSync,
 } from "react-icons/fa";
-import CardsAnalysis from "../GoogleConsole/FancyStatsBar";
-import FancyStatsBar from "../GoogleConsole/FancyStatsBar";
-import AnimatedStats from "../GoogleConsole/AnimatedStats";
-import DashboardStats from "../GoogleConsole/CombinedCode";
+// import CardsAnalysis from "../GoogleConsole/FancyStatsBar";
+// import FancyStatsBar from "../GoogleConsole/FancyStatsBar";
+// import AnimatedStats from "../GoogleConsole/AnimatedStats";
+// import DashboardStats from "../GoogleConsole/CombinedCode";
 import DashboardStatsCollage from "../GoogleConsole/CombinedCode";
-import { FaFileExcel } from "react-icons/fa6";
+// import { FaFileExcel } from "react-icons/fa6";
 import DateRangeDialog from "../GoogleConsole/DateTable/DateTableDialog";
-import DownloadExcelBtn from "../GoogleConsole/DownloadExcelBtn";
+// import DownloadExcelBtn from "../GoogleConsole/DownloadExcelBtn";
 const AnalyticsChart = ({
   analyticData,
   tableData,

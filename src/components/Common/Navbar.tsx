@@ -16,8 +16,7 @@ import { getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
 import { useCampaignData } from "@/app/context/CampaignContext";
 
 type Props = {
-  // setIsCollapsed: (isCollapsed: boolean) => void;
-  // isCollapsed: boolean;
+ 
   campaignId?: string
 };
 
@@ -39,18 +38,7 @@ export default  function Navbar({campaignId}: Props) {
     }
   };
   
-  // useEffect(() => {
-  //   const fetchFirstCampaign = async () => {
-  //     try {
-  //       const fetchCompaigns = await getfirstCompaignData();
-  //       console.log(fetchCompaigns?.firstCompagin?._id, "first fetch");
-  //       setFirstCompaign(fetchCompaigns?.firstCompagin?._id);
-  //     } catch (error) {
-  //       console.log(error, "failed to fetch compaign nav header");
-  //     }
-  //   };
-  //   fetchFirstCampaign();
-  // }, []);
+
 
   return (
     <>

@@ -36,20 +36,7 @@ export default  function SidebarWrapper({
   archivedCampaignData
 }: SidebarWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  // const { setCampaignData } = useCampaignData();
-  // const archivedCampaignData = await getArchivedCampaign(campaignId);
-
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const data = await getUserCampaign();
-  //     console.log(data,"data in sidebar");
-  //     if (Array.isArray(data?.campaign)) {
-  //       setCampaignData(data.campaign);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
+ 
 
   return (
     <>

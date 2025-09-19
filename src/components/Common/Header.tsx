@@ -34,30 +34,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
   const router = useRouter();
 
 
-  // const handleCompaignDelete = async () => {
-  //   setOpenDelete(false);
-  //   startLoading();
-  //   try {
-  //     const DeletedCampaignData = await CreateArchivedCampaign(campaignId);
 
-  //     // if (!DeletedCampaignData) {
-  //     //   console.error("Failed to delete campaign:", DeletedCampaignData);
-  //     //   toast.error("Failed to delete campaign");
-  //     //   stopLoading();
-  //     //   return;
-  //     // }
-  //     // const firstCompaignData = await getfirstCompaignData();
-
-  //     toast.success(DeletedCampaignData.message);
-  //     router.push("/dashboard/");
-
-  //   } catch (error) {
-  //     toast.error("Something went wrong while deleting the campaign");
-  //   } finally {
-  //     stopLoading();
-  //   }
-  // };
-  
   const handleCompaignArchived = async (campaignId: string,topRankData:any, ) => {
     setOpenArchive(false);
     startLoading();

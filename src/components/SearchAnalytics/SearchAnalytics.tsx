@@ -757,7 +757,7 @@ const SearchAnalytics = ({
         const propertyId = campignDataWithId?.campaign?.propertyId;
         console.log(access_token, "access_token");
         console.log(propertyId, "propertyId");
-            // const { accessToken, campaign } = await getSharedToken(campaignId);
+        // const { accessToken, campaign } = await getSharedToken(campaignId);
 
         // const { accessToken } = await getSharedToken(campaignId);
 
@@ -1026,6 +1026,39 @@ const SearchAnalytics = ({
   //     </div>
   //   );
   // }
+
+  console.log(activeData, "activeData");
+  if (activeData?.totalActiveUsers === 0 && activeData?.totalNewUsers === 0) {
+    return (
+      <div className="relative w-full h-[70vh] flex flex-col gap-10 items-center justify-center bg-gray-100">
+       <div className="flex items-center bg-white py-4 justify-center w-full gap-3">
+            <FcGoogle className="text-blue-600 text-4xl" />
+            <div>
+              <div className="font-bold text-4xl">
+                Google Analytics Overview
+              </div>
+            </div>
+            <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
+          </div>
+        <div className=" bg-white shadow-lg rounded-xl p-8 text-center max-w-md mx-auto">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+            No Data Available
+          </h2>
+          <p className="text-gray-500 mb-6">
+            You need to connect Google Search Console Please Login.
+          </p>
+          <a
+            href={handleLoginGoogle()}
+            onClick={() => handleConnectClick("Google Search Console")}
+          >
+            <Button className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white hover:opacity-90 transition">
+              Proceed
+            </Button>
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

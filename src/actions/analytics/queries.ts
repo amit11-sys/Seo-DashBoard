@@ -1,3 +1,5 @@
+import { getSharedToken } from "@/lib/tokenManager";
+
 export const fetchLievKeyword = async (url: string) => {
   const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME!;
   const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD!;
@@ -506,53 +508,192 @@ const propertiesDataID = properties[0]?.name ?? "";
 
 
 
-export async function AnalyticsData(access_token: string, propertyId: string) {
+export async function AnalyticsData(access_token: string,date:any , propertyId: string) {
+       
+
+  const today1 = new Date();
+  const todayFormatted = today1.toISOString().split("T")[0];
+
+  const today2 = new Date();
+  const threeMonthsAgo = new Date(today2.setMonth(today2.getMonth() - 3));
+
+  const threeMonthsAgoFormatted = threeMonthsAgo.toISOString().split("T")[0];
+
+  // const payload = {
+  //   startDate: date.startDate || threeMonthsAgoFormatted,
+  //   endDate: date.endDate || todayFormatted,
+  //   dimensions: ["date"],
+  // };
 
   if(propertyId === null || propertyId === undefined) return null;
   const baseUrl = `${process.env.NEXT_PUBLIC_ANALYTICS_DATA}properties/${propertyId}:runReport`;
 
   // Define all the payloads to loop through
-  const payloads: { name: string; payload: any }[] = [
-    { name: "getUserData", payload: {
-        dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+  // const payloads: { name: string; payload: any }[] = [
+  //   { name: "getUserData", payload: {
+  //       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+  //       dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+  //       metrics: [
+  //         { name: 'sessions' },
+  //         { name: 'activeUsers' },
+  //         { name: 'newUsers' },
+  //         { name: 'averageSessionDuration' },
+  //         { name: 'userEngagementDuration' },
+  //       ],
+  //     }
+  //   },
+  //   { name: "countryData", payload: {
+  //       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+  //       dimensions: [{ name: "country" }],
+  //       metrics: [{ name: "activeUsers" }],
+  //     }
+  //   },
+  //   { name: "pageTitleData", payload: {
+  //       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+  //       dimensions: [{ name: "pageTitle" }],
+  //       metrics: [{ name: "activeUsers" }],
+  //     }
+  //   },
+  //   { name: "keyData", payload: {
+  //       dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+  //       dimensions: [{ name: 'sessionDefaultChannelGrouping' }],
+  //       metrics: [
+  //         { name: 'activeUsers' },
+  //         { name: 'sessions' },
+  //         { name: 'engagedSessions' },
+  //         { name: 'averageSessionDuration' },
+  //         { name: 'eventsPerSession' },
+  //         { name: 'engagementRate' },
+  //         { name: 'eventCount' },
+  //         { name: 'totalRevenue' },
+  //       ],
+  //     }
+  //   }
+  // ];
+
+  // Suppose you have startDate and endDate as strings in YYYY-MM-DD format
+const startDate = date.startDate || threeMonthsAgoFormatted;
+const endDate = date.endDate || todayFormatted;
+const prevStartDate = date?.compare?.startDate || "" ;
+const prevEndDate =date?.compare?.endDate || "" ;
+
+
+let payloads: { name: string; payload: any }[]; // declare with type
+
+if (date.compare === undefined) {
+  payloads = [
+    {
+      name: "getUserData",
+      payload: {
+        dateRanges: [{ startDate, endDate }], // current selection
         dimensions: [{ name: "sessionDefaultChannelGrouping" }],
         metrics: [
-          { name: 'sessions' },
-          { name: 'activeUsers' },
-          { name: 'newUsers' },
-          { name: 'averageSessionDuration' },
-          { name: 'userEngagementDuration' },
+          { name: "sessions" },
+          { name: "activeUsers" },
+          { name: "newUsers" },
+          { name: "averageSessionDuration" },
+          { name: "userEngagementDuration" },
         ],
-      }
+      },
     },
-    { name: "countryData", payload: {
-        dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+    {
+      name: "countryData",
+      payload: {
+        dateRanges: [{ startDate, endDate }],
         dimensions: [{ name: "country" }],
         metrics: [{ name: "activeUsers" }],
-      }
+      },
     },
-    { name: "pageTitleData", payload: {
-        dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
+    {
+      name: "pageTitleData",
+      payload: {
+        dateRanges: [{ startDate, endDate }],
         dimensions: [{ name: "pageTitle" }],
         metrics: [{ name: "activeUsers" }],
-      }
+      },
     },
-    { name: "keyData", payload: {
-        dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
-        dimensions: [{ name: 'sessionDefaultChannelGrouping' }],
+    {
+      name: "keyData",
+      payload: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
         metrics: [
-          { name: 'activeUsers' },
-          { name: 'sessions' },
-          { name: 'engagedSessions' },
-          { name: 'averageSessionDuration' },
-          { name: 'eventsPerSession' },
-          { name: 'engagementRate' },
-          { name: 'eventCount' },
-          { name: 'totalRevenue' },
+          { name: "activeUsers" },
+          { name: "sessions" },
+          { name: "engagedSessions" },
+          { name: "averageSessionDuration" },
+          { name: "eventsPerSession" },
+          { name: "engagementRate" },
+          { name: "eventCount" },
+          { name: "totalRevenue" },
         ],
-      }
-    }
+      },
+    },
   ];
+} else {
+  payloads = [
+    {
+      name: "getUserData",
+      payload: {
+        dateRanges: [
+          { startDate, endDate }, // current selection
+          { startDate: prevStartDate, endDate: prevEndDate }, // previous period
+        ],
+        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+        metrics: [
+          { name: "sessions" },
+          { name: "activeUsers" },
+          { name: "newUsers" },
+          { name: "averageSessionDuration" },
+          { name: "userEngagementDuration" },
+        ],
+      },
+    },
+    {
+      name: "countryData",
+      payload: {
+        dateRanges: [
+          { startDate, endDate },
+          { startDate: prevStartDate, endDate: prevEndDate },
+        ],
+        dimensions: [{ name: "country" }],
+        metrics: [{ name: "activeUsers" }],
+      },
+    },
+    {
+      name: "pageTitleData",
+      payload: {
+        dateRanges: [
+          { startDate, endDate },
+          { startDate: prevStartDate, endDate: prevEndDate },
+        ],
+        dimensions: [{ name: "pageTitle" }],
+        metrics: [{ name: "activeUsers" }],
+      },
+    },
+    {
+      name: "keyData",
+      payload: {
+        dateRanges: [
+          { startDate, endDate },
+          { startDate: prevStartDate, endDate: prevEndDate },
+        ],
+        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+        metrics: [
+          { name: "activeUsers" },
+          { name: "sessions" },
+          { name: "engagedSessions" },
+          { name: "averageSessionDuration" },
+          { name: "eventsPerSession" },
+          { name: "engagementRate" },
+          { name: "eventCount" },
+          { name: "totalRevenue" },
+        ],
+      },
+    },
+  ];
+}
+
 
   const results: Record<string, any> = {};
 
@@ -575,13 +716,14 @@ export async function AnalyticsData(access_token: string, propertyId: string) {
       }
 
       const data = await res.json();
+      // console.log(data.rows[0].metricValues,"ananlyticss")
       results[name] = data;
     } catch (error: any) {
       console.error(`Exception in payload ${name}:`, error?.message ?? error);
       results[name] = { error: error?.message ?? error };
     }
   }
-  console.log(results, "resultsok");
+  // console.log(results, "resultsok");
 
-  return results;
+  return {results,date};
 }

@@ -6,7 +6,7 @@ import { FaSync } from "react-icons/fa";
 
 export default function SearchConsoleHead() {
   return (
-    <div className="flex justify-center flex-col items-center  mt-20 p-4 bg-white shadow rounded-md">
+    <div className="flex justify-center flex-col items-center  p-4 bg-white shadow rounded-md">
     
      
        <div className="flex items-center justify-center w-full gap-3">

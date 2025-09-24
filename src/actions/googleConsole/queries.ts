@@ -75,12 +75,122 @@ function extractDomain(url: string): string | null {
   }
 }
 
+// export async function GoogleConsoleDataByDate(
+//   newCompaignId: string,
+//   date: any
+// ) {
+
+//   // this data taken from dimensions
+//   console.log(date,"dateinAnalytics");
+//   const { startDate, endDate, compare  } = date;
+
+// // compare Data
+// //   {
+// //   startDate: '2025-06-22',
+// //   endDate: '2025-09-22',
+// //   compare: { startDate: '2024-06-22', endDate: '2024-09-22' }
+// // } 
+
+
+//   const today1 = new Date();
+//   const todayFormatted = today1.toISOString().split("T")[0];
+
+//   const today2 = new Date();
+//   const threeMonthsAgo = new Date(today2.setMonth(today2.getMonth() - 3));
+
+//   const threeMonthsAgoFormatted = threeMonthsAgo.toISOString().split("T")[0];
+
+//   const payload = {
+//     startDate: startDate || threeMonthsAgoFormatted,
+//     endDate: endDate || todayFormatted,
+//     dimensions: ["date"],
+//   };
+//   // console.log(newCompaignId, "newCompaignId in getGoogleSearchDataByDimension");
+
+//   const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+//   // console.log(testdata, "testdata");
+//   // const compaignGoogleData = (await getDBcompaignGoogleData(
+//   //       newCompaignId
+//   //     )) as any | null;
+//       console.log(compaignGoogleData,"compaignGoogleData ");
+
+//   // if (!compaignGoogleData?.compaignGoogleData) {
+//   //   throw new Error(compaignGoogleData?.error ?? "No campaign tokens found");
+//   // }
+
+//   const access_token = compaignGoogleData?.googleAccessToken;
+//   const CompaignUrl = compaignGoogleData?.projectUrl;
+//   // function extractDomain(url: string): string | null {
+//   //   const match = url.match(/\/\/(.*?)\.com/);
+//   //   return match ? match[1] : null;
+//   // }
+//   console.log(CompaignUrl,"url in googleConsoleDataByDate")
+//   // const data =await fetchLocalKeywordData(CompaignUrl)
+//   // console.log(data, "data in getGoogleSearchDataByDimension");
+//   const urlNameMatch = extractDomain(CompaignUrl);
+//   // console.log(urlNameMatch, "urlNameMatch");
+
+//   // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
+//   //   const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl ?? "";
+//   // console.log(access_token, "access_token");
+//   // console.log(CompaignUrl, "CampaignURL");
+//   // console.log(encodeURIComponent(CompaignUrl), "CampaignURL encodind");
+
+//   try {
+//     // const payload = { startDate, endDate, dimensions };
+
+//     const res = await fetch(
+//       `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+//       {
+//         method: "POST",
+//         headers: {
+         
+//           Authorization: `Bearer ${access_token}`,
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(payload),
+//       }
+//     );
+
+//     if (!res.ok) {
+//       const text = await res.text();
+//       throw new Error(
+//         `GA request failed: ${res.status} ${res.statusText} - ${text}`
+//       );
+//     }
+
+//     const json = (await res.json()) as GSApiResponse;
+//     // console.log(json,"json in getGoogleSearchDataByDimension");
+
+//     const rawData = json.rows ?? [];
+//     const processedData = processConsoleData(rawData);
+//     0;
+//     return {
+//       dateWise: rawData,
+//       monthWise: processedData,
+//     };
+//   } catch (error: any) {
+//     console.error(
+//       "getGoogleAnalyticsDataByDate error:",
+//       error?.message ?? error
+//     );
+//     return;
+//   }
+// }
+
+
+
+
+
+
 export async function GoogleConsoleDataByDate(
   newCompaignId: string,
   date: any
 ) {
-  // this data taken from dimensions
-  const { startDate, endDate, dimensions } = date;
+
+  console.log(date, "dateinAnalytics");
+  const { startDate, endDate, compare } = date;
+
   const today1 = new Date();
   const todayFormatted = today1.toISOString().split("T")[0];
 
@@ -88,52 +198,32 @@ export async function GoogleConsoleDataByDate(
   const threeMonthsAgo = new Date(today2.setMonth(today2.getMonth() - 3));
 
   const threeMonthsAgoFormatted = threeMonthsAgo.toISOString().split("T")[0];
-
-  const payload = {
-    startDate: startDate || threeMonthsAgoFormatted,
-    endDate: endDate || todayFormatted,
-    dimensions: ["date"],
-  };
-  // console.log(newCompaignId, "newCompaignId in getGoogleSearchDataByDimension");
-
+  
+  // Get campaign tokens and URL
   const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
-  // console.log(testdata, "testdata");
-  // const compaignGoogleData = (await getDBcompaignGoogleData(
-  //       newCompaignId
-  //     )) as any | null;
-      console.log(compaignGoogleData,"compaignGoogleData ");
-
-  // if (!compaignGoogleData?.compaignGoogleData) {
-  //   throw new Error(compaignGoogleData?.error ?? "No campaign tokens found");
-  // }
-
   const access_token = compaignGoogleData?.googleAccessToken;
   const CompaignUrl = compaignGoogleData?.projectUrl;
-  // function extractDomain(url: string): string | null {
-  //   const match = url.match(/\/\/(.*?)\.com/);
-  //   return match ? match[1] : null;
-  // }
-  console.log(CompaignUrl,"url in googleConsoleDataByDate")
-  // const data =await fetchLocalKeywordData(CompaignUrl)
-  // console.log(data, "data in getGoogleSearchDataByDimension");
   const urlNameMatch = extractDomain(CompaignUrl);
-  // console.log(urlNameMatch, "urlNameMatch");
 
-  // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
-  //   const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl ?? "";
-  // console.log(access_token, "access_token");
-  // console.log(CompaignUrl, "CampaignURL");
-  // console.log(encodeURIComponent(CompaignUrl), "CampaignURL encodind");
+  if (!access_token || !CompaignUrl) {
+    throw new Error("Missing access token or campaign URL");
+  }
 
-  try {
-    // const payload = { startDate, endDate, dimensions };
+  // Helper to fetch data from GSC
+  const fetchGSCData = async (start: string, end: string) => {
+    const payload = {
+      startDate: start,
+      endDate: end,
+      dimensions: ["date"],
+    };
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+      `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(
+        CompaignUrl
+      )}/searchAnalytics/query`,
       {
         method: "POST",
         headers: {
-         
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
         },
@@ -144,143 +234,256 @@ export async function GoogleConsoleDataByDate(
     if (!res.ok) {
       const text = await res.text();
       throw new Error(
-        `GA request failed: ${res.status} ${res.statusText} - ${text}`
+        `GSC request failed: ${res.status} ${res.statusText} - ${text}`
       );
     }
 
-    const json = (await res.json()) as GSApiResponse;
-    // console.log(json,"json in getGoogleSearchDataByDimension");
+    const json:any = await res.json();
+   console.log(json,"consoleAPI")
+    return json.rows ?? [];
+  };
 
-    const rawData = json.rows ?? [];
-    const processedData = processConsoleData(rawData);
-    0;
+  try {
+    // 1️⃣ Fetch normal/current data
+    
+    const normalStart = startDate || threeMonthsAgoFormatted;
+    const normalEnd = endDate || todayFormatted;
+    const normalData = await fetchGSCData(normalStart, normalEnd);
+    
+    let compareData = null;
+    
+    // 2️⃣ If compare is available, fetch previous period
+    if (compare?.startDate && compare?.endDate) {
+      compareData = await fetchGSCData(compare.startDate, compare.endDate);
+      console.log(compareData,"compareData");
+    }
+
     return {
-      dateWise: rawData,
-      monthWise: processedData,
+      normalData,
+      date,
+      compareData, // null if compare not provided
     };
   } catch (error: any) {
     console.error(
-      "getGoogleAnalyticsDataByDate error:",
+      "GoogleConsoleDataByDate error:",
       error?.message ?? error
     );
-    return;
+    return {
+      normalData: [],
+      compareData: [],
+      error: error?.message ?? "Unknown error",
+    };
   }
 }
+
+
+
+
+
 interface AnalyticsDataItem {
   keys: string[]; // An array containing the date (e.g., ['2024-10-19'])
   clicks: number;
   impressions: number;
   position: number;
 }
+// export async function GoogleSearchDataByDimension(
+//   newCompaignId: string,
+//   dimension: string,
+//   date: any
+// ) {
+//   // console.log(dimension, "dimension");
+//   // console.log(newCompaignId, "newCompaignId in getGoogleSearchDataByDimension");
+//   const { startDate, endDate } = date;
+//   const today1 = new Date();
+//   const todayFormatted = today1.toISOString().split("T")[0];
+
+//   const today2 = new Date();
+//   const threeMonthsAgo = new Date(today2.setMonth(today2.getMonth() - 3));
+
+//   const threeMonthsAgoFormatted = threeMonthsAgo.toISOString().split("T")[0];
+
+//   try {
+//     const dataWithDimension = {
+//       startDate: startDate || threeMonthsAgoFormatted,
+//       endDate: endDate || todayFormatted,
+//       dimensions: [dimension],
+//     };
+//     const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+
+//     // console.log(compaignGoogleData, "testdata");
+//     //
+//     // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+//     // console.log(compaignGoogleData, "compaignGoogleData in getGoogleSearchDataByDimension");
+//     // const compaignGoogleData = (await getDBcompaignGoogleData(
+//     //   newCompaignId
+//     // )) as any | null;
+//     // console.log(compaignGoogleData,"compaignGoogleData ");
+
+
+    
+    
+//     // if (!compaignGoogleData?.googleAccessToken) {
+//     //   throw new Error("No campaign tokens found");
+//     // }
+    
+//     const access_token = compaignGoogleData?.googleAccessToken;
+//     const CompaignUrl = compaignGoogleData?.projectUrl;
+//     console.log(access_token,"tokken")
+//     console.log(CompaignUrl,"url in getGoogleSearchDataByDimension" )
+    
+//     // const location = await fetchLocations(access_token);
+//     // console.log(location,"locationOKO hia")
+//     // console.log(access_token, "in access_token");
+//     // console.log(CompaignUrl, "in googleSearchDataByDimension");
+
+//     const acoountNameforMatch = extractDomain(CompaignUrl);
+
+//     // console.log(acoountNameforMatch, "acoountNameforMatch");
+
+//     // const data = await googleAnalyticsAccountID(
+//     //   access_token,
+//     //   acoountNameforMatch ?? ""
+//     // );
+
+//     // console.log(data, "data idid");
+//     // const accountId = data?.accountId ?? "";
+//     // const propertiesID = await googleAnalyticsPropertyID(
+//     //   accountId,
+//     //   access_token,
+//     //   acoountNameforMatch ?? ""
+//     // );
+//     // console.log(propertiesID, "propertiesID in googleSearchDataByDimension");
+
+//     // const propertyId = propertiesID[0].name ?? "";
+//     // console.log(propertyId, "propertyId in googleSearchDataByDimension");
+//     // const analyticData = await getAnalyticsData(access_token, propertyId);
+//     // console.log(analyticData, "analyticData in googleSearchDataByDimension");
+//     // Rest of the code...
+//     // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
+//     // const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl ?? "";
+
+//     const res = await fetch(
+//       `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+//       {
+//         method: "POST",
+//         headers: {
+         
+//           Authorization: `Bearer ${access_token}`,
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(dataWithDimension),
+//       }
+//     );
+
+//     if (!res.ok) {
+//       const text = await res.text();
+//       // mimic axios error.response for your existing catch blocks
+//       const err: any = new Error(`HTTP ${res.status} ${res.statusText}`);
+//       err.response = { status: res.status, data: text };
+//       throw err;
+//     }
+//     const json: any = await res.json();
+
+//     const dimensionData = json?.rows ?? [];
+//     return dimensionData;
+//   } catch (error: any) {
+//     if (error?.response) {
+//       console.error("Error response:", error.response.data);
+//     } else {
+//       console.error("Error:", error.message);
+//     }
+//     return;
+//   }
+// }
+
+
+
 export async function GoogleSearchDataByDimension(
-  newCompaignId: string,
+  campaignId: string,
   dimension: string,
-  date: any
+  date: { startDate?: string; endDate?: string; compare?: { startDate: string; endDate: string } }
 ) {
-  // console.log(dimension, "dimension");
-  // console.log(newCompaignId, "newCompaignId in getGoogleSearchDataByDimension");
-  const { startDate, endDate } = date;
-  const today1 = new Date();
-  const todayFormatted = today1.toISOString().split("T")[0];
+  const { startDate, endDate, compare } = date;
 
-  const today2 = new Date();
-  const threeMonthsAgo = new Date(today2.setMonth(today2.getMonth() - 3));
+  const today = new Date();
+  const todayFormatted = today.toISOString().split("T")[0];
 
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
   const threeMonthsAgoFormatted = threeMonthsAgo.toISOString().split("T")[0];
 
-  try {
-    const dataWithDimension = {
-      startDate: startDate || threeMonthsAgoFormatted,
-      endDate: endDate || todayFormatted,
+  // 🔑 Get campaign tokens and URL
+  const campaignGoogleData: any = await getValidGoogleToken(campaignId);
+  const access_token = campaignGoogleData?.googleAccessToken;
+  const campaignUrl = campaignGoogleData?.projectUrl;
+
+  if (!access_token || !campaignUrl) {
+    throw new Error("Missing access token or campaign URL");
+  }
+
+  // 🔄 Helper to fetch GSC data
+  const fetchGSCData = async (start: string, end: string) => {
+    const payload = {
+      startDate: start,
+      endDate: end,
       dimensions: [dimension],
     };
-    const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
-
-    // console.log(compaignGoogleData, "testdata");
-    //
-    // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
-    // console.log(compaignGoogleData, "compaignGoogleData in getGoogleSearchDataByDimension");
-    // const compaignGoogleData = (await getDBcompaignGoogleData(
-    //   newCompaignId
-    // )) as any | null;
-    // console.log(compaignGoogleData,"compaignGoogleData ");
-
-
-    
-    
-    // if (!compaignGoogleData?.googleAccessToken) {
-    //   throw new Error("No campaign tokens found");
-    // }
-    
-    const access_token = compaignGoogleData?.googleAccessToken;
-    const CompaignUrl = compaignGoogleData?.projectUrl;
-    console.log(access_token,"tokken")
-    console.log(CompaignUrl,"url in getGoogleSearchDataByDimension" )
-    
-    // const location = await fetchLocations(access_token);
-    // console.log(location,"locationOKO hia")
-    // console.log(access_token, "in access_token");
-    // console.log(CompaignUrl, "in googleSearchDataByDimension");
-
-    const acoountNameforMatch = extractDomain(CompaignUrl);
-
-    // console.log(acoountNameforMatch, "acoountNameforMatch");
-
-    // const data = await googleAnalyticsAccountID(
-    //   access_token,
-    //   acoountNameforMatch ?? ""
-    // );
-
-    // console.log(data, "data idid");
-    // const accountId = data?.accountId ?? "";
-    // const propertiesID = await googleAnalyticsPropertyID(
-    //   accountId,
-    //   access_token,
-    //   acoountNameforMatch ?? ""
-    // );
-    // console.log(propertiesID, "propertiesID in googleSearchDataByDimension");
-
-    // const propertyId = propertiesID[0].name ?? "";
-    // console.log(propertyId, "propertyId in googleSearchDataByDimension");
-    // const analyticData = await getAnalyticsData(access_token, propertyId);
-    // console.log(analyticData, "analyticData in googleSearchDataByDimension");
-    // Rest of the code...
-    // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
-    // const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl ?? "";
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+      `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(
+        campaignUrl
+      )}/searchAnalytics/query`,
       {
         method: "POST",
         headers: {
-         
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(dataWithDimension),
+        body: JSON.stringify(payload),
       }
     );
 
     if (!res.ok) {
       const text = await res.text();
-      // mimic axios error.response for your existing catch blocks
-      const err: any = new Error(`HTTP ${res.status} ${res.statusText}`);
-      err.response = { status: res.status, data: text };
-      throw err;
+      throw new Error(
+        `GSC request failed: ${res.status} ${res.statusText} - ${text}`
+      );
     }
-    const json: any = await res.json();
 
-    const dimensionData = json?.rows ?? [];
-    return dimensionData;
-  } catch (error: any) {
-    if (error?.response) {
-      console.error("Error response:", error.response.data);
-    } else {
-      console.error("Error:", error.message);
+    const json: any = await res.json();
+    return json.rows ?? [];
+  };
+
+  try {
+    
+    // 1️⃣ Fetch normal/current data
+    const normalStart = startDate || threeMonthsAgoFormatted;
+    const normalEnd = endDate || todayFormatted;
+    const normalData = await fetchGSCData(normalStart, normalEnd);
+
+    let compareData = null;
+
+    // 2️⃣ Fetch compare data if available
+    if (compare?.startDate && compare?.endDate) {
+      compareData = await fetchGSCData(compare.startDate, compare.endDate);
     }
-    return;
+
+    return {
+      normalData,
+       date : { startDate: startDate || threeMonthsAgoFormatted, endDate: endDate || todayFormatted , compare : compare  || null },
+      compareData,
+      // date,
+    };
+  } catch (error: any) {
+    console.error("GoogleSearchDataByDimension error:", error?.message ?? error);
+    return {
+      normalData: [],
+      compareData: [],
+      error: error?.message ?? "Unknown error",
+    };
   }
 }
+
 
 function processConsoleData(rawData: AnalyticsDataItem[]): {
   month: string;

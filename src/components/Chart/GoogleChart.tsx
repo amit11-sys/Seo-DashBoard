@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DualAxisChart from "@/components/GoogleConsole/Chartcomponent";
+import FancyDualAxisChart from "@/components/GoogleConsole/Chartcomponent";
 import TableComponent from "@/components/GoogleConsole/TableComponent";
 import {
   FaGlobe,
@@ -18,6 +18,7 @@ import DashboardStatsCollage from "../GoogleConsole/CombinedCode";
 import { FaFileExcel } from "react-icons/fa6";
 import DateRangeDialog from "../GoogleConsole/DateTable/DateTableDialog";
 import DownloadExcelBtn from "../GoogleConsole/DownloadExcelBtn";
+import FancyDualAxisChartJS from "@/components/GoogleConsole/Chartcomponent";
 const AnalyticsChart = ({
   analyticData,
   tableData,
@@ -25,6 +26,7 @@ const AnalyticsChart = ({
   setDataWithDimension,
   setDate,
   setPdfTableConsoleData,
+  setDimensionHandler,
   // handleGeneratePDF,
   setPdfChartData,
   dimension,
@@ -33,6 +35,7 @@ const AnalyticsChart = ({
   analyticData: any;
   tableData: any;
   setDimension: Dispatch<SetStateAction<string>>;
+  setDimensionHandler: any
   dimension: string;
   setDataWithDimension: Dispatch<SetStateAction<any>>,
   setDate: Dispatch<SetStateAction<any>>,
@@ -41,22 +44,26 @@ const AnalyticsChart = ({
   setPdfChartData?: Dispatch<SetStateAction<any>>
   consoleRef?: any
 }) => {
+  const [campareChartData, setCampareChartData] = useState<any>(null);
   const [chartData, setChartData] = useState<any>(null);
-  console.log(dimension,"dimension");
+  console.log(analyticData,"analyticData");
 
-  useEffect(() => {
-    if (analyticData) {
-      const updatedChartData =
-        Array.isArray(analyticData?.analyticData?.dateWise) &&
-        analyticData?.analyticData?.dateWise?.map((item: any) => ({
-          date: item.keys[0],
-          Clicks: item.clicks,
-          Impression: item.impressions,
-          Ctr: item.ctr,
-        }));
-      setChartData(updatedChartData);
-    }
-  }, [analyticData]);
+  // useEffect(() => {
+  //   if (analyticData) {
+  //     const updatedChartData = Array.isArray(analyticData?.analyticData?.dateWise) &&
+  //       analyticData?.analyticData?.dateWise?.map((item: any) => ({
+  //         date: item.keys[0],
+  //         Clicks: item.clicks,
+  //         Impression: item.impressions,
+  //         Ctr: item.ctr,
+  //       }));
+
+  //     setChartData(updatedChartData);
+      
+  //   }
+  // }, [analyticData]);
+
+
  console.log(analyticData, "analyticData");
   console.log(tableData, " tableData")
 
@@ -152,8 +159,10 @@ const AnalyticsChart = ({
          {/* <DownloadExcelBtn analyticData={analyticData} /> */}
       </div>
    
-      <div className="p-2 rounded-full hover:bg-gray-100" title="Select Date">
-        <DateRangeDialog setDataWithDimension={setDataWithDimension} setDate={setDate}/>
+      <div className="p-2 rounded-full " title="Select Date">
+        <DateRangeDialog 
+        // setDataWithDimension={setDataWithDimension} 
+        setDate={setDate}/>
       </div>
       {/* <button className="p-2 rounded-full hover:bg-gray-100" title="Refresh Data">
         <FaSync className="text-purple-500 text-4xl" />
@@ -163,7 +172,7 @@ const AnalyticsChart = ({
         <>
           {/* Chart */}
           <div className="mt-6">
-            <DualAxisChart data={analyticData} />
+            <FancyDualAxisChart ChartData={analyticData} />
           </div>
         </>
       ) : (
@@ -177,7 +186,7 @@ const AnalyticsChart = ({
         <TabsList className="flex w-full justify-center gap-3  p-4 rounded-xl shadow-md">
           <TabsTrigger
             value="country"
-            onClick={() => setDimension("Country")}
+            onClick={() => setDimensionHandler("Country") }
             className="px-4 py-2 flex items-center gap-2 font-medium transition-all text-black hover:bg-orange-100 data-[state=active]:bg-orange-600 rounded-xl data-[state=active]:text-white"
           >
             <FaGlobe size={16} /> COUNTRY
@@ -185,7 +194,7 @@ const AnalyticsChart = ({
 
           <TabsTrigger
             value="devices"
-            onClick={() => setDimension("Device")}
+            onClick={() => setDimensionHandler("Device")}
             className="px-4 py-2 flex items-center gap-2 rounded-xl font-medium transition-all text-black hover:bg-orange-100 data-[state=active]:bg-orange-600 data-[state=active]:text-white"
           >
             <FaMobileAlt size={16} /> DEVICES
@@ -193,7 +202,7 @@ const AnalyticsChart = ({
 
           <TabsTrigger
             value="pages"
-            onClick={() => setDimension("Page")}
+            onClick={() => setDimensionHandler("Page")}
             className="px-4 py-2 flex items-center gap-2rounded-xl font-medium transition-all text-black hover:bg-orange-100 data-[state=active]:bg-orange-600 data-[state=active]:text-white"
           >
             <FaFileAlt size={16} /> PAGES
@@ -201,7 +210,7 @@ const AnalyticsChart = ({
 
           <TabsTrigger
             value="query"
-            onClick={() => setDimension("Query")}
+            onClick={() => setDimensionHandler("Query")}
             className="px-4 py-2 flex items-center gap-2 rounded-xl font-medium transition-all text-black hover:bg-orange-100 data-[state=active]:bg-orange-600 data-[state=active]:text-white"
           >
             <FaSearch size={16} /> QUERIES
@@ -209,7 +218,7 @@ const AnalyticsChart = ({
 
           <TabsTrigger
             value="date"
-            onClick={() => setDimension("Date")}
+            onClick={() => setDimensionHandler("Date")}
             className="px-4 py-2 flex items-center gap-2 rounded-xl font-medium transition-all text-black hover:bg-orange-100 data-[state=active]:bg-orange-600 data-[state=active]:text-white"
           >
             <FaCalendarAlt size={16} /> DATE
@@ -221,7 +230,9 @@ const AnalyticsChart = ({
       {/* <div className="mt-6"> */}
       <TableComponent
       //  handleGeneratePDF={handleGeneratePDF} 
-       setPdfTableConsoleData={setPdfTableConsoleData} analyticData={tableData} dimension={dimension} />
+      //  setPdfTableConsoleData={setPdfTableConsoleData} 
+       analyticData={tableData} 
+       dimension={dimension} />
       {/* </div> */}
     </div>
   );

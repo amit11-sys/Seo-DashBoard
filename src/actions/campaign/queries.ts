@@ -516,7 +516,6 @@ export async function getValidGoogleToken(campaignId: string) {
 
   const now = Date.now();
 
-  // If token is expired or missing → refresh it
   if (
     !campaign.googleAccessToken ||
     !campaign.googleAccessTokenExpiry ||
@@ -525,7 +524,6 @@ export async function getValidGoogleToken(campaignId: string) {
     return await refreshGoogleAccessToken(campaignId);
   }
 
-  // Otherwise return the campaign with the valid token
   return campaign;
 }
 export const CurrentCampaignIdData = async (campaignId: string) => {
@@ -534,13 +532,13 @@ export const CurrentCampaignIdData = async (campaignId: string) => {
 
     const user = await getUserFromToken();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
 
     const CurrentCampaignIdData = await Campaign.findById({ _id: campaignId });
 
     if (!campaignId) {
-      return { error: "Error while getting campaign New Id" };
+      return { success: false, error: "Error while getting campaign New Id" };
     }
 
     return {

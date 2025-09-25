@@ -22,7 +22,12 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith("/dashboard/detail")) {
       return NextResponse.next();
     }
-
+   if (
+  pathname.startsWith("/term-and-conditions") ||
+  pathname.startsWith("/privacy-policy")
+) {
+  return NextResponse.next();
+}
     // block all other private routes → sign-in
     if (!isPublicPath) {
       return NextResponse.redirect(new URL("/sign-in", request.url));

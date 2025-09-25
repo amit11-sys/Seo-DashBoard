@@ -63,7 +63,7 @@ const SingleKeywordRefresh = ({
   const [open, setOpen] = useState(false);
   const {stopLoading,startLoading} = useLoader()
 
-  onst handleSingleRefreshKeyword = async (keywordId: string) => {
+  const handleSingleRefreshKeyword = async (keywordId: string) => {
     startLoading()
     try {
       const res = await getRefreshSingleKeyword(keywordId);

@@ -8,6 +8,7 @@ import {
 } from "@/actions/googleConsole";
 import SearchConsoleHead from "./SearchConsoleHead";
 import { Button } from "../ui/button";
+import ConsoleSkeloton from "../Skeleton/ConsoleSkeloton";
 interface SearchConsoleDataProps {
   campaignId: any;
   setPdfTableConsoleData?: any;
@@ -88,6 +89,28 @@ const SearchConsoleData = ({
     setSearchConsoleTableData(tableRes);
   };
 
+  
+// const setDimensionHandler = async (dimension: string) => {
+//   try {
+//     setLoading(true); // start loader
+
+//     const tableRes = await getGoogleSearchDataByDimension(
+//       campaignId,
+//       dimension,
+//       date
+//     );
+
+   
+
+//     setDimension(dimension);
+//     setSearchConsoleTableData(tableRes);
+//   } catch (error: any) {
+//     console.error("Error fetching table data:", error);
+//   } finally {
+//     setLoading(false); // stop loader
+//   }
+// };
+
   console.log(searchConsoleGraphData, "searchConsoleGraphData");
   console.log(searchConsoleTableData, " searchConsoleTableData");
 
@@ -135,16 +158,18 @@ const SearchConsoleData = ({
       //   </div>
       // </div>
 
-        <div className="relative w-full h-[70vh] gap-10 flex flex-col items-center justify-center bg-gray-100">
+        <div className="relative w-full gap-10 flex flex-col items-center justify-center bg-gray-100">
         <div className=" w-full bg-white/60">
           <SearchConsoleHead />{" "}
         </div>
-          <div className="flex flex-col items-center gap-4">
+          {/* <div className="flex flex-col items-center gap-4">
          <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
            <p className="text-gray-600 font-medium">
             Fetching Google Console data...
           </p>
-       </div>
+       </div> */}
+
+       <ConsoleSkeloton />
       </div>
     );
   }

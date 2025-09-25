@@ -866,7 +866,6 @@ export const DbKeywordStatusData = async (statusCode: number) => {
       campaignId: { $in: campaignIds },
       status: statusCode,
     });
-    console.log(keywordDatastatus, "keywordDatastatus");
 
     return {
       success: true,

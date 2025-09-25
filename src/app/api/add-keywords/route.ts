@@ -1,21 +1,16 @@
-// src/app/api/create-keywords/route.ts
 import { NextResponse } from "next/server";
 import { createNewkeywords } from "@/actions/addKeywords";
-import { revalidatePath } from "next/cache";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const result = await createNewkeywords(body); // Server-side function
+    const result = await createNewkeywords(body); 
 
     const campaignId = body?.campaignId?.campaignId;
 
     
-    // if (campaignId) {
-    //   // revalidatePath(`/dashboard/`);
-    //   revalidatePath(`/dashboard/${campaignId}`);
-    // }
+   
     return NextResponse.json(result);
   } catch (error) {
     console.error("API Error:", error);

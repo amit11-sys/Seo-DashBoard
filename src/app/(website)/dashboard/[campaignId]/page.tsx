@@ -1,13 +1,9 @@
-import {
-  getDbLiveKeywordData,
-  getDbLiveKeywordDataWithSatusCode,
-} from "@/actions/keywordTracking";
+import { getDbLiveKeywordDataWithSatusCode } from "@/actions/keywordTracking";
 import Navbar from "@/components/Common/Navbar";
 import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
-import { redirect } from "next/navigation";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
 
 export default async function DashboardDetails({

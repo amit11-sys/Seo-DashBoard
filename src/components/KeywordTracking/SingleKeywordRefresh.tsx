@@ -62,82 +62,13 @@ const SingleKeywordRefresh = ({
 }: DeleteConfirmProps) => {
   const [open, setOpen] = useState(false);
   const {stopLoading,startLoading} = useLoader()
-  //  const handleSingleRefreshKeyword = async (keywordId: string) => {
-  // //   setIsLoading(true)
-  //   try {
-  //     const refreshedSingleCampaign = await getRefreshSingleKeyword(keywordId);
-  //     console.log(refreshedSingleCampaign, "refreshedSingleCampaign");
-  // //     const lastUpdated = refreshedSingleCampaign?.SingleKeywordUpdated
-  // //   ? formatLastUpdated(refreshedSingleCampaign.updatedRecords[0]?.updatedAt || '')
-  // //   : '';
-  //     if (!refreshedSingleCampaign || refreshedSingleCampaign.error) {
-  //       console.error("Failed to refresh keyword campaign:", refreshedSingleCampaign?.error);
-  //       toast.error("Failed to refresh keyword campaign");
-  //       return;
-  //     }
-  //     // if (refreshedSingleCampaign?.updatedRecords) {
 
-  //     //   setRefreshData(lastUpdated);
-  //     // }
-
-  //     // setIsLoading(false)
-  //     toast.success(refreshedSingleCampaign?.message);
-
-  //   } catch (error) {
-  //     console.error("Error refreshing campaign:", error);
-  //     toast.error("Something went wrong while refreshing the campaign");
-  //   }
-  // };
-  const handleSingleRefreshKeyword = async (keywordId: string) => {
+  onst handleSingleRefreshKeyword = async (keywordId: string) => {
     startLoading()
     try {
       const res = await getRefreshSingleKeyword(keywordId);
       if (res.success) {
-        // const campaignDataWithId = await getGetCampaignByid(campaignId);
-        // const campaignStatus = campaignDataWithId?.campaign?.status ?? 1;
-
-        // const liveKeywordData: any = await getDbLiveKeywordDataWithSatusCode(
-        //   campaignId,
-        //   campaignStatus
-        // );
-
-        // const topRankData = liveKeywordData?.topRankData?.data ?? [];
-
-        // let data: any = [];
-        // if (liveKeywordData?.newLiveKeywordDbData) {
-        //   data = liveKeywordData?.newLiveKeywordDbData.map((item: any) => ({
-        //     // select: false,
-        //     type: item?.type || "",
-        //     keywordId: item?.keywordId || "",
-        //     keyword: item?.keyword || "",
-        //     location: item?.location_name?.locationName?.locationName || "",
-        //     intent: item?.intent || "",
-        //     start: item?.start || 0,
-        //     page: Math.ceil(item?.rank_absolute / 10).toString() || 0,
-        //     Absolute_Rank: String(item?.rank_absolute) || 0,
-        //     Group_Rank: item?.rank_group || 0,
-        //     // oneDay: "1",
-        //     sevenDays: "-",
-        //     // thirtyDays: "-",
-        //     life: item?.rank_group || 0,
-        //     comp: item?.competition || 0,
-        //     sv: item?.searchVolumn || 0,
-        //     date: new Date(item?.createdAt).toLocaleDateString("en-GB", {
-        //       day: "2-digit",
-        //       month: "short",
-        //       year: "2-digit",
-        //     }),
-        //     rankingUrl: item.url || "",
-        //     // rankingUrl: new URL(item.url) || "/",
-        //   }));
-        // }
-        // console.log(data, "data after delete");
-        // if (setTableBody) {
-        //   setTableBody(data);
-        // }
-        // if (topRankData) {
-        //   CardSetOnChanges(topRankData);
-        // }
+      
         await getKeywordData();
        
         toast.success("Keyword Updated successfully");

@@ -2,15 +2,9 @@
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Campaign from "@/lib/models/campaign.model";
-import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
-import User from "@/lib/models/user.model";
-import { getRefreshGoogleAccessToken } from "../googleConsole";
-import {
-  googleAnalyticsAccountID,
-  googleAnalyticsPropertyID,
-} from "../analytics/queries";
-import { fetchLocations } from "../KeywordsGmb/queries";
+
+// import { fetchLocations } from "../KeywordsGmb/queries";
 import { refreshGoogleAccessToken } from "../googleConsole/queries";
 
 export const newCampaign = async (formData: any) => {
@@ -90,13 +84,6 @@ export const GetCampaignByid = async (campaignId: string) => {
   try {
     await connectToDB();
 
-    // const user = await getUserFromToken();
-    // if (!user) {
-    //   return { error: "Unauthorized" };
-    // }
-    // console.log(user);
-
-    // const campaign = await Campaign.find({ userId: user?.id });
     const campaign = await Campaign.findById({
       _id: campaignId,
     });
@@ -147,48 +134,8 @@ export const CampaignStatus2 = async () => {
   }
 };
 
-// export const deleteCampaign = async (CompaignId: string) => {
-//   try {
-//     await connectToDB();
 
-//     const user = await getUserFromToken();
-//     if (!user) {
-//       return { error: "Unauthorized" };
-//     }
-//     console.log(CompaignId, "CompaignId delete");
 
-//     const compaignDataDelete = await Campaign.findByIdAndUpdate({_id:CompaignId}, {
-//       status: 2,
-//     });
-
-//     // const KeywordTrackingDataDelete = await KeywordTracking.findOne(
-//     //   { campaignId: CompaignId },
-//     //   { status: 2 }
-//     // );
-
-//     // const KeywordDataDelete = await Keyword.findOne(
-//     //   { CampaignId: CompaignId },
-//     //   { status: 2 }
-//     // );
-
-//     if (!CompaignId) {
-//       return { error: " Not Find Id Error while deleting campaign" };
-//     }
-//     // if (campaign) {
-//     return {
-//       success: true,
-//       message: "Campaign Successfully Deleted",
-//       compaignDataDelete,
-//       // KeywordTrackingDataDelete,
-//       // KeywordDataDelete,
-//     };
-//     // }
-//   } catch (error) {
-//     console.log(error);
-
-//     return { error: "Internal Server Error." };
-//   }
-// };
 export const archivedCampaign = async () => {
   try {
     await connectToDB();
@@ -218,47 +165,8 @@ export const archivedCampaign = async () => {
     return { error: "Internal Server Error." };
   }
 };
-// export const ArchivedCampaignCreate = async (CompaignId: string,topRankData:any) => {
-//   try {
-//     await connectToDB();
 
-//     const user = await getUserFromToken();
-//     if (!user) {
-//       return { error: "Unauthorized" };
-//     }
-//     console.log(topRankData, "topRankData in server");
 
-//     const KeywordTrackingDataArchied = await Campaign.findByIdAndUpdate(
-//       { _id: CompaignId},
-//       { status: 2 }
-//     );
-
-//     const addedCompignData =await KeywordTracking.findOneAndUpdate(
-//       { campaignId: CompaignId },
-//       {topRankData}
-
-//     )
-
-//     console.log(addedCompignData,"addedCompignData ok");
-
-//     if (!CompaignId) {
-//       return { error: " Not Find data Error while Arching campaign" };
-//     }
-//     // if (campaign) {
-//     return {
-//       success: true,
-//       message: "Archived Campaign Successfully Added",
-//       // compaignDataDelete,
-//       KeywordTrackingDataArchied,
-//       // KeywordDataDelete,
-//     };
-//     // }
-//   } catch (error) {
-//     console.log(error);
-
-//     return { error: "Internal Server Error." };
-//   }
-// };
 
 export const ArchivedCampaignCreate = async (
   CompaignId: string,
@@ -322,26 +230,8 @@ export const ArchivedCampaignCreate = async (
       );
     }
 
-    //  if(topRankData){
-
-    //    const topRankUpdate = {
-    //      keywordsUp: topRankData?.data?.find((item: any) => item.title === "Keywords Up")?.data || 0,
-    //      top3: topRankData?.data?.find((item: any) => item.title === "In Top 3")?.data || 0,
-    //      top10: topRankData?.data?.find((item: any) => item.title === "In Top 10")?.data || 0,
-    //      top20: topRankData?.data?.find((item: any) => item.title === "In Top 20")?.data || 0,
-    //      top30: topRankData?.data?.find((item: any) => item.title === "In Top 30")?.data || 0,
-    //      top100: topRankData?.data?.find((item: any) => item.title === "In Top 100")?.data || 0,
-
-    //    };
-    //    console.log(topRankUpdate, "topRankUpdate");
-
-    //    const updatedKeywordTracking = await KeywordTracking.updateMany(
-    //      { campaignId: CompaignId },
-    //      { $set: topRankUpdate },
-    //       { new: true }
-    //    );
-
-    //  }
+   
+    
 
     return {
       success: true,
@@ -430,20 +320,6 @@ export const DbCompaignDataUpdate = async (
       { new: true }
     );
 
-// const campaignGoogleData = await Campaign.findByIdAndUpdate(
-//   newCompaignId, // ✅ only ID
-//   {
-//     $set: {
-//       googleAccessToken: access_token,
-//       googleAccessTokenExpiry,
-//       googleRefreshToken: refresh_token,
-//       googleRefreshTokenExpiry,
-//       googleId_token: id_token,
-//     },
-//   },
-//   { new: true } // return updated doc
-// );
-
 console.log("Updated campaign:", campaignGoogleData);
 
 
@@ -497,18 +373,6 @@ export const DBcompaignGoogleData = async (newCompaignId: string) => {
   }
 };
 
-// export async function getValidGoogleToken(campaignId: string) {
-//   const campaign = await Campaign.findById({ _id: campaignId });
-
-//   if (!campaign) throw new Error("Campaign not found");
-
-//   // If expired, refresh token
-//   if (Date.now() > Number(campaign.googleAccessTokenExpiry)) {
-//     return await getRefreshGoogleAccessToken(campaignId);
-//   }
-
-//   return campaign;
-// }
 
 export async function getValidGoogleToken(campaignId: string) {
   const campaign = await Campaign.findById({ _id: campaignId });
@@ -577,80 +441,83 @@ function findMatchingProperty(
     );
   });
 }
-function extractDomain(url: string): string | null {
-  try {
-    const parsed = new URL(url);
-    const hostname = parsed.hostname; // e.g. 'www.handonawhiteboard.com'
-    const parts = hostname.split(".");
-    // Drop 'www' or subdomain if present
-    return parts.length > 2 ? parts[parts.length - 2] : parts[0];
-  } catch {
-    return null;
-  }
-}
-export const propertyIdForDB = async (
-  campaignId: string,
-  tokenResult: {},
-  nameMatch: any
-) => {
-  try {
-    await connectToDB();
 
-    const user = await getUserFromToken();
-    if (!user) {
-      return { error: "Unauthorized" };
-    }
 
-    // console.log(campaignId,"campaignId in propertyId");
-    // console.log(tokenResult,"tokenResult in propertyId");
-    // console.log(nameMatch,"campaignData in propertyId");
 
-    const { access_token } = tokenResult as GoogleTokenResult;
+// function extractDomain(url: string): string | null {
+//   try {
+//     const parsed = new URL(url);
+//     const hostname = parsed.hostname; // e.g. 'www.handonawhiteboard.com'
+//     const parts = hostname.split(".");
+//     // Drop 'www' or subdomain if present
+//     return parts.length > 2 ? parts[parts.length - 2] : parts[0];
+//   } catch {
+//     return null;
+//   }
+// }
+// export const propertyIdForDB = async (
+//   campaignId: string,
+//   tokenResult: {},
+//   nameMatch: any
+// ) => {
+//   try {
+//     await connectToDB();
 
-    const acoountNameforMatch = extractDomain(nameMatch);
-    // console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
-    const data = await googleAnalyticsAccountID(
-      access_token,
-      acoountNameforMatch ?? ""
-    );
+//     const user = await getUserFromToken();
+//     if (!user) {
+//       return { error: "Unauthorized" };
+//     }
 
-    // console.log(data,"data in propertyId");
-    const accountId = Array.isArray(data)
-      ? data[0]?.accountId
-      : (data?.accountId ?? "");
-    console.log(accountId, "accountId in propertyId");
+//     // console.log(campaignId,"campaignId in propertyId");
+//     // console.log(tokenResult,"tokenResult in propertyId");
+//     // console.log(nameMatch,"campaignData in propertyId");
 
-    const location = await fetchLocations(access_token);
+//     const { access_token } = tokenResult as GoogleTokenResult;
 
-    console.log(location, "locaion in propertyId");
+//     const acoountNameforMatch = extractDomain(nameMatch);
+//     // console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
+//     const data = await googleAnalyticsAccountID(
+//       access_token,
+//       acoountNameforMatch ?? ""
+//     );
 
-    const propertiesID = await googleAnalyticsPropertyID(
-      accountId,
-      access_token,
-      acoountNameforMatch ?? ""
-    );
+//     // console.log(data,"data in propertyId");
+//     const accountId = Array.isArray(data)
+//       ? data[0]?.accountId
+//       : (data?.accountId ?? "");
+//     console.log(accountId, "accountId in propertyId");
 
-    // console.log(propertiesID,"propertiesID in propertyId");
+//     const location = await fetchLocations(access_token);
 
-    //  const propertyId = propertiesID[0]?.name ?? "";
-    const propertyId = propertiesID.split("/")[1];
+//     console.log(location, "locaion in propertyId");
 
-    // console.log(propertyId,"proepertyId in propertyId");
+//     // const propertiesID = await googleAnalyticsPropertyID(
+//     //   accountId,
+//     //   access_token,
+//     //   acoountNameforMatch ?? ""
+//     // );
 
-    const campaignDataWithPropertyIdData = await Campaign.findByIdAndUpdate(
-      { _id: campaignId },
-      { $set: { propertyId: propertyId } },
-      { new: true }
-    );
+//     // console.log(propertiesID,"propertiesID in propertyId");
 
-    return {
-      success: true,
-      message: "New CompaignData with propertyId Successfully Found",
-      campaignDataWithPropertyIdData,
-    };
-  } catch (error) {
-    console.log(error);
+//     //  const propertyId = propertiesID[0]?.name ?? "";
+//     // const propertyId = propertiesID.split("/")[1];
 
-    return { error: "Internal Server Error." };
-  }
-};
+//     // console.log(propertyId,"proepertyId in propertyId");
+
+//     // const campaignDataWithPropertyIdData = await Campaign.findByIdAndUpdate(
+//     //   { _id: campaignId },
+//     //   { $set: { propertyId: propertyId } },
+//     //   { new: true }
+//     // );
+
+//     return {
+//       success: true,
+//       message: "New CompaignData with propertyId Successfully Found",
+//       campaignDataWithPropertyIdData,
+//     };
+//   } catch (error) {
+//     console.log(error);
+
+//     return { error: "Internal Server Error." };
+//   }
+// };

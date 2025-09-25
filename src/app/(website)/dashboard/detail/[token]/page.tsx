@@ -19,7 +19,7 @@ const tokendata = await parseShareToken(token)
 
 const campaignId = tokendata.campaignId
 
-  console.log(tokendata, "share_tokenokoo");
+  // console.log(tokendata, "share_tokenokoo");
 
   const campignDataWithId = await getGetCampaignByid(campaignId);
   const campaignStatus = campignDataWithId?.campaign?.status;
@@ -29,7 +29,6 @@ const campaignId = tokendata.campaignId
     campaignStatus
   );
 
-  // const archivedCampaignData = await getArchivedCampaign();
 
   if (token) {
     const { valid } = await getValidateShareToken(token);

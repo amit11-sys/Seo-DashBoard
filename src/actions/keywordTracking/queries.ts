@@ -238,30 +238,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
     // console.log(newCompaignId,"newkeywordCampaign")
     console.log(location, "loationServer");
 
-    // if (location !== "all") {
-    //   if (location) {
-    //     const { allLocations = [] } = await fetchDBLocation(location);
-    //     console.log(allLocations, "allLocations");
-
-    //     const locationCode = allLocations[0]?.locationCode;
-    //     const LiveKeywordDbData = await KeywordTracking.find({
-    //       location_code: locationCode,
-    //       campaignId: newCompaignId,
-    //       status: campaignStatus,
-    //     }).populate("campaignId");
-    //   }
-    // }
-
-    // // if(!location){
-
-    // const LiveKeywordDbData = await KeywordTracking.find({
-    //   campaignId: newCompaignId,
-    //   status: campaignStatus,
-    // }).populate("campaignId");
-
-    // // }
-
-    // Compute ranking counts
+   
 
     let LiveKeywordDbData: any[] = [];
 
@@ -288,29 +265,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
       return { error: "Error while getting LiveKeywordDbData" };
     }
 
-    // console.log(LiveKeywordDbData, "LiveKeywordDbDataServer");
-
-    // const cardCounts = {
-    //   top3: 0,
-    //   top10: 0,
-    //   top20: 0,
-    //   top30: 0,
-    //   top100: 0,
-    // };
- 
-
-    // LiveKeywordDbData.forEach((keyword) => {
-    //   const rank = keyword.rank_group;
-
-    //   if (rank > 0 && rank <= 3) cardCounts.top3 += 1;
-    //   if (rank > 0 && rank <= 10) cardCounts.top10 += 1;
-    //   if (rank > 0 && rank <= 20) cardCounts.top20 += 1;
-    //   if (rank > 0 && rank <= 30) cardCounts.top30 += 1;
-    //   if (rank > 0 && rank <= 100) cardCounts.top100 += 1;
-    // });
-
-    // Format for card
-
+    
        const cardCounts = {
       top3: 0,
       top10: 0,
@@ -380,18 +335,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
       type: "card",
     };
 
-    //  add location in data
-    // const newLiveKeywordDbData = await Promise.all(
-    //   LiveKeywordDbData.map(async (item) => {
-    //     const locationName = await fetchDBlocationData(item.location_code);
-    //     console.log(item, "location map");
-    //     return {
-    //       ...item,
-    //       location_name: locationName || "",
-    //     };
-    //   })
-    // );
-
+    
     // console.log(topRankData, "topRankDataServer");
     const newLiveKeywordDbData = await Promise.all(
       LiveKeywordDbData.map(async (item) => {
@@ -546,17 +490,7 @@ export const LiveKeywordDatabyKeyID = async (keywordId: string) => {
     });
     console.log(signleKeywordDbData, "edit updq table data");
 
-    //  add location in data
-    // const newLiveKeywordDbData = await Promise.all(
-    //   LiveKeywordDbData.map(async (item) => {
-    //     const locationName = await fetchDBlocationData(item.location_code);
-    //     console.log(item, "location map");
-    //     return {
-    //       ...item,
-    //       location_name: locationName || "",
-    //     };
-    //   })
-    // );
+  
     const singleEditLiveKeywordDbData = await Promise.all(
       signleKeywordDbData.map(async (item) => {
         const locationName = await fetchDBlocationData(item.location_code);
@@ -624,18 +558,7 @@ export const fetchDBlocationData = async (locationcode: number) => {
   }
 };
 
-// export const fetchKeywordLocation = async (locationCode: string): Promise<string> => {
-//   try {
-//     if (!locationCode) return "";
-
-//     const location = await Location.findOne({ locationCode }).lean();
-
-//     return location?.locationName || "";
-//   } catch (error) {
-//     console.error("Error fetching location data:", error);
-//     return ""; // fallback to empty string on error
-//   }
-// };
+// 
 
 export const getStartData = async (keywordId: string, newStartData: number) => {
   try {
@@ -791,61 +714,8 @@ export const DbTopLiveKeywordData = async () => {
     return { error: "Internal Server Error." };
   }
 };
-// export const DbKeywordStatusData = async (statusCode: number) => {
-//   try {
-//     await connectToDB();
 
-//     const campaignDatastatus = await Campaign.find({ status: statusCode });
-//     console.log(campaignDatastatus, "campaignDatastatus");
-// //     [
-// //   {
-// //     _id: new ObjectId('6892ef3ef258b63cc412da87'),
-// //     campaignName: '— Amanda K., Topsfield',
-// //     projectUrl: 'https://www.happyplankton.com/',
-// //     userId: new ObjectId('6850fa5b93d3a11fcb0b698c'),
-// //     status: 2,
-// //     createdAt: 2025-08-06T05:59:26.957Z,
-// //     updatedAt: 2025-08-06T06:00:21.631Z,
-// //     __v: 0
-// //   },
-// //   {
-// //     _id: new ObjectId('6892ef3ef258b63cc412da45'),
-// //     campaignName: '— ok K., ok',
-// //     projectUrl: 'https://www.ok.com/',
-// //     userId: new ObjectId('6850fa5b93d3a11fcb0b698c'),
-// //     status: 2,
-// //     createdAt: 2025-08-06T05:59:26.957Z,
-// //     updatedAt: 2025-08-06T06:00:21.631Z,
-// //     __v: 0
-// //   },
-// // ] campaignDatastatus
 
-//     const keywordDatastatus = await KeywordTracking.find(
-//       { _id: campaignDatastatus?._id },
-//       { status: statusCode }
-//     );
-
-//     // Format for card
-
-//     // console.log(newLiveKeywordDbData, "realdata");
-
-//     if (!campaignDatastatus || !keywordDatastatus) {
-//       return { error: "Error while getting Status data" };
-//     }
-//     // if (campaign) {
-//     return {
-//       success: true,
-//       message: "Status Data Successfully Found",
-//       campaignDatastatus,
-//       keywordDatastatus,
-//     };
-//     // }
-//   } catch (error) {
-//     console.log(error);
-
-//     return { error: "Internal Server Error." };
-//   }
-// };
 
 export const DbKeywordStatusData = async (statusCode: number) => {
   try {
@@ -861,7 +731,7 @@ export const DbKeywordStatusData = async (statusCode: number) => {
     // 2. Extract campaign IDs
     const campaignIds = campaignDatastatus.map((c) => c._id);
     // console.log(campaignIds,"ids")
-    // 3. Get keyword data related to those campaign IDs
+
     const keywordDatastatus = await KeywordTracking.find({
       campaignId: { $in: campaignIds },
       status: statusCode,

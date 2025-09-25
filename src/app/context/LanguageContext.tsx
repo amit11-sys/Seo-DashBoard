@@ -1,6 +1,12 @@
-'use client'
+"use client";
 import { getlanguageData } from "@/actions/locations_Language";
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
 type LanguageContextType = {
   languages: string[];

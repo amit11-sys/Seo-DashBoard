@@ -134,26 +134,7 @@ export function CampaignTabs() {
       debouncedFetchvolumn.cancel();
     };
   }, [volumnQuery, debouncedFetchvolumn]);
-  // useEffect(() => {
-  //   const fetchlanguage = async () => {
-  //     try {
-  //       const data = await getlanguageData();
 
-  //       const langdata = data?.allLanguages;
-
-  //       // if(data?.error){
-  //       //   toast.error(data?.error)
-  //       //   return
-  //       // }
-  //       setLanguages(langdata ?? []);
-
-  //     } catch (error) {
-  //       console.log(error, "language error");
-  //     }
-  //   };
-  //   fetchlanguage();
-   
-  // }, []);
 
   useEffect(() => {
     const activeCampaign = async () => {
@@ -271,18 +252,7 @@ export function CampaignTabs() {
     <>
       <Form {...form}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* <AnimatedBackground /> */}
-          {/* <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="account">
-            Campaign Info
-            {campaignValid && (
-              <CiCircleCheck className="ml-2 text-green-500" size={16} />
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="keywords" disabled={!campaignValid}>
-            Live Keyword Tracking
-          </TabsTrigger>
-        </TabsList> */}
+        
           <TabsList className="w-full  flex justify-center items-center gap-2 p-1 mt-32  rounded-lg relative overflow-hidden">
             <TabsTrigger
               value="account"
@@ -302,8 +272,6 @@ export function CampaignTabs() {
                   />
                 )}
               </span>
-              {/* Animated underline */}
-              {/* <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black mt-2 transition-all duration-300 group-data-[state=active]:w-full" /> */}
             </TabsTrigger>
 
             <TabsTrigger
@@ -319,8 +287,6 @@ export function CampaignTabs() {
               <span className="flex items-center text-2xl  justify-center gap-2">
                 Live Keyword Tracking
               </span>
-              {/* Animated underline */}
-              {/* <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-black transition-all duration-300 group-data-[state=active]:w-full" /> */}
             </TabsTrigger>
           </TabsList>
 

@@ -1,4 +1,3 @@
-// "use client";
 
 import { Nav } from "@/components/ui/nav";
 import {
@@ -7,7 +6,6 @@ import {
   FaArchive
 } from "react-icons/fa";
 
-import { useCampaignData } from "@/app/context/CampaignContext";
 import { useEffect, useState } from "react";
 import { getUserCampaign } from "@/actions/campaign";
 

@@ -5,6 +5,7 @@ import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
+import Footer from "@/components/Common/Footer";
 
 export default async function DashboardDetails({
   params,
@@ -58,6 +59,7 @@ export default async function DashboardDetails({
             // campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}
           />
+          <Footer/>
         </main>
       </div>
     </section>

@@ -504,7 +504,9 @@ const DashboardClient = () => {
               tableHeader={tableHeader}
             />
           </div>
+      {/* <Footer/> */}
         </main>
+        
       </div>
     </section>
   );

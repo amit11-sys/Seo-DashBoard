@@ -1,45 +1,56 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
-export default function Footer() {
-  // const [showFooter, setShowFooter] = useState(false);
+export default function Footer({ mainContainerId }: { mainContainerId: string }) {
+  const [showFooter, setShowFooter] = useState(false);
 
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  //     const windowHeight = window.innerHeight;
-  //     const docHeight = document.documentElement.scrollHeight;
+  useEffect(() => {
+    const mainEl = document.getElementById(mainContainerId);
+    if (!mainEl) return;
 
-  //     const atBottom = scrollTop + windowHeight >= docHeight - 50;
-  //     setShowFooter(atBottom);
-  //   };
+    const handleScroll = () => {
+      const scrollTop = mainEl.scrollTop;
+      const scrollHeight = mainEl.scrollHeight;
+      const clientHeight = mainEl.clientHeight;
 
-  //   window.addEventListener("scroll", handleScroll);
-  //   window.addEventListener("resize", handleScroll);
-  //   handleScroll(); // initial check
+      // small tolerance for floating point / padding issues
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 5; 
+      setShowFooter(atBottom);
+    };
 
-  //   return () => {
-  //     window.removeEventListener("scroll", handleScroll);
-  //     window.removeEventListener("resize", handleScroll);
-  //   };
-  // }, []);
+    // listen to scroll
+    mainEl.addEventListener("scroll", handleScroll);
+
+    // call once in case already at bottom
+    handleScroll();
+
+    return () => {
+      mainEl.removeEventListener("scroll", handleScroll);
+    };
+  }, [mainContainerId]);
+
+  if (!showFooter) return null;
 
   return (
-    <footer
-      className={`w-full   bg-gray-100 py-4 text-center text-sm text-gray-600 shadow-md transition-transform duration-300 pointer-events-none 
-       }`}
-    >
+    <footer className="w-full bg-[#273F4F] py-4 text-center text-sm text-white shadow-md transition-transform duration-300">
       <p className="mb-0">
         &copy; {new Date().getFullYear()} TrackScop. All rights reserved.{" "}
-        <Link href="/term-and-conditions" className="text-blue-600 underline">
+        <a
+          href={`${process.env.NEXT_PUBLIC_BASE_URL}/term-and-conditions`}
+          target="_blank"
+          className="text-white underline cursor-pointer"
+        >
           Terms & Conditions
-        </Link>{" "}
-        |{" "}
-        <Link href="/privacy-policy" className="text-blue-600 underline">
+        </a>
+        {" | "}
+        <a
+          href={`${process.env.NEXT_PUBLIC_BASE_URL}/privacy-policy`}
+          target="_blank"
+          className="text-white underline cursor-pointer"
+        >
           Privacy Policy
-        </Link>
+        </a>
       </p>
     </footer>
   );

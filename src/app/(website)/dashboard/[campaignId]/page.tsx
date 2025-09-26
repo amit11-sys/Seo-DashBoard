@@ -30,7 +30,7 @@ export default async function DashboardDetails({
         <Navbar campaignId={campaignId as string} />
       </div>
 
-      <div className="flex flex-1 pt-[80px] overflow-hidden">
+      <div id="main-scroll-container" className="flex flex-1 pt-[80px] overflow-hidden">
         <aside className="w-[250px]   h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
             campaignId={campaignId as string}
@@ -40,26 +40,19 @@ export default async function DashboardDetails({
           />
         </aside>
 
-        <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
+        <main  className="ml-[250px] relative flex-1 overflow-y-auto p-4">
           <Header
             campaignStatus={campaignStatus}
             topRankData={campaignLiveKeywordsData.topRankData}
             campaignId={campaignId}
           />
 
-          <SearchConsoleData
-            // consoleRef={consoleRef}
-            // setPdfChartData={setPdfChartData}
-            //   handleGeneratePDF={handleGeneratePDF}
-            campaignId={campaignId}
-            // setPdfTableConsoleData={setPdfTableConsoleData}
-          />
+          <SearchConsoleData campaignId={campaignId} />
           <LiveKeywordComponent
             campaignStatus={campaignStatus}
-            // campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}
           />
-          <Footer/>
+          <Footer mainContainerId="main-scroll-container" />
         </main>
       </div>
     </section>

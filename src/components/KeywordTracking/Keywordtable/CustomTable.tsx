@@ -209,7 +209,7 @@ const CustomTable = ({
   };
 
   const addEditkeywordsData = async (data: any) => {
-    console.log(data, "default function");
+    // console.log(data, "default function");
 
     // Transform and set default data
     const transformed = data.map((item: any) => ({
@@ -259,7 +259,7 @@ const CustomTable = ({
     selectedKeywords: string[],
     campaignId: string
   ) => {
-    console.log(selectedKeywords, "selectedKeywords");
+    // console.log(selectedKeywords, "selectedKeywords");
     try {
       const res = await deleteKeywordData(selectedKeywords);
       if (res.success) {

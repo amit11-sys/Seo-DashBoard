@@ -185,8 +185,8 @@ export const ArchivedCampaignCreate = async (
       return { error: "Campaign ID is missing." };
     }
 
-    console.log(topRankData, "topRankData in server");
-    console.log(status, "statusin");
+    // console.log(topRankData, "topRankData in server");
+    // console.log(status, "statusin");
 
     // delete campaign
     if (status === 3) {
@@ -257,7 +257,7 @@ export const CompaignCount = async () => {
     const campaignCount = await Campaign.find({
       status: { $in: [1, 2] },
     });
-    console.log(campaignCount, "campaignCount");
+    // console.log(campaignCount, "campaignCount");
     return {
       success: true,
       message: "Campaign Count Successfully",
@@ -297,7 +297,7 @@ export const DbCompaignDataUpdate = async (
       id_token,
       refresh_token_expires_in,
     } = tokenResult as GoogleTokenResult;
-    console.log(tokenResult, "tokenResultIN DB update");
+    // console.log(tokenResult, "tokenResultIN DB update");
 
     const now = Date.now();
 
@@ -320,7 +320,7 @@ export const DbCompaignDataUpdate = async (
       { new: true }
     );
 
-console.log("Updated campaign:", campaignGoogleData);
+// console.log("Updated campaign:", campaignGoogleData);
 
 
 

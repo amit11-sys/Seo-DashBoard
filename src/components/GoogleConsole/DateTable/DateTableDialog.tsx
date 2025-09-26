@@ -162,7 +162,7 @@ export default function DateRangeDialog({
     payload.compare = comparePayload;
   }
 
-  console.log("Applied payload:", payload);
+  // console.log("Applied payload:", payload);
 
   setDates([normalStart, normalEnd]);
   setDate?.(payload);

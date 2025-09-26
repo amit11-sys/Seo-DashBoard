@@ -832,7 +832,7 @@ interface Props {
 //   );
 // };
 const DashboardStatsCompare = ({ analyticData }: Props) => {
-  console.log(analyticData, "analyticDataInCards");
+  // console.log(analyticData, "analyticDataInCards");
   const [loadAnim, setLoadAnim] = useState(false);
 
   const { normalTotals, compareTotals } = useMemo(() => {

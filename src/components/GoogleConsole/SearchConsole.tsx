@@ -26,7 +26,7 @@ const SearchConsoleData = ({
   // handleGeneratePDF,
   setPdfChartData,
 }: SearchConsoleDataProps) => {
-  console.log(campaignId, "campaignId in search console");
+  // console.log(campaignId, "campaignId in search console");
   const [searchConsoleGraphData, setSearchConsoleGraphData] = useState<any>();
   const [searchConsoleTableData, setSearchConsoleTableData] = useState<any>();
   const [loading, setLoading] = useState(true); // 🔹 Added loading state
@@ -56,8 +56,8 @@ const SearchConsoleData = ({
     }
   };
 
-  console.log(dataWithDimension, "dataWithDimension in search console");
-  console.log(date, "date in search console");
+  // console.log(dataWithDimension, "dataWithDimension in search console");
+  // console.log(date, "date in search console");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,7 +66,7 @@ const SearchConsoleData = ({
           getGoogleSearchDataByDimension(campaignId, dimension, date),
           getGoogleConsoleDataByDate(campaignId, date),
         ]);
-        console.log(graphRes, "graphRes");
+        // console.log(graphRes, "graphRes");
         setSearchConsoleTableData(tableRes);
         // const normalData = graphRes?.normalData;
         // const campareData = graphRes?.compareData;
@@ -113,8 +113,8 @@ const SearchConsoleData = ({
 //   }
 // };
 
-  console.log(searchConsoleGraphData, "searchConsoleGraphData");
-  console.log(searchConsoleTableData, " searchConsoleTableData");
+  // console.log(searchConsoleGraphData, "searchConsoleGraphData");
+  // console.log(searchConsoleTableData, " searchConsoleTableData");
 
   const handleLoginGoogle = () => {
     const stateData = {

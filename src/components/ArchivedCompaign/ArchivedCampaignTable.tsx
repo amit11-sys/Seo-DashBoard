@@ -48,10 +48,10 @@ export default function ArchivedCampaignTable(archivedCampaignData: any) {
     // const {campaignId}= useCampaignData()
   const [search, setSearch] = useState("");
   const [archivedData, setArchivedData] = useState();
-  console.log(
-    archivedCampaignData?.archivedCampaignData,
-    "archivedCampaignData"
-  );
+  // console.log(
+  //   archivedCampaignData?.archivedCampaignData,
+  //   "archivedCampaignData"
+  // );
 
   const filteredData = campaigns.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -97,7 +97,7 @@ export default function ArchivedCampaignTable(archivedCampaignData: any) {
             </TableHeader>
             <TableBody>
               {archivedCampaignData?.archivedCampaignData.map((campaign: any) => {
-                            console.log(campaign,"campaign map")
+                            // console.log(campaign,"campaign map")
                 return (
                 <TableRow key={campaign.key}>
                   <TableCell className="font-medium">{campaign.projectUrl.replace(/^https?:\/\/(www\.)?/, "")}</TableCell>

@@ -9,7 +9,7 @@ import { getArchivedCampaign } from "@/actions/campaign";
 
 const AddCamapign = async () => {
   const archivedCampaignData = await getArchivedCampaign();
-  console.log(archivedCampaignData, "archivedCampaignData");
+  // console.log(archivedCampaignData, "archivedCampaignData");
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">

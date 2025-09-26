@@ -185,7 +185,7 @@ export async function GoogleConsoleDataByDate(
   date: any
 ) {
 
-  console.log(date, "dateinAnalytics");
+  // console.log(date, "dateinAnalytics");
   const { startDate, endDate, compare } = date;
 
   const today1 = new Date();
@@ -236,7 +236,7 @@ export async function GoogleConsoleDataByDate(
     }
 
     const json:any = await res.json();
-   console.log(json,"consoleAPI")
+  //  console.log(json,"consoleAPI")
     return json.rows ?? [];
   };
 
@@ -252,7 +252,7 @@ export async function GoogleConsoleDataByDate(
     // 2️⃣ If compare is available, fetch previous period
     if (compare?.startDate && compare?.endDate) {
       compareData = await fetchGSCData(compare.startDate, compare.endDate);
-      console.log(compareData,"compareData");
+      // console.log(compareData,"compareData");
     }
 
     return {
@@ -888,7 +888,7 @@ export async function fetchLocalKeywordData(targetUrl: string) {
   const password = process.env.NEXT_PUBLIC_DATAFORSEO_PASSWORD!; // your DataForSEO password
 
   const auth = Buffer.from(`${username}:${password}`).toString("base64");
-  console.log(targetUrl, "targetUrl in fetchLocalKeywordData");
+  // console.log(targetUrl, "targetUrl in fetchLocalKeywordData");
   // 🔹 Step 1: Ranked Keywords (to get keywords for the target domain)
   const rankedKeywordsPayload = [
     {
@@ -911,7 +911,7 @@ export async function fetchLocalKeywordData(targetUrl: string) {
   );
 
   const rankedData:any = await rankedRes.json();
-  console.log(rankedData, "rankedData in fetchLocalKeywordData");
+  // console.log(rankedData, "rankedData in fetchLocalKeywordData");
   if (!rankedRes.ok) {
     throw new Error(`Ranked Keywords API error: ${JSON.stringify(rankedData)}`);
   }
@@ -919,7 +919,7 @@ export async function fetchLocalKeywordData(targetUrl: string) {
   // Extract top keywords (limit to first 5 for demo)
   const keywords:any = rankedData?.tasks?.[0]?.result?.[0]?.items?.slice(0, 5).map((k: any) => k.keyword) || [];
 
-  console.log(keywords, "keywords in fetchLocalKeywordData");
+  // console.log(keywords, "keywords in fetchLocalKeywordData");
   // 🔹 Step 2: Run those keywords in Maps Search API
   const mapsPayload = keywords.map((keyword: string) => ({
     keyword,
@@ -942,7 +942,7 @@ export async function fetchLocalKeywordData(targetUrl: string) {
   );
 
   const mapsData = await mapsRes.json();
-  console.log(mapsData, "mapsData in fetchLocalKeywordData");
+  // console.log(mapsData, "mapsData in fetchLocalKeywordData");
   // Check if the response is valid
   if (!mapsRes.ok) {
     throw new Error(`Maps API error: ${JSON.stringify(mapsData)}`);
@@ -956,6 +956,6 @@ export async function fetchLocalKeywordData(targetUrl: string) {
     "Search - mobile": null,
     "Maps - mobile": null
   };
-console.log(results, "results in fetchLocalKeywordData");
+// console.log(results, "results in fetchLocalKeywordData");
   // return results;
 }

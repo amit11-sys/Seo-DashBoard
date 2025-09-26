@@ -43,7 +43,7 @@ export const fetchLievKeyword = async (url: string) => {
     }
 
     const data = await res.json();
-    console.log(data?.tasks[0]?.result, "output");
+    // console.log(data?.tasks[0]?.result, "output");
 
     return data?.tasks || [];
   } catch (err: any) {
@@ -115,7 +115,7 @@ export async function googleAnalyticsAccountID(
   try {
     // const payload = { startDate, endDate, dimensions };
     // console.log(nameMatch, "nameMatch in googleAnalyticsAccountID");
-    console.log(access_token, "access_token in googleAnalyticsAccountID");
+    // console.log(access_token, "access_token in googleAnalyticsAccountID");
     const res = await fetch(
   
       `${process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}accounts`,
@@ -130,8 +130,8 @@ export async function googleAnalyticsAccountID(
 
     // console.table({ access_token, nameMatch });
     const AccountIdData: any = await res.json();
-    console.log(AccountIdData, "AccountIdData");
-
+    // console.log(AccountIdData, "AccountIdData");
+// 
     const accountsData: SimplifiedAccount[] = AccountIdData?.accounts?.map(
       (acc: { name: string; displayName: string; regionCode: string }) => ({
         accountId: acc?.name.split("/")[1],
@@ -140,13 +140,13 @@ export async function googleAnalyticsAccountID(
       })
     );
 
-    console.log(accountsData, "accountsDatauI");
+    // console.log(accountsData, "accountsDatauI");
     const nameMatchRefined = refineUrl(nameMatch);
-    console.log(nameMatchRefined, "nameMatchRefined");
+    // console.log(nameMatchRefined, "nameMatchRefined");
 
     const matchForAcountId = findMatchingAccounts(accountsData, nameMatchRefined);
 
-    console.log(matchForAcountId, "matchForAcountId");
+    // console.log(matchForAcountId, "matchForAcountId");
 
     const accountId = matchForAcountId[0]?.accountId;
     const accountName = matchForAcountId[0]?.displayName; 

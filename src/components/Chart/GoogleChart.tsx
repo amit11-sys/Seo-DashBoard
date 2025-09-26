@@ -46,7 +46,7 @@ const AnalyticsChart = ({
 }) => {
   const [campareChartData, setCampareChartData] = useState<any>(null);
   const [chartData, setChartData] = useState<any>(null);
-  console.log(analyticData,"analyticData");
+  // console.log(analyticData,"analyticData");
 
   // useEffect(() => {
   //   if (analyticData) {
@@ -64,8 +64,8 @@ const AnalyticsChart = ({
   // }, [analyticData]);
 
 
- console.log(analyticData, "analyticData");
-  console.log(tableData, " tableData")
+//  console.log(analyticData, "analyticData");
+//   console.log(tableData, " tableData")
 
 // const consolehtmlForPdf = (tableData:any, analyticData:any) => {
 //   return `

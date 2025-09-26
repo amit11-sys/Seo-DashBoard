@@ -62,8 +62,8 @@ const SearchAnalytics = ({
         // const CampaignUrl = CurrentCampaignData?.CurrentCampaignData?.CurrentCampaignIdData?.projectUrl;
         const propertyId = campignDataWithId?.campaign?.propertyId;
         // const campaignId = campignDataWithId?.campaign?._id;
-        console.log(access_token, "access_token");
-        console.log(propertyId, "propertyId");
+        // console.log(access_token, "access_token");
+        // console.log(propertyId, "propertyId");
         // const { accessToken, campaign } = await getSharedToken(campaignId);
 
         // const { accessToken } = await getSharedToken(campaignId);
@@ -104,8 +104,8 @@ const SearchAnalytics = ({
         const access_token = campignDataWithId?.campaign?.googleAccessToken;
         // const CampaignUrl = CurrentCampaignData?.CurrentCampaignData?.CurrentCampaignIdData?.projectUrl;
         const propertyId = campignDataWithId?.campaign?.propertyId;
-        console.log(access_token, "access_token");
-        console.log(propertyId, "propertyId");
+        // console.log(access_token, "access_token");
+        // console.log(propertyId, "propertyId");
         const analyticData = await getAnalyticsData(
           access_token,
           date,
@@ -336,7 +336,7 @@ const SearchAnalytics = ({
   //   );
   // }
 
-  console.log(activeData, "activeData");
+  // console.log(activeData, "activeData");
   if (activeData?.totalActiveUsers === 0 && activeData?.totalNewUsers === 0) {
     return (
       <div className="relative w-full h-[70vh] flex flex-col gap-10 items-center justify-center bg-gray-100">

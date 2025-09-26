@@ -112,7 +112,7 @@ export const fetchLocation = async () => {
       });
     });
 
-    console.log(allLocations, "data locations");
+    // console.log(allLocations, "data locations");
 
     const locationsDbData = await Location.insertMany(allLocations);
 

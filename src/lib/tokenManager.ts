@@ -51,7 +51,7 @@ async function refreshAccessToken() {
       refresh_token: refreshToken ?? "",
       grant_type: "refresh_token",
     });
-    console.log(body,"okbody")
+    // console.log(body,"okbody")
     refreshing = fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
       method: 'POST',
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -70,7 +70,7 @@ async function refreshAccessToken() {
           },
           { new: true }
         );
-        console.log(data, "dataRefresh");
+        // console.log(data, "dataRefresh");
         accessToken = data?.access_token;
         refreshToken = data?.refreshToken || refreshToken;
         refreshing = null;
@@ -101,8 +101,8 @@ async function getValidToken() {
  */
 export async function  callApi(endpoint:any, options = {}) {
 
-  console.log(endpoint, "endpointok");
-  console.log(options, "optionsok");
+  // console.log(endpoint, "endpointok");
+  // console.log(options, "optionsok");
   // enqueue API calls to run sequentially
   apiQueue = apiQueue.then(async () => {
     const token = await getValidToken();
@@ -115,10 +115,10 @@ export async function  callApi(endpoint:any, options = {}) {
     const response = await fetch(endpoint, { ...options, headers });
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     const json = await response.json();
-    console.log(json, "apiQui");
+    // console.log(json, "apiQui");
     return json;
   });
   const json = await apiQueue;
-  console.log(json, "apiQueue");
+  // console.log(json, "apiQueue");
   return json;
 }

@@ -6,6 +6,7 @@ import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordCompon
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
 import Footer from "@/components/Common/Footer";
+import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
 
 export default async function DashboardDetails({
   params,
@@ -48,6 +49,8 @@ export default async function DashboardDetails({
           />
 
           <SearchConsoleData campaignId={campaignId} />
+                          <SearchAnalytics campignDataWithId={campignDataWithId} campaignId={campaignId}/>
+
           <LiveKeywordComponent
             campaignStatus={campaignStatus}
             campaignId={campaignId}

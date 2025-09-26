@@ -1,69 +1,124 @@
+// ---------------------------
+// Token Manager Library
+// ---------------------------
+
+import Campaign from "./models/campaign.model";
+
+let accessToken:string = "";    // current access token
+let refreshToken:string = "";   // refresh token
+let refreshing:any = null; 
+let tokenExpired: number = 0;
+let compaignId:string = "";
+    // promise for ongoing refresh
+let apiQueue = Promise.resolve(); // queue to serialize API calls
+const client_secret = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET;
+const client_id = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+/**
+ * Initialize tokens
+ * @param {string} initialAccessToken
+ * @param {string} initialRefreshToken
+ */
+export function initTokens( campaignId: string, initialAccessToken: string, initialRefreshToken : string, initialExpiry : number) {
+
+  accessToken = initialAccessToken;
+  refreshToken = initialRefreshToken;
+  tokenExpired = initialExpiry;
+  compaignId = campaignId;
+
+  console.table({initialAccessToken,initialRefreshToken,initialExpiry,campaignId,table:"tableOKhia"},)
+}
+
+/**
+ * Check if token is expired
+ * @param {string} token
+ */
+function isExpired(expiry: number | null | undefined): boolean {
+  if (!expiry) return true; // no expiry → expired
+  const now = Date.now();   // current timestamp (ms)
+  return now >= expiry;     // true if expired, false if still valid
+}
 
 
-import Campaign from "@/lib/models/campaign.model";
+/**
+ * Refresh access token
+ */
 
-let cachedToken: string | null = null;
-let tokenExpiry: number | null = null;
-let refreshing: any= null;
-
-export async function getSharedToken(campaignId: string) {
-  const now = Date.now();
-
-  // If a refresh is in progress, wait for it
-  if (refreshing) return refreshing;
-
-  // Return cached token if valid
-  if (cachedToken && tokenExpiry && now < tokenExpiry) {
-    const campaign = await Campaign.findById({ _id: campaignId });
-    return { accessToken: cachedToken, campaign };
-  }
-
-  // Otherwise, refresh
-  refreshing = (async () => {
-    const campaign = await Campaign.findById({ _id: campaignId });
-    if (!campaign) throw new Error("Campaign not found");
-
-    // Use DB token if still valid
-    if (campaign.googleAccessToken && campaign.googleAccessTokenExpiry && now < campaign.googleAccessTokenExpiry) {
-      cachedToken = campaign.googleAccessToken;
-      tokenExpiry = campaign.googleAccessTokenExpiry;
-      refreshing = null;
-      return { accessToken: cachedToken, campaign };
-    }
-
-    // Refresh token using Google API
-    const refreshToken = campaign.googleRefreshToken;
-    if (!refreshToken) throw new Error("Missing refresh token");    
-
+async function refreshAccessToken() {
+  if (!refreshing) {
     const body = new URLSearchParams({
-      client_id: process.env.GOOGLE_CLIENT_ID ?? "",
-      client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-      refresh_token: refreshToken,
+      client_id: client_id ?? "",
+      client_secret: client_secret ?? "",
+      refresh_token: refreshToken ?? "",
       grant_type: "refresh_token",
     });
-
-    const res = await fetch(process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN!, {
-      method: "POST",
+    console.log(body,"okbody")
+    refreshing = fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
+      method: 'POST',
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
-    });
+    })
+      .then(res => res.json())
+      .then(async data => {
+          const newExpiry = Date.now() + data.expires_in * 1000;
 
-    const json: any = await res.json();
-    if (!json.access_token) throw new Error("Failed to refresh token");
-
-    // Update cache and DB
-    cachedToken = json.access_token;
-    tokenExpiry = Date.now() + json.expires_in * 1000 - 5000; // 5s buffer
-
-    await Campaign.findByIdAndUpdate(campaignId, {
-      googleAccessToken: cachedToken,
-      googleAccessTokenExpiry: tokenExpiry,
-      ...(json.refresh_token && { googleRefreshToken: json.refresh_token }),
-    });
-
-    refreshing = null;
-    return { accessToken: cachedToken, campaign };
-  })();
-
+         await Campaign.findByIdAndUpdate(
+         { _id : compaignId},
+          {
+            googleAccessToken: data?.access_token,
+            googleAccessTokenExpiry: newExpiry,
+            ...(data?.refresh_token && { googleRefreshToken: refreshToken }),
+          },
+          { new: true }
+        );
+        console.log(data, "dataRefresh");
+        accessToken = data?.access_token;
+        refreshToken = data?.refreshToken || refreshToken;
+        refreshing = null;
+        return accessToken;
+      })
+      .catch(err => {
+        refreshing = null;
+        throw err;
+      });
+  }
   return refreshing;
+}
+
+/**
+ * Get a valid token (refresh if needed)
+ */
+async function getValidToken() {
+  if (isExpired(tokenExpired)) {
+    return await refreshAccessToken();
+  }
+  return accessToken;
+}
+
+/**
+ * Centralized API call (serialized to prevent race conditions)
+ * @param {string} endpoint
+ * @param {object} options
+ */
+export async function  callApi(endpoint:any, options = {}) {
+
+  console.log(endpoint, "endpointok");
+  console.log(options, "optionsok");
+  // enqueue API calls to run sequentially
+  apiQueue = apiQueue.then(async () => {
+    const token = await getValidToken();
+    const headers = {
+      // ...options.headers,
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+
+    const response = await fetch(endpoint, { ...options, headers });
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    const json = await response.json();
+    console.log(json, "apiQui");
+    return json;
+  });
+  const json = await apiQueue;
+  console.log(json, "apiQueue");
+  return json;
 }

@@ -19,7 +19,7 @@ const AnalyticsChart1 = ({
 
     const [chartData, setChartData] = useState<any>(null);
 
-    // console.log(analyticData);
+    // console.log(analyticData, "analyticDataok");
  const chartData1 = {
         "Organic Search": "620",
         "Direct": "559",
@@ -30,22 +30,23 @@ const AnalyticsChart1 = ({
         "Organic Video": "8"
     };
     useEffect(() => {
-        if (chartData1) {
-            const updatedChartData =
-                Array.isArray(analyticData?.analyticData?.rows) &&
-                analyticData?.analyticData?.rows?.reduce((acc: any, item: any) => {
-                    acc[item?.dimensionValues[0]?.value] = item?.metricValues[0]?.value;
-                    return acc;
-                }, {});
-    
+        // console.log(analyticData,"analyticDataa gyea");
+        if (analyticData) {
+            const updatedChartData: Record<string, string> = {};
+            analyticData?.rows?.forEach((row: any) => {
+                const channel = row?.dimensionValues[0].value;
+                const sessions = row?.metricValues[0].value;
+                updatedChartData[channel] = sessions?.toString();
+            });
+            // console.log(updatedChartData, "updatedChartDataokok");
             setChartData(updatedChartData);
         }
     }, [analyticData]);
 
-
+    // console.log(chartData, "chart data");
     return (
         <div>
-            {!chartData ? (
+            {analyticData ? (
                 <>
                     
                     <BarChart chartData={chartData} />

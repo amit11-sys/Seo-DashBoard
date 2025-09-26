@@ -77,7 +77,7 @@ export const getVolumnRank = async (KeywordData: any) => {
       }
     }
 
-    console.log(volumnResponses, "volumn response");
+    // console.log(volumnResponses, "volumn response");
 
     if (!KeywordData) {
       return { error: "Error while adding keyword" };
@@ -114,7 +114,7 @@ export const getRankIntent = async (KeywordData: any) => {
       se_domain: keywordObj.SearchEngine,
     }));
 
-    console.log(intentPayload, "intent payload compaign");
+    // console.log(intentPayload, "intent payload compaign");
 
     const intentResponses: KeywordResponse[] = [];
 
@@ -275,12 +275,12 @@ export const deleteKeywordById = async (selectedKeywords: string[]) => {
       },
       { $set: { status: 3 } }
     );
-    console.log(result, "delete result");
+    // console.log(result, "delete result");
 
     if (result.modifiedCount === 0) {
       return { error: "No keywords were updated" };
     }
-    console.log(selectedKeywords, "delete keyword");
+    // console.log(selectedKeywords, "delete keyword");
     return {
       success: true,
       // message: `${result.modifiedCount} keyword(s) deleted successfully`,
@@ -293,7 +293,7 @@ export const deleteKeywordById = async (selectedKeywords: string[]) => {
 export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
   try {
     await connectToDB();
-    console.log(updatedData, "update data backend");
+    // console.log(updatedData, "update data backend");
     const user = await getUserFromToken();
     if (!user) {
       return { error: "Unauthorized" };
@@ -315,8 +315,8 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
 
     const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
      const meta = rankdata?.result?.tasks?.[0]?.result?.[0];
-     console.log(item,"item update")
-     console.log(meta,"meta update")
+    //  console.log(item,"item update")
+    //  console.log(meta,"meta update")
     const editedKeyword = await KeywordTracking.findOneAndUpdate(
       { keywordId },
       {
@@ -334,7 +334,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
       },
       { new: true }
     );
-    console.log(editedKeyword,"edited keyword")
+    // console.log(editedKeyword,"edited keyword")
    
     // console.log(finalData, "final data");
 
@@ -368,7 +368,7 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
     CampaignId: campaign._id,
   }).distinct("keywords");
 
-  console.log(existingKeywords, "existingKeywords");
+  // console.log(existingKeywords, "existingKeywords");
 
   formData.keyword = formData.keyword.filter(
     (kwStr: any) => !existingKeywords.includes(kwStr)
@@ -386,7 +386,7 @@ export const saveMultipleKeyword = async (formData: any, campaign: any) => {
         )
       : [];
 
-  console.log(createdKeywords, "created keywords");
+  // console.log(createdKeywords, "created keywords");
 
   // Filter out nulls (duplicates)
   // const filteredKeywords = addedKeywords.filter((kw) => kw !== null);

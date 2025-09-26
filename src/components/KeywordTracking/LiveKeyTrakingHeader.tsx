@@ -53,7 +53,7 @@ export default function LiveKeyTrakingHeader({
     startLoading();
     try {
       const refreshedCampaign = await getRefreshCampaign(campaignId);
-      console.log(refreshedCampaign, "refreshedCampaign");
+      // console.log(refreshedCampaign, "refreshedCampaign");
   
       
          if(refreshedCampaign.error === "Unauthorized please login") {

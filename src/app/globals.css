@@ -71,3 +71,34 @@
 
 
 /* From Uiverse.io by mobinkakei */ 
+/* Skeleton Shimmer Effect */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: #e5e7eb; /* Tailwind gray-200 */
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -150px;
+  }
+  100% {
+    left: 100%;
+  }
+}

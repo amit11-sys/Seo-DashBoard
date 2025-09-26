@@ -1,6 +1,6 @@
 
 "use client";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaCheckCircle,
   FaMousePointer,
@@ -22,7 +22,7 @@ type Row = {
 };
 
 type Props = {
-  analyticData: Row[] | { analyticData?: Row[] } | undefined;
+  analyticData: any;
   dimension: "Country" | "Device" | "Page" | "Query" | "Date" | string;
   setPdfTableConsoleData?: React.Dispatch<React.SetStateAction<any>>;
   handleGeneratePDF?: any;
@@ -31,23 +31,12 @@ type Props = {
 const TableComponent = ({
   analyticData,
   dimension,
-  setPdfTableConsoleData,
-  // handleGeneratePDF,
 }: Props) => {
-  // Normalize to an array of rows
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const rows: Row[] = Array.isArray(analyticData)
-    ? analyticData
-    : (analyticData?.analyticData ?? []);
-  
-  
-  
-  //   useEffect(() => {
-  //   setPdfTableConsoleData(getHtmlconsoleTable());
-  // }, [handleGeneratePDF]);
-
-
+  const rows: Row[] = Array.isArray(analyticData?.normalData)
+    ? analyticData?.normalData
+    : (analyticData?.normalData ?? []);
 
   const headerIcon = (() => {
     switch (dimension) {
@@ -72,71 +61,18 @@ const TableComponent = ({
     setLoading(true);
     const timeout = setTimeout(() => {
       setLoading(false);
-    }, 500); // simulate delay
+    }, 700); // simulate loading
     return () => clearTimeout(timeout);
   }, [dimension, analyticData]);
 
-
-
- const getHtmlconsoleTable = () => {
-    return `
-    <html>
-      <head>
-        <style>
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-          }
-          th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-          }
-          th {
-            background-color: #f3f3f3;
-          }
-          tr:hover {
-            background-color: #eef2ff;
-          }
-        </style>
-      </head>
-      <body>
-        <table>
-          <thead>
-            <tr>
-              <th>🌍 Country</th>
-              <th>🖱️ Clicks</th>
-              <th>👁️ Impressions</th>
-              <th>✅ CTR</th>
-              <th>📈 Position</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows
-              .map((item) => {
-                return `
-                  <tr>
-                    <td>${item.keys?.[0] ?? "-"}</td>
-                    <td>${item.clicks?.toLocaleString?.() ?? 0}</td>
-                    <td>${item.impressions?.toLocaleString?.() ?? 0}</td>
-                    <td>${(item.ctr * 100).toFixed(2)}%</td>
-                    <td>${Number(item.position).toFixed(2)}</td>
-                  </tr>
-                `;
-              })
-              .join("")}
-          </tbody>
-        </table>
-      </body>
-    </html>
-  `;
-  };
-
-
-
-
+  if (loading) {
+    return (
+      <div className="w-full h-60 flex items-center justify-center">
+        {/* Tailwind spinner */}
+        <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!rows.length) {
     return (
@@ -179,15 +115,11 @@ const TableComponent = ({
               key={index}
               className="hover:bg-gray-200 transition-colors cursor-pointer"
             >
-              <td className="px-4 py-2 overflow-x-hidden  font-medium">
+              <td className="px-4 py-2 overflow-x-hidden font-medium">
                 {item.keys?.[0] ?? "-"}
               </td>
-              <td className="px-4 py-2">
-                {item.clicks?.toLocaleString?.() ?? 0}
-              </td>
-              <td className="px-4 py-2">
-                {item.impressions?.toLocaleString?.() ?? 0}
-              </td>
+              <td className="px-4 py-2">{item.clicks?.toLocaleString?.() ?? 0}</td>
+              <td className="px-4 py-2">{item.impressions?.toLocaleString?.() ?? 0}</td>
               <td className="px-4 py-2">{(item.ctr * 100).toFixed(2)}%</td>
               <td className="px-4 py-2">{Number(item.position).toFixed(2)}</td>
             </tr>

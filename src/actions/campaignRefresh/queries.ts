@@ -47,10 +47,10 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-    console.log(keywordId, "refresh id");
+    // console.log(keywordId, "refresh id");
 
     const singleKeywordForUpdate = await Keyword.findById({ _id: keywordId });
-    console.log(singleKeywordForUpdate, "SingleKeywordForUpdate");
+    // console.log(singleKeywordForUpdate, "SingleKeywordForUpdate");
 
     const rankdata = await getKewordRank(singleKeywordForUpdate);
     // const intentData = await getRankIntent([singleKeywordForUpdate]);
@@ -117,8 +117,8 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     // // ✅ pick the first object
     // const keywordUpdate = finalData[0] || null;
     // const json: any = await rankdata.json();
-    console.log(rankdata, "rankdata single");
-    console.log(rankdata?.result?.tasks?.[0], "coming undefined");
+    // console.log(rankdata, "rankdata single");
+    // console.log(rankdata?.result?.tasks?.[0], "coming undefined");
     
     const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
     const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
@@ -132,7 +132,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
       },
       { new: true }
     );
-    console.log(item, "item single");
+    // console.log(item, "item single");
 
     // // if (!keywordUpdate) {
     // //   return { error: "No keyword data to update" };

@@ -48,7 +48,7 @@ export default function GoogleIntegrations({
   const handlecloseDialog = () => {
     setOpen(false);
   };
-  console.log(createdCampaignId, "createdCampaignId in google integration");
+  // console.log(createdCampaignId, "createdCampaignId in google integration");
 
   const handleLoginGoogleConsole = () => {
     const url = `${process.env.NEXT_PUBLIC_GOOGLE_AUTH_O}`;

@@ -27,8 +27,8 @@ export const addkeywords = async (formData: any) => {
   if (!user) return { error: "Unauthorized please login" };
 
   const campaignId = formData?.campaignId;
-  console.log(campaignId, "campaignId");
-  console.log(formData, "formData input");
+  // console.log(campaignId, "campaignId");
+  // console.log(formData, "formData input");
 
   formData.keywords = Array.from(
     new Set(
@@ -56,7 +56,7 @@ export const addkeywords = async (formData: any) => {
     (kw: string) => !existingSet.has(`${kw}|${formData.searchLocationCode}`)
   );
 
-  console.log(formData.keywords, "keywords to insert");
+  // console.log(formData.keywords, "keywords to insert");
 
   const createdKeywords =
     formData?.keywords?.length > 0
@@ -70,7 +70,7 @@ export const addkeywords = async (formData: any) => {
         )
       : [];
 
-  console.log(createdKeywords, "created keywords");
+  // console.log(createdKeywords, "created keywords");
 
   // Redis progress setup
   const redis = getRedis();

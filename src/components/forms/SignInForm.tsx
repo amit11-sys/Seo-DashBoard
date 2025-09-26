@@ -25,26 +25,20 @@ export default function SignInForm() {
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
 
-  // Extend the schema to include Terms acceptance
-  const formSchema = signInSchema.extend({
-    terms: z.boolean().refine((val) => val === true, {
-      message: "You must accept the Terms & Conditions",
-    }),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  // Use original schema (no terms)
+  const form = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
-      terms: false,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signInSchema>) => {
     startLoading();
     try {
       const user = await getLoggedInUser(values);
+
       if (user?.success) {
         toast.success("Login Successful");
 
@@ -65,7 +59,7 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="  p-6 bg-white shadow-lg rounded-2xl">
+    <div className="p-6 bg-white shadow-lg rounded-2xl">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         Sign In
       </h1>
@@ -101,53 +95,6 @@ export default function SignInForm() {
                   />
                 </FormControl>
                 <FormMessage className="error-msg" />
-              </FormItem>
-            )}
-          />
-
-          {/* Terms & Conditions Checkbox */}
-          <FormField
-            control={form.control}
-            name="terms"
-            render={({ field }) => (
-              <FormItem className="flex-col items-start space-x-2">
-                <div className="flex items-center gap-2">
-
-                <FormControl>
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                    checked={field.value} // ✅ use `checked` for boolean
-                    onChange={(e) => field.onChange(e.target.checked)}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                  />
-                </FormControl>
-                <label htmlFor="terms" className="text-sm text-gray-700">
-                  I agree to the{" "}
-                  <Link
-                    href={`${process.env.NEXT_PUBLIC_BASE_URL}/term-and-conditions`}
-                    target="_blank"
-                    className="text-blue-600 underline"
-                  >
-                    Terms & Conditions
-                  </Link>
-                  {" and "}
-                  <Link
-                    href={`${process.env.NEXT_PUBLIC_BASE_URL}/privacy-policy`}
-                    target="_blank"
-                    className="text-blue-600 underline"
-                  >
-                    Privacy Policy
-                  </Link>
-                </label>
-                </div>
-                <div className="w-full flex justify-start items-start">
-
-                <FormMessage className="error-msg ml-8" />
-                </div>
               </FormItem>
             )}
           />

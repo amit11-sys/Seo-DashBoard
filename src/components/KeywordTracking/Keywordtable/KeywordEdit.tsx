@@ -215,15 +215,15 @@ const EditKeywords = ({
   const onSubmit = async () => {
     const isValid = await form.trigger();
     // form.setValue("keywords", Keywords);
-    console.log(form.getValues(), "all value");
+    // console.log(form.getValues(), "all value");
 
     if (!isValid) {
       toast.error("Please fill all the fields");
       return;
     }
     const keywordInput = form.getValues("keywords");
-    console.log("okokoko", form.getValues());
-    console.log("keywodsINput", keywordInput);
+    // console.log("okokoko", form.getValues());
+    // console.log("keywodsINput", keywordInput);
     if (!keywordInput || keywordInput[0].trim() === "") {
       setKeywordError("Please enter at least one keyword.");
       return;
@@ -240,7 +240,7 @@ const EditKeywords = ({
       keywordId,
     };
 
-    console.log(payload, "edit");
+    // console.log(payload, "edit");
 
     startLoading();
     try {
@@ -286,11 +286,11 @@ const EditKeywords = ({
   // }, [keywordId]);
   const onEdithandler = async (keywordId: string) => {
     const defaultData = await getEditDataFetchDb(keywordId);
-    console.log(defaultData, "data default");
+    // console.log(defaultData, "data default");
     const locationCode = Number(defaultData.keywordsData.searchLocationCode);
-    console.log(locationCode, "location code");
+    // console.log(locationCode, "location code");
     const matchlocation = await getfetchDBlocationData(locationCode);
-    console.log(matchlocation, "match locations");
+    // console.log(matchlocation, "match locations");
 
     const modifiedKeywords = [defaultData?.keywordsData].map((item: {}) => ({
       ...item,
@@ -385,7 +385,7 @@ const EditKeywords = ({
                   <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
                     {isPending && <p className="text-green-500">Loading...</p>}
                     {results.map((loc: any) => {
-                      console.log("Location:", loc);
+                      // console.log("Location:", loc);
                       return (
                         <li
                           key={loc._id}

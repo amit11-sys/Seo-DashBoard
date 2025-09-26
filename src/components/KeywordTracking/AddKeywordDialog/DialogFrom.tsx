@@ -182,7 +182,7 @@ const debouncedFetch = useMemo(
   const onSubmit = async () => {
     const isValid = await form.trigger();
     form.setValue("keywords", Keywords);
-console.log(form.getValues(),"all value");
+// console.log(form.getValues(),"all value");
 
     if (!isValid){
       toast.error("Please fill all the fields")
@@ -195,7 +195,7 @@ console.log(form.getValues(),"all value");
       setKeywordError(null);
     }
 
-    console.log("okokok");
+    // console.log("okokok");
 
     const payload = {
       ...form.getValues(),
@@ -203,7 +203,7 @@ console.log(form.getValues(),"all value");
       campaignId,
     };
 
-    console.log(payload, "add kewywords front end data payloadd");
+    // console.log(payload, "add kewywords front end data payloadd");
     // startLoading();
     try {
       const res: any = await fetch("/api/add-keywords", {
@@ -223,12 +223,12 @@ console.log(form.getValues(),"all value");
         return
       }
       onClose();
-      console.log(response, "res addd");
+      // console.log(response, "res addd");
       // if (!response.success) {
       //   throw new Error(response.error || "Failed to create keywords");
       // }
-      console.log(response.addedKeywords, "Response from API");
-      console.log(form.getValues("searchLocationCode"), "cod location");
+      // console.log(response.addedKeywords, "Response from API");
+      // console.log(form.getValues("searchLocationCode"), "cod location");
       // const matchlocation = await getfetchDBlocationData(
       //   form.getValues("searchLocationCode")
       // );

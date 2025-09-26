@@ -96,7 +96,7 @@ export function CampaignTabs() {
     return debounce((q: string) => {
       startTransition(() => {
         getfetchDBLocation(q).then((response) => {
-            console.log(response, "response");
+            // console.log(response, "response");
             if (response?.error === "Unauthorized please login") {
               window.dispatchEvent(new Event("session-expired"));
               return;
@@ -206,7 +206,7 @@ export function CampaignTabs() {
       // searchLocationCode:
     };
 
-    console.log(payload, "pyaload of caompgin form");
+    // console.log(payload, "pyaload of caompgin form");
 
     startLoading();
     try {
@@ -428,7 +428,7 @@ export function CampaignTabs() {
                               <p className="text-green-500">Loading...</p>
                             )}
                             {results.map((loc: any) => {
-                              console.log("Location:", loc);
+                              // console.log("Location:", loc);
                               return (
                                 <li
                                   key={loc._id}

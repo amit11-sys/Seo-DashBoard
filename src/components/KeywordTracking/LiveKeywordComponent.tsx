@@ -248,7 +248,7 @@ const LiveKeywordComponent = ({
   };
 
   const keywordTableData = (campaignLiveKeywordsData: any) => {
-    console.log("calling fn on delte");
+    // console.log("calling fn on delte");
 
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;

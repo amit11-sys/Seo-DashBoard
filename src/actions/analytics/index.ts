@@ -20,8 +20,8 @@ export const getGoogleAnalyticsPropertyID = async (access_token: string , accoun
 
   return data;
 };
-export const getAnalyticsData = async (access_token: string,date:any,propertyId:string ) => {
-  const data = await AnalyticsData(access_token,date,propertyId);
+export const getAnalyticsData = async (access_token: string,date:any,propertyId:string,campaignId:string ) => {
+  const data = await AnalyticsData(access_token,date,propertyId,campaignId);
 
   return data;
 };

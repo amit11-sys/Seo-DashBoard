@@ -1,4 +1,5 @@
-import { getSharedToken } from "@/lib/tokenManager";
+import { callApi, initTokens } from "@/lib/tokenManager";
+import { getGetCampaignByid } from "../campaign";
 
 export const fetchLievKeyword = async (url: string) => {
   const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME!;
@@ -508,7 +509,7 @@ const propertiesDataID = properties[0]?.name ?? "";
 
 
 
-export async function AnalyticsData(access_token: string,date:any , propertyId: string) {
+export async function AnalyticsData(access_token: string,date:any , propertyId: string,campaignId:string) {
        
 
   const today1 = new Date();
@@ -697,27 +698,47 @@ if (date.compare === undefined) {
 
   const results: Record<string, any> = {};
 
+   const campaignDataForToken = await getGetCampaignByid(campaignId);
+  
+    // 2. Initialize token manager with this campaign's tokens
+      initTokens(campaignId,campaignDataForToken?.campaign?.googleAccessToken, campaignDataForToken?.campaign?.googleRefreshToken, campaignDataForToken?.campaign?.googleAccessTokenExpiry);
+      const CompaignUrl = campaignDataForToken?.campaign?.projectUrl;
+  
+      // 3. Call Google Search API using centralized token manager
+      // const res: any = await callApi(
+      //   `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+      //   {
+      //     method: "POST",
+      //     body: JSON.stringify(payload),
+          
+      //   }
+      // );
+
   for (const { name, payload } of payloads) {
     try {
-      const res = await fetch(baseUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const res: any = await callApi(baseUrl, 
+       
+         {
+          method: "POST",
+          body: JSON.stringify(payload),
+          
+        }
+        // headers: {
+        //   Authorization: `Bearer ${access_token}`,
+        //   "Content-Type": "application/json",
+        // },
+      );
 
-      if (!res.ok) {
+      if (!res) {
         const errorData = await res.json();
         console.error(`Error in payload ${name}:`, errorData);
         results[name] = { error: errorData };
         continue;
       }
 
-      const data = await res.json();
+      // const data = await res.json();
       // console.log(data.rows[0].metricValues,"ananlyticss")
-      results[name] = data;
+      results[name] = res;
     } catch (error: any) {
       console.error(`Exception in payload ${name}:`, error?.message ?? error);
       results[name] = { error: error?.message ?? error };

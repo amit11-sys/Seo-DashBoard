@@ -1,6 +1,18 @@
 "use server";
 
-import { archivedCampaign, ArchivedCampaignCreate, CampaignStatus2, CompaignCount, CurrentCampaignIdData, DbCompaignDataUpdate, DBcompaignGoogleData, getCampaign, GetCampaignByid, newCampaign, propertyIdForDB } from "./queries";
+import {
+  archivedCampaign,
+  ArchivedCampaignCreate,
+  CampaignStatus2,
+  CompaignCount,
+  CurrentCampaignIdData,
+  DbCompaignDataUpdate,
+  DBcompaignGoogleData,
+  getCampaign,
+  GetCampaignByid,
+  newCampaign,
+  propertyIdForDB,
+} from "./queries";
 import { addMultipleKeyword } from "../keyword";
 import {
   // createNewKeywordTrackingData,
@@ -17,10 +29,9 @@ export const createCampaign = async (formData: any) => {
   // console.log(campaign,"from index")
 
   if (campaign) {
-    if(formData?.keyword.length > 0){
-      
+    if (formData?.keyword.length > 0) {
       await addMultipleKeyword(formData, campaign);
-    }else{
+    } else {
       return campaign;
     }
 
@@ -46,16 +57,12 @@ export const createCampaign = async (formData: any) => {
 
     //   // const dbResult = await createNewKeywordTrackingData(keywordData);
 
-      
     //   console.log(dbResult, "Tracking DB Result");
 
     // } else {
     //   console.error("Invalid response format:", liveKeywordsDataAPI);
     // }
-
-
   }
-
 
   return campaign;
 };
@@ -70,8 +77,12 @@ export const getUserCampaign = async () => {
 //   const data = await deleteCampaign(CompaignId);
 //   return data;
 // };
-export const CreateArchivedCampaign = async (CompaignId: string,status:number ,topRankData?:any ) => {
-  const data = await ArchivedCampaignCreate(CompaignId, status,topRankData);
+export const CreateArchivedCampaign = async (
+  CompaignId: string,
+  status: number,
+  topRankData?: any
+) => {
+  const data = await ArchivedCampaignCreate(CompaignId, status, topRankData);
   return data;
 };
 export const getArchivedCampaign = async () => {
@@ -91,10 +102,14 @@ export const getGetCampaignByid = async (campaignid: string) => {
   return data;
 };
 
-
-
-export const getDbCompaignDataUpdate = async (newCompaignId: string,tokenResult:{}) => {
-  const updatedcampaign = await DbCompaignDataUpdate(newCompaignId,tokenResult);
+export const getDbCompaignDataUpdate = async (
+  newCompaignId: string,
+  tokenResult: {}
+) => {
+  const updatedcampaign = await DbCompaignDataUpdate(
+    newCompaignId,
+    tokenResult
+  );
 
   return updatedcampaign;
 };
@@ -109,9 +124,12 @@ export const getCurrentCampaignIdData = async (campaignId: string) => {
 
   return data;
 };
-export const setPropertyIdForDB = async (campaignId: string,tokenResult:{},projectUrl:any) => {
-  const data = await propertyIdForDB(campaignId,tokenResult,projectUrl);
+export const setPropertyIdForDB = async (
+  campaignId: string,
+  tokenResult: {},
+  projectUrl: any
+) => {
+  const data = await propertyIdForDB(campaignId, tokenResult, projectUrl);
 
   return data;
 };
-

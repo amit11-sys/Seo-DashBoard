@@ -1,7 +1,7 @@
 // import useAxios from "@/hooks/useAxios";
 "use server";
 import Campaign from "@/lib/models/campaign.model";
-import { getDBcompaignGoogleData } from "../campaign";
+import { getDBcompaignGoogleData, getGetCampaignByid } from "../campaign";
 import fetch from "node-fetch";
 import { getValidGoogleToken } from "../campaign/queries";
 import { date } from "zod";
@@ -74,7 +74,7 @@ function extractDomain(url: string): string | null {
     return null;
   }
 }
-
+import { callApi, initTokens } from "@/lib/tokenManager";
 export async function GoogleConsoleDataByDate(
   newCompaignId: string,
   date: any
@@ -101,22 +101,22 @@ export async function GoogleConsoleDataByDate(
   // const compaignGoogleData = (await getDBcompaignGoogleData(
   //       newCompaignId
   //     )) as any | null;
-      console.log(compaignGoogleData,"compaignGoogleData ");
+      // console.log(compaignGoogleData,"compaignGoogleData ");
 
   // if (!compaignGoogleData?.compaignGoogleData) {
   //   throw new Error(compaignGoogleData?.error ?? "No campaign tokens found");
   // }
 
-  const access_token = compaignGoogleData?.googleAccessToken;
-  const CompaignUrl = compaignGoogleData?.projectUrl;
+  // const access_token = compaignGoogleData?.googleAccessToken;
+  // const CompaignUrl = compaignGoogleData?.projectUrl;
   // function extractDomain(url: string): string | null {
   //   const match = url.match(/\/\/(.*?)\.com/);
   //   return match ? match[1] : null;
   // }
-  console.log(CompaignUrl,"url in googleConsoleDataByDate")
+  // console.log(CompaignUrl,"url in googleConsoleDataByDate")
   // const data =await fetchLocalKeywordData(CompaignUrl)
   // console.log(data, "data in getGoogleSearchDataByDimension");
-  const urlNameMatch = extractDomain(CompaignUrl);
+  // const urlNameMatch = extractDomain(CompaignUrl);
   // console.log(urlNameMatch, "urlNameMatch");
 
   // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
@@ -127,31 +127,47 @@ export async function GoogleConsoleDataByDate(
 
   try {
     // const payload = { startDate, endDate, dimensions };
+  const campaignDataForToken = await getGetCampaignByid(newCompaignId);
 
-    const res = await fetch(
+  // 2. Initialize token manager with this campaign's tokens
+    initTokens(newCompaignId,campaignDataForToken?.campaign?.googleAccessToken, campaignDataForToken?.campaign?.googleRefreshToken, campaignDataForToken?.campaign?.googleAccessTokenExpiry);
+    const CompaignUrl = campaignDataForToken?.campaign?.projectUrl;
+
+    // 3. Call Google Search API using centralized token manager
+    const res: any = await callApi(
       `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
       {
         method: "POST",
-        headers: {
-         
-          Authorization: `Bearer ${access_token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(payload),
+        
       }
     );
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+         
+    //       Authorization: `Bearer ${access_token}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(payload),
+    //   }
+    // );
 
-    if (!res.ok) {
+    console.log(res,"insideGoogledate")
+
+    if (!res) {
       const text = await res.text();
       throw new Error(
-        `GA request failed: ${res.status} ${res.statusText} - ${text}`
+        `GA request failed: ${res?.status} ${res?.statusText} - ${text}`
       );
     }
 
-    const json = (await res.json()) as GSApiResponse;
+    // const json = (await res.json()) as GSApiResponse;
     // console.log(json,"json in getGoogleSearchDataByDimension");
 
-    const rawData = json.rows ?? [];
+    const rawData = res.rows ?? [];
     const processedData = processConsoleData(rawData);
     0;
     return {
@@ -194,8 +210,22 @@ export async function GoogleSearchDataByDimension(
       endDate: endDate || todayFormatted,
       dimensions: [dimension],
     };
-    const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+    // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+    const campaignDataForToken = await getGetCampaignByid(newCompaignId);
 
+  // 2. Initialize token manager with this campaign's tokens
+    initTokens(newCompaignId,campaignDataForToken?.campaign?.googleAccessToken, campaignDataForToken?.campaign?.googleRefreshToken, campaignDataForToken?.campaign?.googleAccessTokenExpiry);
+    const CompaignUrl = campaignDataForToken?.campaign?.projectUrl;
+
+    // 3. Call Google Search API using centralized token manager
+    const res: any = await callApi(
+      `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+      {
+        method: "POST",
+        body: JSON.stringify(dataWithDimension),
+        
+      }
+    );
     // console.log(compaignGoogleData, "testdata");
     //
     // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
@@ -212,17 +242,17 @@ export async function GoogleSearchDataByDimension(
     //   throw new Error("No campaign tokens found");
     // }
     
-    const access_token = compaignGoogleData?.googleAccessToken;
-    const CompaignUrl = compaignGoogleData?.projectUrl;
-    console.log(access_token,"tokken")
-    console.log(CompaignUrl,"url in getGoogleSearchDataByDimension" )
+    // const access_token = compaignGoogleData?.googleAccessToken;
+    // const CompaignUrl = compaignGoogleData?.projectUrl;
+    // console.log(access_token,"tokken")
+    // console.log(CompaignUrl,"url in getGoogleSearchDataByDimension" )
     
     // const location = await fetchLocations(access_token);
     // console.log(location,"locationOKO hia")
     // console.log(access_token, "in access_token");
     // console.log(CompaignUrl, "in googleSearchDataByDimension");
 
-    const acoountNameforMatch = extractDomain(CompaignUrl);
+    // const acoountNameforMatch = extractDomain(CompaignUrl);
 
     // console.log(acoountNameforMatch, "acoountNameforMatch");
 
@@ -248,29 +278,28 @@ export async function GoogleSearchDataByDimension(
     // const access_token = compaignGoogleData?.compaignGoogleData?.googleAccessToken;
     // const CompaignUrl = compaignGoogleData?.compaignGoogleData?.projectUrl ?? "";
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
-      {
-        method: "POST",
-        headers: {
+    // const res = await fetch(
+    //   `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+    //   {
+    //     method: "POST",
+    //     headers: {
          
-          Authorization: `Bearer ${access_token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataWithDimension),
-      }
-    );
+    //       Authorization: `Bearer ${access_token}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(dataWithDimension),
+    //   }
+    // );
 
-    if (!res.ok) {
+    if (!res) {
       const text = await res.text();
       // mimic axios error.response for your existing catch blocks
       const err: any = new Error(`HTTP ${res.status} ${res.statusText}`);
       err.response = { status: res.status, data: text };
       throw err;
     }
-    const json: any = await res.json();
-
-    const dimensionData = json?.rows ?? [];
+console.log(res,"dimensionRes")
+    const dimensionData = res?.rows ?? [];
     return dimensionData;
   } catch (error: any) {
     if (error?.response) {

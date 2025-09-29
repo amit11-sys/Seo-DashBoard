@@ -863,7 +863,7 @@ const DashboardStatsCompare = ({ analyticData }: Props) => {
 
   // Determine date ranges
   const showCompare = analyticData?.compareData && analyticData?.compareData?.length > 0;
-  const normalDateRange = `${analyticData?.date.startDate} - ${analyticData?.date?.endDate}`;
+  const normalDateRange = `${analyticData?.date?.startDate} - ${analyticData?.date?.endDate}`;
   const compareDateRange = showCompare
     ? `${analyticData?.date?.compare?.startDate} - ${analyticData?.date?.compare?.endDate}`
     : null;

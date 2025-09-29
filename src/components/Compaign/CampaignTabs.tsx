@@ -422,12 +422,12 @@ export function CampaignTabs() {
                           )}
                         />
 
-                        {results.length > 0 && (
+                        {results?.length > 0 && (
                           <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
                             {isPending && (
                               <p className="text-green-500">Loading...</p>
                             )}
-                            {results.map((loc: any) => {
+                            {results?.map((loc: any) => {
                               // console.log("Location:", loc);
                               return (
                                 <li

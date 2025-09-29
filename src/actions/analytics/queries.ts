@@ -1,5 +1,8 @@
 import { callApi, initTokens } from "@/lib/tokenManager";
 import { getGetCampaignByid } from "../campaign";
+import { connectToDB } from "@/lib/db";
+import { getUserFromToken } from "@/app/utils/auth";
+import Campaign from "@/lib/models/campaign.model";
 
 export const fetchLievKeyword = async (url: string) => {
   const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME!;
@@ -748,3 +751,88 @@ if (date.compare === undefined) {
 
   return {results,date};
 }
+
+function extractDomain(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname; // e.g. 'www.handonawhiteboard.com'
+    const parts = hostname.split(".");
+    // Drop 'www' or subdomain if present
+    return parts.length > 2 ? parts[parts.length - 2] : parts[0];
+  } catch {
+    return null;
+  }
+}
+
+export const propertyIdForDB = async (
+  campaignId: string,
+  tokenResult: {},
+  nameMatch: any
+) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized" };
+    }
+
+    // console.log(campaignId,"campaignId in propertyId");
+    // console.log(tokenResult,"tokenResult in propertyId");
+    // console.log(nameMatch,"campaignData in propertyId");
+
+    const { access_token } = tokenResult as any;
+
+    const acoountNameforMatch = extractDomain(nameMatch);
+
+    console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
+
+    const data = await googleAnalyticsAccountID(
+      access_token,
+      acoountNameforMatch ?? ""
+    );
+console.log(data,"data in propertyId");
+    // console.log(data,"data in propertyId");
+    const accountId = Array.isArray(data)
+      ? data[0]?.accountId
+      : (data?.accountId ?? "");
+
+
+    console.log(accountId, "accountId in propertyId");
+
+    // const location = await fetchLocations(access_token);
+
+    // console.log(location, "locaion in propertyId");
+
+    const propertiesID = await googleAnalyticsPropertyID(
+      accountId,
+      access_token,
+      acoountNameforMatch ?? ""
+    );
+
+    console.log(propertiesID,"propertiesID in propertyId");
+
+    //  const propertyId = propertiesID[0]?.name ?? "";
+
+    const propertyId = propertiesID.split("/")[1];
+
+    // console.log(propertyId,"proepertyId in propertyId");
+
+    const campaignDataWithPropertyIdData = await Campaign.findByIdAndUpdate(
+      { _id: campaignId },
+      { $set: { propertyId: propertyId,accountId:accountId } },
+      { new: true }
+    );
+    console.log(campaignDataWithPropertyIdData,"campaignDataWithPropertyIdData in propertyId");
+
+    return {
+      success: true,
+      message: "New CompaignData with propertyId Successfully Found",
+      campaignDataWithPropertyIdData,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return { error: "Internal Server Error." };
+  }
+};

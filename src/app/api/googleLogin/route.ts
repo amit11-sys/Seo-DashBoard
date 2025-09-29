@@ -1,7 +1,8 @@
+import { setPropertyIdForDB } from "@/actions/analytics";
 import {
   getCurrentCampaignIdData,
   getDbCompaignDataUpdate,
-  // setPropertyIdForDB
+ 
 } from "@/actions/campaign";
 // import {
 //   getGoogleAnalyticsAccountID,
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
   // Parse from JSON string to object
   const stateData = JSON.parse(decoded);
 
-  // console.log(stateData, "state data object");
+  console.log(stateData, "state data object");
   // console.log(stateData.campaignId, "campaignId");
   // console.log(stateData.analyticsData, "analyticsData");
   // console.log(stateData.consoleData, "consoleData");
@@ -69,7 +70,7 @@ export async function GET(req: NextRequest) {
     // You can store tokens in db or session here
 
     if (stateData?.analyticsData === true) {
-      // await setPropertyIdForDB(stateData.campaignId, tokenResult, projectUrl);
+      await setPropertyIdForDB(stateData.campaignId, tokenResult, projectUrl);
       await getDbCompaignDataUpdate(stateData.campaignId, tokenResult);
     }
     if (stateData?.consoleData === true) {

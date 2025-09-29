@@ -19,6 +19,8 @@ const campaignSchema = new mongoose.Schema(
     googleRefreshToken: { type: String },
     googleRefreshTokenExpiry: { type: Number },
     googleId_token: { type: String },
+    propertyId: { type: String },
+    accountId: { type: String },
   },
   {
     timestamps: true,

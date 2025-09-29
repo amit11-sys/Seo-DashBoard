@@ -358,7 +358,7 @@ const SearchAnalytics = ({
           </p>
           <a
             href={handleLoginGoogle()}
-            onClick={() => handleConnectClick("Google Search Console")}
+            onClick={() => handleConnectClick("Google Analytics")}
           >
             <Button className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white hover:opacity-90 transition">
               Proceed

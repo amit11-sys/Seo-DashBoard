@@ -1,6 +1,6 @@
 "use server"
 
-import { AnalyticsData, fetchLievKeyword, googleAnalyticsAccountID, googleAnalyticsPropertyID } from "./queries";
+import { AnalyticsData, fetchLievKeyword, googleAnalyticsAccountID, googleAnalyticsPropertyID, propertyIdForDB } from "./queries";
 
 export const getLiveKeywordData=async (url:string)=>{
     const keyword=await fetchLievKeyword(url)
@@ -22,6 +22,16 @@ export const getGoogleAnalyticsPropertyID = async (access_token: string , accoun
 };
 export const getAnalyticsData = async (access_token: string,date:any,propertyId:string,campaignId:string ) => {
   const data = await AnalyticsData(access_token,date,propertyId,campaignId);
+
+  return data;
+};
+
+export const setPropertyIdForDB = async (
+  campaignId: string,
+  tokenResult: {},
+  projectUrl: any
+) => {
+  const data = await propertyIdForDB(campaignId, tokenResult, projectUrl);
 
   return data;
 };

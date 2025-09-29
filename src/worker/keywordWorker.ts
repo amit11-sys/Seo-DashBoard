@@ -22,7 +22,44 @@ if (!LOGIN || !PASSWORD) {
     process.exit(1);
   });
 })();
-const endpoint = `${BASE}serp/google/organic/live/advanced`;
+// const endpoint = `${BASE}serp/google/organic/live/advanced`;
+
+const rankEndpoint = `${BASE}serp/google/organic/live/advanced`;
+const intentEndpoint = `${BASE}dataforseo_labs/google/search_intent/live`;
+
+function getLast6Months(currentRank: number | string = "-") {
+  const now = new Date();
+  const months: { month: string; rank: number | string }[] = [];
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthName = d.toLocaleString("default", { month: "short" });
+    months.push({ month: monthName, rank: currentRank || "-" });
+  }
+  return months.reverse();
+}
+
+// ✅ helper: update pastData
+function updatePastData(
+  pastData: { month: string; rank: number | string }[] = [],
+  newRank: number | string = "-"
+) {
+  const now = new Date();
+  const currentMonth = now.toLocaleString("default", { month: "short" });
+
+  if (!pastData.length) return getLast6Months(newRank);
+
+  const lastEntry = pastData[pastData.length - 1];
+
+  if (lastEntry.month === currentMonth) {
+    lastEntry.rank = newRank;
+    return [...pastData];
+  } else {
+    const updated = [...pastData.slice(1)];
+    updated.push({ month: currentMonth, rank: newRank });
+    return updated;
+  }
+}
+
 
 export const keywordWorker = new Worker(
   "keywordQueue",
@@ -53,36 +90,118 @@ export const keywordWorker = new Worker(
     const progressKey = `campaign:${campaignId}:progress`;
 
     const basicAuth = Buffer.from(`${LOGIN}:${PASSWORD}`).toString("base64");
-      const payload = [
-        {
-          keyword,
-          location_code,
-          language_name: language_code,
-          device,
-          se_domain,
-          target: `*${target}*`,
-        },
-      ];
-        try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${basicAuth}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-  if (!res.ok) {
-    const errorBody = await res.text();
-    throw new Error(
-      `❌ DataForSEO failed: ${res.status} - ${errorBody}`
-    );
-  }
-      const json: any = await res.json();
+      const rankPayload = [
+      {
+        keyword,
+        location_code,
+        language_name: language_code,
+        device,
+        se_domain,
+        target: `*${target}*`,
+      },
+    ];
+    const intentPayload = [
+      {
+        keyword: [keyword],
+        location_code,
+        language_name: language_code,
+        device,
+        se_domain,
+        target: `*${target}*`,
+      },
+    ];
+
+    try {
+      const [rankResponse, intentRankResponse] = await Promise.all([
+        fetch(rankEndpoint, {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${basicAuth}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rankPayload),
+        }),
+        fetch(intentEndpoint, {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${basicAuth}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(intentPayload),
+        }),
+      ]);
+
+      if (!rankResponse.ok) {
+        const errorBody = await rankResponse.text();
+        throw new Error(
+          `❌ DataForSEO failed: ${rankResponse.status} - ${errorBody}`
+        );
+      }
+
+      const [json, intentJson] = await Promise.all([
+        rankResponse.json(),
+        intentRankResponse.json(),
+      ]);
+
 
       const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
       const data = json?.tasks?.[0]?.data;
       const meta = json?.tasks?.[0]?.result?.[0];
+
+      
+      const intentTask = intentJson?.tasks?.[0];
+      const intentResult = intentTask?.result?.[0];
+      const intentItem = intentResult?.items?.[0];
+      const intent = intentItem?.keyword_intent?.label ?? "";
+
+      // 🔄 Fetch previous record
+      const prevKeywordTracking: any = await KeywordTracking.findOne({
+        keywordId,
+        campaignId,
+      });
+      const now = new Date();
+
+      // 🔄 Update pastData (6-month history)
+      const pastData = updatePastData(
+        prevKeywordTracking?.pastData || [],
+        item?.rank_group ?? 0
+      );
+
+      // 🔄 7-day rule
+      let rankChange = 0;
+      let changeDirection: "up" | "down" | "" = "";
+
+      const oldRank = prevKeywordTracking?.rank_group ?? 0;
+      const newRank = item?.rank_group ?? 0;
+
+      const lastUpdate = prevKeywordTracking?.lastUpdatedAt;
+      const daysSinceUpdate = lastUpdate
+        ? (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24)
+        : 999; // if no previous update → force
+
+      if (daysSinceUpdate >= 7) {
+        // ✅ Only update after 7+ days
+        const diff = oldRank - newRank;
+        if (oldRank > 0 && newRank > 0 && oldRank !== newRank) {
+          if (diff > 0) {
+            rankChange = diff;
+            changeDirection = "up";
+          } else {
+            rankChange = Math.abs(diff);
+            changeDirection = "down";
+          }
+        }
+      } else {
+        //  Less than 7 days → keep old values
+        rankChange = prevKeywordTracking?.rankChange ?? 0;
+        changeDirection = prevKeywordTracking?.changeDirection ?? "";
+      }
+
+      const lastUpdatedAt =
+        daysSinceUpdate >= 7
+          ? now
+          : (prevKeywordTracking?.lastUpdatedAt ?? now);
+
 
       await KeywordTracking.findOneAndUpdate(
         { keywordId, campaignId }, // filter
@@ -91,6 +210,7 @@ export const keywordWorker = new Worker(
             rank_group: item?.rank_group ?? 0,
             rank_absolute: item?.rank_absolute ?? 0,
             updatedAt: new Date(),
+             intent,
           },
           $setOnInsert: {
             keywordId,

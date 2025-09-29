@@ -44,7 +44,7 @@ type TablebodyItems = {
   status: number;
   keyword: string;
   location: string;
-  // intent: string;
+  intent: string;
   start: string;
   page: string;
   Group_Rank: string;

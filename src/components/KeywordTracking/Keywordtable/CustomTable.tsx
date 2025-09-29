@@ -468,7 +468,30 @@ const CustomTable = ({
                     {data.location}
                   </td>
                   <td className="text-center text-[12px] border p-3">
-                    {data.intent}
+                    <span
+                      className="px-2 py-1 rounded text-white text-xs cursor-default"
+                      title={data?.intent} // hover shows full string
+                      style={{
+                        backgroundColor: (() => {
+                          if (!data?.intent) return "#999"; // default gray
+                          const firstLetter = data.intent[0].toLowerCase(); // first letter only
+                          switch (firstLetter) {
+                            case "c": // commercial
+                              return "#f97510"; // orange
+                            case "i": // informational
+                              return "#3b82f6"; // blue
+                            case "n": // navigational
+                              return "#10b981"; // green
+                            case "t": // transactional
+                              return "#ef4444"; // red
+                            default:
+                              return "#fff"; // white
+                          }
+                        })(),
+                      }}
+                    >
+                      {data?.intent ? data.intent[0].toUpperCase() : "-"}
+                    </span>
                   </td>
 
                   {/* Editable start column */}

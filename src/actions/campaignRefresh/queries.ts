@@ -238,6 +238,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
           rank_absolute: item?.rank_absolute ?? 0,
           intent: intentData?.intentData ?? "",
           rankChange,
+          userId: user.id,
           changeDirection,
           lastUpdatedAt: now,
           updatedAt: now,

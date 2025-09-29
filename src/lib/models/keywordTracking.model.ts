@@ -16,6 +16,7 @@ interface IKeywordTracking extends Document {
   start?: number;
   checkUrl?: string;
   keywordsUp?: number;
+  userId:number
   top3?: number;
   top10?: number;
   top20?: number;

@@ -25,7 +25,7 @@ export function initTokens( campaignId: string, initialAccessToken: string, init
   tokenExpired = initialExpiry;
   compaignId = campaignId;
 
-  console.table({initialAccessToken,initialRefreshToken,initialExpiry,campaignId,table:"tableOKhia"},)
+  // console.table({initialAccessToken,initialRefreshToken,initialExpiry,campaignId,table:"tableOKhia"},)
 }
 
 /**

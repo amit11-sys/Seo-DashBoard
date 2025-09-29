@@ -608,6 +608,7 @@ export const updateKeywordById = async (updatedData: KeywordUpdateData) => {
           rank_group: item?.rank_group ?? 0,
           rank_absolute: item?.rank_absolute ?? 0,
           type: updatedData?.serpType,
+          userId: user?.id,
           location_code: meta?.location_code,
             language_code: meta?.language_code,
           url: item?.url.trim() || "no ranking",

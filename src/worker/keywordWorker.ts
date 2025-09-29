@@ -102,7 +102,7 @@ export const keywordWorker = new Worker(
     ];
     const intentPayload = [
       {
-        keyword: [keyword],
+        keywords: [keyword],
         location_code,
         language_name: language_code,
         device,
@@ -210,7 +210,7 @@ export const keywordWorker = new Worker(
             rank_group: item?.rank_group ?? 0,
             rank_absolute: item?.rank_absolute ?? 0,
             updatedAt: new Date(),
-             intent,
+            
           },
           $setOnInsert: {
             keywordId,
@@ -222,7 +222,7 @@ export const keywordWorker = new Worker(
             language_code: meta?.language_code,
             checkUrl: meta?.check_url ?? "no url",
             searchVolumn: 0,
-            intent: "",
+            intent,
             competition: 0,
             start: item?.rank_group ?? 0,
             userId: userId ?? null,

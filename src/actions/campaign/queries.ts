@@ -6,6 +6,7 @@ import KeywordTracking from "@/lib/models/keywordTracking.model";
 
 // import { fetchLocations } from "../KeywordsGmb/queries";
 import { refreshGoogleAccessToken } from "../googleConsole/queries";
+import { getListAnalyticsAccounts } from "../googleConsole";
 
 export const newCampaign = async (formData: any) => {
   try {
@@ -289,7 +290,7 @@ export const DbCompaignDataUpdate = async (
     if (!user) {
       return { error: "Unauthorized" };
     }
-
+      console.log(tokenResult, "tokenResultIN DB update");
     const {
       access_token,
       expires_in,
@@ -300,6 +301,8 @@ export const DbCompaignDataUpdate = async (
     // console.log(tokenResult, "tokenResultIN DB update");
 
     const now = Date.now();
+        const consoleAccountData = await getListAnalyticsAccounts(access_token);
+      console.log(consoleAccountData,'consoleAccountData')
 
     // convert to absolute timestamps (in ms)
     const googleAccessTokenExpiry = now + expires_in * 1000;
@@ -315,6 +318,7 @@ export const DbCompaignDataUpdate = async (
           googleRefreshToken: refresh_token,
           googleRefreshTokenExpiry: googleRefreshTokenExpiry,
           googleId_token: id_token,
+          consoleAccountData,
         },
       },
       { new: true }

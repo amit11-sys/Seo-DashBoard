@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
 
     // const propertyIDdata = await getGoogleAnalyticsPropertyID(accountIDdata?.webProperties[0].id, tokenResult?.access_token);
     // console.log(propertyIDdata,"propertyIDdata in googleLogin");
-    // You can store tokens in db or session here
+    // You can store tokens in db or session here 
 
     if (stateData?.analyticsData === true) {
       await setPropertyIdForDB(stateData.campaignId, tokenResult, projectUrl);

@@ -4,6 +4,7 @@ import {
   googleAnalyticsPropertyID,
   GoogleConsoleDataByDate,
   GoogleSearchDataByDimension,
+  listAnalyticsAccounts,
   refreshGoogleAccessToken,
 } from "./queries";
 
@@ -56,6 +57,11 @@ export const getGoogleAnalyticsAccountID = async (access_token: string,nameMatch
 };
 export const getGoogleAnalyticsPropertyID = async (access_token: string , accountId: string,nameMatch : string) => {
   const data = await googleAnalyticsPropertyID(access_token, accountId,nameMatch);
+
+  return data;
+};
+export const getListAnalyticsAccounts = async (access_token: string ) => {
+  const data = await listAnalyticsAccounts(access_token);
 
   return data;
 };

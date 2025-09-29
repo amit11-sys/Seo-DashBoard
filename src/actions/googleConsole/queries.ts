@@ -959,3 +959,30 @@ export async function fetchLocalKeywordData(targetUrl: string) {
 // console.log(results, "results in fetchLocalKeywordData");
   // return results;
 }
+
+
+
+
+
+
+
+
+export async function listAnalyticsAccounts(accessToken: string) {
+  const url = "https://analyticsadmin.googleapis.com/v1beta/accounts";
+
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Accept": "application/json",
+    },
+  });
+console.log(res,"res in listAnalyticsAccounts")
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Analytics API responded with ${res.status}: ${errText}`);
+  }
+
+  const body = await res.json();
+  return body;  // this should contain a list of accounts, etc.
+}

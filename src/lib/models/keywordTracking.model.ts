@@ -16,7 +16,7 @@ interface IKeywordTracking extends Document {
   start?: number;
   checkUrl?: string;
   keywordsUp?: number;
-  userId:number
+  userId:mongoose.Schema.Types.ObjectId;
   top3?: number;
   top10?: number;
   top20?: number;
@@ -52,6 +52,7 @@ const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
     top100: { type: Number },
     campaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
     keywordId: { type: mongoose.Schema.Types.ObjectId, ref: "Keyword" },
+     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: Number, default: 1 },
    
   },

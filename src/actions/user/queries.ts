@@ -11,6 +11,8 @@ import Campaign from "@/lib/models/campaign.model";
 
 export const newUserSignUp = async (formData: any) => {
   try {
+   
+    return( {error:"Registration is currently no allow. Please contact support for assistance."})
     await connectToDB();
     const { email, password } = formData;
 

@@ -305,8 +305,8 @@ export const DbCompaignDataUpdate = async (
     // console.log(tokenResult, "tokenResultIN DB update");
 
     const now = Date.now();
-    const consoleAccountData = await getListAnalyticsAccounts(access_token);
-    console.log(consoleAccountData, "consoleAccountData");
+    // const consoleAccountData = await getListAnalyticsAccounts(access_token);
+    // console.log(consoleAccountData, "consoleAccountData");
 
     // convert to absolute timestamps (in ms)
     const googleAccessTokenExpiry = now + expires_in * 1000;

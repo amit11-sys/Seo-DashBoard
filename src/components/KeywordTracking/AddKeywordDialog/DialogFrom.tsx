@@ -184,10 +184,10 @@ const debouncedFetch = useMemo(
     form.setValue("keywords", Keywords);
 // console.log(form.getValues(),"all value");
 
-    if (!isValid){
-      toast.error("Please fill all the fields")
-      return
-    }
+    // if (!isValid){
+    //   toast.error("Please fill all the fields")
+    //   return
+    // }
     if (Keywords.length === 0) {
       setKeywordError("Please enter at least one keyword.");
       return;
@@ -284,7 +284,7 @@ const debouncedFetch = useMemo(
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
 
-        // setDefaultUrl();
+        setDefaultUrl();
       }}
     >
       <DialogTrigger className="bg-gradient-to-r from-[#FE7743] to-[#d65d2d] text-white px-5 py-4 rounded-full text-sm font-medium shadow-md transition-all duration-200 transform hover:scale-105">

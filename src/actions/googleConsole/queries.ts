@@ -975,6 +975,8 @@ export const disableSearchConsole = async (campaignId: string) => {
           googleId_token: "",
           googleRefreshToken: "",
           googleRefreshTokenExpiry: "",
+          propertyId: "",
+          accountId: "",
         },
       },
       { new: true } 

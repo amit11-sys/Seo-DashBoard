@@ -964,6 +964,33 @@ export async function fetchLocalKeywordData(targetUrl: string) {
 
 
 
+export const disableSearchConsole = async (campaignId: string) => {
+  try {
+    const updatedCampaign = await Campaign.findByIdAndUpdate({
+      _id:campaignId},
+      {
+        $unset: {
+          googleAccessToken: "",
+          googleAccessTokenExpiry: "",
+          googleId_token: "",
+          googleRefreshToken: "",
+          googleRefreshTokenExpiry: "",
+        },
+      },
+      { new: true } 
+    );
+
+    if (!updatedCampaign) {
+      throw new Error("Campaign not found");
+    }
+
+    return { success: true, message: "Search console disabled", data: updatedCampaign };
+  } catch (error) {
+    console.error("Error disabling search console:", error);
+    throw error;
+  }
+};
+
 
 
 
@@ -977,12 +1004,11 @@ export async function listAnalyticsAccounts(accessToken: string) {
       "Accept": "application/json",
     },
   });
-console.log(res,"res in listAnalyticsAccounts")
   if (!res.ok) {
     const errText = await res.text();
     throw new Error(`Analytics API responded with ${res.status}: ${errText}`);
   }
 
   const body = await res.json();
-  return body;  // this should contain a list of accounts, etc.
+  return body; 
 }

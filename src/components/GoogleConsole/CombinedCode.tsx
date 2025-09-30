@@ -846,8 +846,8 @@ const DashboardStatsCompare = ({ analyticData }: Props) => {
     };
 
     return {
-      normalTotals: calcTotals(analyticData.normalData),
-      compareTotals: calcTotals(analyticData.compareData),
+      normalTotals: calcTotals(analyticData?.normalData),
+      compareTotals: calcTotals(analyticData?.compareData),
     };
   }, [analyticData]);
 

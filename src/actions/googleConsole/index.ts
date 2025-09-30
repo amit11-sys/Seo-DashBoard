@@ -1,4 +1,5 @@
 import {
+  disableSearchConsole,
   getAuthToken,
   googleAnalyticsAccountID,
   googleAnalyticsPropertyID,
@@ -62,6 +63,11 @@ export const getGoogleAnalyticsPropertyID = async (access_token: string , accoun
 };
 export const getListAnalyticsAccounts = async (access_token: string ) => {
   const data = await listAnalyticsAccounts(access_token);
+
+  return data;
+};
+export const getDisableSearchConsole = async (campaignId: string ) => {
+  const data = await disableSearchConsole(campaignId);
 
   return data;
 };

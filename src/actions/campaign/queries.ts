@@ -146,7 +146,10 @@ export const archivedCampaign = async () => {
       return { error: "Unauthorized please login" };
     }
 
-    const KeywordTrackingDataArchied = await Campaign.find({ status: 2 });
+    const KeywordTrackingDataArchied = await Campaign.find({
+      status: 2,
+      userId: user?.id,
+    });
 
     if (!KeywordTrackingDataArchied) {
       return { error: " Not Find Id Error while deleting campaign" };
@@ -257,6 +260,7 @@ export const CompaignCount = async () => {
 
     const campaignCount = await Campaign.find({
       status: { $in: [1, 2] },
+      userId: user?.id,
     });
     // console.log(campaignCount, "campaignCount");
     return {
@@ -290,7 +294,7 @@ export const DbCompaignDataUpdate = async (
     if (!user) {
       return { error: "Unauthorized" };
     }
-      console.log(tokenResult, "tokenResultIN DB update");
+    console.log(tokenResult, "tokenResultIN DB update");
     const {
       access_token,
       expires_in,
@@ -301,8 +305,8 @@ export const DbCompaignDataUpdate = async (
     // console.log(tokenResult, "tokenResultIN DB update");
 
     const now = Date.now();
-        const consoleAccountData = await getListAnalyticsAccounts(access_token);
-      console.log(consoleAccountData,'consoleAccountData')
+    const consoleAccountData = await getListAnalyticsAccounts(access_token);
+    console.log(consoleAccountData, "consoleAccountData");
 
     // convert to absolute timestamps (in ms)
     const googleAccessTokenExpiry = now + expires_in * 1000;
@@ -318,7 +322,7 @@ export const DbCompaignDataUpdate = async (
           googleRefreshToken: refresh_token,
           googleRefreshTokenExpiry: googleRefreshTokenExpiry,
           googleId_token: id_token,
-          consoleAccountData,
+          // consoleAccountData,
         },
       },
       { new: true }

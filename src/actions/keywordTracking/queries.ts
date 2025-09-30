@@ -691,7 +691,7 @@ export const DbTopLiveKeywordData = async () => {
       return { error: "Unauthorized please login" };
     }
 
-    const TopLiveKeywordDbData = await KeywordTracking.find({ status: 1 });
+    const TopLiveKeywordDbData = await KeywordTracking.find({ status: 1, userId: user?.id });
 
     // Format for card
     // console.log(TopLiveKeywordDbData, "TopLiveKeywordDbData");
@@ -721,8 +721,13 @@ export const DbKeywordStatusData = async (statusCode: number) => {
   try {
     await connectToDB();
 
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
+
     // 1. Get all campaigns with given status
-    const campaignDatastatus = await Campaign.find({ status: statusCode });
+    const campaignDatastatus = await Campaign.find({ status: statusCode, userId: user?.id });
 
     if (!campaignDatastatus || campaignDatastatus.length === 0) {
       return { error: "No campaigns found for given status." };

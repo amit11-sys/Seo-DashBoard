@@ -32,7 +32,7 @@ export const newUserSignUp = async (formData: any) => {
     const user = await User.create({
       email,
       password: hashedPassword,
-      role: 2,
+      role: 3,
     });
 
     if (!user) {
@@ -112,7 +112,9 @@ export const verifyUser = async (formData: any) => {
     if (!user) {
       return { error: "User does not exist." };
     }
-
+    if(user?.role!=2){
+      return { error: "You are not authorized to access this panel." };
+    }
     // Validate password
     const isPasswordValid = await isPasswordCorrect(password, user.password);
     if (!isPasswordValid) {

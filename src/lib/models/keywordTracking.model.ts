@@ -1,4 +1,8 @@
 import mongoose, { Document, Model } from "mongoose";
+interface IPastData {
+  month: string;
+  rank: number | string;
+}
 
 interface IKeywordTracking extends Document {
   type?: string;
@@ -16,7 +20,7 @@ interface IKeywordTracking extends Document {
   start?: number;
   checkUrl?: string;
   keywordsUp?: number;
-  userId:mongoose.Schema.Types.ObjectId;
+  userId: mongoose.Schema.Types.ObjectId;
   top3?: number;
   top10?: number;
   top20?: number;
@@ -25,12 +29,12 @@ interface IKeywordTracking extends Document {
   campaignId?: mongoose.Schema.Types.ObjectId;
   keywordId?: mongoose.Schema.Types.ObjectId;
   status?: number;
-   // 🔥 New fields for rank tracking
+  // 🔥 New fields for rank tracking
   rankChange?: number; // how many positions moved
   changeDirection?: "up" | "down"; // direction of movement
   lastUpdatedAt?: Date;
-  
-  
+  // 👇 new field
+  pastData?: IPastData[];
 }
 
 const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
@@ -57,16 +61,24 @@ const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
     top100: { type: Number },
     campaignId: { type: mongoose.Schema.Types.ObjectId, ref: "Campaign" },
     keywordId: { type: mongoose.Schema.Types.ObjectId, ref: "Keyword" },
-     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: Number, default: 1 },
-       // 🔥 New fields inside schema
+    // 🔥 New fields inside schema
     rankChange: { type: Number, default: null },
-    changeDirection: { type: String, enum: ["up", "down", null], default: null },
-    lastUpdatedAt: { type: Date, default: null } // new field
-
-   
+    changeDirection: {
+      type: String,
+      enum: ["up", "down", null],
+      default: null,
+    },
+    lastUpdatedAt: { type: Date, default: null }, // new field
+    pastData: [
+      {
+        month: { type: String, required: true },
+        rank: { type: mongoose.Schema.Types.Mixed, default: "-" }, // number | string
+      },
+    ],
   },
-   { timestamps: true }
+  { timestamps: true }
 );
 
 const KeywordTracking: Model<IKeywordTracking> =

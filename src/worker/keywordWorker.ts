@@ -204,7 +204,7 @@ export const keywordWorker = new Worker(
 
 
       await KeywordTracking.findOneAndUpdate(
-        { keywordId, campaignId }, // filter
+        { keywordId, campaignId }, 
         {
           $set: {
             rank_group: item?.rank_group ?? 0,
@@ -213,6 +213,7 @@ export const keywordWorker = new Worker(
              rankChange,
             changeDirection,
             lastUpdatedAt,
+            pastData,
             
           },
           $setOnInsert: {

@@ -27,18 +27,79 @@ if (!LOGIN || !PASSWORD) {
 const rankEndpoint = `${BASE}serp/google/organic/live/advanced`;
 const intentEndpoint = `${BASE}dataforseo_labs/google/search_intent/live`;
 
-function getLast6Months(currentRank: number | string = "-") {
-  const now = new Date();
-  const months: { month: string; rank: number | string }[] = [];
-  for (let i = 0; i < 6; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthName = d.toLocaleString("default", { month: "short" });
-    months.push({ month: monthName, rank: currentRank || "-" });
-  }
-  return months.reverse();
-}
+// function getLast6Months(currentRank: number | string = "-") {
+//   const now = new Date();
+//   const months: { month: string; rank: number | string }[] = [];
+//   for (let i = 0; i < 6; i++) {
+//     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+//     const monthName = d.toLocaleString("default", { month: "short" });
+//     months.push({ month: monthName, rank: currentRank || "-" });
+//   }
+//   return months.reverse();
+// }
 
 // ✅ helper: update pastData
+// function updatePastData(
+//   pastData: { month: string; rank: number | string }[] = [],
+//   newRank: number | string = "-"
+// ) {
+//   const now = new Date();
+//   const currentMonth = now.toLocaleString("default", { month: "short" });
+
+//   if (!pastData.length) return getLast6Months(newRank);
+
+//   const lastEntry = pastData[pastData.length - 1];
+
+//   if (lastEntry.month === currentMonth) {
+//     lastEntry.rank = newRank;
+//     return [...pastData];
+//   } else {
+//     const updated = [...pastData.slice(1)];
+//     updated.push({ month: currentMonth, rank: newRank });
+//     return updated;
+//   }
+// }
+
+
+// function getLast6Months(pastData: { month: string; rank: number | string }[] = []) {
+//   const now = new Date();
+//   const months: { month: string; rank: number | string }[] = [];
+
+//   for (let i = 5; i >= 0; i--) {
+//     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+//     const monthName = d.toLocaleString("default", { month: "short" });
+
+//     // check if pastData has a rank for this month
+//     const existing = pastData.find((p) => p.month === monthName);
+
+//     months.push({ month: monthName, rank: existing ? existing.rank : "-" });
+//   }
+
+//   return months;
+// }
+
+// ✅ Generate last 6 months aligned with pastData
+
+
+
+function getLast6MonthsForDisplay(pastData: { month: string; rank: number | string }[] = []) {
+  const now = new Date();
+  const months: { month: string; rank: number | string }[] = [];
+
+  // last 6 months, oldest first
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthName = d.toLocaleString("default", { month: "short" });
+
+    // find rank for this month if exists
+    const existing = pastData.find((p) => p.month === monthName);
+    months.push({ month: monthName, rank: existing ? existing.rank : "-" });
+  }
+
+  return months;
+}
+
+// ✅ Update pastData for current month only
 function updatePastData(
   pastData: { month: string; rank: number | string }[] = [],
   newRank: number | string = "-"
@@ -46,19 +107,18 @@ function updatePastData(
   const now = new Date();
   const currentMonth = now.toLocaleString("default", { month: "short" });
 
-  if (!pastData.length) return getLast6Months(newRank);
+  const updatedData = [...pastData];
+  const existingIndex = updatedData.findIndex((p) => p.month === currentMonth);
 
-  const lastEntry = pastData[pastData.length - 1];
-
-  if (lastEntry.month === currentMonth) {
-    lastEntry.rank = newRank;
-    return [...pastData];
+  if (existingIndex !== -1) {
+    updatedData[existingIndex].rank = newRank;
   } else {
-    const updated = [...pastData.slice(1)];
-    updated.push({ month: currentMonth, rank: newRank });
-    return updated;
+    updatedData.push({ month: currentMonth, rank: newRank });
   }
+
+  return updatedData;
 }
+
 
 
 export const keywordWorker = new Worker(
@@ -162,10 +222,15 @@ export const keywordWorker = new Worker(
       const now = new Date();
 
       // 🔄 Update pastData (6-month history)
-      const pastData = updatePastData(
-        prevKeywordTracking?.pastData || [],
-        item?.rank_group ?? 0
-      );
+      // const pastData = updatePastData(
+      //   prevKeywordTracking?.pastData || [],
+      //   item?.rank_group ?? 0
+      // );
+
+let pastData:any = [];
+pastData = updatePastData(prevKeywordTracking?.pastData || pastData, 5); // Oct rank = 5
+console.log(getLast6MonthsForDisplay(pastData),"pastData");
+
 
       // 🔄 7-day rule
       let rankChange = 0;

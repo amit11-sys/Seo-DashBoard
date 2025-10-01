@@ -25,6 +25,11 @@ interface IKeywordTracking extends Document {
   campaignId?: mongoose.Schema.Types.ObjectId;
   keywordId?: mongoose.Schema.Types.ObjectId;
   status?: number;
+   // 🔥 New fields for rank tracking
+  rankChange?: number; // how many positions moved
+  changeDirection?: "up" | "down"; // direction of movement
+  lastUpdatedAt?: Date;
+  
   
 }
 
@@ -54,6 +59,11 @@ const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
     keywordId: { type: mongoose.Schema.Types.ObjectId, ref: "Keyword" },
      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     status: { type: Number, default: 1 },
+       // 🔥 New fields inside schema
+    rankChange: { type: Number, default: null },
+    changeDirection: { type: String, enum: ["up", "down", null], default: null },
+    lastUpdatedAt: { type: Date, default: null } // new field
+
    
   },
    { timestamps: true }

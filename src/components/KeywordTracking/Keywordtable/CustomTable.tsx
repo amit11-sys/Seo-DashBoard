@@ -3,6 +3,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import KeywordEdit from "./KeywordEdit";
 import DeleteConfirm from "./KeywordDel";
+import { TiArrowUp,TiArrowDown  } from "react-icons/ti";
 
 import {
   getDbLiveKeywordData,
@@ -44,7 +45,8 @@ interface TablebodyItems {
   Group_Rank: string;
   checkUrl: string;
   // oneDay: string;
-  sevenDays: string;
+  sevenDays: number;
+  changeDirection: string;
   // thirtyDays: string;
   life: string;
   comp: any;
@@ -73,7 +75,7 @@ interface CustomTableProps {
   setFilterCampaignLiveKeywordsData?: any;
   locationFilter: string;
   setLocationFilter: React.Dispatch<React.SetStateAction<string>>;
-  getKeywordData:()=>void
+  getKeywordData: () => void;
 }
 
 const CustomTable = ({
@@ -94,7 +96,7 @@ const CustomTable = ({
   // fetchCardDatafilterLocation,
   locationFilter,
   setLocationFilter,
-  getKeywordData
+  getKeywordData,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const { startLoading, stopLoading } = useLoader();
@@ -264,7 +266,7 @@ const CustomTable = ({
       const res = await deleteKeywordData(selectedKeywords);
       if (res.success) {
         toast.success("Keyword(s) deleted successfully");
-        getKeywordData()
+        getKeywordData();
       } else {
         toast.error(res.error || "Failed to delete keyword");
       }
@@ -530,7 +532,23 @@ const CustomTable = ({
                     {data.Group_Rank}
                   </td>
                   <td className="text-center text-[12px] border p-1">
-                    {data.sevenDays}
+                    {data?.sevenDays === 0 && "-"}
+
+                    {/* ✅ if improved */}
+                    {data.changeDirection === "up" && (
+                      <span className="inline-flex items-center ml-1 text-green-500 text-[15px]">
+                        {data.sevenDays}
+                        <TiArrowUp className="ml-0.5" />
+                      </span>
+                    )}
+
+                    {/* ✅ if dropped */}
+                    {data.changeDirection === "down" && (
+                      <span className="inline-flex items-center ml-1 text-red-500 text-[15px]">
+                        {data.sevenDays}
+                        <TiArrowDown className="ml-0.5" />
+                      </span>
+                    )}
                   </td>
                   <td className="text-center text-[12px] border p-1">
                     {data.life}

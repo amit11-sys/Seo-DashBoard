@@ -200,7 +200,7 @@ export const keywordWorker = new Worker(
       const lastUpdatedAt =
         daysSinceUpdate >= 7
           ? now
-          : (prevKeywordTracking?.lastUpdatedAt ?? now);
+          : (prevKeywordTracking?.lastUpdatedAt);
 
 
       await KeywordTracking.findOneAndUpdate(
@@ -210,6 +210,9 @@ export const keywordWorker = new Worker(
             rank_group: item?.rank_group ?? 0,
             rank_absolute: item?.rank_absolute ?? 0,
             updatedAt: new Date(),
+             rankChange,
+            changeDirection,
+            lastUpdatedAt,
             
           },
           $setOnInsert: {

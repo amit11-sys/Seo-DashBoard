@@ -3,11 +3,7 @@ import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
-import {
-  getKewordRank,
-  getRankIntent,
-
-} from "../keyword/queries";
+import { getKewordRank, getRankIntent } from "../keyword/queries";
 import { getRedis } from "@/lib/redis";
 import { keywordQueue } from "@/lib/queue/keywordQueue";
 import Campaign from "@/lib/models/campaign.model";
@@ -56,7 +52,7 @@ interface ErrorResponse {
 //     const rankdata = await getKewordRank(singleKeywordForUpdate);
 //     // const intentData = await getRankIntent([singleKeywordForUpdate]);
 
-//     // 
+//     //
 //     // console.log(intentData?.intentResponses, "intent data add");
 
 //     // build finalData (unchanged)
@@ -120,7 +116,7 @@ interface ErrorResponse {
 //     // const json: any = await rankdata.json();
 //     // console.log(rankdata, "rankdata single");
 //     // console.log(rankdata?.result?.tasks?.[0], "coming undefined");
-    
+
 //     const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
 //     const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
 //       { keywordId },
@@ -161,8 +157,6 @@ interface ErrorResponse {
 //   }
 // };
 
-
-
 export const RefreshSingleKeyword = async (keywordId: string) => {
   try {
     await connectToDB();
@@ -177,16 +171,26 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     if (!singleKeywordForUpdate) {
       return { error: "Keyword not found" };
     }
+    const prevKeywordintent: any = await KeywordTracking.findOne({
+      keywordId,
+    });
 
     const rankdata = await getKewordRank(singleKeywordForUpdate);
-    const intentData = await getRankIntent([singleKeywordForUpdate]);
+    let intentRank = "";
+    if (!prevKeywordintent.intent) {
+      const intentData = await getRankIntent([singleKeywordForUpdate]);
+
+      intentRank = intentData?.intentData;
+    }
 
     const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
-    console.log(rankdata?.result?.tasks?.[0],"rankdata single");
-    console.log(item,"rankdata items");
+    console.log(rankdata?.result?.tasks?.[0], "rankdata single");
+    console.log(item, "rankdata items");
 
     // 🔄 Fetch previous keyword tracking
-    const prevKeywordTracking:any = await KeywordTracking.findOne({ keywordId });
+    const prevKeywordTracking: any = await KeywordTracking.findOne({
+      keywordId,
+    });
     const now = new Date();
 
     // 🟢 Seven-days rank change calculation
@@ -194,6 +198,8 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     let changeDirection: "up" | "down" | "" = "";
 
     const newRankGroup = item?.rank_group ?? 0;
+
+    let newLastUpdatedAt = prevKeywordTracking?.lastUpdatedAt ?? now;
 
     if (prevKeywordTracking) {
       const oldRank = prevKeywordTracking?.rank_group ?? 0;
@@ -203,7 +209,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
         : 999;
 
       if (daysSinceUpdate >= 7) {
-        // Only update rankChange if 7+ days passed
+        newLastUpdatedAt = now; // ✅ always bump when 7+ days passed
         const diff = oldRank - newRankGroup;
         if (oldRank > 0 && newRankGroup > 0 && oldRank !== newRankGroup) {
           if (diff > 0) {
@@ -214,12 +220,10 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
             changeDirection = "down";
           }
         }
-        prevKeywordTracking.lastUpdatedAt = now;
       } else {
-        // Less than 7 days → keep previous values
+        // Keep previous values
         rankChange = prevKeywordTracking.rankChange ?? 0;
         changeDirection = prevKeywordTracking.changeDirection ?? "";
-        prevKeywordTracking.lastUpdatedAt = prevKeywordTracking.lastUpdatedAt ?? now;
       }
     } else {
       // No previous record
@@ -229,18 +233,17 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
       }
     }
 
-    // 💾 Update keyword tracking
     const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
       { keywordId },
       {
         $set: {
           rank_group: newRankGroup,
           rank_absolute: item?.rank_absolute ?? 0,
-          intent: intentData?.intentData ?? "",
+          intent: intentRank || prevKeywordintent?.intent,
           rankChange,
           userId: user.id,
           changeDirection,
-          lastUpdatedAt: now,
+          lastUpdatedAt: newLastUpdatedAt,
           updatedAt: now,
         },
         $setOnInsert: { createdAt: now },
@@ -258,7 +261,6 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     return { error: "Internal Server Error." };
   }
 };
-
 
 export async function refreshAddedKeywords(campaignId: string) {
   try {
@@ -301,7 +303,6 @@ export async function refreshAddedKeywords(campaignId: string) {
           location_code: kw.searchLocationCode,
           language_code: kw.language,
           target: kw.url,
-
           device: kw.deviceType,
           se_domain: kw.SearchEngine,
           campaignId: campaignId,

@@ -1,3 +1,4 @@
+
 import {
   LineChart,
   Line,
@@ -8,24 +9,57 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const FancyDualAxisChart = ({ data }: any) => {
+type DateWiseRow = {
+  keys?: string[]; // ["2024-09-17"]
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+  date?: string; // in case you already flatten it somewhere else
+};
+
+type ChartPayload = {
+  dateWise?: DateWiseRow[];
+  monthWise?: any[];
+} | DateWiseRow[];
+
+const FancyDualAxisChart = ({ data }: { data: ChartPayload }) => {
   const [isVisible, setIsVisible] = useState(false);
+
+  // Normalize your input into the shape Recharts expects
+  const chartData = useMemo(() => {
+    // if the prop is the plain array
+    const rows: DateWiseRow[] = Array.isArray(data)
+      ? data
+      : (data?.dateWise ?? []);
+
+    return rows.map((r) => ({
+      date: r.date ?? r.keys?.[0] ?? "", // prefer r.date, fallback to keys[0]
+      Clicks: r.clicks,
+      Impression: r.impressions,
+    }));
+  }, [data]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
+  if (!chartData?.length) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center rounded-xl border border-dashed text-gray-500">
+        No data to display
+      </div>
+    );
+  }
+
   return (
     <div
       className={`w-full rounded-xl shadow-lg p-4 overflow-hidden transform transition-all duration-700 relative ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       }`}
-      // style={{
-      //   background: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #34D399 100%)",
-      // }}
     >
       {/* Semi-transparent white overlay to make chart readable */}
       <div className="absolute inset-0 bg-white bg-opacity-80 rounded-xl backdrop-blur-sm"></div>
@@ -37,7 +71,7 @@ const FancyDualAxisChart = ({ data }: any) => {
 
         <ResponsiveContainer width="100%" height={400}>
           <LineChart
-            data={data}
+            data={chartData}
             margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
           >
             <defs>
@@ -82,8 +116,8 @@ const FancyDualAxisChart = ({ data }: any) => {
               type="monotone"
               dataKey="Clicks"
               stroke="url(#colorClicksLine)"
-              strokeWidth={3}
-              dot={{ r: 5, fill: "#6366F1" }}
+              strokeWidth={1}
+              dot={{ r: 4, fill: "#6366F1" }}
               activeDot={{ r: 8 }}
             />
             <Line
@@ -91,8 +125,8 @@ const FancyDualAxisChart = ({ data }: any) => {
               type="monotone"
               dataKey="Impression"
               stroke="url(#colorImpressionsLine)"
-              strokeWidth={3}
-              dot={{ r: 5, fill: "#34D399" }}
+              strokeWidth={1}
+              dot={{ r: 4, fill: "#34D399" }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -102,4 +136,3 @@ const FancyDualAxisChart = ({ data }: any) => {
 };
 
 export default FancyDualAxisChart;
-

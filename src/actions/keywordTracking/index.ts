@@ -1,13 +1,5 @@
 import { createKeywordTracking, DbKeywordStatusData, DbLiveKeywordData, DbLiveKeywordDataWithSatusCode, DbTopLiveKeywordData, editDataFetchDb, fetchDBlocationData, firstCompaignData, getKeywordLiveData, getStartData, getUserKeywordData, LiveKeywordDatabyKeyID } from "./queries";
 
-// export const createNewKeywordTrackingData = async (keywordData: any) => {
-//   console.log(keywordData,"ok")
-  
-//   const KeywordTracking = await createKeywordTracking(keywordData);
-
-//   // console.log(KeywordTracking,"from index")
-//   return KeywordTracking;
-// };
 
 export const getTrackingData=async (newCompaignId:any)=>{
   const getKeywordData= await getUserKeywordData(newCompaignId) 
@@ -53,3 +45,4 @@ export const getDbKeywordStatusData =async (statusCode:number)=>{
   const data= await DbKeywordStatusData(statusCode) 
   return data
 }
+

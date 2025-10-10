@@ -1,26 +1,28 @@
-import { getDbLiveKeywordData, getDbLiveKeywordDataWithSatusCode } from "@/actions/keywordTracking";
+import { getDbLiveKeywordDataWithSatusCode } from "@/actions/keywordTracking";
 import Navbar from "@/components/Common/Navbar";
 import Header from "@/components/Common/Header";
 import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
-import { redirect } from "next/navigation";
+import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
+import Footer from "@/components/Common/Footer";
 
 export default async function DashboardDetails({
   params,
 }: {
-  params: { campaignId: string};
+  params: { campaignId: string };
 }) {
-  const { campaignId } =  params;
+  const { campaignId } = params;
   const campignDataWithId = await getGetCampaignByid(campaignId);
   const campaignStatus = campignDataWithId?.campaign?.status;
-  
-  const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(campaignId, campaignStatus);
+
+  const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
+    campaignId,
+    campaignStatus
+  );
   // console.log(campaignStatus, "campaignStatus");
 
   const archivedCampaignData = await getArchivedCampaign();
-
-
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
@@ -44,13 +46,20 @@ export default async function DashboardDetails({
             topRankData={campaignLiveKeywordsData.topRankData}
             campaignId={campaignId}
           />
-          
 
+          <SearchConsoleData
+            // consoleRef={consoleRef}
+            // setPdfChartData={setPdfChartData}
+            //   handleGeneratePDF={handleGeneratePDF}
+            campaignId={campaignId}
+            // setPdfTableConsoleData={setPdfTableConsoleData}
+          />
           <LiveKeywordComponent
-          campaignStatus={campaignStatus}
+            campaignStatus={campaignStatus}
             // campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}
           />
+          <Footer/>
         </main>
       </div>
     </section>

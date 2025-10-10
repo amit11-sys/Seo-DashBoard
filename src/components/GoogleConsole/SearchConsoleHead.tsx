@@ -14,7 +14,7 @@ export default function SearchConsoleHead() {
         <div>
           <div className="font-bold text-4xl">Search Console</div>
           <div className="text-gray-500 text-sm">
-            Last Updated: 2 hours ago (Jun 30, 2025)
+            {/* Last Updated: 2 hours ago (Jun 30, 2025) */}
           </div>
         </div>
         <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />

@@ -5,8 +5,8 @@ import {
   googleAnalyticsPropertyID,
   GoogleConsoleDataByDate,
   GoogleSearchDataByDimension,
-  listAnalyticsAccounts,
-  refreshGoogleAccessToken,
+  listConsoleAccounts,
+  // refreshGoogleAccessToken,
 } from "./queries";
 
 export const googleAuthHandler = async (code: any) => {
@@ -46,12 +46,12 @@ export const getGoogleSearchDataByDimension = async (newCompaignId: any,dimensio
   return data;
 };
           
-export const getRefreshGoogleAccessToken = async (newCompaignId: string) => {
-  const data = await refreshGoogleAccessToken(newCompaignId);
+// export const getRefreshGoogleAccessToken = async (newCompaignId: string) => {
+//   const data = await refreshGoogleAccessToken(newCompaignId);
 
-  return data;
-};
-export const getGoogleAnalyticsAccountID = async (access_token: string,nameMatch : string) => {
+//   return data;
+// };
+export const getGoogleAnalyticsAccountID = async (access_token: string,nameMatch? : string) => {
   const data = await googleAnalyticsAccountID(access_token,nameMatch);
 
   return data;
@@ -61,8 +61,8 @@ export const getGoogleAnalyticsPropertyID = async (access_token: string , accoun
 
   return data;
 };
-export const getListAnalyticsAccounts = async (access_token: string ) => {
-  const data = await listAnalyticsAccounts(access_token);
+export const getListConsoleAccounts = async (access_token: string ) => {
+  const data = await listConsoleAccounts(access_token);
 
   return data;
 };

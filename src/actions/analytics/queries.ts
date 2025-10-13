@@ -3,6 +3,11 @@ import { getGetCampaignByid } from "../campaign";
 import { connectToDB } from "@/lib/db";
 import { getUserFromToken } from "@/app/utils/auth";
 import Campaign from "@/lib/models/campaign.model";
+import GoogleAccount from "@/lib/models/googleAccount.model";
+import GoogleSites from "@/lib/models/gscSites.model";
+import GoogleProperty from "@/lib/models/ga4Properties.model";
+import { getCampaignDataWithGoogleData } from "../google";
+import { updateGoogleAccessToken } from "../google/queries";
 
 export const fetchLievKeyword = async (url: string) => {
   const username = process.env.NEXT_PUBLIC_DATAFORSEO_USERNAME!;
@@ -28,8 +33,7 @@ export const fetchLievKeyword = async (url: string) => {
 
   try {
     const res = await fetch(
-     
-       `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/regular"}`,
+      `${process.env.NEXT_PUBLIC_DATAFORSEO_URL}${"serp/google/organic/live/regular"}`,
       {
         method: "POST",
         headers: {
@@ -55,8 +59,6 @@ export const fetchLievKeyword = async (url: string) => {
   }
 };
 
-
-
 interface GoogleAnalyticsAccount {
   name: string; // e.g. "accounts/8095231"
   createTime: string;
@@ -76,9 +78,6 @@ type AccountItem = {
   displayName: string;
   region: string;
 };
-
-
-
 
 function normalizeString(str: string = ""): string {
   return str.toLowerCase().replace(/\s+/g, ""); // lowercase + remove spaces
@@ -120,7 +119,6 @@ export async function googleAnalyticsAccountID(
     // console.log(nameMatch, "nameMatch in googleAnalyticsAccountID");
     // console.log(access_token, "access_token in googleAnalyticsAccountID");
     const res = await fetch(
-  
       `${process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}accounts`,
       {
         method: "GET",
@@ -134,7 +132,7 @@ export async function googleAnalyticsAccountID(
     // console.table({ access_token, nameMatch });
     const AccountIdData: any = await res.json();
     // console.log(AccountIdData, "AccountIdData");
-// 
+    //
     const accountsData: SimplifiedAccount[] = AccountIdData?.accounts?.map(
       (acc: { name: string; displayName: string; regionCode: string }) => ({
         accountId: acc?.name.split("/")[1],
@@ -147,12 +145,15 @@ export async function googleAnalyticsAccountID(
     const nameMatchRefined = refineUrl(nameMatch);
     // console.log(nameMatchRefined, "nameMatchRefined");
 
-    const matchForAcountId = findMatchingAccounts(accountsData, nameMatchRefined);
+    const matchForAcountId = findMatchingAccounts(
+      accountsData,
+      nameMatchRefined
+    );
 
     // console.log(matchForAcountId, "matchForAcountId");
 
     const accountId = matchForAcountId[0]?.accountId;
-    const accountName = matchForAcountId[0]?.displayName; 
+    const accountName = matchForAcountId[0]?.displayName;
     return {
       accountId,
       accountName,
@@ -184,11 +185,7 @@ function findMatchingProperty(
   nameMatch: string
 ): Property[] {
   // Split into individual words (ignoring spaces and case)
-  const words = nameMatch
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean);
+  const words = nameMatch.trim().toLowerCase().split(/\s+/).filter(Boolean);
 
   return properties.filter((property) => {
     const normalizedDisplayName = property.displayName.toLowerCase();
@@ -200,7 +197,6 @@ function findMatchingProperty(
     );
   });
 }
-
 
 // export async function googleAnalyticsPropertyID(
 //   accountId: string,
@@ -270,13 +266,7 @@ function findMatchingProperty(
 // //   }
 // // ] consoleLog propertiesId
 
-
-
 // //match displayname with nameMatch
-   
-
-
- 
 
 //     return propertiesDataID;
 //   } catch (error: unknown) {
@@ -301,10 +291,9 @@ export async function googleAnalyticsPropertyID(
       throw new Error("Account ID and access token are required");
     }
 
-    const url = new URL(
-      `${process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}properties`
-    );
-    url.searchParams.append("filter", `parent:accounts/${accountId}`);
+    const url = new URL(`${process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}properties`);
+    // url.searchParams.append("filter", `parent:accounts/${accountId}`);
+    url.searchParams.append("filter", `parent:${accountId}`);
 
     const response = await fetch(url.toString(), {
       method: "GET",
@@ -333,21 +322,19 @@ export async function googleAnalyticsPropertyID(
       displayName: prop.displayName,
       parent: prop.parent,
     }));
-      //  console.log(properties,"okkkidd");
- const search = nameMatch.trim().toLowerCase();
-const propertiesDataID = properties[0]?.name ?? "";
-// {
-//   name: 'properties/424145640',
-//   displayName: 'SEO Quartz',
-//   parent: 'accounts/299633390'
-// } loopproperty
-// {
-//   name: 'properties/468876035',
-//   displayName: 'Health Connect Daily',
-//   parent: 'accounts/299633390'
-// } loopproperty
-
-
+    //  console.log(properties,"okkkidd");
+    const search = nameMatch.trim().toLowerCase();
+    const propertiesDataID = properties[0]?.name ?? "";
+    // {
+    //   name: 'properties/424145640',
+    //   displayName: 'SEO Quartz',
+    //   parent: 'accounts/299633390'
+    // } loopproperty
+    // {
+    //   name: 'properties/468876035',
+    //   displayName: 'Health Connect Daily',
+    //   parent: 'accounts/299633390'
+    // } loopproperty
 
     // console.log(propertiesDataID, "okoookID");
 
@@ -360,6 +347,186 @@ const propertiesDataID = properties[0]?.name ?? "";
   }
 }
 
+export const FetchGoogleAnalyticsData = async (
+  integrationType: string,
+  selectedGmail: string
+) => {
+  try {
+    await connectToDB();
+
+    // 1️⃣ Get token for this Gmail
+    const tokensDetails = await GoogleAccount.findOne({
+      googleEmail: selectedGmail,
+    });
+    if (!tokensDetails?.googleAccessToken) {
+      throw new Error("No access token found for this Gmail");
+    }
+
+    // 2️⃣ Fetch account list from Google
+    // let accountAnalyticsData: any = {};
+    // if (integrationType === "gsc" || integrationType === "ga") {
+    let accountAnalyticsData = await listAnalyticsAccounts(
+      tokensDetails.googleAccessToken
+    );
+    // }
+
+    // if (
+    //   !accountConsoleData?.siteEntry ||
+    //   !Array.isArray(accountConsoleData.siteEntry) ||
+    //   accountConsoleData.siteEntry.length === 0
+    // ) {
+    //   throw new Error("No account data found from Google API");
+    // }
+
+    // 3️⃣ Fetch all campaigns from DB
+    const campaigns = await Campaign.find();
+
+    // 4️⃣ Helper function to normalize URLs
+    const normalizeUrl = (url: string) =>
+      url
+        ?.toLowerCase()
+        .replace(/^https?:\/\//, "") // remove http:// or https://
+        .replace(/^www\./, "") // remove www.
+        .replace(/\/$/, ""); // remove trailing slash
+
+    // 5️⃣ Match each campaign’s projectUrl with siteEntry.siteUrl
+    const matchedCampaigns = campaigns
+      .map((campaign: any) => {
+        const projectUrls = Array.isArray(campaign.projectUrl)
+          ? campaign.projectUrl
+          : campaign.projectUrl
+            ? [campaign.projectUrl]
+            : [];
+
+        const normalizedProjectUrls = projectUrls.map(normalizeUrl);
+
+        const matchingAccounts = accountAnalyticsData.accounts.filter(
+          (account: any) => {
+            const normalizedSiteUrl = normalizeUrl(account.displayName || "");
+
+            // ✅ Compare normalized URLs (either contains the other)
+            return normalizedProjectUrls.some(
+              (url: string) =>
+                normalizedSiteUrl.includes(url) ||
+                url.includes(normalizedSiteUrl)
+            );
+          }
+        );
+
+        // Keep only campaigns that actually matched
+        if (matchingAccounts.length > 0) {
+          return {
+            campaignId: campaign._id,
+            campaignName: campaign.campaignName || "Unnamed Campaign",
+            projectUrls,
+            matchingAccounts,
+          };
+        }
+
+        return null;
+      })
+      .filter(Boolean);
+
+    // 6️⃣ Return final result
+    return {
+      success: true,
+      message: "Successfully fetched Google data and matched campaigns",
+      data: {
+        gmail: selectedGmail,
+        integrationType,
+        matchedCampaigns,
+        accountAnalyticsData,
+      },
+    };
+  } catch (error: any) {
+    console.error("Error fetching Google login details:", error);
+    return {
+      success: false,
+      message: error.message || "Error fetching Gmail login details",
+    };
+  }
+};
+
+export const SaveGoogleAnalyticsData = async (
+  displayName: string,
+  RawAccountId: string,
+  googleEmail: string,
+  campaignId: string
+) => {
+  try {
+    await connectToDB();
+    const extractAccountNumber = (accountName: string): string => {
+      const match = accountName.match(/\d+$/);
+      return match ? match[0] : "";
+    };
+
+    const accountId = extractAccountNumber(RawAccountId);
+
+    const googleAccount = await GoogleAccount.findOne({ googleEmail });
+    if (!googleAccount) {
+      throw new Error("Google Account not found for this email");
+    }
+
+    // const testing:any = await getCampaignDataWithGoogleData(campaignId);
+    // console.log(testing?.campaignWithAccountData?.projectUrl,"googleTestingDataokok")
+    // const campaignGoogleData: any = await getValidGoogleToken(campaignId);
+    // const access_token = googleAccount?.googleAccessToken;
+    // const campaignUrl = testing?.campaignWithAccountData?.projectUrl;
+
+    const tokenData = await updateGoogleAccessToken(
+      googleAccount.googleAccessToken,
+      googleAccount.googleRefreshToken,
+      googleAccount.googleAccessTokenExpiry
+    );
+
+    const propertiesID = await googleAnalyticsPropertyID(
+      RawAccountId,
+      tokenData.data?.access_token,
+      displayName
+    );
+    console.log(propertiesID, "propertiesID in propertyId");
+
+    const propertyId = extractAccountNumber(propertiesID);
+    const googleAnalyticsData = await GoogleProperty.findOne({ displayName });
+
+    if (!googleAnalyticsData?.displayName) {
+      const googleAnalticsData = await GoogleProperty.create({
+        displayName,
+        accountId,
+        propertyId,
+        googleAccountId: googleAccount._id,
+      });
+
+      // set campaign id to google account
+      await Campaign.findByIdAndUpdate(
+        { _id: campaignId },
+        { $set: { gaPropertyId: googleAnalticsData._id } }
+      );
+
+      if (!googleAnalticsData) {
+        throw new Error("Failed to save Google console details");
+      }
+
+      return {
+        success: true,
+        message: "Successfully saved Google analytics details",
+        googleAnalticsData,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Successfully saved Google console details",
+      googleAnalyticsData,
+    };
+  } catch (error) {
+    console.error("Error saving Google console details:", error);
+    return {
+      success: false,
+      error: "Error saving Google console details",
+    };
+  }
+};
 
 // export async function AnalyticsData(access_token: string, propertyId: string) {
 //   //   function extractPropertyId(rawpropertiesID: string): string {
@@ -393,7 +560,6 @@ const propertiesDataID = properties[0]?.name ?? "";
 //     //     // { name: "totalRevenue" },
 //     //   ],
 //     // };
-
 
 //     const getUserPayload = {
 //       dateRanges: [
@@ -510,10 +676,41 @@ const propertiesDataID = properties[0]?.name ?? "";
 //   }
 // }
 
+export async function AnalyticsData(
+  // access_token: string,
+  date: any,
+  // propertyId: string,
+  campaignId: string
+) {
 
+    
+       const campaignWithAccountData: any = await Campaign.findById(campaignId)
+            .populate({
+              path: "gaPropertyId",
+              model: "GoogleProperty",
+              populate: {
+                path: "googleAccountId",
+                model: "GoogleAccount",
+              },
+            })
+            .lean();
+                const googleAccount = campaignWithAccountData?.gaPropertyId?.googleAccountId;
+                const propertiesID = Number(campaignWithAccountData?.gaPropertyId?.propertyId);
 
-export async function AnalyticsData(access_token: string,date:any , propertyId: string,campaignId:string) {
-       
+            
+    const {
+      googleAccessToken,
+      googleAccessTokenExpiry,
+      googleRefreshToken,
+      googleEmail,
+    } = googleAccount;
+
+      const tokenData = await updateGoogleAccessToken(
+      googleAccessToken,
+      googleRefreshToken,
+      googleAccessTokenExpiry
+    );
+
 
   const today1 = new Date();
   const todayFormatted = today1.toISOString().split("T")[0];
@@ -529,8 +726,8 @@ export async function AnalyticsData(access_token: string,date:any , propertyId: 
   //   dimensions: ["date"],
   // };
 
-  if(propertyId === null || propertyId === undefined) return null;
-  const baseUrl = `${process.env.NEXT_PUBLIC_ANALYTICS_DATA}properties/${propertyId}:runReport`;
+  if (propertiesID === null || propertiesID === undefined) return null;
+  const baseUrl = `${process.env.NEXT_PUBLIC_ANALYTICS_DATA}properties/${propertiesID}:runReport`;
 
   // Define all the payloads to loop through
   // const payloads: { name: string; payload: any }[] = [
@@ -576,161 +773,161 @@ export async function AnalyticsData(access_token: string,date:any , propertyId: 
   // ];
 
   // Suppose you have startDate and endDate as strings in YYYY-MM-DD format
-const startDate = date.startDate || threeMonthsAgoFormatted;
-const endDate = date.endDate || todayFormatted;
-const prevStartDate = date?.compare?.startDate || "" ;
-const prevEndDate =date?.compare?.endDate || "" ;
+  const startDate = date.startDate || threeMonthsAgoFormatted;
+  const endDate = date.endDate || todayFormatted;
+  const prevStartDate = date?.compare?.startDate || "";
+  const prevEndDate = date?.compare?.endDate || "";
 
+  let payloads: { name: string; payload: any }[]; // declare with type
 
-let payloads: { name: string; payload: any }[]; // declare with type
-
-if (date.compare === undefined) {
-  payloads = [
-    {
-      name: "getUserData",
-      payload: {
-        dateRanges: [{ startDate, endDate }], // current selection
-        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
-        metrics: [
-          { name: "sessions" },
-          { name: "activeUsers" },
-          { name: "newUsers" },
-          { name: "averageSessionDuration" },
-          { name: "userEngagementDuration" },
-        ],
+  if (date.compare === undefined) {
+    payloads = [
+      {
+        name: "getUserData",
+        payload: {
+          dateRanges: [{ startDate, endDate }], // current selection
+          dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+          metrics: [
+            { name: "sessions" },
+            { name: "activeUsers" },
+            { name: "newUsers" },
+            { name: "averageSessionDuration" },
+            { name: "userEngagementDuration" },
+          ],
+        },
       },
-    },
-    {
-      name: "countryData",
-      payload: {
-        dateRanges: [{ startDate, endDate }],
-        dimensions: [{ name: "country" }],
-        metrics: [{ name: "activeUsers" }],
+      {
+        name: "countryData",
+        payload: {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: "country" }],
+          metrics: [{ name: "activeUsers" }],
+        },
       },
-    },
-    {
-      name: "pageTitleData",
-      payload: {
-        dateRanges: [{ startDate, endDate }],
-        dimensions: [{ name: "pageTitle" }],
-        metrics: [{ name: "activeUsers" }],
+      {
+        name: "pageTitleData",
+        payload: {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: "pageTitle" }],
+          metrics: [{ name: "activeUsers" }],
+        },
       },
-    },
-    {
-      name: "keyData",
-      payload: {
-        dateRanges: [{ startDate, endDate }],
-        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
-        metrics: [
-          { name: "activeUsers" },
-          { name: "sessions" },
-          { name: "engagedSessions" },
-          { name: "averageSessionDuration" },
-          { name: "eventsPerSession" },
-          { name: "engagementRate" },
-          { name: "eventCount" },
-          { name: "totalRevenue" },
-        ],
+      {
+        name: "keyData",
+        payload: {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+          metrics: [
+            { name: "activeUsers" },
+            { name: "sessions" },
+            { name: "engagedSessions" },
+            { name: "averageSessionDuration" },
+            { name: "eventsPerSession" },
+            { name: "engagementRate" },
+            { name: "eventCount" },
+            { name: "totalRevenue" },
+          ],
+        },
       },
-    },
-  ];
-} else {
-  payloads = [
-    {
-      name: "getUserData",
-      payload: {
-        dateRanges: [
-          { startDate, endDate }, // current selection
-          { startDate: prevStartDate, endDate: prevEndDate }, // previous period
-        ],
-        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
-        metrics: [
-          { name: "sessions" },
-          { name: "activeUsers" },
-          { name: "newUsers" },
-          { name: "averageSessionDuration" },
-          { name: "userEngagementDuration" },
-        ],
+    ];
+  } else {
+    payloads = [
+      {
+        name: "getUserData",
+        payload: {
+          dateRanges: [
+            { startDate, endDate }, // current selection
+            { startDate: prevStartDate, endDate: prevEndDate }, // previous period
+          ],
+          dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+          metrics: [
+            { name: "sessions" },
+            { name: "activeUsers" },
+            { name: "newUsers" },
+            { name: "averageSessionDuration" },
+            { name: "userEngagementDuration" },
+          ],
+        },
       },
-    },
-    {
-      name: "countryData",
-      payload: {
-        dateRanges: [
-          { startDate, endDate },
-          { startDate: prevStartDate, endDate: prevEndDate },
-        ],
-        dimensions: [{ name: "country" }],
-        metrics: [{ name: "activeUsers" }],
+      {
+        name: "countryData",
+        payload: {
+          dateRanges: [
+            { startDate, endDate },
+            { startDate: prevStartDate, endDate: prevEndDate },
+          ],
+          dimensions: [{ name: "country" }],
+          metrics: [{ name: "activeUsers" }],
+        },
       },
-    },
-    {
-      name: "pageTitleData",
-      payload: {
-        dateRanges: [
-          { startDate, endDate },
-          { startDate: prevStartDate, endDate: prevEndDate },
-        ],
-        dimensions: [{ name: "pageTitle" }],
-        metrics: [{ name: "activeUsers" }],
+      {
+        name: "pageTitleData",
+        payload: {
+          dateRanges: [
+            { startDate, endDate },
+            { startDate: prevStartDate, endDate: prevEndDate },
+          ],
+          dimensions: [{ name: "pageTitle" }],
+          metrics: [{ name: "activeUsers" }],
+        },
       },
-    },
-    {
-      name: "keyData",
-      payload: {
-        dateRanges: [
-          { startDate, endDate },
-          { startDate: prevStartDate, endDate: prevEndDate },
-        ],
-        dimensions: [{ name: "sessionDefaultChannelGrouping" }],
-        metrics: [
-          { name: "activeUsers" },
-          { name: "sessions" },
-          { name: "engagedSessions" },
-          { name: "averageSessionDuration" },
-          { name: "eventsPerSession" },
-          { name: "engagementRate" },
-          { name: "eventCount" },
-          { name: "totalRevenue" },
-        ],
+      {
+        name: "keyData",
+        payload: {
+          dateRanges: [
+            { startDate, endDate },
+            { startDate: prevStartDate, endDate: prevEndDate },
+          ],
+          dimensions: [{ name: "sessionDefaultChannelGrouping" }],
+          metrics: [
+            { name: "activeUsers" },
+            { name: "sessions" },
+            { name: "engagedSessions" },
+            { name: "averageSessionDuration" },
+            { name: "eventsPerSession" },
+            { name: "engagementRate" },
+            { name: "eventCount" },
+            { name: "totalRevenue" },
+          ],
+        },
       },
-    },
-  ];
-}
-
+    ];
+  }
 
   const results: Record<string, any> = {};
 
-   const campaignDataForToken = await getGetCampaignByid(campaignId);
-  
-    // 2. Initialize token manager with this campaign's tokens
-      initTokens(campaignId,campaignDataForToken?.campaign?.googleAccessToken, campaignDataForToken?.campaign?.googleRefreshToken, campaignDataForToken?.campaign?.googleAccessTokenExpiry);
-      const CompaignUrl = campaignDataForToken?.campaign?.projectUrl;
-  
-      // 3. Call Google Search API using centralized token manager
-      // const res: any = await callApi(
-      //   `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
-      //   {
-      //     method: "POST",
-      //     body: JSON.stringify(payload),
-          
-      //   }
-      // );
+  // const campaignDataForToken = await getGetCampaignByid(campaignId);
+
+  // 2. Initialize token manager with this campaign's tokens
+  // initTokens(
+  //   campaignId,
+  //   campaignDataForToken?.campaign?.googleAccessToken,
+  //   campaignDataForToken?.campaign?.googleRefreshToken,
+  //   campaignDataForToken?.campaign?.googleAccessTokenExpiry
+  // );
+  // const CompaignUrl = campaignDataForToken?.campaign?.projectUrl;
+
+  // 3. Call Google Search API using centralized token manager
+  // const res: any = await callApi(
+  //   `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(CompaignUrl)}/searchAnalytics/query`,
+  //   {
+  //     method: "POST",
+  //     body: JSON.stringify(payload),
+
+  //   }
+  // );
 
   for (const { name, payload } of payloads) {
     try {
-      const res: any = await callApi(baseUrl, 
-       
-         {
-          method: "POST",
-          body: JSON.stringify(payload),
-          
-        }
-        // headers: {
-        //   Authorization: `Bearer ${access_token}`,
-        //   "Content-Type": "application/json",
-        // },
-      );
+     const res:any = await fetch(baseUrl, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${googleAccessToken}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(payload),
+});
+
 
       if (!res) {
         const errorData = await res.json();
@@ -741,15 +938,15 @@ if (date.compare === undefined) {
 
       // const data = await res.json();
       // console.log(data.rows[0].metricValues,"ananlyticss")
-      results[name] = res;
+      results[name] = await res.json();
     } catch (error: any) {
       console.error(`Exception in payload ${name}:`, error?.message ?? error);
       results[name] = { error: error?.message ?? error };
     }
   }
-  // console.log(results, "resultsok");
+  console.log(results, "resultsok");
 
-  return {results,date};
+  return { results, date };
 }
 
 function extractDomain(url: string): string | null {
@@ -785,18 +982,17 @@ export const propertyIdForDB = async (
 
     const acoountNameforMatch = extractDomain(nameMatch);
 
-    console.log(acoountNameforMatch,"acoountNameforMatch in propertyId");
+    console.log(acoountNameforMatch, "acoountNameforMatch in propertyId");
 
     const data = await googleAnalyticsAccountID(
       access_token,
       acoountNameforMatch ?? ""
     );
-console.log(data,"data in propertyId");
+    console.log(data, "data in propertyId");
     // console.log(data,"data in propertyId");
     const accountId = Array.isArray(data)
       ? data[0]?.accountId
       : (data?.accountId ?? "");
-
 
     console.log(accountId, "accountId in propertyId");
 
@@ -810,7 +1006,7 @@ console.log(data,"data in propertyId");
       acoountNameforMatch ?? ""
     );
 
-    console.log(propertiesID,"propertiesID in propertyId");
+    console.log(propertiesID, "propertiesID in propertyId");
 
     //  const propertyId = propertiesID[0]?.name ?? "";
 
@@ -820,10 +1016,13 @@ console.log(data,"data in propertyId");
 
     const campaignDataWithPropertyIdData = await Campaign.findByIdAndUpdate(
       { _id: campaignId },
-      { $set: { propertyId: propertyId,accountId:accountId } },
+      { $set: { propertyId: propertyId, accountId: accountId } },
       { new: true }
     );
-    console.log(campaignDataWithPropertyIdData,"campaignDataWithPropertyIdData in propertyId");
+    console.log(
+      campaignDataWithPropertyIdData,
+      "campaignDataWithPropertyIdData in propertyId"
+    );
 
     return {
       success: true,
@@ -836,3 +1035,23 @@ console.log(data,"data in propertyId");
     return { error: "Internal Server Error." };
   }
 };
+
+export async function listAnalyticsAccounts(accessToken: string) {
+  const url = "https://analyticsadmin.googleapis.com/v1beta/accounts";
+
+  const res = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/json",
+    },
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Analytics API responded with ${res.status}: ${errText}`);
+  }
+
+  const body = await res.json();
+  console.log(body, "listAnalyticsAccounts");
+  return body;
+}

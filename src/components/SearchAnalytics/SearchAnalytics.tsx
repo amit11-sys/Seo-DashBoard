@@ -1,4 +1,3 @@
-
 "use client";
 import AnalyticsChart1 from "@/components/SearchAnalytics/AnalyticsChart";
 import { use, useEffect, useRef, useState } from "react";
@@ -9,6 +8,7 @@ import { FaClock, FaStopwatch, FaUserPlus, FaUsers } from "react-icons/fa6";
 import { getAnalyticsData } from "@/actions/analytics";
 import { Button } from "../ui/button";
 import DateRangeDialog from "../GoogleConsole/DateTable/DateTableDialog";
+import GoogleConnect from "../modals/GoogleConnect";
 // import { useSearchParams } from "react-router-dom";
 
 interface SearchAnalyticsProps {
@@ -37,6 +37,7 @@ const SearchAnalytics = ({
   });
   const [isAnalyticsData, setIsAnalyticsData] = useState(false);
   const [isConsolesData, setIsConsoleData] = useState(false);
+const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
 
   const handleConnectClick = (integration: string) => {
     setSelectedIntegration(integration);
@@ -52,27 +53,10 @@ const SearchAnalytics = ({
     const fetchAnalyticsData = async () => {
       setIsLoading(true);
       try {
-        //       function extractDomain(url: string): string | null {
-        //   const match = url.match(/\/\/(.*?)\./);
-        //   return match ? match[1] : null;
-        // }
-
-        // const campaignId = CurrentCampaignData?.CurrentCampaignData?.CurrentCampaignIdData?._id;
-        const access_token = campignDataWithId?.campaign?.googleAccessToken;
-        // const CampaignUrl = CurrentCampaignData?.CurrentCampaignData?.CurrentCampaignIdData?.projectUrl;
-        const propertyId = campignDataWithId?.campaign?.propertyId;
-        // const campaignId = campignDataWithId?.campaign?._id;
-        // console.log(access_token, "access_token");
-        // console.log(propertyId, "propertyId");
-        // const { accessToken, campaign } = await getSharedToken(campaignId);
-
-        // const { accessToken } = await getSharedToken(campaignId);
-
+      
         const analyticData = await getAnalyticsData(
-          access_token,
           date,
-          propertyId,
-          campaignId,
+          campaignId
         );
         // console.log(analyticData, "analyticDataFull");
         getUsers(analyticData?.results?.getUserData);
@@ -91,25 +75,13 @@ const SearchAnalytics = ({
     fetchAnalyticsData();
   }, [campaignId]);
 
-  const setIsAnalyticsDataHandler = (date: any) => {
-    const fetchAnalyticsData = async () => {
+  // const setIsAnalyticsDataHandler = (date: any) => {
+     const fetchAnalyticsData = async () => {
       setIsLoading(true);
       try {
-        //       function extractDomain(url: string): string | null {
-        //   const match = url.match(/\/\/(.*?)\./);
-        //   return match ? match[1] : null;
-        // }
-
-        // const campaignId = CurrentCampaignData?.CurrentCampaignData?.CurrentCampaignIdData?._id;
-        const access_token = campignDataWithId?.campaign?.googleAccessToken;
-        // const CampaignUrl = CurrentCampaignData?.CurrentCampaignData?.CurrentCampaignIdData?.projectUrl;
-        const propertyId = campignDataWithId?.campaign?.propertyId;
-        // console.log(access_token, "access_token");
-        // console.log(propertyId, "propertyId");
+      
         const analyticData = await getAnalyticsData(
-          access_token,
           date,
-          propertyId,
           campaignId
         );
         // console.log(analyticData, "analyticDataFull");
@@ -118,7 +90,7 @@ const SearchAnalytics = ({
         getData1(analyticData?.results?.countryData);
         getData2(analyticData?.results?.pageTitleData);
         getData3(analyticData?.results?.keyData);
-        setDate(analyticData?.date);
+        // setDate(analyticData?.date)
       } catch (error) {
         console.log("Error during fetch analytics data:", error);
       } finally {
@@ -126,8 +98,10 @@ const SearchAnalytics = ({
       }
     };
 
-    fetchAnalyticsData();
-  };
+  // };
+
+
+
   const handlePdf = async () => {
     if (!reportRef.current) {
       console.error("Report reference is null");
@@ -256,121 +230,53 @@ const SearchAnalytics = ({
     // });
   };
 
-  const handleLoginGoogle = () => {
-    const stateData = {
-      campaignId,
+  // const handleLoginGoogle = () => {
+  //   const stateData = {
+  //     campaignId,
 
-      analyticsData: isAnalyticsData,
-      consoleData: isConsolesData,
-    };
-    // const state = encodeURIComponent(JSON.stringify(stateData));
-    const url = `${process.env.NEXT_PUBLIC_GOOGLE_AUTH_O}`;
-    const redirectURI = `${process.env.NEXT_PUBLIC_REDIRECT_URI}api/googleLogin`;
-    const options = {
-      scope: [
-        `${process.env.NEXT_PUBLIC_USER_INFO_PROFILE}`,
-        `${process.env.NEXT_PUBLIC_USER_INFO_EMAIL}`,
-        `${process.env.NEXT_PUBLIC_AUTH_ANALYTICS}`,
-        `${process.env.NEXT_PUBLIC_AUTH_WEBMASTERS}`,
-        `${process.env.NEXT_PUBLIC_AUTH_ANALYTICS_READONLY}`,
-        `${process.env.NEXT_PUBLIC_AUTH_BUSINESS_MANAGE}`,
-      ].join(" "),
-      response_type: "code",
-      state: encodeURIComponent(JSON.stringify(stateData)),
-      redirect_uri: redirectURI,
-      access_type: "offline",
-      prompt: "consent",
-      client_id: `${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}`,
-    };
+  //     analyticsData: isAnalyticsData,
+  //     consoleData: isConsolesData,
+  //   };
+  //   // const state = encodeURIComponent(JSON.stringify(stateData));
+  //   const url = `${process.env.NEXT_PUBLIC_GOOGLE_AUTH_O}`;
+  //   const redirectURI = `${process.env.NEXT_PUBLIC_REDIRECT_URI}api/googleLogin`;
+  //   const options = {
+  //     scope: [
+  //       `${process.env.NEXT_PUBLIC_USER_INFO_PROFILE}`,
+  //       `${process.env.NEXT_PUBLIC_USER_INFO_EMAIL}`,
+  //       `${process.env.NEXT_PUBLIC_AUTH_ANALYTICS}`,
+  //       `${process.env.NEXT_PUBLIC_AUTH_WEBMASTERS}`,
+  //       `${process.env.NEXT_PUBLIC_AUTH_ANALYTICS_READONLY}`,
+  //       `${process.env.NEXT_PUBLIC_AUTH_BUSINESS_MANAGE}`,
+  //     ].join(" "),
+  //     response_type: "code",
+  //     state: encodeURIComponent(JSON.stringify(stateData)),
+  //     redirect_uri: redirectURI,
+  //     access_type: "offline",
+  //     prompt: "consent",
+  //     client_id: `${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}`,
+  //   };
 
-    // console.log("enter in functio");
-    const qs = new URLSearchParams(options);
-    return `${url}?${qs.toString()}`;
-  };
-
-  //  const payload = {
-  //     startDate: start ? start.format(format) : "",
-  //     endDate: safeEnd.format(format),
-  //   });
-
-  // const updatePayload = (startDate: string, endDate: string) => {
-  //   setPayloadState({ startDate, endDate });
+  //   // console.log("enter in functio");
+  //   const qs = new URLSearchParams(options);
+  //   return `${url}?${qs.toString()}`;
   // };
 
-  // console.table({ chart, country, pageTitle });
-
-  // --- fallback screen if no data ---
-  // if (country.length === 0 && pageTitle.length === 0) {
-  //   return (
-  //     <div className="relative w-full h-[70vh] flex items-center justify-center bg-gray-100">
-  //       <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col justify-center items-center">
-  //         <div className="flex items-center gap-3 mb-6">
-  //           <FcGoogle className="text-blue-600 text-4xl" />
-  //           <div>
-  //             <div className="font-bold text-4xl">
-  //               Google Analytics Overview
-  //             </div>
-  //           </div>
-  //           <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
-  //         </div>
-
-  //         <div className="bg-white shadow-lg rounded-xl p-8 text-center max-w-md mx-auto">
-  //           <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-  //             No Data Available
-  //           </h2>
-  //           <p className="text-gray-500 mb-6">
-  //             You need to connect Google Search Analytics. Please login to
-  //             continue.
-  //           </p>
-  //           <a
-  //             href={handleLoginGoogle()}
-  //             onClick={(event) => handleConnectClick("Google Analytics")}
-  //           >
-  //             <Button className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white hover:opacity-90 transition">
-  //               Proceed
-  //             </Button>
-  //           </a>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // console.log(activeData, "activeData");
-  if (activeData?.totalActiveUsers === 0 && activeData?.totalNewUsers === 0) {
-    return (
-      <div className="relative w-full h-[70vh] flex flex-col gap-10 items-center justify-center bg-gray-100">
-       <div className="flex items-center bg-white py-4 justify-center w-full gap-3">
-            <FcGoogle className="text-blue-600 text-4xl" />
-            <div>
-              <div className="font-bold text-4xl">
-                Google Analytics Overview
-              </div>
-            </div>
-            <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
-          </div>
-        <div className=" bg-white shadow-lg rounded-xl p-8 text-center max-w-md mx-auto">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            No Data Available
-          </h2>
-          <p className="text-gray-500 mb-6">
-            You need to connect Google Search Console Please Login.
-          </p>
-          <a
-            href={handleLoginGoogle()}
-            onClick={() => handleConnectClick("Google Analytics")}
-          >
-            <Button className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white hover:opacity-90 transition">
-              Proceed
-            </Button>
-          </a>
-        </div>
-      </div>
-    );
-  }
+const handleConnect = () => {
+  setIsConnectModalOpen(true);
+};
 
   return (
     <>
+     {isConnectModalOpen && (
+      <GoogleConnect
+      fetchAnalyticsData={fetchAnalyticsData}
+        campaignId={campaignId}
+        open={isConnectModalOpen}
+        onOpenChange={(open) => setIsConnectModalOpen(open)} 
+        integrationType="ga"
+      />
+    )}
       <div ref={reportRef} className="p-4 space-y-8">
         {/* Heading */}
         <div className="flex justify-between items-center mt-20 p-4 bg-white shadow rounded-md">
@@ -383,20 +289,47 @@ const SearchAnalytics = ({
             </div>
             <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
           </div>
-        
         </div>
 
         {isLoading ? (
-          <div className="relative w-full h-[70vh] flex items-center justify-center bg-gray-100">
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col justify-center items-center">
-              <div className="flex justify-center items-center h-[70vh] bg-gray-50">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-                  <p className="text-gray-600 font-medium">
-                    Fetching analytics data...
-                  </p>
+          <div className="relative w-full h-[70vh] flex flex-col items-center justify-center bg-gray-100">
+            {/* Header */}
+            {/* <div className="flex items-center bg-white py-4 justify-center w-full gap-3 shadow-md">
+              <FcGoogle className="text-blue-600 text-4xl" />
+              <div>
+                <div className="font-bold text-4xl">
+                  Google Analytics Overview
                 </div>
               </div>
+              <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
+            </div> */}
+
+            {/* Loader */}
+            <div className="flex flex-col items-center justify-center h-full gap-4">
+              <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+              <p className="text-gray-600 font-medium">
+                Fetching analytics data...
+              </p>
+            </div>
+          </div>
+        ) : !activeData?.totalActiveUsers && !activeData?.totalNewUsers ? (
+          <div className="relative w-full h-[70vh] flex flex-col gap-10 items-center justify-center bg-gray-100">
+       
+            <div className="bg-white shadow-lg rounded-xl p-8 text-center max-w-md mx-auto">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+                No Data Available
+              </h2>
+              <p className="text-gray-500 mb-6">
+                You need to connect Google Search Console. Please login.
+              </p>
+             
+                <Button 
+                onClick={() => handleConnect()}
+                
+                className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white hover:opacity-90 transition">
+                  Proceed
+                </Button>
+           
             </div>
           </div>
         ) : (
@@ -449,7 +382,6 @@ const SearchAnalytics = ({
                 </div>
               ))}
             </div>
-
             {/* Traffic Sources */}
             <h1 className="font-semibold text-2xl uppercase text-center text-gray-700">
               Traffic Sources

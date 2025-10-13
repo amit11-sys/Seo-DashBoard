@@ -14,13 +14,15 @@ const campaignSchema = new mongoose.Schema(
 
       default: 1,
     },
-    googleAccessToken: { type: String },
-    googleAccessTokenExpiry: { type: Number },
-    googleRefreshToken: { type: String },
-    googleRefreshTokenExpiry: { type: Number },
-    googleId_token: { type: String },
-    propertyId: { type: String },
-    accountId: { type: String },
+    googleAccountId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "GoogleAccount",
+    },
+    gaPropertyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "GoogleProperty",
+    },
+    gscSiteId: { type: mongoose.Schema.Types.ObjectId, ref: "GoogleSites" },
   },
   {
     timestamps: true,

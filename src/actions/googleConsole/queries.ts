@@ -2,6 +2,7 @@
 import Campaign from "@/lib/models/campaign.model";
 import fetch from "node-fetch";
 import { getValidGoogleToken } from "../campaign/queries";
+import { getCampaignDataWithGoogleData } from "../google";
 
 
 const client_secret = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET;
@@ -197,12 +198,15 @@ export async function GoogleConsoleDataByDate(
   const threeMonthsAgoFormatted = threeMonthsAgo.toISOString().split("T")[0];
   
   // Get campaign tokens and URL
-  const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
-  const access_token = compaignGoogleData?.googleAccessToken;
-  const CompaignUrl = compaignGoogleData?.projectUrl;
-  const urlNameMatch = extractDomain(CompaignUrl);
+  // const compaignGoogleData: any = await getValidGoogleToken(newCompaignId);
+ const testing = await getCampaignDataWithGoogleData(newCompaignId);
+  // console.log(testing?.campaignWithAccountData?.projectUrl,"googleTestingDataokok")
+  // const campaignGoogleData: any = await getValidGoogleToken(campaignId);
+  const access_token = testing?.googleAccessToken;
+  const campaignUrl = testing?.campaignWithAccountData?.projectUrl;
+  const urlNameMatch = extractDomain(campaignUrl);
 
-  if (!access_token || !CompaignUrl) {
+  if (!access_token || !campaignUrl) {
     throw new Error("Missing access token or campaign URL");
   }
 
@@ -216,7 +220,7 @@ export async function GoogleConsoleDataByDate(
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}${encodeURIComponent(
-        CompaignUrl
+        campaignUrl
       )}/searchAnalytics/query`,
       {
         method: "POST",
@@ -410,9 +414,14 @@ export async function GoogleSearchDataByDimension(
   const threeMonthsAgoFormatted = threeMonthsAgo.toISOString().split("T")[0];
 
   // 🔑 Get campaign tokens and URL
-  const campaignGoogleData: any = await getValidGoogleToken(campaignId);
-  const access_token = campaignGoogleData?.googleAccessToken;
-  const campaignUrl = campaignGoogleData?.projectUrl;
+    const campaign = await Campaign.findById({ _id: campaignId });
+  
+  const testing:any = await getCampaignDataWithGoogleData(campaignId);
+  // console.log(testing?.campaignWithAccountData?.projectUrl,"googleTestingDataokok")
+  // const campaignGoogleData: any = await getValidGoogleToken(campaignId);
+  const access_token = testing?.googleAccessToken;
+  const campaignUrl = testing?.campaignWithAccountData?.projectUrl;
+  // console.table({access_token,campaignUrl,table:"tableOKhia"},)
 
   if (!access_token || !campaignUrl) {
     throw new Error("Missing access token or campaign URL");
@@ -581,50 +590,52 @@ const isTokenExpired = (expiry: string | number): boolean => {
 //   return updatedCampaign;
 // }
 // ✅ Function to refresh Google access token
-export async function refreshGoogleAccessToken(campaignId: string) {
-  const campaign = await Campaign.findById({ _id: campaignId });
-  if (!campaign) throw new Error("Campaign not found");
 
-  const refresh_token = campaign.googleRefreshToken;
-  if (!refresh_token) throw new Error("Missing Google refresh token");
 
-  const body = new URLSearchParams({
-    client_id: client_id ?? "",
-    client_secret: client_secret ?? "",
-    refresh_token,
-    grant_type: "refresh_token",
-  });
+// export async function refreshGoogleAccessToken(campaignId: string) {
+//   const campaign = await Campaign.findById({ _id: campaignId });
+//   if (!campaign) throw new Error("Campaign not found");
 
-  const res = await fetch(process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN!, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-  });
+//   const refresh_token = campaign.googleRefreshToken;
+//   if (!refresh_token) throw new Error("Missing Google refresh token");
 
-  const json: any = await res.json();
+//   const body = new URLSearchParams({
+//     client_id: client_id ?? "",
+//     client_secret: client_secret ?? "",
+//     refresh_token,
+//     grant_type: "refresh_token",
+//   });
 
-  if (!json.access_token) {
-    throw new Error(`Failed to refresh Google token: ${JSON.stringify(json)}`);
-  }
+//   const res = await fetch(process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN!, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//     body,
+//   });
 
-  // Calculate new expiry timestamp (ms)
-  const newExpiry = Date.now() + json.expires_in * 1000;
+//   const json: any = await res.json();
 
-  // Save updated tokens
-  const updatedCampaign = await Campaign.findByIdAndUpdate(
-    { _id: campaignId },
-    {
-      $set: {
-        googleAccessToken: json.access_token,
-        googleAccessTokenExpiry: newExpiry,
-        ...(json.refresh_token && { googleRefreshToken: json.refresh_token }),
-      },
-    },
-    { new: true } // return updated document
-  );
+//   if (!json.access_token) {
+//     throw new Error(`Failed to refresh Google token: ${JSON.stringify(json)}`);
+//   }
 
-  return updatedCampaign;
-}
+//   // Calculate new expiry timestamp (ms)
+//   const newExpiry = Date.now() + json.expires_in * 1000;
+
+//   // Save updated tokens
+//   const updatedCampaign = await Campaign.findByIdAndUpdate(
+//     { _id: campaignId },
+//     {
+//       $set: {
+//         googleAccessToken: json.access_token,
+//         googleAccessTokenExpiry: newExpiry,
+//         ...(json.refresh_token && { googleRefreshToken: json.refresh_token }),
+//       },
+//     },
+//     { new: true } // return updated document
+//   );
+
+//   return updatedCampaign;
+// }
 
 
 interface GoogleAnalyticsAccount {
@@ -678,7 +689,7 @@ function findMatchingAccounts(accounts: any[], nameMatch: string) {
 
 export async function googleAnalyticsAccountID(
   access_token: string,
-  nameMatch: string
+  nameMatch?: string
 ) {
   try {
     // const payload = { startDate, endDate, dimensions };
@@ -708,7 +719,7 @@ export async function googleAnalyticsAccountID(
 
     // console.log(accountsData, "accountsData");
 
-    const matchForAcountId = findMatchingAccounts(accountsData, nameMatch);
+    const matchForAcountId = findMatchingAccounts(accountsData, nameMatch || "");
 
     // console.log(matchForAcountId, "matchForAcountId");
 
@@ -996,8 +1007,8 @@ export const disableSearchConsole = async (campaignId: string) => {
 
 
 
-export async function listAnalyticsAccounts(accessToken: string) {
-  const url = "https://analyticsadmin.googleapis.com/v1beta/accounts";
+export async function listConsoleAccounts(accessToken: string) {
+  const url = "https://www.googleapis.com/webmasters/v3/sites";
 
   const res = await fetch(url, {
     method: "GET",
@@ -1012,5 +1023,6 @@ export async function listAnalyticsAccounts(accessToken: string) {
   }
 
   const body = await res.json();
+  console.log(body,"listAnalyticsAccounts")
   return body; 
 }

@@ -234,7 +234,7 @@ export function CampaignTabs() {
         setCampaignData(campaign?.campaign || []);
       } else {
         toast(response?.error || "Failed to create campaign");
-        console.log(response);
+        // console.log(response);
       }
     } catch (error) {
       toast("Something went wrong");

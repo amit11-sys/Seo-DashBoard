@@ -171,7 +171,7 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-    console.log(keywordId, "refresh id");
+    // console.log(keywordId, "refresh id");
 
     const singleKeywordForUpdate = await Keyword.findById({ _id: keywordId });
     if (!singleKeywordForUpdate) {

@@ -228,7 +228,7 @@ export async function GET(req: NextRequest) {
   }
 
   let stateData: any = {};
-  console.log(stateData, "stateData");
+  // console.log(stateData, "stateData");
   if (state) {
     stateData = JSON.parse(decodeURIComponent(state));
   }
@@ -242,7 +242,7 @@ export async function GET(req: NextRequest) {
       redirect_uri: `${process.env.NEXT_PUBLIC_REDIRECT_URI}api/googleLogin`,
       grant_type: "authorization_code",
     };
-    console.log(tokenData, "tokenData");
+    // console.log(tokenData, "tokenData");
 
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -251,7 +251,7 @@ export async function GET(req: NextRequest) {
     });
 
     const tokenResult = await tokenRes.json();
-    console.log(tokenResult, "tokenResult");
+    // console.log(tokenResult, "tokenResult");
     const accessToken = tokenResult.access_token;
     const refreshToken = tokenResult.refresh_token;
 
@@ -270,7 +270,7 @@ export async function GET(req: NextRequest) {
       }
     );
     const userData = await userRes.json();
-    console.log(userData, "userData");
+    // console.log(userData, "userData");
 
     // 3️⃣ Connect to DB
     await connectToDB();
@@ -279,7 +279,7 @@ export async function GET(req: NextRequest) {
     const existingAccount = await GoogleAccount.findOne({
       googleEmail: userData.email,
     });
-    console.log(existingAccount, "existingAccount");
+    // console.log(existingAccount, "existingAccount");
 
     if (existingAccount) {
       // 🔴 Already connected account
@@ -309,7 +309,7 @@ export async function GET(req: NextRequest) {
           googleId_token: tokenResult.id_token,
         }
       );
-      console.log(googleAccountData, "googleAccountData");
+      // console.log(googleAccountData, "googleAccountData");
       const campaignId = stateData?.campaignId;
 
       return new Response(
@@ -346,7 +346,7 @@ export async function GET(req: NextRequest) {
       googleRefreshTokenExpiry: null,
       googleId_token: tokenResult.id_token,
     });
-    console.log(googleAccountData, "googleAccountData outside");
+    // console.log(googleAccountData, "googleAccountData outside");
 
     // 7️⃣ Return HTML that redirects the parent (main tab)
     return new Response(

@@ -22,6 +22,8 @@ import {
   getSaveGoogleAnalyticsData,
 } from "@/actions/analytics";
 
+import { useLoader } from "@/hooks/useLoader";
+
 /**
  * Props:
  * - open: boolean (controls popup)
@@ -63,6 +65,7 @@ export default function GoogleConnect({
   const [campignOptions, setCampaignOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const { startLoading, stopLoading } = useLoader();
 
   // const campaignOptions = [
   //   { value: "campaign1", label: "Campaign 1" },
@@ -73,66 +76,71 @@ export default function GoogleConnect({
   useEffect(() => {
     if (integrationType && selectedGmail) {
       // if(integrationType === "gsc" ){
-setAccounts([]);
+
       (async () => {
-        setLoading(true);
+        startLoading();
         setError("");
+
         try {
           const data = await getFetchGoogledata(
             integrationType,
             selectedGmail.value
           );
-          if(integrationType === "gsc"){
-               const accounts =
-            data?.data?.accountConsoleData?.siteEntry?.map((acc: any) => ({
-              value: acc.permissionLevel,
-              label: acc.siteUrl,
-            })) || [];
+          if (integrationType === "gsc") {
+            setAccounts([]);
+            setSelectedAccount("");
+            const accounts =
+              data?.data?.accountConsoleData?.siteEntry?.map((acc: any) => ({
+                value: acc.permissionLevel,
+                label: acc.siteUrl,
+              })) || [];
 
-          setAccounts(accounts);
+            setAccounts(accounts);
 
-          const campaignOptions =
-            data?.data?.matchedCampaigns?.map((acc: any) => ({
-              value: acc.campaignId,
-              label: acc.campaignsUrl,
-            })) || [];
-          setCampaignOptions(campaignOptions);
-          //           const campaignOptions = [
-          //   { value: "campaign1", label: "Campaign 1" },
-          //   { value: "campaign2", label: "Campaign 2" },
-          //   { value: "new", label: "+ Create New Campaign" },
-          // ];
+            const campaignOptions =
+              data?.data?.matchedCampaigns?.map((acc: any) => ({
+                value: acc.campaignId,
+                label: acc.campaignsUrl,
+              })) || [];
+            setCampaignOptions(campaignOptions);
+            //           const campaignOptions = [
+            //   { value: "campaign1", label: "Campaign 1" },
+            //   { value: "campaign2", label: "Campaign 2" },
+            //   { value: "new", label: "+ Create New Campaign" },
+            // ];
           }
-          if(integrationType === "ga"){
-               const accounts =
-            data?.data?.analyticsAccountList?.accounts?.map((acc: any) => ({
-              value: acc.name,
-              label: acc.displayName,
-            })) || [];
+          if (integrationType === "ga") {
+            setSelectedAccount("");
 
-          setAccounts(accounts);
+            setAccounts([]);
+            const accounts =
+              data?.data?.analyticsAccountList?.accounts?.map((acc: any) => ({
+                value: acc.name,
+                label: acc.displayName,
+              })) || [];
 
-           const campaignOptions =
-            data?.data?.matchedCampaigns?.map((acc: any) => ({
-              value: acc.campaignId,
-              label: acc.campaignsUrl,
-            })) || [];
-          setCampaignOptions(campaignOptions);
-          //           const campaignOptions = [
-          //   { value: "campaign1", label: "Campaign 1" },
-          //   { value: "campaign2", label: "Campaign 2" },
-          //   { value: "new", label: "+ Create New Campaign" },
-          // ];
-          console.log(data, "data in google connect");
+            setAccounts(accounts);
+
+            const campaignOptions =
+              data?.data?.matchedCampaigns?.map((acc: any) => ({
+                value: acc.campaignId,
+                label: acc.campaignsUrl,
+              })) || [];
+            setCampaignOptions(campaignOptions);
+            //           const campaignOptions = [
+            //   { value: "campaign1", label: "Campaign 1" },
+            //   { value: "campaign2", label: "Campaign 2" },
+            //   { value: "new", label: "+ Create New Campaign" },
+            // ];
+            console.log(data, "data in google connect");
           }
-
+          stopLoading();
           console.log(data, "accounts list");
-       
         } catch (err) {
           setError("Unable to fetch accounts. Please try again.");
           setAccounts([]);
         } finally {
-          setLoading(false);
+         stopLoading();
         }
       })();
 
@@ -197,7 +205,7 @@ setAccounts([]);
 
   useEffect(() => {
     fetchGmailLoginDetails();
-  }, []);
+  }, [open]);
 
   // const handleConnectGoogle = () => {
   //   // Redirect to Google OAuth flow
@@ -233,10 +241,6 @@ setAccounts([]);
   //       },
   //       "📤 Data sent to parent"
   //     );
-
-
-
-
 
   //     if (integrationType === "gsc") {
   //       const response = await getSaveGoogleConsoleData(
@@ -283,82 +287,81 @@ setAccounts([]);
   // };
 
   const handleSave = async () => {
-  try {
-    // 1️⃣ Validate required fields before proceeding
-    if (
-      !selectedCampaign ||
-      !integrationType ||
-      !selectedGmail ||
-      !selectedAccount
-    ) {
-      toast.error("Please select all fields before saving.");
-      return;
-    }
+    try {
+      // 1️⃣ Validate required fields before proceeding
+      if (
+        !selectedCampaign ||
+        !integrationType ||
+        !selectedGmail ||
+        !selectedAccount
+      ) {
+        toast.error("Please select all fields before saving.");
+        return;
+      }
 
-    console.log(
-      {
-        selectedCampaign,
-        integrationType,
-        selectedGmail,
-        selectedAccount,
-      },
-      "📤 Data sent to parent"
-    );
-
-    // 2️⃣ Handle integration-specific saving
-    if (integrationType === "gsc") {
-      const response = await getSaveGoogleConsoleData(
-        selectedAccount?.label,
-        selectedAccount?.value,
-        selectedGmail?.value,
-        selectedCampaign?.value
+      console.log(
+        {
+          selectedCampaign,
+          integrationType,
+          selectedGmail,
+          selectedAccount,
+        },
+        "📤 Data sent to parent"
       );
 
-      // ✅ Only call if defined
-      if (typeof fetchConsoleData === "function") {
-        await fetchConsoleData();
-      }
-
-      if (response?.success) {
-        toast.success("Google Console data saved successfully!");
-        router.push(`/dashboard/${selectedCampaign.value}`);
-        onOpenChange(false);
-      } else {
-        console.error("❌ Failed to save:", response);
-        toast.error(
-          response?.message || "Failed to save Google Console data."
+      // 2️⃣ Handle integration-specific saving
+      if (integrationType === "gsc") {
+        const response = await getSaveGoogleConsoleData(
+          selectedAccount?.label,
+          selectedAccount?.value,
+          selectedGmail?.value,
+          selectedCampaign?.value
         );
-      }
-    } else if (integrationType === "ga") {
-      const response = await getSaveGoogleAnalyticsData(
-        selectedAccount?.label,
-        selectedAccount?.value,
-        selectedGmail?.value,
-        selectedCampaign?.value
-      );
 
-      // ✅ Only call if defined
-      if (typeof fetchAnalyticsData === "function") {
-        await fetchAnalyticsData();
-      }
+        // ✅ Only call if defined
+        if (typeof fetchConsoleData === "function") {
+          await fetchConsoleData();
+        }
 
-      if (response?.success) {
-        toast.success("Google Analytics data saved successfully!");
-        router.push(`/dashboard/${selectedCampaign.value}`);
-        onOpenChange(false);
-      } else {
-        console.error("❌ Failed to save:", response);
-        toast.error(
-          response?.message || "Failed to save Google Analytics data."
+        if (response?.success) {
+          toast.success("Google Console data saved successfully!");
+          router.push(`/dashboard/${selectedCampaign.value}?rerun=gsc`);
+          onOpenChange(false);
+        } else {
+          console.error("❌ Failed to save:", response);
+          toast.error(
+            response?.message || "Failed to save Google Console data."
+          );
+        }
+      } else if (integrationType === "ga") {
+        const response = await getSaveGoogleAnalyticsData(
+          selectedAccount?.label,
+          selectedAccount?.value,
+          selectedGmail?.value,
+          selectedCampaign?.value
         );
+
+        // ✅ Only call if defined
+        if (typeof fetchAnalyticsData === "function") {
+          await fetchAnalyticsData();
+        }
+
+        if (response?.success) {
+          toast.success("Google Analytics data saved successfully!");
+          router.push(`/dashboard/${selectedCampaign.value}?rerun=ga`);
+          onOpenChange(false);
+        } else {
+          console.error("❌ Failed to save:", response);
+          toast.error(
+            response?.message || "Failed to save Google Analytics data."
+          );
+        }
       }
+    } catch (error) {
+      console.error("⚠️ Error in handleSave:", error);
+      toast.error("Something went wrong while saving. Please try again.");
     }
-  } catch (error) {
-    console.error("⚠️ Error in handleSave:", error);
-    toast.error("Something went wrong while saving. Please try again.");
-  }
-};
-
+  };
 
   const integrationLabelMap = {
     gsc: "Google Search Console",
@@ -464,7 +467,7 @@ setAccounts([]);
                 + Connect Google Account
               </Button> */}
             </div>
-                 {integrationType && (
+            {integrationType && (
               <div>
                 <Label className="my-1 block text-sm font-medium">
                   {integrationLabelMap[integrationType]} Accounts
@@ -502,7 +505,6 @@ setAccounts([]);
                 classNamePrefix="react-select"
               />
             </div>
-           
           </div>
 
           {/* Right Side */}

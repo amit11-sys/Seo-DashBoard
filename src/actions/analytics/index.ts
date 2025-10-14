@@ -8,6 +8,7 @@ import {
   googleAnalyticsPropertyID,
   propertyIdForDB,
   SaveGoogleAnalyticsData,
+  disableSearchAnalytics,
 } from "./queries";
 
 export const getLiveKeywordData = async (url: string) => {
@@ -38,8 +39,8 @@ export const getGoogleAnalyticsPropertyID = async (
 
   return data;
 };
-export const getAnalyticsData = async (date:any,campaignId:string ) => {
-  const data = await AnalyticsData(date,campaignId);
+export const getAnalyticsData = async (date: any, campaignId: string) => {
+  const data = await AnalyticsData(date, campaignId);
 
   return data;
 };
@@ -67,7 +68,17 @@ export const getSaveGoogleAnalyticsData = async (
   googleEmail: string,
   campaignId: string
 ) => {
-  const data = await SaveGoogleAnalyticsData(displayName, accountId, googleEmail, campaignId);
+  const data = await SaveGoogleAnalyticsData(
+    displayName,
+    accountId,
+    googleEmail,
+    campaignId
+  );
+
+  return data;
+};
+export const getDisableSearchAnalytics = async (campaignId: string) => {
+  const data = await disableSearchAnalytics(campaignId);
 
   return data;
 };

@@ -1,8 +1,10 @@
 "use server";
 import Campaign from "@/lib/models/campaign.model";
 import fetch from "node-fetch";
-import { getValidGoogleToken } from "../campaign/queries";
+// import { getValidGoogleToken } from "../campaign/queries";
 import { getCampaignDataWithGoogleData } from "../google";
+import GoogleSites from "@/lib/models/gscSites.model";
+import { connectToDB } from "@/lib/db";
 
 
 const client_secret = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET;
@@ -977,32 +979,42 @@ export async function fetchLocalKeywordData(targetUrl: string) {
 
 export const disableSearchConsole = async (campaignId: string) => {
   try {
-    const updatedCampaign = await Campaign.findByIdAndUpdate({
-      _id:campaignId},
-      {
-        $unset: {
-          googleAccessToken: "",
-          googleAccessTokenExpiry: "",
-          googleId_token: "",
-          googleRefreshToken: "",
-          googleRefreshTokenExpiry: "",
-          propertyId: "",
-          accountId: "",
-        },
-      },
-      { new: true } 
-    );
+    await connectToDB();
 
-    if (!updatedCampaign) {
+    const campaign = await Campaign.findById({_id: campaignId});
+    if (!campaign) {
       throw new Error("Campaign not found");
     }
 
-    return { success: true, message: "Search console disabled", data: updatedCampaign };
+    const gscSiteId = campaign.gscSiteId;
+
+    // 2️⃣ If the campaign has a linked Google Site, delete it
+    if (gscSiteId) {
+      await GoogleSites.findByIdAndDelete(gscSiteId);
+    }
+
+    // 3️⃣ Remove the gscSiteId field from the Campaign
+    const updatedCampaign = await Campaign.findByIdAndUpdate(
+      {_id: campaignId},
+      { $unset: { gscSiteId: "" } },
+      { new: true }
+    );
+
+    return {
+      success: true,
+      message: "Search Console disconnected and Google Site deleted successfully",
+      data: updatedCampaign,
+    };
   } catch (error) {
-    console.error("Error disabling search console:", error);
-    throw error;
+    console.error("Error disabling Search Console:", error);
+    return {
+      success: false,
+      message: "Failed to disable Search Console",
+      error: (error as Error).message,
+    };
   }
 };
+
 
 
 

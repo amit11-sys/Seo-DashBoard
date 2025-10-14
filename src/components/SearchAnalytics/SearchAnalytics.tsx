@@ -5,10 +5,12 @@ import CustomButton from "../ui/CustomButton";
 import { FaInfoCircle } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaClock, FaStopwatch, FaUserPlus, FaUsers } from "react-icons/fa6";
-import { getAnalyticsData } from "@/actions/analytics";
+import { getAnalyticsData, getDisableSearchAnalytics } from "@/actions/analytics";
 import { Button } from "../ui/button";
 import DateRangeDialog from "../GoogleConsole/DateTable/DateTableDialog";
 import GoogleConnect from "../modals/GoogleConnect";
+import { useSearchParams } from "next/navigation";
+import { TbDisabled } from "react-icons/tb";
 // import { useSearchParams } from "react-router-dom";
 
 interface SearchAnalyticsProps {
@@ -38,6 +40,8 @@ const SearchAnalytics = ({
   const [isAnalyticsData, setIsAnalyticsData] = useState(false);
   const [isConsolesData, setIsConsoleData] = useState(false);
 const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const rerun = searchParams.get("rerun");
 
   const handleConnectClick = (integration: string) => {
     setSelectedIntegration(integration);
@@ -73,7 +77,7 @@ const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
     };
 
     fetchAnalyticsData();
-  }, [campaignId]);
+  }, [campaignId,rerun]);
 
   // const setIsAnalyticsDataHandler = (date: any) => {
      const fetchAnalyticsData = async () => {
@@ -265,6 +269,28 @@ const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
 const handleConnect = () => {
   setIsConnectModalOpen(true);
 };
+ const disableAnalytics = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to disable this integration?"
+    );
+    if (!confirmed) return;
+
+    try {
+      await getDisableSearchAnalytics(campaignId);
+
+      // maybe clear UI state or re-fetch data
+        // console.log(analyticData, "analyticDataFull");
+        getUsers(null);
+        setChart(null);
+        getData1(null);
+        getData2(null);
+        getData3(null);
+      alert("Search Console disabled successfully.");
+    } catch (error) {
+      console.error("Error disabling Search Console:", error);
+      alert("Failed to disable Search Console. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -289,6 +315,7 @@ const handleConnect = () => {
             </div>
             <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
           </div>
+          <div><TbDisabled className="text-4xl cursor-pointer" onClick={disableAnalytics}/></div>
         </div>
 
         {isLoading ? (

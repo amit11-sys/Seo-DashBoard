@@ -17,7 +17,7 @@ import { addMultipleKeyword } from "../keyword";
 import { propertyIdForDB } from "../analytics/queries";
 
 export const createCampaign = async (formData: any) => {
-  console.log(formData);
+  // console.log(formData);
 
   const campaign = await newCampaign(formData);
   // console.log(campaign,"from index")

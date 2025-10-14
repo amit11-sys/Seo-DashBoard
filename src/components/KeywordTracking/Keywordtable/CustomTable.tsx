@@ -313,152 +313,146 @@ const CustomTable = ({
       <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
         {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
 
-           <table className="min-w-[1000px] w-full table-auto">
-          <thead>
-            {/* 🔹 Row 1: Main headers */}
-            <tr className="sticky top-0 z-20 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 shadow-sm">
-              {tableHeader?.map((header: any, id: number) => {
-                if (
-                  (header.key === "select" || header.key === "edit") &&
-                  ShareCampaignStatus === 2
-                ) {
-                  return null;
-                }
+          <table className="min-w-[1000px] w-full table-auto text-[13px]">
+  <thead>
+    {/* 🔹 Row 1: Main headers */}
+    <tr className="sticky top-0 z-20 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 shadow-sm text-[12px]">
+      {tableHeader?.map((header: any, id: number) => {
+        if (
+          (header.key === "select" || header.key === "edit") &&
+          ShareCampaignStatus === 2
+        ) {
+          return null;
+        }
 
-                // ✅ Past Ranks with subheader inside
-                if (
-                  header.key === "pastRanks" &&
-                  showLastKeywords &&
-                  sortedData.length > 0
-                ) {
-                  return (
-                    <th
-                      key="pastRanks"
-                      className="py-3 px-1 text-center text-sm font-semibold tracking-wide border-r border-gray-300"
-                    >
-                      <div className="flex flex-col items-center">
-                        {/* Main header */}
-                        <span className="text-gray-700">{header.label}</span>
+        if (
+          header.key === "pastRanks" &&
+          showLastKeywords &&
+          sortedData.length > 0
+        ) {
+          return (
+            <th
+              key="pastRanks"
+              className="py-2 px-1 text-center font-semibold tracking-wide border-r border-gray-300 text-[12px]"
+            >
+              <div className="flex flex-col items-center">
+                <span className="text-gray-700 text-[12px]">{header.label}</span>
+                <div className="flex mt-1 gap-1">
+                  {sortedData[0]?.pastData?.map(
+                    (monthLabel: any, m: number) => (
+                      <motion.span
+                        key={`past-rank-month-${m}`}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2, delay: m * 0.05 }}
+                        className="py-1 px-2 text-center text-[11px] font-medium text-gray-600 bg-white border rounded shadow-sm w-[55px]"
+                      >
+                        {monthLabel.month}
+                      </motion.span>
+                    )
+                  )}
+                </div>
+              </div>
+            </th>
+          );
+        }
 
-                        <div className="flex mt-1 gap-2">
-                          {sortedData[0]?.pastData?.map(
-                            (monthLabel: any, m: number) => (
-                              <motion.span
-                                key={`past-rank-month-${m}`}
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2, delay: m * 0.05 }}
-                                className="py-1 px-2 text-center text-xs font-medium text-gray-600 bg-white border rounded shadow-sm w-[55px]"
-                              >
-                                {monthLabel.month}
-                              </motion.span>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    </th>
-                  );
-                }
+        return (
+          <th
+            key={id}
+            className="py-2 px-2 text-center font-semibold tracking-wide border-r border-gray-300 text-[12px]"
+          >
+            <div className="flex items-center justify-center gap-1 text-gray-700">
+              {header.icon && <span className="text-xs">{header.icon}</span>}
+              {header.label}
+            </div>
 
-                return (
-                  <th
-                    key={id}
-                    className="py-3 px-2 text-center text-sm font-semibold tracking-wide border-r border-gray-300"
-                  >
-                    <div className="flex items-center justify-center gap-1 text-gray-700">
-                      {header.icon && (
-                        <span className="text-sm">{header.icon}</span>
-                      )}
-                      {header.label}
-                    </div>
-                    {header.key === "Group_Rank" && (
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                          }
-                        >
-                          <LuArrowUpDown className="h-4 w-4" />
-                        </Button>
+            {header.key === "Group_Rank" && (
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                  }
+                >
+                  <LuArrowUpDown className="h-3 w-3" />
+                </Button>
 
-                        <Button
-                          variant={excludeZero ? "default" : "ghost"}
-                          size="sm"
-                          onClick={() => setExcludeZero(!excludeZero)}
-                        >
-                          {excludeZero ? (
-                            <FaRegEyeSlash title="Show Zero" />
-                          ) : (
-                            <FaRegEye title="Hide Zero" />
-                          )}
-                        </Button>
-                      </div>
-                    )}
+                <Button
+                  variant={excludeZero ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setExcludeZero(!excludeZero)}
+                >
+                  {excludeZero ? (
+                    <FaRegEyeSlash title="Show Zero" />
+                  ) : (
+                    <FaRegEye title="Hide Zero" />
+                  )}
+                </Button>
+              </div>
+            )}
 
-                    {header.key === "select" && (
-                      <Checkbox
-                        checked={selectAll}
-                        onCheckedChange={(checked) => {
-                          setSelectAll(!!checked);
-                          if (checked) {
-                            setSelectedKeywords(
-                              sortedData.map((d) => d.keywordId)
-                            );
-                          } else {
-                            setSelectedKeywords([]);
-                          }
-                        }}
-                        className="data-[state=checked]:bg-orange-500 
+            {header.key === "select" && (
+              <Checkbox
+                checked={selectAll}
+                onCheckedChange={(checked) => {
+                  setSelectAll(!!checked);
+                  if (checked) {
+                    setSelectedKeywords(sortedData.map((d) => d.keywordId));
+                  } else {
+                    setSelectedKeywords([]);
+                  }
+                }}
+                className="data-[state=checked]:bg-orange-500 
                   data-[state=checked]:border-orange-500 
                   data-[state=checked]:text-white"
-                      />
-                    )}
+              />
+            )}
 
-                    {header.key === "location" && (
-                      <select
-                        className="ml-2 border-none rounded px-1 py-2 w-28 text-xs"
-                        value={locationFilter}
-                        onChange={(e) => setLocationFilter(e.target.value)}
-                      >
-                        <option value="all">All</option>
-                        {uniqueLocations.map((loc: any) => (
-                          <option key={loc} value={loc}>
-                            {loc}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
+            {header.key === "location" && (
+              <select
+                className="ml-2 border-none rounded px-1 py-1 w-24 text-[11px]"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+              >
+                <option value="all">All</option>
+                {uniqueLocations.map((loc: any) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </select>
+            )}
+          </th>
+        );
+      })}
+    </tr>
+  </thead>
 
-          <tbody>
-            {sortedData.length === 0 ? (
-              <tr>
-                <td colSpan={15} className="text-center text-gray-500 py-6">
-                  No keyword data found
-                </td>
-              </tr>
-            ) : (
-              <AnimatePresence>
-                {sortedData.map((data: any, rowIndex) => {
-                  const keywordId = data.keywordId;
+  <tbody className="text-[12px]">
+    {sortedData.length === 0 ? (
+      <tr>
+        <td colSpan={15} className="text-center text-gray-500 py-6 text-[13px]">
+          No keyword data found
+        </td>
+      </tr>
+    ) : (
+      <AnimatePresence>
+        {sortedData.map((data: any, rowIndex) => {
+          const keywordId = data.keywordId;
 
-                  return (
-                    <motion.tr
-                      key={rowIndex}
-                      initial={{ opacity: 0, y: 20 }} // enter animation
-                      animate={{ opacity: 1, y: 0 }} // visible
-                      exit={{ opacity: 0, y: -20 }} // leave animation
-                      transition={{ duration: 0.3, delay: rowIndex * 0.05 }} // stagger by row
-                      className="hover:bg-indigo-50 transition-colors"
-                    >
-                      {/* Checkbox col */}
+          return (
+            <motion.tr
+              key={rowIndex}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, delay: rowIndex * 0.05 }}
+              className="hover:bg-indigo-50 transition-colors text-[12px]"
+            >
+              {/* Checkbox col */}
                       {ShareCampaignStatus !== 2 && (
                         <td className="text-center border p-1">
                           <Checkbox
@@ -670,13 +664,14 @@ const CustomTable = ({
                           </div>
                         </td>
                       )}
-                    </motion.tr>
-                  );
-                })}
-              </AnimatePresence>
-            )}
-          </tbody>
-        </table>
+            </motion.tr>
+          );
+        })}
+      </AnimatePresence>
+    )}
+  </tbody>
+</table>
+
         {/* )}  */}
       </div>
     </>

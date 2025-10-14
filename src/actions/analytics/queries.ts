@@ -484,7 +484,7 @@ export const SaveGoogleAnalyticsData = async (
       tokenData.data?.access_token,
       displayName
     );
-    console.log(propertiesID, "propertiesID in propertyId");
+    // console.log(propertiesID, "propertiesID in propertyId");
 
     const propertyId = extractAccountNumber(propertiesID);
     const googleAnalyticsData = await GoogleProperty.findOne({ displayName });
@@ -944,7 +944,7 @@ export async function AnalyticsData(
       results[name] = { error: error?.message ?? error };
     }
   }
-  console.log(results, "resultsok");
+  // console.log(results, "resultsok");
 
   return { results, date };
 }
@@ -982,19 +982,19 @@ export const propertyIdForDB = async (
 
     const acoountNameforMatch = extractDomain(nameMatch);
 
-    console.log(acoountNameforMatch, "acoountNameforMatch in propertyId");
+    // console.log(acoountNameforMatch, "acoountNameforMatch in propertyId");
 
     const data = await googleAnalyticsAccountID(
       access_token,
       acoountNameforMatch ?? ""
     );
-    console.log(data, "data in propertyId");
+    // console.log(data, "data in propertyId");
     // console.log(data,"data in propertyId");
     const accountId = Array.isArray(data)
       ? data[0]?.accountId
       : (data?.accountId ?? "");
 
-    console.log(accountId, "accountId in propertyId");
+    // console.log(accountId, "accountId in propertyId");
 
     // const location = await fetchLocations(access_token);
 
@@ -1006,7 +1006,7 @@ export const propertyIdForDB = async (
       acoountNameforMatch ?? ""
     );
 
-    console.log(propertiesID, "propertiesID in propertyId");
+    // console.log(propertiesID, "propertiesID in propertyId");
 
     //  const propertyId = propertiesID[0]?.name ?? "";
 
@@ -1019,10 +1019,10 @@ export const propertyIdForDB = async (
       { $set: { propertyId: propertyId, accountId: accountId } },
       { new: true }
     );
-    console.log(
-      campaignDataWithPropertyIdData,
-      "campaignDataWithPropertyIdData in propertyId"
-    );
+    // console.log(
+    //   campaignDataWithPropertyIdData,
+    //   "campaignDataWithPropertyIdData in propertyId"
+    // );
 
     return {
       success: true,
@@ -1052,6 +1052,43 @@ export async function listAnalyticsAccounts(accessToken: string) {
   }
 
   const body = await res.json();
-  console.log(body, "listAnalyticsAccounts");
+  // console.log(body, "listAnalyticsAccounts");
   return body;
 }
+
+
+export const disableSearchAnalytics = async (campaignId: string) => {
+  try {
+    await connectToDB();
+
+    const campaign = await Campaign.findById({_id: campaignId});
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+
+    const gaPropertyId = campaign.gaPropertyId;
+
+    if (gaPropertyId) {
+      await GoogleProperty.findByIdAndDelete({_id:gaPropertyId});
+    }
+
+    const updatedCampaign = await Campaign.findByIdAndUpdate(
+      {_id: campaignId},
+      { $unset: { gaPropertyId: "" } },
+      { new: true }
+    );
+
+    return {
+      success: true,
+      message: "Search Console disconnected and Google Site deleted successfully",
+      data: updatedCampaign,
+    };
+  } catch (error) {
+    console.error("Error disabling Search Console:", error);
+    return {
+      success: false,
+      message: "Failed to disable Search Console",
+      error: (error as Error).message,
+    };
+  }
+};

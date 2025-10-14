@@ -10,6 +10,8 @@ import SearchConsoleHead from "./SearchConsoleHead";
 import { Button } from "../ui/button";
 import ConsoleSkeloton from "../Skeleton/ConsoleSkeloton";
 import GoogleConnect from "../modals/GoogleConnect";
+import { useSearchParams } from "next/navigation";
+
 interface SearchConsoleDataProps {
   campaignId: any;
   setPdfTableConsoleData?: any;
@@ -29,7 +31,9 @@ const SearchConsoleData = ({
   const [searchConsoleGraphData, setSearchConsoleGraphData] = useState<any>();
   const [searchConsoleTableData, setSearchConsoleTableData] = useState<any>();
   const [loading, setLoading] = useState(true); // 🔹 Added loading state
-
+  const searchParams = useSearchParams();
+  const rerun = searchParams.get("rerun");
+  // console.log(rerun, "rerun in search console");
   const [dataWithDimension, setDataWithDimension] = useState({
     startDate: "",
     endDate: "",
@@ -98,7 +102,7 @@ const SearchConsoleData = ({
       }
     };
     fetchData();
-  }, [campaignId, date]);
+  }, [campaignId, date,rerun]);
 
 
    const fetchConsoleData = async () => {

@@ -613,7 +613,7 @@ export const campaignDataWithGoogleData = async (campaignId: string) => {
         },
       })
       .lean();
-        console.log(campaignWithAccountData,"okokgigii")
+        // console.log(campaignWithAccountData,"okokgigii")
     if (!campaignWithAccountData)
       throw new Error("Campaign not found or missing Google account.");
 
@@ -640,7 +640,7 @@ export const campaignDataWithGoogleData = async (campaignId: string) => {
       new Date(googleAccessTokenExpiry).getTime() < Date.now();
 
     if (isExpired && googleRefreshToken) {
-      console.log(`🔁 Access token expired for ${googleEmail}, refreshing...`);
+      console.error(`🔁 Access token expired for ${googleEmail}, refreshing...`);
 
       const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",

@@ -642,7 +642,7 @@ export const campaignDataWithGoogleData = async (campaignId: string) => {
     if (isExpired && googleRefreshToken) {
       console.error(`🔁 Access token expired for ${googleEmail}, refreshing...`);
 
-      const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -732,7 +732,7 @@ export const updateGoogleAccessToken = async (
     }
 
     
-      const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({

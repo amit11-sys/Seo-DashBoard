@@ -63,7 +63,6 @@
 
 //     }
 //     // if (stateData?.consoleData) {
-//     //   // https://www.googleapis.com/webmasters/v3/sites
 //     //   await getDbCompaignDataUpdate(stateData.campaignId, tokenResult);
 //     // }
 
@@ -113,7 +112,6 @@
 //       grant_type: "authorization_code",
 //     };
 
-//     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
 //       method: "POST",
 //       headers: { "Content-Type": "application/x-www-form-urlencoded" },
 //       body: new URLSearchParams(tokenData as any).toString(),
@@ -131,7 +129,6 @@
 
 //     // 2️⃣ Fetch Gmail/email
 //     const userRes = await fetch(
-//       "https://www.googleapis.com/oauth2/v2/userinfo",
 //       {
 //         headers: { Authorization: `Bearer ${accessToken}` },
 //       }
@@ -244,7 +241,7 @@ export async function GET(req: NextRequest) {
     };
     // console.log(tokenData, "tokenData");
 
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+    const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams(tokenData as any).toString(),
@@ -264,7 +261,7 @@ export async function GET(req: NextRequest) {
 
     // 2️⃣ Fetch Gmail/email
     const userRes = await fetch(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
+      `${process.env.NEXT_PUBLIC_USER_INFO}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }

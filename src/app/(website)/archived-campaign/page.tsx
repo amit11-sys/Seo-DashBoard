@@ -8,7 +8,7 @@ import { getArchivedCampaign } from "@/actions/campaign";
 import ArchivedCampaignTable from "@/components/ArchivedCompaign/ArchivedCampaignTable";
 
 const ArchivedCampaign = async () => {
-  const archivedCampaignData = await getArchivedCampaign();
+  // const archivedCampaignData = await getArchivedCampaign();
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
@@ -22,18 +22,18 @@ const ArchivedCampaign = async () => {
         {/* Fixed Sidebar */}
         <aside className="w-[250px] bg-[#1E2A38] h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
-            archivedCampaignData={
-              archivedCampaignData?.KeywordTrackingDataArchied
-            }
+            // archivedCampaignData={
+            //   archivedCampaignData?.KeywordTrackingDataArchied
+            // }
           />
         </aside>
 
         {/* Scrollable Right Content */}
         <main className="ml-[250px] flex-1 overflow-y-auto bg-slate-100 p-4">
           <ArchivedCampaignTable
-            archivedCampaignData={
-              archivedCampaignData?.KeywordTrackingDataArchied
-            }
+            // archivedCampaignData={
+            //   archivedCampaignData?.KeywordTrackingDataArchied
+            // }
           />
         </main>
       </div>

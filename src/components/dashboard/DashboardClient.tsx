@@ -445,7 +445,7 @@ const DashboardClient = () => {
         <aside className="w-[250px] h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
             
-            archivedCampaignData={archivedCampaigns}
+            // archivedCampaignData={archivedCampaigns}
           />
         </aside>
 

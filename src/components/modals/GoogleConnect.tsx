@@ -66,6 +66,7 @@ export default function GoogleConnect({
     { value: string; label: string }[]
   >([]);
   const { startLoading, stopLoading } = useLoader();
+  const [buttonLoading, setButtonLoading] = useState(false)
 
   // const campaignOptions = [
   //   { value: "campaign1", label: "Campaign 1" },
@@ -311,6 +312,7 @@ export default function GoogleConnect({
 
       // 2️⃣ Handle integration-specific saving
       if (integrationType === "gsc") {
+        setButtonLoading(true)
         const response = await getSaveGoogleConsoleData(
           selectedAccount?.label,
           selectedAccount?.value,
@@ -322,7 +324,7 @@ export default function GoogleConnect({
         if (typeof fetchConsoleData === "function") {
           await fetchConsoleData();
         }
-
+        setButtonLoading(false)
         if (response?.success) {
           toast.success("Google Console data saved successfully!");
           router.push(`/dashboard/${selectedCampaign.value}?rerun=gsc`);
@@ -334,6 +336,7 @@ export default function GoogleConnect({
           );
         }
       } else if (integrationType === "ga") {
+        setButtonLoading(true)
         const response = await getSaveGoogleAnalyticsData(
           selectedAccount?.label,
           selectedAccount?.value,
@@ -345,7 +348,7 @@ export default function GoogleConnect({
         if (typeof fetchAnalyticsData === "function") {
           await fetchAnalyticsData();
         }
-
+        setButtonLoading(false)
         if (response?.success) {
           toast.success("Google Analytics data saved successfully!");
           router.push(`/dashboard/${selectedCampaign.value}?rerun=ga`);
@@ -526,19 +529,22 @@ export default function GoogleConnect({
         </div>
 
         <div className="flex justify-end mt-6 space-x-3">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!selectedCampaign || !selectedAccount}
-            className="flex items-center gap-2 bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 text-white"
-          >
-            {integrationType
-              ? `Connect ${integrationLabelMap[integrationType]}`
-              : "Save"}
-          </Button>
-        </div>
+  <Button variant="outline" onClick={() => onOpenChange(false)}>
+    Cancel
+  </Button>
+  <Button
+    onClick={handleSave}
+    disabled={!selectedCampaign || !selectedAccount}
+    className="flex items-center gap-2 bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 text-white"
+  >
+    {buttonLoading
+      ? "Saving ... please wait"
+      : integrationType
+      ? `Connect ${integrationLabelMap[integrationType]}`
+      : "Save"}
+  </Button>
+</div>
+
       </DialogContent>
     </Dialog>
   );

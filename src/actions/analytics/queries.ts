@@ -1037,7 +1037,7 @@ export const propertyIdForDB = async (
 };
 
 export async function listAnalyticsAccounts(accessToken: string) {
-  const url = "https://analyticsadmin.googleapis.com/v1beta/accounts";
+  const url = `${process.env.NEXT_PUBLIC_ANALYTICS_ADMIN}accounts`;
 
   const res = await fetch(url, {
     method: "GET",

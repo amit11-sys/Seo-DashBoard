@@ -316,7 +316,7 @@ const CustomTable = ({
           <table className="min-w-[1000px] w-full table-auto text-[13px]">
   <thead>
     {/* 🔹 Row 1: Main headers */}
-    <tr className="sticky top-0 z-20 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 shadow-sm text-[12px]">
+    <tr className="sticky top-0 z-[40]  bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 shadow-sm text-[12px]">
       {tableHeader?.map((header: any, id: number) => {
         if (
           (header.key === "select" || header.key === "edit") &&

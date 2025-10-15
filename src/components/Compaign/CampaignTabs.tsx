@@ -41,7 +41,7 @@ import {
   getfetchDBLocation,
   getlanguageData,
 } from "@/actions/locations_Language";
-import GoogleIntegrations from "../GoogleConsole/googleIntegration";
+// import GoogleIntegrations from "../GoogleConsole/googleIntegration";
 import { useLanguages } from "@/app/context/LanguageContext";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
@@ -221,17 +221,15 @@ export function CampaignTabs() {
         // console.log(campaign, "from on submit");
         const campaignId = response.campaign._id;
 
-        setCreatedCampaignId(campaignId); // Save for dashboard redirect
-        setShowIntegrationDialog(true); // Show dialog
-
-        // router.push(`/dashboard/${campaignId}`);
-
+     
+        
         toast("Campaign created successfully");
         form.reset();
         setKeywords([]);
         setCampaignValid(false);
         setActiveTab("account");
         setCampaignData(campaign?.campaign || []);
+        router.push(`/dashboard/${campaignId}`);
       } else {
         toast(response?.error || "Failed to create campaign");
         // console.log(response);
@@ -597,7 +595,7 @@ export function CampaignTabs() {
           </TabsContent>
         </Tabs>
       </Form>
-      {showIntegrationDialog && (
+      {/* {showIntegrationDialog && (
         <GoogleIntegrations
           onClose={() => setShowIntegrationDialog(false)}
           onSkip={() => {
@@ -607,7 +605,7 @@ export function CampaignTabs() {
           }}
           createdCampaignId={createdCampaignId ?? ""}
         />
-      )}
+      )} */}
     </>
   );
 }

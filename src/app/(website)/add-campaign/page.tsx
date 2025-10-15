@@ -8,7 +8,7 @@ import Navbar from "@/components/Common/Navbar";
 import { getArchivedCampaign } from "@/actions/campaign";
 
 const AddCamapign = async () => {
-  const archivedCampaignData = await getArchivedCampaign();
+  // const archivedCampaignData = await getArchivedCampaign();
   // console.log(archivedCampaignData, "archivedCampaignData");
 
   return (
@@ -23,9 +23,9 @@ const AddCamapign = async () => {
         {/* Fixed Sidebar */}
         <aside className="w-[250px] bg-[#1E2A38] h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
-            archivedCampaignData={
-              archivedCampaignData?.KeywordTrackingDataArchied
-            }
+            // archivedCampaignData={
+            //   archivedCampaignData?.KeywordTrackingDataArchied
+            // }
           />
         </aside>
 

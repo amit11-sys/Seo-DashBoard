@@ -1020,7 +1020,7 @@ export const disableSearchConsole = async (campaignId: string) => {
 
 
 export async function listConsoleAccounts(accessToken: string) {
-  const url = "https://www.googleapis.com/webmasters/v3/sites";
+  const url = `${process.env.NEXT_PUBLIC_GOOGLE_CONSOLE_URL}`;
 
   const res = await fetch(url, {
     method: "GET",

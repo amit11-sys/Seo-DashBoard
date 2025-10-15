@@ -59,7 +59,7 @@ export const fetchLocation = async () => {
     const basicAuth = Buffer.from(`${username}:${password}`).toString("base64");
 
     const res: any = await fetch(
-      `https://api.dataforseo.com/v3/serp/google/locations`,
+      `${process.env.NEXT_PUBLIC_LOCATIONS_API}`,
       {
         method: "GET",
         headers: {

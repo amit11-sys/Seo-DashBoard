@@ -3,7 +3,7 @@ import AnalyticsChart1 from "@/components/SearchAnalytics/AnalyticsChart";
 import { use, useEffect, useRef, useState } from "react";
 import CustomButton from "../ui/CustomButton";
 import { FaInfoCircle } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+import { FcDeleteDatabase, FcGoogle } from "react-icons/fc";
 import { FaClock, FaStopwatch, FaUserPlus, FaUsers } from "react-icons/fa6";
 import { getAnalyticsData, getDisableSearchAnalytics } from "@/actions/analytics";
 import { Button } from "../ui/button";
@@ -315,7 +315,11 @@ const handleConnect = () => {
             </div>
             <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
           </div>
-          <div><TbDisabled className="text-4xl cursor-pointer" onClick={disableAnalytics}/></div>
+          <div> <FcDeleteDatabase
+                    className="cursor-pointer text-4xl"
+                    title="Disable Search Analytics"
+                    onClick={disableAnalytics}
+                  /></div>
         </div>
 
         {isLoading ? (

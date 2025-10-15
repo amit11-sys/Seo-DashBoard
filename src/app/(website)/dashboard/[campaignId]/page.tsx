@@ -38,9 +38,9 @@ export default async function DashboardDetails({
         <aside className="w-[250px]   h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
             campaignId={campaignId as string}
-            archivedCampaignData={
-              archivedCampaignData?.KeywordTrackingDataArchied ?? []
-            }
+            // archivedCampaignData={
+            //   archivedCampaignData?.KeywordTrackingDataArchied ?? []
+            // }
           />
         </aside>
 

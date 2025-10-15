@@ -464,6 +464,7 @@ export const getKewordRank = async (KeywordData: any) => {
         target: `*${KeywordData.url}*`,
         device: KeywordData.deviceType,
         se_domain: KeywordData.SearchEngine,
+        depth:100
       },
     ];
     // const rankPayload: KeywordPayload[] = KeywordData.map(

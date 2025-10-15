@@ -160,6 +160,7 @@ export const keywordWorker = new Worker(
         device,
         se_domain,
         target: `*${target}*`,
+        depth:100
       },
     ];
     const intentPayload = [

@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     resetToken: { type: String },
     resetTokenExpires:{ type: String },
+    role:{ type: Number, default: 3 },
   },
   {
     timestamps: true,

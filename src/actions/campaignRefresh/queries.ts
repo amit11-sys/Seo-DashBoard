@@ -5,6 +5,7 @@ import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import {
   getKewordRank,
+  getRankIntent,
 
 } from "../keyword/queries";
 import { getRedis } from "@/lib/redis";
@@ -39,6 +40,129 @@ interface ErrorResponse {
 
 
 
+// export const RefreshSingleKeyword = async (keywordId: string) => {
+//   try {
+//     await connectToDB();
+
+//     const user = await getUserFromToken();
+//     if (!user) {
+//       return { error: "Unauthorized" };
+//     }
+//     // console.log(keywordId, "refresh id");
+
+//     const singleKeywordForUpdate = await Keyword.findById({ _id: keywordId });
+//     // console.log(singleKeywordForUpdate, "SingleKeywordForUpdate");
+
+//     const rankdata = await getKewordRank(singleKeywordForUpdate);
+//     // const intentData = await getRankIntent([singleKeywordForUpdate]);
+
+//     // 
+//     // console.log(intentData?.intentResponses, "intent data add");
+
+//     // build finalData (unchanged)
+//     // const allRankGroups =
+//     //   rankdata?.rankResponses?.flatMap((rankItem: any) => {
+//     //     const task = rankItem?.response?.tasks?.[0];
+//     //     const data = task?.result?.[0];
+//     //     const rankGroup = data?.items?.[0]?.rank_group;
+//     //     return rankGroup !== undefined ? [rankGroup] : [];
+//     //   }) || [];
+
+//     // const totalTopRanks = {
+//     //   keywordsUp: allRankGroups.filter((r) => r > 0).length,
+//     //   top3: allRankGroups.filter((r) => r > 0 && r <= 3).length,
+//     //   top10: allRankGroups.filter((r) => r > 0 && r <= 10).length,
+//     //   top20: allRankGroups.filter((r) => r > 0 && r <= 20).length,
+//     //   top30: allRankGroups.filter((r) => r > 0 && r <= 30).length,
+//     //   top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
+//     // };
+
+//     // const finalData: any =
+//     //   rankdata && "rankResponses" in rankdata
+//     //     ? rankdata?.rankResponses?.map((rankItem: any) => {
+//     //         const task = rankItem?.response?.tasks?.[0];
+//     //         const data = task?.result?.[0];
+//     //         // const newKeyword = rankItem?.keyword;
+
+//     //         // const matchedKeyword = [singleKeywordForUpdate].find(
+//     //         //   (k: any) =>
+//     //         //     k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
+//     //         // );
+
+//     //         const rankGroup = data?.items?.[0]?.rank_group || 0;
+
+//     //         return {
+//     //           // type: task?.data?.se_type || "organic",
+//     //           // location_code: matchedKeyword?.searchLocationCode || 2124,
+//     //           // language_code: data?.language_code || "en",
+//     //           // url: data?.items?.[0]?.url?.trim() || "no ranking",
+//     //           rank_group: rankGroup,
+//     //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
+//     //           // keyword: newKeyword || "",
+//     //           // searchVolumn: 0,
+//     //           // checkUrl: data?.check_url || "no url",
+//     //           // intent: "",
+//     //           // competition: 0,
+//     //           // campaignId: singleKeywordForUpdate?.CampaignId || "",
+//     //           // keywordId: matchedKeyword?._id,
+//     //           // start: rankGroup,
+
+//     //           // shared top rank values
+//     //           // ...totalTopRanks,
+
+//     //           updatedAt: new Date(),
+//     //         };
+//     //       })
+//     //     : [];
+
+//     // // ✅ pick the first object
+//     // const keywordUpdate = finalData[0] || null;
+//     // const json: any = await rankdata.json();
+//     // console.log(rankdata, "rankdata single");
+//     // console.log(rankdata?.result?.tasks?.[0], "coming undefined");
+    
+//     const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
+//     const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
+//       { keywordId },
+//       {
+//         $set: {
+//           rank_group: item?.rank_group ?? 0,
+//           rank_absolute: item?.rank_absolute ?? 0,
+//           updatedAt: new Date(),
+//         },
+//       },
+//       { new: true }
+//     );
+//     // console.log(item, "item single");
+
+//     // // if (!keywordUpdate) {
+//     // //   return { error: "No keyword data to update" };
+//     // // }
+
+//     // const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
+//     //   { keywordId: keywordId },
+//     //   { $set: keywordUpdate, $setOnInsert: { createdAt: new Date() } },
+//     //   { upsert: true, new: true }
+//     // );
+
+//     // console.log("refresh All records updated:", SingleKeywordUpdated);
+
+//     // if (!SingleKeywordUpdated) {
+//     //   return { error: "Error while refreshing keyword" };
+//     // }
+//     return {
+//       success: true,
+//       message: "Keyword Refresh Successfully",
+//       SingleKeywordUpdated,
+//     };
+//   } catch (error) {
+//     console.log(error);
+//     return { error: "Internal Server Error." };
+//   }
+// };
+
+
+
 export const RefreshSingleKeyword = async (keywordId: string) => {
   try {
     await connectToDB();
@@ -47,108 +171,83 @@ export const RefreshSingleKeyword = async (keywordId: string) => {
     if (!user) {
       return { error: "Unauthorized" };
     }
-    console.log(keywordId, "refresh id");
+    // console.log(keywordId, "refresh id");
 
     const singleKeywordForUpdate = await Keyword.findById({ _id: keywordId });
-    console.log(singleKeywordForUpdate, "SingleKeywordForUpdate");
+    if (!singleKeywordForUpdate) {
+      return { error: "Keyword not found" };
+    }
 
     const rankdata = await getKewordRank(singleKeywordForUpdate);
-    // const intentData = await getRankIntent([singleKeywordForUpdate]);
+    const intentData = await getRankIntent([singleKeywordForUpdate]);
 
-    // 
-    // console.log(intentData?.intentResponses, "intent data add");
-
-    // build finalData (unchanged)
-    // const allRankGroups =
-    //   rankdata?.rankResponses?.flatMap((rankItem: any) => {
-    //     const task = rankItem?.response?.tasks?.[0];
-    //     const data = task?.result?.[0];
-    //     const rankGroup = data?.items?.[0]?.rank_group;
-    //     return rankGroup !== undefined ? [rankGroup] : [];
-    //   }) || [];
-
-    // const totalTopRanks = {
-    //   keywordsUp: allRankGroups.filter((r) => r > 0).length,
-    //   top3: allRankGroups.filter((r) => r > 0 && r <= 3).length,
-    //   top10: allRankGroups.filter((r) => r > 0 && r <= 10).length,
-    //   top20: allRankGroups.filter((r) => r > 0 && r <= 20).length,
-    //   top30: allRankGroups.filter((r) => r > 0 && r <= 30).length,
-    //   top100: allRankGroups.filter((r) => r > 0 && r <= 100).length,
-    // };
-
-    // const finalData: any =
-    //   rankdata && "rankResponses" in rankdata
-    //     ? rankdata?.rankResponses?.map((rankItem: any) => {
-    //         const task = rankItem?.response?.tasks?.[0];
-    //         const data = task?.result?.[0];
-    //         // const newKeyword = rankItem?.keyword;
-
-    //         // const matchedKeyword = [singleKeywordForUpdate].find(
-    //         //   (k: any) =>
-    //         //     k.keywords?.toLowerCase() === newKeyword?.toLowerCase()
-    //         // );
-
-    //         const rankGroup = data?.items?.[0]?.rank_group || 0;
-
-    //         return {
-    //           // type: task?.data?.se_type || "organic",
-    //           // location_code: matchedKeyword?.searchLocationCode || 2124,
-    //           // language_code: data?.language_code || "en",
-    //           // url: data?.items?.[0]?.url?.trim() || "no ranking",
-    //           rank_group: rankGroup,
-    //           rank_absolute: data?.items?.[0]?.rank_absolute || 0,
-    //           // keyword: newKeyword || "",
-    //           // searchVolumn: 0,
-    //           // checkUrl: data?.check_url || "no url",
-    //           // intent: "",
-    //           // competition: 0,
-    //           // campaignId: singleKeywordForUpdate?.CampaignId || "",
-    //           // keywordId: matchedKeyword?._id,
-    //           // start: rankGroup,
-
-    //           // shared top rank values
-    //           // ...totalTopRanks,
-
-    //           updatedAt: new Date(),
-    //         };
-    //       })
-    //     : [];
-
-    // // ✅ pick the first object
-    // const keywordUpdate = finalData[0] || null;
-    // const json: any = await rankdata.json();
-    console.log(rankdata, "rankdata single");
-    console.log(rankdata?.result?.tasks?.[0], "coming undefined");
-    
     const item = rankdata?.result?.tasks?.[0]?.result?.[0]?.items?.[0];
+    console.log(rankdata?.result?.tasks?.[0],"rankdata single");
+    console.log(item,"rankdata items");
+
+    // 🔄 Fetch previous keyword tracking
+    const prevKeywordTracking:any = await KeywordTracking.findOne({ keywordId });
+    const now = new Date();
+
+    // 🟢 Seven-days rank change calculation
+    let rankChange = 0;
+    let changeDirection: "up" | "down" | "" = "";
+
+    const newRankGroup = item?.rank_group ?? 0;
+
+    if (prevKeywordTracking) {
+      const oldRank = prevKeywordTracking?.rank_group ?? 0;
+      const lastUpdate = prevKeywordTracking?.lastUpdatedAt;
+      const daysSinceUpdate = lastUpdate
+        ? (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24)
+        : 999;
+
+      if (daysSinceUpdate >= 7) {
+        // Only update rankChange if 7+ days passed
+        const diff = oldRank - newRankGroup;
+        if (oldRank > 0 && newRankGroup > 0 && oldRank !== newRankGroup) {
+          if (diff > 0) {
+            rankChange = diff;
+            changeDirection = "up";
+          } else {
+            rankChange = Math.abs(diff);
+            changeDirection = "down";
+          }
+        }
+        prevKeywordTracking.lastUpdatedAt = now;
+      } else {
+        // Less than 7 days → keep previous values
+        rankChange = prevKeywordTracking.rankChange ?? 0;
+        changeDirection = prevKeywordTracking.changeDirection ?? "";
+        prevKeywordTracking.lastUpdatedAt = prevKeywordTracking.lastUpdatedAt ?? now;
+      }
+    } else {
+      // No previous record
+      if (newRankGroup > 0) {
+        rankChange = newRankGroup;
+        changeDirection = "up";
+      }
+    }
+
+    // 💾 Update keyword tracking
     const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
       { keywordId },
       {
         $set: {
-          rank_group: item?.rank_group ?? 0,
+          rank_group: newRankGroup,
           rank_absolute: item?.rank_absolute ?? 0,
-          updatedAt: new Date(),
+          intent: intentData?.intentData ?? "",
+          rankChange,
+          userId: user.id,
+          changeDirection,
+          lastUpdatedAt: now,
+          updatedAt: now,
         },
+        $setOnInsert: { createdAt: now },
       },
-      { new: true }
+      { upsert: true, new: true }
     );
-    console.log(item, "item single");
 
-    // // if (!keywordUpdate) {
-    // //   return { error: "No keyword data to update" };
-    // // }
-
-    // const SingleKeywordUpdated = await KeywordTracking.findOneAndUpdate(
-    //   { keywordId: keywordId },
-    //   { $set: keywordUpdate, $setOnInsert: { createdAt: new Date() } },
-    //   { upsert: true, new: true }
-    // );
-
-    // console.log("refresh All records updated:", SingleKeywordUpdated);
-
-    // if (!SingleKeywordUpdated) {
-    //   return { error: "Error while refreshing keyword" };
-    // }
     return {
       success: true,
       message: "Keyword Refresh Successfully",

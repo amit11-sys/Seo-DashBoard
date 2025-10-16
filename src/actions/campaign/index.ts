@@ -14,9 +14,10 @@ import {
   // propertyIdForDB,
 } from "./queries";
 import { addMultipleKeyword } from "../keyword";
+import { propertyIdForDB } from "../analytics/queries";
 
 export const createCampaign = async (formData: any) => {
-  console.log(formData);
+  // console.log(formData);
 
   const campaign = await newCampaign(formData);
   // console.log(campaign,"from index")
@@ -88,13 +89,3 @@ export const getCurrentCampaignIdData = async (campaignId: string) => {
 };
 
 
-// export const setPropertyIdForDB = async (
-//   campaignId: string,
-//   tokenResult: {},
-//   projectUrl: any
-// ) => {
-//   const data = await propertyIdForDB(campaignId, tokenResult, projectUrl);
-
-//   return data;
-// };
-// --- IGNORE ---

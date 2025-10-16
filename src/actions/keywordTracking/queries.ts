@@ -15,10 +15,10 @@ export const createKeywordTracking = async (keywordData: any) => {
     // console.log(user, "user");
 
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
 
-    console.log(keywordData, "createlivedata");
+    // console.log(keywordData, "createlivedata");
 
     const createdRecords: any[] = [];
     //  console.log(keywordData,"new")
@@ -47,7 +47,7 @@ export const createKeywordTracking = async (keywordData: any) => {
       createdRecords.push(record);
     });
 
-    console.log(createdRecords, "orignal");
+    // console.log(createdRecords, "orignal");
 
     const KeywordTrackingData =
       await KeywordTracking.insertMany(createdRecords);
@@ -77,7 +77,7 @@ export const getUserKeywordData = async (newCompaignId: any) => {
       return { error: "Unauthorized" };
     }
     // console.log(user);
-    console.log(newCompaignId, "newkeywordCampaign");
+    // console.log(newCompaignId, "newkeywordCampaign");
     const campaignKeywords = await Keyword.find({
       CampaignId: newCompaignId?.CampaignId,
     });
@@ -236,7 +236,7 @@ export const DbLiveKeywordDataWithSatusCode = async (
     // }
     // console.log(user);
     // console.log(newCompaignId,"newkeywordCampaign")
-    console.log(location, "loationServer");
+    // console.log(location, "loationServer");
 
    
 
@@ -375,7 +375,7 @@ export const getKeywordLiveData = async (
   campaignStatus: number,
   location?: string
 ) => {
-  console.log('in fn');
+  // console.log('in fn');
   
   try {
     await connectToDB();
@@ -390,7 +390,7 @@ export const getKeywordLiveData = async (
     if (location && location !== "all") {
       const { allLocations = [] } = await fetchDBLocation(location);
       const locationCode = allLocations[0]?.locationCode;
-      console.log(locationCode, "locationCode");
+      // console.log(locationCode, "locationCode");
       
       LiveKeywordDbData = await KeywordTracking.find({
         location_code: locationCode,
@@ -459,7 +459,7 @@ export const getKeywordLiveData = async (
         };
       })
     );
-    console.log(newLiveKeywordDbData?.length, "newLiveKeywordDbData");
+    // console.log(newLiveKeywordDbData?.length, "newLiveKeywordDbData");
     
     return {
       success: true,
@@ -488,7 +488,7 @@ export const LiveKeywordDatabyKeyID = async (keywordId: string) => {
       keywordId: keywordId,
       status: 1,
     });
-    console.log(signleKeywordDbData, "edit updq table data");
+    // console.log(signleKeywordDbData, "edit updq table data");
 
   
     const singleEditLiveKeywordDbData = await Promise.all(
@@ -505,7 +505,7 @@ export const LiveKeywordDatabyKeyID = async (keywordId: string) => {
       })
     );
 
-    console.log(singleEditLiveKeywordDbData, "edit data");
+    // console.log(singleEditLiveKeywordDbData, "edit data");
 
     if (!signleKeywordDbData) {
       return { error: "Error while getting LiveKeywordDbData" };
@@ -563,14 +563,14 @@ export const fetchDBlocationData = async (locationcode: number) => {
 export const getStartData = async (keywordId: string, newStartData: number) => {
   try {
     await connectToDB();
-    console.log(keywordId, newStartData, "data for start update"); // 6879e81b47ed1758549aef75 2 data for start update
+    // console.log(keywordId, newStartData, "data for start update"); // 6879e81b47ed1758549aef75 2 data for start update
 
     const startUpdatedData = await KeywordTracking.findOneAndUpdate(
       { keywordId: keywordId },
       { $set: { start: newStartData } },
       { new: true }
     );
-    console.log(startUpdatedData, "start updated data");
+    // console.log(startUpdatedData, "start updated data");
 
     if (!keywordId) {
       return { error: "Error while getting keywordId" };
@@ -691,10 +691,10 @@ export const DbTopLiveKeywordData = async () => {
       return { error: "Unauthorized please login" };
     }
 
-    const TopLiveKeywordDbData = await KeywordTracking.find({ status: 1 });
+    const TopLiveKeywordDbData = await KeywordTracking.find({ status: 1, userId: user?.id });
 
     // Format for card
-    console.log(TopLiveKeywordDbData, "TopLiveKeywordDbData");
+    // console.log(TopLiveKeywordDbData, "TopLiveKeywordDbData");
 
     // console.log(newLiveKeywordDbData, "realdata");
 
@@ -721,8 +721,13 @@ export const DbKeywordStatusData = async (statusCode: number) => {
   try {
     await connectToDB();
 
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
+
     // 1. Get all campaigns with given status
-    const campaignDatastatus = await Campaign.find({ status: statusCode });
+    const campaignDatastatus = await Campaign.find({ status: statusCode, userId: user?.id });
 
     if (!campaignDatastatus || campaignDatastatus.length === 0) {
       return { error: "No campaigns found for given status." };
@@ -736,7 +741,6 @@ export const DbKeywordStatusData = async (statusCode: number) => {
       campaignId: { $in: campaignIds },
       status: statusCode,
     });
-    console.log(keywordDatastatus, "keywordDatastatus");
 
     return {
       success: true,

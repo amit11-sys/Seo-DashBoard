@@ -7,16 +7,36 @@ import {
 } from "react-icons/fa";
 
 import { useEffect, useState } from "react";
-import { getUserCampaign } from "@/actions/campaign";
+import { getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
 
 type SidebarProps = {
   isCollapsed: boolean;
-  archivedCampaignData?: any;
+  // archivedCampaignData?: any;
   campaignId?: string
 };
 
-const Sidebar = ({ isCollapsed, archivedCampaignData,campaignId }: SidebarProps) => {
+const Sidebar = ({ isCollapsed, 
+  // archivedCampaignData,
+  campaignId }: SidebarProps) => {
   const [campaignData, setCampaignData] = useState<any>();
+  const [archivedCampaignData, setArchivedCampaignData] = useState<any>();
+  useEffect(() => {
+
+    const fetchArchivedCampaign = async () => {
+      const fetchData = await getArchivedCampaign();
+
+        setArchivedCampaignData(fetchData?.KeywordTrackingDataArchied || []);
+      
+
+    }
+      
+    fetchArchivedCampaign();
+   
+    
+
+
+
+  },[])
   useEffect(() => {
     const fetchData = async () => {
       const data = await getUserCampaign();

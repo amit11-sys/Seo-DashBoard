@@ -25,7 +25,7 @@ interface Campaign {
 interface SidebarWrapperProps {
   // children: React.ReactNode;
   // Convertedcampaign: Campaign[];
-  archivedCampaignData:any
+  // archivedCampaignData:any
   campaignId?:string
 }
 
@@ -33,9 +33,10 @@ export default  function SidebarWrapper({
   // children,
   // Convertedcampaign,
   campaignId,
-  archivedCampaignData
+  // archivedCampaignData
 }: SidebarWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
  
 
   return (
@@ -59,7 +60,9 @@ export default  function SidebarWrapper({
         </div>
 
         <ScrollArea className="h-[calc(100vh-48px)]">
-          <Sidebar campaignId={campaignId} archivedCampaignData={archivedCampaignData} isCollapsed={isCollapsed} />
+          <Sidebar campaignId={campaignId}
+          //  archivedCampaignData={archivedCampaignData} 
+           isCollapsed={isCollapsed} />
         </ScrollArea>
       </div>
 

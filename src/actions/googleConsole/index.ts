@@ -1,10 +1,12 @@
 import {
+  disableSearchConsole,
   getAuthToken,
   googleAnalyticsAccountID,
   googleAnalyticsPropertyID,
   GoogleConsoleDataByDate,
   GoogleSearchDataByDimension,
-  refreshGoogleAccessToken,
+  listConsoleAccounts,
+  // refreshGoogleAccessToken,
 } from "./queries";
 
 export const googleAuthHandler = async (code: any) => {
@@ -44,18 +46,28 @@ export const getGoogleSearchDataByDimension = async (newCompaignId: any,dimensio
   return data;
 };
           
-export const getRefreshGoogleAccessToken = async (newCompaignId: string) => {
-  const data = await refreshGoogleAccessToken(newCompaignId);
+// export const getRefreshGoogleAccessToken = async (newCompaignId: string) => {
+//   const data = await refreshGoogleAccessToken(newCompaignId);
 
-  return data;
-};
-export const getGoogleAnalyticsAccountID = async (access_token: string,nameMatch : string) => {
+//   return data;
+// };
+export const getGoogleAnalyticsAccountID = async (access_token: string,nameMatch? : string) => {
   const data = await googleAnalyticsAccountID(access_token,nameMatch);
 
   return data;
 };
 export const getGoogleAnalyticsPropertyID = async (access_token: string , accountId: string,nameMatch : string) => {
   const data = await googleAnalyticsPropertyID(access_token, accountId,nameMatch);
+
+  return data;
+};
+export const getListConsoleAccounts = async (access_token: string ) => {
+  const data = await listConsoleAccounts(access_token);
+
+  return data;
+};
+export const getDisableSearchConsole = async (campaignId: string ) => {
+  const data = await disableSearchConsole(campaignId);
 
   return data;
 };

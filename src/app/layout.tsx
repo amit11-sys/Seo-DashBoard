@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Track-Scop | SEO Keyword Tracker",
   description: "SEO Keyword Tracking made simple",
   icons: {
-    icon: "/favicon.ico", 
+    icon: "/favicon.ico",
   },
 };
 export default function RootLayout({
@@ -26,20 +26,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   return (
     <html lang="en">
       <body className={` antialiased  relative `}>
-       
         <CampaignDataProvider>
           <LanguageProvider>
-          <Loader />
-          <ReactQueryProvider>
-         
-            {children}
-            <SessionExpiredDialog/> 
-          </ReactQueryProvider>
-          <Toaster />
+            <Loader />
+            <ReactQueryProvider>
+              {children}
+              <SessionExpiredDialog />
+            </ReactQueryProvider>
+            <Toaster />
           </LanguageProvider>
         </CampaignDataProvider>
       </body>

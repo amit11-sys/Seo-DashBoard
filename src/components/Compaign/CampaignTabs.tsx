@@ -41,7 +41,7 @@ import {
   getfetchDBLocation,
   getlanguageData,
 } from "@/actions/locations_Language";
-import GoogleIntegrations from "../GoogleConsole/googleIntegration";
+// import GoogleIntegrations from "../GoogleConsole/googleIntegration";
 import { useLanguages } from "@/app/context/LanguageContext";
 
 type CampaignFormType = z.infer<typeof campaignSchema>;
@@ -96,7 +96,7 @@ export function CampaignTabs() {
     return debounce((q: string) => {
       startTransition(() => {
         getfetchDBLocation(q).then((response) => {
-            console.log(response, "response");
+            // console.log(response, "response");
             if (response?.error === "Unauthorized please login") {
               window.dispatchEvent(new Event("session-expired"));
               return;
@@ -206,7 +206,7 @@ export function CampaignTabs() {
       // searchLocationCode:
     };
 
-    console.log(payload, "pyaload of caompgin form");
+    // console.log(payload, "pyaload of caompgin form");
 
     startLoading();
     try {
@@ -221,20 +221,18 @@ export function CampaignTabs() {
         // console.log(campaign, "from on submit");
         const campaignId = response.campaign._id;
 
-        setCreatedCampaignId(campaignId); // Save for dashboard redirect
-        setShowIntegrationDialog(true); // Show dialog
-
-        // router.push(`/dashboard/${campaignId}`);
-
+     
+        
         toast("Campaign created successfully");
         form.reset();
         setKeywords([]);
         setCampaignValid(false);
         setActiveTab("account");
         setCampaignData(campaign?.campaign || []);
+        router.push(`/dashboard/${campaignId}`);
       } else {
         toast(response?.error || "Failed to create campaign");
-        console.log(response);
+        // console.log(response);
       }
     } catch (error) {
       toast("Something went wrong");
@@ -422,13 +420,13 @@ export function CampaignTabs() {
                           )}
                         />
 
-                        {results.length > 0 && (
+                        {results?.length > 0 && (
                           <ul className="absolute mt-2 bg-white border border-gray-300 overflow-y-scroll z-10 w-full h-40">
                             {isPending && (
                               <p className="text-green-500">Loading...</p>
                             )}
-                            {results.map((loc: any) => {
-                              console.log("Location:", loc);
+                            {results?.map((loc: any) => {
+                              // console.log("Location:", loc);
                               return (
                                 <li
                                   key={loc._id}
@@ -597,7 +595,7 @@ export function CampaignTabs() {
           </TabsContent>
         </Tabs>
       </Form>
-      {showIntegrationDialog && (
+      {/* {showIntegrationDialog && (
         <GoogleIntegrations
           onClose={() => setShowIntegrationDialog(false)}
           onSkip={() => {
@@ -607,7 +605,7 @@ export function CampaignTabs() {
           }}
           createdCampaignId={createdCampaignId ?? ""}
         />
-      )}
+      )} */}
     </>
   );
 }

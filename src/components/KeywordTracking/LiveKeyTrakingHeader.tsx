@@ -53,7 +53,7 @@ export default function LiveKeyTrakingHeader({
     startLoading();
     try {
       const refreshedCampaign = await getRefreshCampaign(campaignId);
-      console.log(refreshedCampaign, "refreshedCampaign");
+      // console.log(refreshedCampaign, "refreshedCampaign");
   
       
          if(refreshedCampaign.error === "Unauthorized please login") {
@@ -133,9 +133,9 @@ export default function LiveKeyTrakingHeader({
         </div>
         <div>
           <h2 className="text-xl font-bold text-black">
-            {campaignStatus === 2
-              ? "Archived Keywords"
-              : "Live Keyword Tracking"}
+            {/* {campaignStatus === 2 */}
+              {/* ? "Archived Keywords" */}
+              Live Keyword Tracking
           </h2>
           <p className="text-sm text-black">{refreshDate}</p>
         </div>

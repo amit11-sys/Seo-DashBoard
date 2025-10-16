@@ -81,6 +81,8 @@ interface CustomTableProps {
   getKeywordData: () => void;
   setShowLastKeywords: React.Dispatch<React.SetStateAction<boolean>>;
   showLastKeywords: boolean;
+   showPastRank : boolean; // 👈 new prop,
+  setShowPastRank : React.Dispatch<React.SetStateAction<boolean>>; // 👈 new prop,
 }
 
 const CustomTable = ({
@@ -99,6 +101,8 @@ const CustomTable = ({
   campaignId,
   showAddedKeyword,
   setTableBody,
+  showPastRank,
+  setShowPastRank,
   filterCampaignLiveKeywordsData,
   // fetchCardDatafilterLocation,
   locationFilter,
@@ -118,6 +122,10 @@ const CustomTable = ({
   const [sortedData, setSortedData] = useState<TablebodyItems[]>([]);
 
   const [excludeZero, setExcludeZero] = useState<boolean>(false); // 👈 new toggle
+
+  // Add this near your other useStates:
+// const [showPastRank, setShowPastRank] = useState<boolean>(false);
+
   // sortMode can be: "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
   // const [sortMode, setSortMode] = useState<
   //   "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
@@ -324,39 +332,41 @@ const CustomTable = ({
         ) {
           return null;
         }
+          if(showPastRank){
 
-        if (
-          header.key === "pastRanks" &&
-          showLastKeywords &&
-          sortedData.length > 0
-        ) {
-          return (
-            <th
-              key="pastRanks"
-              className="py-2 px-1 text-center font-semibold tracking-wide border-r border-gray-300 text-[12px]"
-            >
-              <div className="flex flex-col items-center">
-                <span className="text-gray-700 text-[12px]">{header.label}</span>
-                <div className="flex mt-1 gap-1">
-                  {sortedData[0]?.pastData?.map(
-                    (monthLabel: any, m: number) => (
-                      <motion.span
-                        key={`past-rank-month-${m}`}
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2, delay: m * 0.05 }}
-                        className="py-1 px-2 text-center text-[11px] font-medium text-gray-600 bg-white border rounded shadow-sm w-[55px]"
-                      >
-                        {monthLabel.month}
-                      </motion.span>
-                    )
-                  )}
-                </div>
-              </div>
-            </th>
-          );
-        }
+            if (
+              header.key === "pastRanks" &&
+              showLastKeywords &&
+              sortedData.length > 0
+            ) {
+              return (
+                <th
+                  key="pastRanks"
+                  className="py-2 px-1 text-center font-semibold tracking-wide border-r border-gray-300 text-[12px]"
+                >
+                  <div className="flex flex-col items-center">
+                    <span className="text-gray-700 text-[12px]">{header.label}</span>
+                    <div className="flex mt-1 gap-1">
+                      {sortedData[0]?.pastData?.map(
+                        (monthLabel: any, m: number) => (
+                          <motion.span
+                            key={`past-rank-month-${m}`}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2, delay: m * 0.05 }}
+                            className="py-1 px-2 text-center text-[11px] font-medium text-gray-600 bg-white border rounded shadow-sm w-[55px]"
+                          >
+                            {monthLabel.month}
+                          </motion.span>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </th>
+              );
+            }
+          }
 
         return (
           <th
@@ -368,7 +378,7 @@ const CustomTable = ({
               {header.label}
             </div>
 
-            {header.key === "Group_Rank" && (
+            {/* {header.key === "Group_Rank" && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -392,7 +402,44 @@ const CustomTable = ({
                   )}
                 </Button>
               </div>
-            )}
+            )} */}
+            {header.key === "Group_Rank" && (
+  <div className="flex items-center gap-2 justify-center">
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+    >
+      <LuArrowUpDown className="h-3 w-3" />
+    </Button>
+
+    <Button
+      variant={excludeZero ? "default" : "ghost"}
+      size="sm"
+      onClick={() => setExcludeZero(!excludeZero)}
+    >
+      {excludeZero ? (
+        <FaRegEyeSlash title="Show Zero" />
+      ) : (
+        <FaRegEye title="Hide Zero" />
+      )}
+    </Button>
+
+        {/* 👇 NEW COLLAPSE SWITCH */}
+    {showLastKeywords && (
+      <Button
+        variant={showPastRank ? "default" : "ghost"}
+        size="sm"
+        onClick={() => setShowPastRank(!showPastRank)}
+        title={showPastRank ? "Hide Past Ranks" : "Show Past Ranks"}
+      >
+        <LuTable className="h-3 w-3" />
+      </Button>
+    )}
+   
+  </div>
+)}
+
 
             {header.key === "select" && (
               <Checkbox
@@ -558,28 +605,10 @@ const CustomTable = ({
                         {data.Group_Rank}
                       </td>
 
-                      {/* ✅ Past Ranks (6 columns if visible) */}
-                      {/* <AnimatePresence>
-                        {showLastKeywords && (
-                          <>
-                            {data?.pastData?.map((i: any) => (
-                              <motion.td
-                                key={`past-rank-${i}-${rowIndex}`}
-                                initial={{ opacity: 0, x: 40 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -40 }}
-                                transition={{ duration: 0.3, delay: i * 0.05 }}
-                                className="w-20 text-center border p-1"
-                              >
-                                {i?.rank}
-                              </motion.td>
-                            ))}
-                          </>
-                        )}
-                      </AnimatePresence> */}
+                    
                       {/* ✅ Past Ranks (aligned with month subheader) */}
-
-                      {/* {showLastKeywords && (
+                        
+                   {/* {showLastKeywords && (
                         <td className="text-center border p-1">
                           <div className="grid grid-cols-6">
 
@@ -598,7 +627,31 @@ const CustomTable = ({
                             ))}
                           </div>
                         </td>
-                      )} */}
+                      )}  */}
+
+                      {showPastRank && (
+  <>
+    {showLastKeywords && (
+      <td className="text-center border p-1">
+        <div className="grid grid-cols-6">
+          {data?.pastData?.map((i: any, m: number) => (
+            <motion.div
+              key={`past-rank-${rowIndex}-${m}`}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3, delay: m * 0.05 }}
+              className="w-20 text-center p-1 text-sm"
+            >
+              {i?.rank || "-"}
+            </motion.div>
+          ))}
+        </div>
+      </td>
+    )}
+  </>
+)}
+
 
                       <td className="text-center text-[12px] border p-1">
                         {data?.sevenDays === 0 && "-"}

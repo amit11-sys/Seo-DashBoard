@@ -476,9 +476,11 @@ export const keywordWorker = new Worker(
       //   item?.rank_group ?? 0
       // );
 
-let pastData:any = [];
-pastData = updatePastData(prevKeywordTracking?.pastData || pastData, 5); // Oct rank = 5
-console.log(getLast6MonthsForDisplay(pastData),"pastData");
+let rawPastData:any = [];
+rawPastData = updatePastData(prevKeywordTracking?.pastData || rawPastData, 5); // Oct rank = 5
+console.log(getLast6MonthsForDisplay(rawPastData),"pastData");
+
+const pastData = getLast6MonthsForDisplay(rawPastData);
 
 
       // 🔁 7-day update rule
@@ -523,7 +525,7 @@ console.log(getLast6MonthsForDisplay(pastData),"pastData");
             changeDirection,
             lastUpdatedAt,
             intent, // ✅ set intent here (could be old or new)
-            // pastData, // optionally store pastData if needed
+            pastData, // optionally store pastData if needed
           },
           $setOnInsert: {
             keywordId,

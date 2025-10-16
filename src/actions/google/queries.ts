@@ -34,7 +34,8 @@ export const GmailLoginDetails = async () => {
 
 export const FetchGoogledata = async (
   integrationType: string,
-  selectedGmail: string
+  selectedGmail: string,
+  campaignId:string,
 ) => {
   try {
     await connectToDB();
@@ -95,20 +96,15 @@ export const FetchGoogledata = async (
       );
 
       // 3️⃣ Fetch all campaigns from DB
-      const campaigns = await Campaign.find();
+const allCampaigns = await Campaign.find({ status: { $in: [1, 2] } });
       // const allCampigns = campaigns.map((campaign: any) => campaign.projectUrl);
 
-      // 4️⃣ Helper function to normalize URLs
-      const normalizeUrl = (url: string) =>
-        url
-          ?.toLowerCase()
-          .replace(/^https?:\/\//, "") // remove http:// or https://
-          .replace(/^www\./, "") // remove www.
-          .replace(/\/$/, ""); // remove trailing slash
+      const slectedCampaignsUrl = allCampaigns.filter((camp:any)=>camp._id.toString() === campaignId)
 
+    
       // 5️⃣ Match each campaign’s projectUrl with siteEntry.siteUrl
-      const matchedCampaigns = campaigns
-        .map((campaign: any) => {
+      // const matchedCampaigns = campaigns
+      //   .map((campaign: any) => {
           // const projectUrls = Array.isArray(campaign.projectUrl)
           //   ? campaign.projectUrl
           //   : campaign.projectUrl
@@ -132,18 +128,18 @@ export const FetchGoogledata = async (
 
           // Keep only campaigns that actually matched
           // if (matchingAccounts.length > 0) {
-            return {
-              campaignId: campaign._id,
-              campaignsUrl: campaign.projectUrl,
-              campaignName: campaign.displayName || "Unnamed Campaign",
-              // projectUrls,
-              // allCampigns,
-            };
+            // return {
+            //   campaignId: campaigns._id,
+            //   campaignsUrl: campaigns.projectUrl,
+            //   campaignName: campaigns.displayName || "Unnamed Campaign",
+            //   // projectUrls,
+            //   // allCampigns,
+            // };
           // }
 
           // return null;
-        })
-        .filter(Boolean);
+        // })
+        // .filter(Boolean);
 
       // 6️⃣ Return final result
       return {
@@ -152,11 +148,14 @@ export const FetchGoogledata = async (
         data: {
           gmail: selectedGmail,
           integrationType,
-          matchedCampaigns,
+          slectedCampaignsUrl,
+          allCampaigns,
           accountConsoleData,
         },
       };
     }
+
+
     // if (integrationType === "ga") {
     //   let analyticsAccountList: any = await listAnalyticsAccounts(
     //     tokensDetails.googleAccessToken
@@ -252,20 +251,15 @@ if (integrationType === "ga") {
     tokensDetails.googleAccessToken
   );
     // 3️⃣ Fetch all campaigns from DB
-      const campaigns = await Campaign.find();
+const allCampaigns = await Campaign.find({ status: { $in: [1, 2] } });
       // const allCampigns = campaigns.map((campaign: any) => campaign.projectUrl);
+      const slectedCampaignsUrl = allCampaigns.filter((camp:any)=>camp._id.toString() === campaignId)
 
       // 4️⃣ Helper function to normalize URLs
-      const normalizeUrl = (url: string) =>
-        url
-          ?.toLowerCase()
-          .replace(/^https?:\/\//, "") // remove http:// or https://
-          .replace(/^www\./, "") // remove www.
-          .replace(/\/$/, ""); // remove trailing slash
-
+ 
       // 5️⃣ Match each campaign’s projectUrl with siteEntry.siteUrl
-      const matchedCampaigns = campaigns
-        .map((campaign: any) => {
+      // const matchedCampaigns = campaigns
+      //   .map((campaign: any) => {
           // const projectUrls = Array.isArray(campaign.projectUrl)
           //   ? campaign.projectUrl
           //   : campaign.projectUrl
@@ -289,27 +283,28 @@ if (integrationType === "ga") {
 
           // Keep only campaigns that actually matched
           // if (matchingAccounts.length > 0) {
-            return {
-              campaignId: campaign._id,
-              campaignsUrl: campaign.projectUrl,
-              campaignName: campaign.displayName || "Unnamed Campaign",
-              // projectUrls,
-              // allCampigns,
-            };
+            // return {
+            //   campaignId: campaign._id,
+            //   campaignsUrl: campaign.projectUrl,
+            //   campaignName: campaign.displayName || "Unnamed Campaign",
+            //   // projectUrls,
+            //   // allCampigns,
+            // };
           // }
 
           // return null;
-        })
-        .filter(Boolean);
+        // })
+        // .filter(Boolean);
 
       // 6️⃣ Return final result
-      return {
+     return {
         success: true,
         message: "Successfully fetched Google data and matched campaigns",
         data: {
           gmail: selectedGmail,
           integrationType,
-          matchedCampaigns,
+          slectedCampaignsUrl,
+          allCampaigns,
           analyticsAccountList,
         },
       };

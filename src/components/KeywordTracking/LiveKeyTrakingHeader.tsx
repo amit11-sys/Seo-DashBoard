@@ -133,9 +133,9 @@ export default function LiveKeyTrakingHeader({
         </div>
         <div>
           <h2 className="text-xl font-bold text-black">
-            {campaignStatus === 2
-              ? "Archived Keywords"
-              : "Live Keyword Tracking"}
+            {/* {campaignStatus === 2 */}
+              {/* ? "Archived Keywords" */}
+              Live Keyword Tracking
           </h2>
           <p className="text-sm text-black">{refreshDate}</p>
         </div>

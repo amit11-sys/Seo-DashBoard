@@ -554,7 +554,13 @@ export const deleteKeywordById = async (selectedKeywords: string[]) => {
       return { error: "No keywords selected" };
     }
 
-    const result = await KeywordTracking.updateMany(
+    const deletedKewordsTracking = await KeywordTracking.updateMany(
+      {
+        keywordId: { $in: selectedKeywords },
+      },
+      { $set: { status: 3 } }
+    );
+    const deletedKewords = await Keyword.updateMany(
       {
         keywordId: { $in: selectedKeywords },
       },
@@ -562,7 +568,7 @@ export const deleteKeywordById = async (selectedKeywords: string[]) => {
     );
     // console.log(result, "delete result");
 
-    if (result.modifiedCount === 0) {
+    if (deletedKewordsTracking.modifiedCount === 0) {
       return { error: "No keywords were updated" };
     }
     // console.log(selectedKeywords, "delete keyword");

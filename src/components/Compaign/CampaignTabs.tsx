@@ -474,12 +474,12 @@ export function CampaignTabs() {
                           {form.formState.errors.volumeLocationCode?.message}
                         </div>
 
-                        {VolumeLocation.length > 0 && (
+                        {VolumeLocation?.length > 0 && (
                           <ul className="absolute mt-2 bg-white border border-gray-300 z-10 overflow-y-scroll  w-full h-40">
                             {isPendingvolumndata && (
                               <p className="text-green-500">Loading...</p>
                             )}
-                            {VolumeLocation.map((loc: any) => (
+                            {VolumeLocation?.map((loc: any) => (
                               <li
                                 key={loc._id}
                                 onClick={() => {

@@ -112,249 +112,13 @@ function updatePastData(
   const existingIndex = updatedData.findIndex((p) => p.month === currentMonth);
 
   if (existingIndex !== -1) {
-    updatedData[existingIndex].rank = newRank;
+    updatedData[existingIndex].rank = newRank || 0;
   } else {
-    updatedData.push({ month: currentMonth, rank: newRank });
+    updatedData.push({ month: currentMonth , rank: newRank || 0 });
   }
 
   return updatedData;
 }
-
-
-
-// export const keywordWorker = new Worker(
-//   "keywordQueue",
-//   async (job) => {
-//     const {
-//       campaignId,
-//       keywordId,
-//       userId,
-//       keyword,
-//       location_code,
-//       language_code,
-//       device,
-//       se_domain,
-//       target,
-//     } = job.data as {
-//       campaignId: string;
-//       keywordId: string;
-//       userId?: string | null;
-//       keyword: string;
-//       location_code: number;
-//       language_code: string;
-//       device: "desktop" | "mobile";
-//       se_domain: string;
-//       target: string;
-//     };
-
-//     const redis = getRedis();
-//     const progressKey = `campaign:${campaignId}:progress`;
-
-//     const basicAuth = Buffer.from(`${LOGIN}:${PASSWORD}`).toString("base64");
-//       const rankPayload = [
-//       {
-//         keyword,
-//         location_code,
-//         language_name: language_code,
-//         device,
-//         se_domain,
-//         target: `*${target}*`,
-//         depth:100
-//       },
-//     ];
-//     const intentPayload = [
-//       {
-//         keywords: [keyword],
-//         location_code,
-//         language_name: language_code,
-//         device,
-//         se_domain,
-//         target: `*${target}*`,
-//       },
-//     ];
-
-//     try {
-//       const [rankResponse, intentRankResponse] = await Promise.all([
-//         fetch(rankEndpoint, {
-//           method: "POST",
-//           headers: {
-//             Authorization: `Basic ${basicAuth}`,
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify(rankPayload),
-//         }),
-//         fetch(intentEndpoint, {
-//           method: "POST",
-//           headers: {
-//             Authorization: `Basic ${basicAuth}`,
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify(intentPayload),
-//         }),
-//       ]);
-
-//       if (!rankResponse.ok) {
-//         const errorBody = await rankResponse.text();
-//         throw new Error(
-//           `❌ DataForSEO failed: ${rankResponse.status} - ${errorBody}`
-//         );
-//       }
-
-//       const [json, intentJson] = await Promise.all([
-//         rankResponse.json(),
-//         intentRankResponse.json(),
-//       ]);
-
-
-//       const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
-//       const data = json?.tasks?.[0]?.data;
-//       const meta = json?.tasks?.[0]?.result?.[0];
-
-      
-//       const intentTask = intentJson?.tasks?.[0];
-//       const intentResult = intentTask?.result?.[0];
-//       const intentItem = intentResult?.items?.[0];
-//       const intent = intentItem?.keyword_intent?.label ?? "";
-
-//       // 🔄 Fetch previous record
-//       const prevKeywordTracking: any = await KeywordTracking.findOne({
-//         keywordId,
-//         campaignId,
-//       });
-//       const now = new Date();
-
-//       // 🔄 Update pastData (6-month history)
-//       // const pastData = updatePastData(
-//       //   prevKeywordTracking?.pastData || [],
-//       //   item?.rank_group ?? 0
-//       // );
-
-// let pastData:any = [];
-// pastData = updatePastData(prevKeywordTracking?.pastData || pastData, 5); // Oct rank = 5
-// console.log(getLast6MonthsForDisplay(pastData),"pastData");
-
-
-//       // 🔄 7-day rule
-//       let rankChange = 0;
-//       let changeDirection: "up" | "down" | "" = "";
-
-//       const oldRank = prevKeywordTracking?.rank_group ?? 0;
-//       const newRank = item?.rank_group ?? 0;
-
-//       const lastUpdate = prevKeywordTracking?.lastUpdatedAt;
-//       const daysSinceUpdate = lastUpdate
-//         ? (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24)
-//         : 999; // if no previous update → force
-
-//       if (daysSinceUpdate >= 7) {
-//         // ✅ Only update after 7+ days
-//         const diff = oldRank - newRank;
-//         if (oldRank > 0 && newRank > 0 && oldRank !== newRank) {
-//           if (diff > 0) {
-//             rankChange = diff;
-//             changeDirection = "up";
-//           } else {
-//             rankChange = Math.abs(diff);
-//             changeDirection = "down";
-//           }
-//         }
-//       } else {
-//         //  Less than 7 days → keep old values
-//         rankChange = prevKeywordTracking?.rankChange ?? 0;
-//         changeDirection = prevKeywordTracking?.changeDirection ?? "";
-//       }
-
-//       const lastUpdatedAt =
-//         daysSinceUpdate >= 7
-//           ? now
-//           : (prevKeywordTracking?.lastUpdatedAt);
-
-
-//       await KeywordTracking.findOneAndUpdate(
-//         { keywordId, campaignId }, 
-//         {
-//           $set: {
-//             rank_group: item?.rank_group ?? 0,
-//             rank_absolute: item?.rank_absolute ?? 0,
-//             updatedAt: new Date(),
-//              rankChange,
-//             changeDirection,
-//             lastUpdatedAt,
-//             // pastData,
-            
-//           },
-//           $setOnInsert: {
-//             keywordId,
-//             campaignId,
-//             keyword: data?.keyword ?? keyword,
-//             url: target,
-//             type: data?.se_type,
-//             location_code: meta?.location_code,
-//             language_code: meta?.language_code,
-//             checkUrl: meta?.check_url ?? "no url",
-//             searchVolumn: 0,
-//             intent,
-//             competition: 0,
-//             start: item?.rank_group ?? 0,
-//             userId: userId ?? null,
-//           },
-//         },
-//         { upsert: true, returnDocument: "after" }
-//       );
-
-//       // Update progress
-//       await redis.hincrby(progressKey, "processed", 1);
-//       await redis.hset(progressKey, "lastUpdated", String(Date.now()));
-
-//       const total = Number((await redis.hget(progressKey, "total")) || 0);
-//       const processed = Number(
-//         (await redis.hget(progressKey, "processed")) || 0
-//       );
-//       if (processed >= total) {
-//         await redis.del(progressKey);
-//       }
-//       await Campaign.updateOne(
-//         { _id: campaignId },
-//         {
-//           total,
-//           processed,
-//           done: processed >= total && total > 0,
-//           lastUpdated: new Date(),
-//         },
-//         { upsert: true }
-//       );
-
-//       console.log(
-//         `✅ [${campaignId}] ${processed}/${total} processed — "${keyword}"`
-//       );
-//     } catch (err) {
-//       console.error(
-//         `💥 Error processing campaign ${campaignId}, keyword "${keyword}"`,
-//         err
-//       );
-//       await redis.del(progressKey);
-//       throw err;
-//     }
-//   },
-//   {
-//     connection,
-//     concurrency: 3,
-//     limiter: { max: 5, duration: 1000 },
-//   }
-// );
-
-// keywordWorker.on("active", (job) => {
-//   console.log(`🚀 Job active: ${job.id}`);
-// });
-// keywordWorker.on("completed", (job) => {
-//   console.log(`✅ Job completed: ${job.id}`);
-// });
-// keywordWorker.on("failed", (job, err) => {
-//   console.error(`💥 Job failed: ${job?.id}`, err);
-// });
-
-
-
 
 
 
@@ -387,7 +151,7 @@ export const keywordWorker = new Worker(
     const progressKey = `campaign:${campaignId}:progress`;
 
     const basicAuth = Buffer.from(`${LOGIN}:${PASSWORD}`).toString("base64");
-    const rankPayload = [
+      const rankPayload = [
       {
         keyword,
         location_code,
@@ -395,7 +159,7 @@ export const keywordWorker = new Worker(
         device,
         se_domain,
         target: `*${target}*`,
-        depth: 100,
+        depth:100
       },
     ];
     const intentPayload = [
@@ -410,25 +174,24 @@ export const keywordWorker = new Worker(
     ];
 
     try {
-      // 🔄 Fetch previous record
-      const prevKeywordTracking: any = await KeywordTracking.findOne({
-        keywordId,
-        campaignId,
-      });
-      const now = new Date();
-
-      // ✅ If intent already exists, skip API call
-      let intent = prevKeywordTracking?.intent || "";
-
-      // ✅ Fetch rank data always
-      const rankResponse = await fetch(rankEndpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${basicAuth}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(rankPayload),
-      });
+      const [rankResponse, intentRankResponse] = await Promise.all([
+        fetch(rankEndpoint, {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${basicAuth}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rankPayload),
+        }),
+        fetch(intentEndpoint, {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${basicAuth}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(intentPayload),
+        }),
+      ]);
 
       if (!rankResponse.ok) {
         const errorBody = await rankResponse.text();
@@ -437,38 +200,30 @@ export const keywordWorker = new Worker(
         );
       }
 
-      const json = await rankResponse.json();
+      const [json, intentJson] = await Promise.all([
+        rankResponse.json(),
+        intentRankResponse.json(),
+      ]);
+
+
       const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
       const data = json?.tasks?.[0]?.data;
       const meta = json?.tasks?.[0]?.result?.[0];
-      console.log(item)
-      console.log(data)
-      console.log(meta)
+      console.log(item,"items")
+      console.log(data,"data")
+      console.log(meta,"meta")
+      
+      const intentTask = intentJson?.tasks?.[0];
+      const intentResult = intentTask?.result?.[0];
+      const intentItem = intentResult?.items?.[0];
+      const intent = intentItem?.keyword_intent?.label ?? "";
 
-      // ✅ Only fetch intent if not already saved
-      if (!intent) {
-        const intentResponse = await fetch(intentEndpoint, {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${basicAuth}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(intentPayload),
-        });
-
-        if (!intentResponse.ok) {
-          const errorBody = await intentResponse.text();
-          throw new Error(
-            `❌ Intent API failed: ${intentResponse.status} - ${errorBody}`
-          );
-        }
-
-        const intentJson = await intentResponse.json();
-        const intentTask = intentJson?.tasks?.[0];
-        const intentResult = intentTask?.result?.[0];
-        const intentItem = intentResult?.items?.[0];
-        intent = intentItem?.keyword_intent?.label ?? "";
-      }
+      // 🔄 Fetch previous record
+      const prevKeywordTracking: any = await KeywordTracking.findOne({
+        keywordId,
+        campaignId,
+      });
+      const now = new Date();
 
       // 🔄 Update pastData (6-month history)
       // const pastData = updatePastData(
@@ -476,14 +231,13 @@ export const keywordWorker = new Worker(
       //   item?.rank_group ?? 0
       // );
 
-let rawPastData:any = [];
-rawPastData = updatePastData(prevKeywordTracking?.pastData || rawPastData, 5); // Oct rank = 5
-console.log(getLast6MonthsForDisplay(rawPastData),"pastData");
+let RawPastData:any = [];
+RawPastData = updatePastData(prevKeywordTracking?.pastData || RawPastData, item?.rank_group || 0); // Oct rank = 5
+// console.log(getLast6MonthsForDisplay(RawPastData),"pastData");
+let pastData = getLast6MonthsForDisplay(RawPastData);
 
-const pastData = getLast6MonthsForDisplay(rawPastData);
 
-
-      // 🔁 7-day update rule
+      // 🔄 7-day rule
       let rankChange = 0;
       let changeDirection: "up" | "down" | "" = "";
 
@@ -493,9 +247,10 @@ const pastData = getLast6MonthsForDisplay(rawPastData);
       const lastUpdate = prevKeywordTracking?.lastUpdatedAt;
       const daysSinceUpdate = lastUpdate
         ? (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24)
-        : 999;
+        : 999; // if no previous update → force
 
       if (daysSinceUpdate >= 7) {
+        // ✅ Only update after 7+ days
         const diff = oldRank - newRank;
         if (oldRank > 0 && newRank > 0 && oldRank !== newRank) {
           if (diff > 0) {
@@ -507,25 +262,29 @@ const pastData = getLast6MonthsForDisplay(rawPastData);
           }
         }
       } else {
+        //  Less than 7 days → keep old values
         rankChange = prevKeywordTracking?.rankChange ?? 0;
         changeDirection = prevKeywordTracking?.changeDirection ?? "";
       }
 
       const lastUpdatedAt =
-        daysSinceUpdate >= 7 ? now : prevKeywordTracking?.lastUpdatedAt;
+        daysSinceUpdate >= 7
+          ? now
+          : (prevKeywordTracking?.lastUpdatedAt);
+
 
       await KeywordTracking.findOneAndUpdate(
-        { keywordId, campaignId },
+        { keywordId, campaignId }, 
         {
           $set: {
             rank_group: item?.rank_group ?? 0,
             rank_absolute: item?.rank_absolute ?? 0,
             updatedAt: new Date(),
-            rankChange,
+             rankChange,
             changeDirection,
             lastUpdatedAt,
-            intent, // ✅ set intent here (could be old or new)
-            pastData, // optionally store pastData if needed
+            pastData,
+            
           },
           $setOnInsert: {
             keywordId,
@@ -537,6 +296,7 @@ const pastData = getLast6MonthsForDisplay(rawPastData);
             language_code: meta?.language_code,
             checkUrl: meta?.check_url ?? "no url",
             searchVolumn: 0,
+            intent,
             competition: 0,
             start: item?.rank_group ?? 0,
             userId: userId ?? null,
@@ -553,11 +313,9 @@ const pastData = getLast6MonthsForDisplay(rawPastData);
       const processed = Number(
         (await redis.hget(progressKey, "processed")) || 0
       );
-
       if (processed >= total) {
         await redis.del(progressKey);
       }
-
       await Campaign.updateOne(
         { _id: campaignId },
         {
@@ -597,3 +355,248 @@ keywordWorker.on("completed", (job) => {
 keywordWorker.on("failed", (job, err) => {
   console.error(`💥 Job failed: ${job?.id}`, err);
 });
+
+
+
+
+
+
+// export const keywordWorker = new Worker(
+//   "keywordQueue",
+//   async (job) => {
+//     const {
+//       campaignId,
+//       keywordId,
+//       userId,
+//       keyword,
+//       location_code,
+//       language_code,
+//       device,
+//       se_domain,
+//       target,
+//     } = job.data as {
+//       campaignId: string;
+//       keywordId: string;
+//       userId?: string | null;
+//       keyword: string;
+//       location_code: number;
+//       language_code: string;
+//       device: "desktop" | "mobile";
+//       se_domain: string;
+//       target: string;
+//     };
+
+//     const redis = getRedis();
+//     const progressKey = `campaign:${campaignId}:progress`;
+
+//     const basicAuth = Buffer.from(`${LOGIN}:${PASSWORD}`).toString("base64");
+//     const rankPayload = [
+//       {
+//         keyword,
+//         location_code,
+//         language_name: language_code,
+//         device,
+//         se_domain,
+//         target: `*${target}*`,
+//         depth: 100,
+//       },
+//     ];
+//     const intentPayload = [
+//       {
+//         keywords: [keyword],
+//         location_code,
+//         language_name: language_code,
+//         device,
+//         se_domain,
+//         target: `*${target}*`,
+//       },
+//     ];
+
+//     try {
+//       // 🔄 Fetch previous record
+//       const prevKeywordTracking: any = await KeywordTracking.findOne({
+//         keywordId,
+//         campaignId,
+//       });
+//       const now = new Date();
+
+//       // ✅ If intent already exists, skip API call
+//       let intent = prevKeywordTracking?.intent || "";
+
+//       // ✅ Fetch rank data always
+//       const rankResponse = await fetch(rankEndpoint, {
+//         method: "POST",
+//         headers: {
+//           Authorization: `Basic ${basicAuth}`,
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(rankPayload),
+//       });
+
+//       if (!rankResponse.ok) {
+//         const errorBody = await rankResponse.text();
+//         throw new Error(
+//           `❌ DataForSEO failed: ${rankResponse.status} - ${errorBody}`
+//         );
+//       }
+
+//       const json = await rankResponse.json();
+//       const item = json?.tasks?.[0]?.result?.[0]?.items?.[0];
+//       const data = json?.tasks?.[0]?.data;
+//       const meta = json?.tasks?.[0]?.result?.[0];
+//       console.log(item)
+//       console.log(data)
+//       console.log(meta)
+
+//       // ✅ Only fetch intent if not already saved
+//       if (!intent) {
+//         const intentResponse = await fetch(intentEndpoint, {
+//           method: "POST",
+//           headers: {
+//             Authorization: `Basic ${basicAuth}`,
+//             "Content-Type": "application/json",
+//           },
+//           body: JSON.stringify(intentPayload),
+//         });
+
+//         if (!intentResponse.ok) {
+//           const errorBody = await intentResponse.text();
+//           throw new Error(
+//             `❌ Intent API failed: ${intentResponse.status} - ${errorBody}`
+//           );
+//         }
+
+//         const intentJson = await intentResponse.json();
+//         const intentTask = intentJson?.tasks?.[0];
+//         const intentResult = intentTask?.result?.[0];
+//         const intentItem = intentResult?.items?.[0];
+//         intent = intentItem?.keyword_intent?.label ?? "";
+//       }
+
+//       // 🔄 Update pastData (6-month history)
+//       // const pastData = updatePastData(
+//       //   prevKeywordTracking?.pastData || [],
+//       //   item?.rank_group ?? 0
+//       // );
+
+// let rawPastData:any = [];
+// rawPastData = updatePastData(prevKeywordTracking?.pastData || rawPastData, 5); // Oct rank = 5
+// console.log(getLast6MonthsForDisplay(rawPastData),"pastData");
+
+// const pastData = getLast6MonthsForDisplay(rawPastData);
+
+
+//       // 🔁 7-day update rule
+//       let rankChange = 0;
+//       let changeDirection: "up" | "down" | "" = "";
+
+//       const oldRank = prevKeywordTracking?.rank_group ?? 0;
+//       const newRank = item?.rank_group ?? 0;
+
+//       const lastUpdate = prevKeywordTracking?.lastUpdatedAt;
+//       const daysSinceUpdate = lastUpdate
+//         ? (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24)
+//         : 999;
+
+//       if (daysSinceUpdate >= 7) {
+//         const diff = oldRank - newRank;
+//         if (oldRank > 0 && newRank > 0 && oldRank !== newRank) {
+//           if (diff > 0) {
+//             rankChange = diff;
+//             changeDirection = "up";
+//           } else {
+//             rankChange = Math.abs(diff);
+//             changeDirection = "down";
+//           }
+//         }
+//       } else {
+//         rankChange = prevKeywordTracking?.rankChange ?? 0;
+//         changeDirection = prevKeywordTracking?.changeDirection ?? "";
+//       }
+
+//       const lastUpdatedAt =
+//         daysSinceUpdate >= 7 ? now : prevKeywordTracking?.lastUpdatedAt;
+
+//       await KeywordTracking.findOneAndUpdate(
+//         { keywordId, campaignId },
+//         {
+//           $set: {
+//             rank_group: item?.rank_group ?? 0,
+//             rank_absolute: item?.rank_absolute ?? 0,
+//             updatedAt: new Date(),
+//             rankChange,
+//             changeDirection,
+//             lastUpdatedAt,
+//             intent, // ✅ set intent here (could be old or new)
+//             pastData, // optionally store pastData if needed
+//           },
+//           $setOnInsert: {
+//             keywordId,
+//             campaignId,
+//             keyword: data?.keyword ?? keyword,
+//             url: target,
+//             type: data?.se_type,
+//             location_code: meta?.location_code,
+//             language_code: meta?.language_code,
+//             checkUrl: meta?.check_url ?? "no url",
+//             searchVolumn: 0,
+//             competition: 0,
+//             start: item?.rank_group ?? 0,
+//             userId: userId ?? null,
+//           },
+//         },
+//         { upsert: true, returnDocument: "after" }
+//       );
+
+//       // Update progress
+//       await redis.hincrby(progressKey, "processed", 1);
+//       await redis.hset(progressKey, "lastUpdated", String(Date.now()));
+
+//       const total = Number((await redis.hget(progressKey, "total")) || 0);
+//       const processed = Number(
+//         (await redis.hget(progressKey, "processed")) || 0
+//       );
+
+//       if (processed >= total) {
+//         await redis.del(progressKey);
+//       }
+
+//       await Campaign.updateOne(
+//         { _id: campaignId },
+//         {
+//           total,
+//           processed,
+//           done: processed >= total && total > 0,
+//           lastUpdated: new Date(),
+//         },
+//         { upsert: true }
+//       );
+
+//       console.log(
+//         `✅ [${campaignId}] ${processed}/${total} processed — "${keyword}"`
+//       );
+//     } catch (err) {
+//       console.error(
+//         `💥 Error processing campaign ${campaignId}, keyword "${keyword}"`,
+//         err
+//       );
+//       await redis.del(progressKey);
+//       throw err;
+//     }
+//   },
+//   {
+//     connection,
+//     concurrency: 3,
+//     limiter: { max: 5, duration: 1000 },
+//   }
+// );
+
+// keywordWorker.on("active", (job) => {
+//   console.log(`🚀 Job active: ${job.id}`);
+// });
+// keywordWorker.on("completed", (job) => {
+//   console.log(`✅ Job completed: ${job.id}`);
+// });
+// keywordWorker.on("failed", (job, err) => {
+//   console.error(`💥 Job failed: ${job?.id}`, err);
+// });

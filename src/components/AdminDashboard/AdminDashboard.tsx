@@ -14,7 +14,7 @@ import Navbar from "../Common/Navbar";
 import {
   getDeleteUserAccess,
   getSaveAssignedCampaigns,
-  getUserAccessData,
+  // getUserAccessData,
 } from "@/actions/generateShareLink";
 import { useLoader } from "@/hooks/useLoader";
 import { toast } from "sonner";
@@ -29,7 +29,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { getCompaignDataActiveArchived } from "@/actions/campaign";
+// import { getCompaignDataActiveArchived } from "@/actions/campaign";
 import ShareDialog from "../modals/shareModal";
 
 export default function AdminDashboard({ campaigns, userAcessData }: any) {
@@ -117,9 +117,9 @@ export default function AdminDashboard({ campaigns, userAcessData }: any) {
       toast.success("Campaign access updated successfully!");
       setShowDialog(false);
       setSelectedAccess(null);
-      const userAcessData = await getUserAccessData();
-      // const campaigns = await getCompaignDataActiveArchived();
-      setUserAccessData(userAcessData?.allUsersWithAccess || []);
+      // const userAcessData = await getUserAccessData();
+      // // const campaigns = await getCompaignDataActiveArchived();
+      // setUserAccessData(userAcessData?.allUsersWithAccess || []);
       // setAllCampaigns(campaigns);
     } catch (error) {
       console.error("Unexpected error while saving campaigns:", error);

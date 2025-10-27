@@ -143,7 +143,7 @@ export function CampaignTabs() {
         const archivedData = await getArchivedCampaign();
 
         setActiveCampigns(data?.campaign);
-        setArchivedCampigns(archivedData?.KeywordTrackingDataArchied);
+        setArchivedCampigns(archivedData?.KeywordTrackingDataArchived);
       } catch (error) {
         console.log(error, "activeCampaign error");
       }

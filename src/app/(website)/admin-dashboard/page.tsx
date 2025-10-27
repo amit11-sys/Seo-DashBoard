@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getCompaignDataActiveArchived, getUserCampaign } from "@/actions/campaign";
 import { getUserAccessData } from "@/actions/generateShareLink";
 import AdminDashboard from "@/components/AdminDashboard/AdminDashboard";

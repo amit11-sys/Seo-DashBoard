@@ -5,6 +5,8 @@ import {
   ArchivedCampaignCreate,
   CampaignStatus2,
   CompaignCount,
+  compaignDataActiveArchived,
+  compaignDataBoth,
   CurrentCampaignIdData,
   DbCompaignDataUpdate,
   DBcompaignGoogleData,
@@ -84,6 +86,17 @@ export const getDBcompaignGoogleData = async (newCompaignId: string) => {
 
 export const getCurrentCampaignIdData = async (campaignId: string) => {
   const data = await CurrentCampaignIdData(campaignId);
+
+  return data;
+};
+
+export const getCompaignDataBoth = async () => {
+  const data = await compaignDataBoth();
+
+  return data;
+};
+export const getCompaignDataActiveArchived = async () => {
+  const data = await compaignDataActiveArchived();
 
   return data;
 };

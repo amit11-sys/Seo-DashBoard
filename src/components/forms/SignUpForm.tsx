@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createUser } from "@/actions/user";
 import { useLoader } from "@/hooks/useLoader";
@@ -24,6 +24,9 @@ import CustomButton from "../ui/CustomButton";
 import { motion } from "framer-motion";
 
 const SignupForm = () => {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("invite");
+  const token = searchParams.get("token");
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
 
@@ -37,7 +40,7 @@ const SignupForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      email:email || "",
       password: "",
       terms: false,
     },
@@ -46,7 +49,7 @@ const SignupForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     startLoading();
     try {
-      const user = await createUser(values);
+      const user = await createUser(values,token || "");
 
       if (user?.success) {
         toast.success("Account created successfully");

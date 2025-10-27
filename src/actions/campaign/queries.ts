@@ -2,7 +2,10 @@
 import { getUserFromToken } from "@/app/utils/auth";
 import { connectToDB } from "@/lib/db";
 import Campaign from "@/lib/models/campaign.model";
+import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
+import User from "@/lib/models/user.model";
+import UserAccess from "@/lib/models/userAccess.model";
 
 // import { fetchLocations } from "../KeywordsGmb/queries";
 // import { refreshGoogleAccessToken } from "../googleConsole/queries";
@@ -60,11 +63,33 @@ export const getCampaign = async () => {
     }
     // console.log(user);
 
-    // const campaign = await Campaign.find({ userId: user?.id });
-    const campaign = await Campaign.find({
-      userId: user?.id,
-      status: 1,
-    });
+     const CampaignData = await User.findById({ _id: user?.id });
+    // console.log(CampaignData,"dataCam")
+    const UserAccessData = await UserAccess.findOne({ userId: user?.id });
+    const UserRole = CampaignData?.role;
+     let campaign  = []
+    if (UserRole === 3) {
+
+      campaign = await Campaign.find({
+       _id: { $in: UserAccessData?.campaignId  },
+       status: 1,
+     });
+
+
+    }else if (UserRole === 2) {
+
+       campaign = await Campaign.find({
+        userId: user?.id,
+        status: 1,
+      });
+
+    }
+
+
+
+
+
+
     if (!campaign) {
       return { error: "Error while getting campaign" };
     }
@@ -73,6 +98,7 @@ export const getCampaign = async () => {
       success: true,
       message: "Campaign Successfully Found",
       campaign,
+      user,
     };
     // }
   } catch (error) {
@@ -84,6 +110,7 @@ export const getCampaign = async () => {
 export const GetCampaignByid = async (campaignId: string) => {
   try {
     await connectToDB();
+    const user = await getUserFromToken();
 
     const campaign = await Campaign.findById({
       _id: campaignId,
@@ -96,6 +123,7 @@ export const GetCampaignByid = async (campaignId: string) => {
       success: true,
       message: "Campaign Successfully Found with Id",
       campaign,
+      user,
     };
     // }
   } catch (error) {
@@ -145,13 +173,38 @@ export const archivedCampaign = async () => {
     if (!user) {
       return { error: "Unauthorized please login" };
     }
+    console.log(user,"UserLogin")
+    const CampaignData = await User.findById({ _id: user?.id });
+    // console.log(CampaignData,"dataCam")
+    const UserAccessData = await UserAccess.findOne({ userId: user?.id });
+    const UserRole = CampaignData?.role;
 
-    const KeywordTrackingDataArchied = await Campaign.find({
-      status: 2,
-      userId: user?.id,
-    });
+ let KeywordTrackingDataArchived:any = [];
 
-    if (!KeywordTrackingDataArchied) {
+if (UserRole === 3) {
+  // // Ensure we extract all campaign IDs safely
+  // const campaignIds = Array.isArray(UserAccessData)
+  //   ? UserAccessData.flatMap((a) => a.campaignId)
+  //   : UserAccessData?.campaignId || [];
+ 
+  KeywordTrackingDataArchived = await Campaign.find({
+    _id: { $in: UserAccessData?.campaignId },
+    status: 2, 
+  }); 
+
+} else if (UserRole === 2) {
+  KeywordTrackingDataArchived = await Campaign.find({
+    userId: user?.id,
+    status: 2,
+  }).lean();
+}
+
+
+  
+  console.log(KeywordTrackingDataArchived,"done hai bai")
+ 
+
+    if (!KeywordTrackingDataArchived) {
       return { error: " Not Find Id Error while deleting campaign" };
     }
     // if (campaign) {
@@ -159,7 +212,8 @@ export const archivedCampaign = async () => {
       success: true,
       message: "Archived Campaign Successfully Found",
       // compaignDataDelete,
-      KeywordTrackingDataArchied,
+      KeywordTrackingDataArchived,
+      user,
       // KeywordDataDelete,
     };
     // }
@@ -199,6 +253,11 @@ export const ArchivedCampaignCreate = async (
         { status: 3 },
         { new: true }
       );
+          await Keyword.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 3 },
+        { new: true }
+      );
       const updatedKeywords = await KeywordTracking.updateMany(
         { campaignId: CompaignId },
         { $set: { status: 3 } }
@@ -213,6 +272,11 @@ export const ArchivedCampaignCreate = async (
         { status: 1 },
         { new: true }
       );
+          await Keyword.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 1 },
+        { new: true }
+      );
 
       const updatedKeywords = await KeywordTracking.updateMany(
         { campaignId: CompaignId, status: { $ne: 3 } }, // ✅ exclude status 3
@@ -223,6 +287,11 @@ export const ArchivedCampaignCreate = async (
     // ARCHIVED campaign
     if (status === 2) {
       const KeywordTrackingDataArchived = await Campaign.findByIdAndUpdate(
+        { _id: CompaignId },
+        { status: 2 },
+        { new: true }
+      );
+        await Keyword.findByIdAndUpdate(
         { _id: CompaignId },
         { status: 2 },
         { new: true }
@@ -257,16 +326,80 @@ export const CompaignCount = async () => {
     if (!user) {
       return { error: "Unauthorized please login" };
     }
+      const CampaignData = await User.findById({ _id: user?.id });
+    const UserAccessData = await UserAccess.findOne({ userId: user?.id });
+    const UserRole = CampaignData?.role;
+    let campaignCount= [];
+    if (UserRole === 3) {
+      campaignCount = await Campaign.find({
+       status: { $in: [1, 2] },
+        _id: { $in: UserAccessData?.campaignId  },
+       
+     });
 
-    const campaignCount = await Campaign.find({
+    }else if (UserRole === 2) {
+      
+      campaignCount = await Campaign.find({
+       status: { $in: [1, 2] },
+       userId: user?.id,
+     });
+
+    }
+
+    // console.log(campaignCount, "campaignCount");
+    return {
+      success: true,
+      message: "Campaign Count Successfully",
+      campaignCount,
+    };
+  } catch (error) {
+    console.error(error);
+    return { error: "Internal Server Error." };
+  }
+};
+export const compaignDataBoth = async () => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
+
+    const campaignDataBoth = await Campaign.find({
       status: { $in: [1, 2] },
       userId: user?.id,
     });
     // console.log(campaignCount, "campaignCount");
     return {
       success: true,
-      message: "Campaign Count Successfully",
-      campaignCount,
+      message: "Campaign Successfully",
+      campaignDataBoth,
+    };
+  } catch (error) {
+    console.error(error);
+    return { error: "Internal Server Error." };
+  }
+};
+
+export const compaignDataActiveArchived = async () => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
+
+    const compaignDataActiveArchived = await Campaign.find({
+      status: { $in: [1, 2] },
+      
+    });
+    // console.log(campaignCount, "campaignCount");
+    return {
+      success: true,
+      message: "Campaigns Successfully Found",
+      compaignDataActiveArchived,
     };
   } catch (error) {
     console.error(error);

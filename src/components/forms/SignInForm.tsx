@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { getLoggedInUser } from "@/actions/user";
@@ -22,6 +22,7 @@ import { NewCustomInput } from "../NewCustomInput";
 import CustomButton from "../ui/CustomButton";
 
 export default function SignInForm() {
+  
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
 

@@ -90,6 +90,7 @@ interface LiveKeywordComponentProps {
   campaignStatus?: number;
   ShareCampaignStatus?: number;
   tokendata?: any;
+  ActiveUserData: {role:number};
 }
 
 interface HeaderProps {
@@ -159,6 +160,7 @@ const LiveKeywordComponent = ({
   campaignId,
   ShareCampaignStatus,
   tokendata,
+  ActiveUserData
 }: LiveKeywordComponentProps) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const { total, processed, done } = useCampaignProgress(
@@ -335,6 +337,7 @@ const tableHeader: Tableitems[] = [
       {/* Header */}
       <div className=" backdrop-blur-md text-black  border border-white/10 rounded-xl p-6 ">
         <LiveKeyTrakingHeader
+        ActiveUserData={ActiveUserData}
           sortedDataExel={sortedDataExel}
           setIsLoading={setIsLoading}
           refreshDate={refreshDate}
@@ -399,6 +402,7 @@ const tableHeader: Tableitems[] = [
             // CardSetOnChanges={CardSetOnChanges}
             // setCardData={setCardData}
             // keywordTableData={keywordTableData}
+            ActiveUserData={ActiveUserData}
             showPastRank={showPastRank}
             setShowPastRank={setShowPastRank}
              setShowLastKeywords={setShowLastKeywords}

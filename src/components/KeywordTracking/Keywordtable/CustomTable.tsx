@@ -83,6 +83,7 @@ interface CustomTableProps {
   showLastKeywords: boolean;
    showPastRank : boolean; // 👈 new prop,
   setShowPastRank : React.Dispatch<React.SetStateAction<boolean>>; // 👈 new prop,
+  ActiveUserData: {role:number};
 }
 
 const CustomTable = ({
@@ -108,6 +109,7 @@ const CustomTable = ({
   locationFilter,
   setLocationFilter,
   getKeywordData,
+  ActiveUserData
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const { startLoading, stopLoading } = useLoader();
@@ -304,11 +306,15 @@ const CustomTable = ({
   return (
     <>
       <div className="flex gap-3 mb-3">
+        {ActiveUserData?.role === 2 && (
+
+
         <BulkDeleteDialog
           selectedKeywords={selectedKeywords}
           campaignId={campaignId || ""}
           handleBulkDelete={handleBulkDelete}
         />
+        )}
 
         {/* <button
     disabled={selectedKeywords.length === 0}
@@ -692,9 +698,9 @@ const CustomTable = ({
                         </div>
                       </td>
 
-                      {ShareCampaignStatus !== 2 && (
+                      {/* {ShareCampaignStatus !== 2 && ( */}
                         <td className="text-center text-[12px] border p-1">
-                          <div className="flex justify-center items-center gap-2">
+                          {ActiveUserData?.role === 2 ? <>  <div className="flex justify-center items-center gap-2">
                             <KeywordEdit
                               // CardSetOnChanges={CardSetOnChanges}
                               campaignId={campaignId || ""}
@@ -714,9 +720,10 @@ const CustomTable = ({
                               setTableBody={setTableBody}
                               getKeywordData={getKeywordData}
                             />
-                          </div>
+                          </div> </> : "--"}
+                         
                         </td>
-                      )}
+                      {/* )} */}
             </motion.tr>
           );
         })}

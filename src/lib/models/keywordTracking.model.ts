@@ -35,6 +35,7 @@ interface IKeywordTracking extends Document {
   lastUpdatedAt?: Date;
   // 👇 new field
   // pastData?: IPastData[];
+  pastData?: [];
 }
 
 const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
@@ -71,12 +72,8 @@ const KeywordTrackingSchema = new mongoose.Schema<IKeywordTracking>(
       default: null,
     },
     lastUpdatedAt: { type: Date, default: null }, // new field
-    // pastData: [
-    //   {
-    //     month: { type: String, required: true },
-    //     rank: { type: Number, required: true }, // number | string
-    //   },
-    // ],
+    pastData: [
+    ],
   },
   { timestamps: true }
 );

@@ -28,7 +28,7 @@ export const addkeywords = async (formData: any) => {
 
   const campaignId = formData?.campaignId;
   // console.log(campaignId, "campaignId");
-  // console.log(formData, "formData input");
+  console.log(formData, "formData input");
 
   formData.keywords = Array.from(
     new Set(
@@ -43,9 +43,12 @@ export const addkeywords = async (formData: any) => {
     keywords: { $in: formData.keywords },
     userId: userIdObj,
     CampaignId: campaignIdObj,
-    searchLocationCode: formData.searchLocationCode, // ✅ include location
+      status: { $in: [1, 2] }, // ✅ find only where status is 1 or 2 
+    searchLocationCode: formData.searchLocationCode,
   }).select("keywords searchLocationCode");
 
+  
+console.log(existingKeywordDocs, "existing keywords");
   const existingSet = new Set(
     existingKeywordDocs.map(
       (doc) => `${doc.keywords}|${doc.searchLocationCode}`
@@ -56,8 +59,16 @@ export const addkeywords = async (formData: any) => {
     (kw: string) => !existingSet.has(`${kw}|${formData.searchLocationCode}`)
   );
 
-  // console.log(formData.keywords, "keywords to insert");
+  console.log(formData.keywords, "keywords to insert");
 
+  if (formData.keywords.length === 0) {
+    return {
+      success: true,
+      message: "No new keywords to add",
+      // queued: 0,
+      // counts: await keywordQueue.getJobCounts(),
+    };
+  }
   const createdKeywords =
     formData?.keywords?.length > 0
       ? await Keyword.insertMany(

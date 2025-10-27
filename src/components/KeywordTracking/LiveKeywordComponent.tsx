@@ -187,6 +187,8 @@ const LiveKeywordComponent = ({
   //  const [campaignStatus, setCampaignStatus] = useState<number>(campaignStatus
   const [loading, setLoading] = useState(false);
         const [showLastKeywords, setShowLastKeywords] = useState(true);
+        const [showPastRank, setShowPastRank] = useState<boolean>(false);
+
 
   // useEffect(() => {
   //   // Remove skeleton after 30s max
@@ -205,6 +207,8 @@ const LiveKeywordComponent = ({
   // }, [tableBody]);
 
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+  
+  
   const setExelData = (data: any) => {
     setSortedDataForExel(data);
   };
@@ -257,6 +261,9 @@ const LiveKeywordComponent = ({
       const topRankData = campaignLiveKeywordsData?.topRankData?.data;
 
       const data = rawData.map((item: any) => {
+         const haveNoPastRankData = item?.pastData === undefined || item?.pastData?.length === 0 
+
+         setShowLastKeywords(!haveNoPastRankData)
         return {
           keyword: item?.keyword || "",
           keywordId: item.keywordId,
@@ -272,7 +279,10 @@ const LiveKeywordComponent = ({
           life: item?.rank_absolute || 0,
           comp: item?.competition || 0,
           sv: item?.searchVolumn || 0,
-          pastData: item?.pastData || [],
+           ...(!haveNoPastRankData
+      && { pastData:  item?.pastData}
+      ),
+          // pastData:  && item?.pastData,
           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "short",
@@ -306,9 +316,13 @@ const tableHeader: Tableitems[] = [
       label: "Group_Rank",
       icon: <FcGoogle className="inline mr-1" />,
     },
-    // ...(showLastKeywords
-    //   ? [{ key: "pastRanks", label: "Past ranks" } ]
-    //   : []),
+     // ✅ Conditional column insertion
+  ...(showPastRank
+    ? (showLastKeywords
+        ? [{ key: "pastRanks", label: "Past ranks" }]
+        : [])
+    : []),
+    
     { key: "sevenDays", label: "7 Days" },
     { key: "life", label: "Life" },
     { key: "date", label: "Date" },
@@ -385,6 +399,8 @@ const tableHeader: Tableitems[] = [
             // CardSetOnChanges={CardSetOnChanges}
             // setCardData={setCardData}
             // keywordTableData={keywordTableData}
+            showPastRank={showPastRank}
+            setShowPastRank={setShowPastRank}
              setShowLastKeywords={setShowLastKeywords}
             showLastKeywords={showLastKeywords}
             ShareCampaignStatus={ShareCampaignStatus}

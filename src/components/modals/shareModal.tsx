@@ -428,7 +428,7 @@ import { BsShare } from "react-icons/bs";
 import { getCompaignDataBoth } from "@/actions/campaign";
 import { getGenerateShareLink } from "@/actions/generateShareLink";
 
-export default function ShareDialog({ campaignId }: { campaignId: string }) {
+export default function ShareDialog({ campaignId,admin }: { campaignId?: string, admin?: boolean }) {
   const [email, setEmail] = useState("");
   const [campaignData, setCampaignData] = useState<any[]>([]);
   const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
@@ -502,7 +502,15 @@ export default function ShareDialog({ campaignId }: { campaignId: string }) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
-          <BsShare className="cursor-pointer text-xl text-green-600" title="Share" />
+          {admin ? <span className="flex items-center justify-center gap-1
+               bg-gradient-to-r from-[#FE7743] to-[#d65d2d]
+               text-white px-4 py-2 rounded-full 
+               text-xs sm:text-sm font-semibold 
+               shadow-md transition-all duration-300 
+               transform hover:scale-105 hover:shadow-lg 
+               focus:outline-none h-[38px] leading-none 
+               min-w-[110px] text-center tracking-wide"> + Invite</span> :  <BsShare className="cursor-pointer text-xl text-green-600" title="Share" /> }
+         
         </Button>
       </DialogTrigger>
 

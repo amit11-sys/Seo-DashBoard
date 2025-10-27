@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -32,10 +30,11 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { getCompaignDataActiveArchived } from "@/actions/campaign";
+import ShareDialog from "../modals/shareModal";
 
 export default function AdminDashboard({ campaigns, userAcessData }: any) {
   const { startLoading, stopLoading } = useLoader();
-  const [activeSection, setActiveSection] = useState("activeClients");
+  const [activeSection, setActiveSection] = useState("activeUsers");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedAccess, setSelectedAccess] = useState<any>(null);
   const [allCampaigns, setAllCampaigns] = useState<any>(null);
@@ -44,14 +43,13 @@ export default function AdminDashboard({ campaigns, userAcessData }: any) {
   const [showDialog, setShowDialog] = useState(false);
   const [userAccessData, setUserAccessData] = useState<any[]>([]);
   const [confirmAction, setConfirmAction] = useState<any>(null);
-console.log(userAccessData,"acesss")
-console.log(campaigns,"camp")
-
+  console.log(userAccessData, "acesss");
+  console.log(campaigns, "camp");
 
   useEffect(() => {
     setUserAccessData(userAcessData?.allUsersWithAccess || []);
     setAllCampaigns(campaigns);
-    
+
     setRole(userAcessData?.activeUser || null);
   }, [userAcessData]);
 
@@ -119,10 +117,10 @@ console.log(campaigns,"camp")
       toast.success("Campaign access updated successfully!");
       setShowDialog(false);
       setSelectedAccess(null);
-        const userAcessData = await getUserAccessData();
-        // const campaigns = await getCompaignDataActiveArchived();
-        setUserAccessData(userAcessData?.allUsersWithAccess || []);
-        // setAllCampaigns(campaigns);
+      const userAcessData = await getUserAccessData();
+      // const campaigns = await getCompaignDataActiveArchived();
+      setUserAccessData(userAcessData?.allUsersWithAccess || []);
+      // setAllCampaigns(campaigns);
     } catch (error) {
       console.error("Unexpected error while saving campaigns:", error);
       toast.error("Something went wrong while saving. Please try again.");
@@ -152,89 +150,103 @@ console.log(campaigns,"camp")
                 activeSection === "activeClients" ? "default" : "outline"
               }
               className={`w-full justify-start rounded-lg ${
-                activeSection === "activeClients"
+                activeSection === "activeUsers"
                   ? "bg-[#FF7A00] hover:bg-[#ff8c26] text-white"
                   : "border-[#FF7A00] text-[#FF7A00] hover:bg-[#FF7A00]/10"
               }`}
-              onClick={() => setActiveSection("activeClients")}
+              onClick={() => setActiveSection("activeUsers")}
             >
-              <Users className="mr-2 h-4 w-4" /> Active Clients
+              <Users className="mr-2 h-4 w-4" /> Active Users
             </Button>
           </aside>
         )}
 
         {/* Main Content */}
         <main className="flex-1 mt-14 p-6 overflow-y-auto bg-[#fdfdfd]">
-          {activeSection === "activeClients" && (
+          {activeSection === "activeUsers" && (
             <>
-              <h2 className="text-lg font-bold mb-4 text-[#273F4F] border-b pb-2 border-[#FF7A00]/30">
-                Active Clients
-              </h2>
+              <div className="flex justify-between items-center border-b pb-2 border-[#FF7A00]/30">
+                <h2 className="text-lg font-bold  text-[#273F4F]">
+                  Active Users
+                </h2>
+
+                <div className="flex w-52 justify-center items-end">
+
+                <ShareDialog admin={true} />
+                </div>
+              </div>
 
               <div className="grid gap-4">
-                {userAccessData.map((data: any) => (
-                  <Card
-                    key={data?._id}
-                    className="flex justify-between items-center p-5 shadow-sm border border-gray-200 hover:shadow-md hover:border-[#FF7A00]/50 transition cursor-pointer rounded-xl"
-                  >
-                    <div>
-                      <h3 className="font-semibold text-[#273F4F] hover:text-[#FF7A00] text-lg">
-                        {data?.userId?.email}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Campaigns Assigned: {data?.campaignId?.length || 0}
-                      </p>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-[#FF7A00] text-[#FF7A00] hover:bg-[#FF7A00]/10"
-                        onClick={() => openClientDialog(data)}
+                {userAccessData?.length === 0 ? (
+                  <p className="text-gray-500">No active User found.</p>
+                ) : (
+                  <>
+                    {" "}
+                    {userAccessData.map((data: any) => (
+                      <Card
+                        key={data?._id}
+                        className="flex justify-between items-center p-5 shadow-sm border border-gray-200 hover:shadow-md hover:border-[#FF7A00]/50 transition cursor-pointer rounded-xl"
                       >
-                        <Edit className="w-4 h-4 mr-1" /> Edit
-                      </Button>
+                        <div>
+                          <h3 className="font-semibold text-[#273F4F] hover:text-[#FF7A00] text-lg">
+                            {data?.userId?.email}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Campaigns Assigned: {data?.campaignId?.length || 0}
+                          </p>
+                        </div>
 
-                      {/* 🧩 Delete Confirmation Dialog */}
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                        <div className="flex gap-2">
                           <Button
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
-                            className="bg-[#FF7A00] hover:bg-[#e56d00]"
+                            className="border-[#FF7A00] text-[#FF7A00] hover:bg-[#FF7A00]/10"
+                            onClick={() => openClientDialog(data)}
                           >
-                            <Trash2 className="w-4 h-4 mr-1" /> Delete
+                            <Edit className="w-4 h-4 mr-1" /> Edit
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-white rounded-2xl shadow-lg">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className="text-[#273F4F]">
-                              Confirm Deletion
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete{" "}
-                              <span className="font-medium text-[#FF7A00]">
-                                {data?.userId?.email}
-                              </span>{" "}
-                              and all assigned campaigns? This action cannot be
-                              undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-[#FF7A00] hover:bg-[#e56d00]"
-                              onClick={() => deleteClient(data?._id)}
-                            >
-                              Yes, Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </Card>
-                ))}
+
+                          {/* 🧩 Delete Confirmation Dialog */}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                className="bg-[#FF7A00] hover:bg-[#e56d00]"
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" /> Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-white rounded-2xl shadow-lg">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-[#273F4F]">
+                                  Confirm Deletion
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete{" "}
+                                  <span className="font-medium text-[#FF7A00]">
+                                    {data?.userId?.email}
+                                  </span>{" "}
+                                  and all assigned campaigns? This action cannot
+                                  be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-[#FF7A00] hover:bg-[#e56d00]"
+                                  onClick={() => deleteClient(data?._id)}
+                                >
+                                  Yes, Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </Card>
+                    ))}{" "}
+                  </>
+                )}
               </div>
             </>
           )}

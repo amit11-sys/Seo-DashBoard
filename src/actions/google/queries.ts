@@ -41,59 +41,72 @@ export const FetchGoogledata = async (
     await connectToDB();
 
     // 1️⃣ Get token for this Gmail
-    const tokensDetails = await GoogleAccount.findOne({
+      
+      // const testing = await campaignDataWithGoogleData(campaignId);
+      // // console.log(testing?.campaignWithAccountData?.projectUrl,"googleTestingDataokok")
+      // // const campaignGoogleData: any = await getValidGoogleToken(campaignId);
+      // const access_token = testing?.googleAccessToken;
+      // const campaignUrl = testing?.campaignWithAccountData?.projectUrl;
+      // console.table({access_token,table:"tableOKhia"},)
+  const tokensDetails = await GoogleAccount.findOne({
       googleEmail: selectedGmail,
     });
+        let accessToken = tokensDetails?.googleAccessToken;
+    let accessTokenExpiry: any = tokensDetails?.googleAccessTokenExpiry;
+    let googleRefreshToken = tokensDetails?.googleRefreshToken;
+    let googleAccountID = tokensDetails?._id;
+
+    const isExpired =
+      !accessTokenExpiry ||
+      new Date(accessTokenExpiry).getTime() < Date.now();
+
+    if (isExpired && googleRefreshToken) {
+      console.error(`🔁 Access token expired for ${selectedGmail}, refreshing...`);
+
+      const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_GOOGLE_AUTH_TOKEN}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+          client_secret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET!,
+          refresh_token: googleRefreshToken,
+          grant_type: "refresh_token",
+        }),
+      });
+
+      const tokenData = await tokenRes.json();
+      console.log("New tokenData:", tokenData);
+
+      if (tokenData.access_token) {
+        accessToken = tokenData.access_token;
+        accessTokenExpiry = new Date(Date.now() + tokenData.expires_in * 1000);
+
+        await GoogleAccount.findByIdAndUpdate(
+          tokensDetails?._id,
+          {
+            googleAccessToken: accessToken,
+            googleAccessTokenExpiry: accessTokenExpiry,
+            ...(tokenData.refresh_token && {
+              googleRefreshToken: tokenData.refresh_token,
+            }),
+          },
+          { new: true }
+        );
+
+        console.log(`✅ Token refreshed and updated for ${selectedGmail}`);
+      } else {
+        console.warn("⚠️ Could not refresh token:", tokenData);
+      }
+    }
+
+  
     if (!tokensDetails?.googleAccessToken) {
       throw new Error("No access token found for this Gmail");
     }
 
-    //   (async () => {
-
-    //     setLoading(true);
-    //     setError("");
-    //     try {
-    //       const data = await getFetchGoogleAnalyticsData(
-    //         integrationType,
-    //         selectedGmail.value
-    //       );
-
-    //       console.log(data, "accounts Analytics list");
-    //       // const accounts =
-    //       //   data?.data?.accountConsoleData?.siteEntry?.map((acc: any) => ({
-    //       //     value: acc.permissionLevel,
-    //       //     label: acc.siteUrl,
-    //       //   })) || [];
-
-    //       // setAccounts(accounts);
-
-    //       // const campaignOptions =
-    //       //   data?.data?.matchedCampaigns?.map((acc: any) => ({
-    //       //     value: acc.campaignId,
-    //       //     label: acc.projectUrls,
-    //       //   })) || [];
-    //       // setCampaignOptions(campaignOptions);
-    //       //           const campaignOptions = [
-    //       //   { value: "campaign1", label: "Campaign 1" },
-    //       //   { value: "campaign2", label: "Campaign 2" },
-    //       //   { value: "new", label: "+ Create New Campaign" },
-    //       // ];
-    //       // console.log(data, "data in google connect");
-    //     } catch (err) {
-    //       setError("Unable to fetch accounts. Please try again.");
-    //       setAccounts([]);
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    //   })();
-
-    // 2️⃣ Fetch account list from Google
-
-    // let accountConsoleData: any = {};
+  
     if (integrationType === "gsc") {
-      let accountConsoleData: any = await getListConsoleAccounts(
-        tokensDetails.googleAccessToken
-      );
+      let accountConsoleData: any = await getListConsoleAccounts(accessToken || "");
 
       // 3️⃣ Fetch all campaigns from DB
 const allCampaigns = await Campaign.find({ status: { $in: [1, 2] } });
@@ -155,96 +168,6 @@ const allCampaigns = await Campaign.find({ status: { $in: [1, 2] } });
       };
     }
 
-
-    // if (integrationType === "ga") {
-    //   let analyticsAccountList: any = await listAnalyticsAccounts(
-    //     tokensDetails.googleAccessToken
-    //   );
-
-    //   // 3️⃣ Fetch all campaigns from DB
-    //   const campaigns = await Campaign.find();
-
-    //   // 4️⃣ Helper function to normalize URLs/**
-
-    //   const normalizeDisplayName = (name: string): string => {
-    //     if (!name) return "";
-
-    //     let normalized = name.trim().toLowerCase();
-
-    //     // If it looks like a URL, normalize it like a URL
-    //     if (
-    //       /^https?:\/\//i.test(normalized) ||
-    //       /\.[a-z]{2,}$/.test(normalized)
-    //     ) {
-    //       normalized = normalized
-    //         .replace(/^https?:\/\//, "") // remove http/https
-    //         .replace(/^www\./, "") // remove www
-    //         .replace(/\/$/, "") // remove trailing slash
-    //         .replace(/\/.*$/, "") // remove everything after first slash (path)
-    //         .trim();
-    //     } else {
-    //       // It's likely a company name — normalize spaces and special chars
-    //       normalized = normalized
-    //         .replace(/[^a-z0-9]+/g, " ") // replace special chars with space
-    //         .replace(/\s+/g, " ") // collapse multiple spaces
-    //         .trim();
-    //     }
-
-    //     return normalized;
-    //   };
-
-    //   // 5️⃣ Match each campaign’s projectUrl with siteEntry.siteUrl
-    //   const matchedCampaigns = campaigns
-    //     .map((campaign: any) => {
-    //       const projectUrls = Array.isArray(campaign.projectUrl)
-    //         ? campaign.projectUrl
-    //         : campaign.projectUrl
-    //           ? [campaign.projectUrl]
-    //           : [];
-
-    //       const normalizedProjectUrls = projectUrls.map(normalizeDisplayName);
-
-    //       const matchingAccounts = analyticsAccountList.accounts.filter(
-    //         (account: any) => {
-    //           const normalizedSiteUrl = normalizeDisplayName(
-    //             account.displayName || ""
-    //           );
-
-    //           // ✅ Compare normalized URLs (either contains the other)
-    //           return normalizedProjectUrls.some(
-    //             (url: string) =>
-    //               normalizedSiteUrl.includes(url) ||
-    //               url.includes(normalizedSiteUrl)
-    //           );
-    //         }
-    //       );
-
-    //       // Keep only campaigns that actually matched
-    //       if (matchingAccounts.length > 0) {
-    //         return {
-    //           campaignId: campaign._id,
-    //           campaignName: campaign.displayName || "Unnamed Campaign",
-    //           projectUrls,
-    //           matchingAccounts,
-    //         };
-    //       }
-
-    //       return null;
-    //     })
-    //     .filter(Boolean);
-
-    //   // 6️⃣ Return final result
-    //   return {
-    //     success: true,
-    //     message: "Successfully fetched Ansalytics data and matched campaigns",
-    //     data: {
-    //       gmail: selectedGmail,
-    //       integrationType,
-    //       matchedCampaigns,
-    //       analyticsAccountList,
-    //     },
-    //   };
-    // }
 
 if (integrationType === "ga") {
   let analyticsAccountList: any = await listAnalyticsAccounts(

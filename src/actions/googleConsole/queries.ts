@@ -1035,6 +1035,6 @@ export async function listConsoleAccounts(accessToken: string) {
   }
 
   const body = await res.json();
-  console.log(body,"listAnalyticsAccounts")
+  // console.log(body,"listAnalyticsAccounts")
   return body; 
 }

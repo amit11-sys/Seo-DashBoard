@@ -56,7 +56,7 @@ export async function GenerateShareLink(
     });
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const normalizedPath = `/sign-up?invite=${email}&token=${token}`; // Fixed path for invite
+    const normalizedPath = `/sign-up?invite=${email}&token=${token}&msg=true`; // Fixed path for invite
     // const normalizedPath = path.endsWith("/") ? path : `${path}/`;
     const url = `${baseUrl}${normalizedPath}`;
     const emailSent = await mailSender(

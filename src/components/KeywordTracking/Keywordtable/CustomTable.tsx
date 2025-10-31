@@ -83,7 +83,7 @@ interface CustomTableProps {
   showLastKeywords: boolean;
   showPastRank: boolean; // 👈 new prop,
   setShowPastRank: React.Dispatch<React.SetStateAction<boolean>>; // 👈 new prop,
-  ActiveUserData: { role: number };
+  ActiveUserData?: { role: number };
 }
 
 const CustomTable = ({

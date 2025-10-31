@@ -6,9 +6,10 @@ import ShareLink from "@/lib/models/ShareLink.model";
 import User from "@/lib/models/user.model";
 import UserAccess from "@/lib/models/userAccess.model";
 import { generateSignupEmail } from "@/lib/template/html_SignupEmail";
-import { generateShareToken } from "@/lib/utils/token";
+import { generateShareToken, generateSingleShareToken } from "@/lib/utils/token";
 import mongoose from "mongoose";
 import { mailSender } from "../mail";
+import SingleShareLink from "@/lib/models/singleShareToken.model";
 
 export async function GenerateShareLink(
   path: string,
@@ -70,6 +71,47 @@ export async function GenerateShareLink(
     return { error: "Failed to generate share link" };
   }
 }
+export async function GenerateSingleShareLink(
+  // userId: string,
+  path: string,
+  campaignId: string
+) {
+  try {
+    await connectToDB();
+
+    // Check authentication
+    const user = await getUserFromToken();
+    if (!user) {
+      return { error: "Unauthorized please login" };
+    }
+
+    // Generate unique token
+   
+    const token = generateSingleShareToken(campaignId);
+    const userId = user?.id
+
+
+    // Save to DB
+    await SingleShareLink.create({
+      token,
+      userId,
+      campaignId,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    });
+
+    // Build shareable URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const normalizedPath = path.endsWith("/") ? path : `${path}/`; // ensure slash
+    const shareUrl = `${baseUrl}${normalizedPath}${token}`;
+
+    return shareUrl;
+  } catch (error) {
+    console.error("Error generating share link:", error);
+    return { error: "Failed to generate share link" };
+  }
+}
+
 
 export async function validateShareToken(token: string) {
   try {
@@ -78,6 +120,30 @@ export async function validateShareToken(token: string) {
     await connectToDB();
 
     const share = await ShareLink.findOne({ token });
+
+    if (!share) {
+      return { valid: false, reason: "Invalid token" };
+    }
+
+    // ✅ if you store expiry date in DB, check it
+    if (share.expiresAt && share.expiresAt < new Date()) {
+      return { valid: false, reason: "Token expired" };
+    }
+
+    return { valid: true, share };
+  } catch (error) {
+    console.error("Error validating share token:", error);
+    return { valid: false, reason: "Server error" };
+  }
+}
+
+export async function SingleValidateShareToken(token: string) {
+  try {
+    if (!token) return { valid: false, reason: "Missing token" };
+
+    await connectToDB();
+
+    const share = await SingleShareLink.findOne({ token });
 
     if (!share) {
       return { valid: false, reason: "Invalid token" };

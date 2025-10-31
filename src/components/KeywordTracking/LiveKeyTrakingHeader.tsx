@@ -22,7 +22,7 @@ import {
 import { ProgressBar } from "../KeywordProgress";
 import { BsShare } from "react-icons/bs";
 import { getGetCampaignByid } from "@/actions/campaign";
-import { getGenerateShareLink } from "@/actions/generateShareLink";
+import { getGenerateShareLink, getGenerateSingleShareLink } from "@/actions/generateShareLink";
 import ShareDialog from "../modals/shareModal";
 interface CampaignIdProps {
   campaignId: string;
@@ -104,27 +104,27 @@ export default function LiveKeyTrakingHeader({
       onClick: handleRefreshCampaign, // Refresh button assigned
     },
   ];
-//    const handleshareLink = async () => {
+    const handleshareLink = async () => {
 
-//     try {
-//       // const campaigndata = await getGetCampaignByid(campaignId);
-//       // const userId = campaigndata?.campaign?._id ;
+    try {
+      // const campaigndata = await getGetCampaignByid(campaignId);
+      // const userId = campaigndata?.campaign?._id ;
       
 
-//       // const shareLink :any  = await getGenerateShareLink(`/dashboard/detail/`,campaignId);
+      const shareLink :any  = await getGenerateSingleShareLink(`/dashboard/detail/`,campaignId);
 
       
-//     // if (shareLink?.error === "Unauthorized please login") {
-//   // window.dispatchEvent(new Event("session-expired"));
-//   return
-// }
-//       // console.log(shareLink, "shareLink");
-//       // await navigator.clipboard.writeText(shareLink);
-//       // toast.success("Shareable link copied to clipboard!");
-//     } catch (error) {
-//       toast.error("Failed to generate shareable link.");
-//     }
-//   };
+    if (shareLink?.error === "Unauthorized please login") {
+  window.dispatchEvent(new Event("session-expired"));
+  return
+}
+      console.log(shareLink, "shareLink");
+      await navigator.clipboard.writeText(shareLink);
+      toast.success("Shareable link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to generate shareable link.");
+    }
+  };
 
   return (
     <div className=" flex flex-col md:flex-row items-center  justify-between text-black rounded-xl  gap-4">
@@ -194,12 +194,12 @@ export default function LiveKeyTrakingHeader({
           
            <div className="w-10 h-10  hover:bg-gray-200 flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer">
 
-           {/* <BsShare
+           <BsShare
             className="  cursor-pointer text-xl text-green-600"
             title="Share"
             onClick={handleshareLink}
-          /> */}
-          <ShareDialog campaignId={campaignId}/>
+          /> 
+          {/* <ShareDialog campaignId={campaignId}/> */}
           </div>
           {iconButtons.map((item, idx) => (
             <div

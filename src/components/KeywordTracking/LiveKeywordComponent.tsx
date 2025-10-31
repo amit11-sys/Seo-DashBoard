@@ -44,7 +44,7 @@ type TablebodyItems = {
   status: number;
   keyword: string;
   location: string;
-  // intent: string;
+  intent: string;
   start: string;
   page: string;
   Group_Rank: string;
@@ -104,29 +104,29 @@ interface HeaderProps {
     type: string;
   };
 }
-const tableHeader: Tableitems[] = [
-  { key: "select", label: "", icon: null }, // checkbox column
-  { key: "keyword", label: "Keyword" },
-  { key: "location", label: "Location" },
-  { key: "intent", label: "Intent" },
-  { key: "start", label: "Start" },
-  { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
-  {
-    key: "Absolute-Rank",
-    label: "A-Rank",
-    icon: <FcGoogle className="inline mr-1" />,
-  },
-  {
-    key: "Group_Rank",
-    label: "Group_Rank",
-    icon: <FcGoogle className="inline mr-1" />,
-  },
-  { key: "seven_days", label: "7 Days" },
-  { key: "life", label: "Life" },
-  { key: "date", label: "Date" },
-  { key: "ranking_url", label: "Ranking URL" },
-  { key: "edit", label: "Actions" }, // edit/delete/refresh buttons
-];
+// const tableHeader: Tableitems[] = [
+//   { key: "select", label: "", icon: null }, // checkbox column
+//   { key: "keyword", label: "Keyword" },
+//   { key: "location", label: "Location" },
+//   { key: "intent", label: "Intent" },
+//   { key: "start", label: "Start" },
+//   { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
+//   {
+//     key: "Absolute-Rank",
+//     label: "A-Rank",
+//     icon: <FcGoogle className="inline mr-1" />,
+//   },
+//   {
+//     key: "Group_Rank",
+//     label: "Group_Rank",
+//     icon: <FcGoogle className="inline mr-1" />,
+//   },
+//   { key: "seven_days", label: "7 Days" },
+//   { key: "life", label: "Life" },
+//   { key: "date", label: "Date" },
+//   { key: "ranking_url", label: "Ranking URL" },
+//   { key: "edit", label: "Actions" }, // edit/delete/refresh buttons
+// ];
  function formatLastUpdated(createdAt: string) {
     const date = new Date(createdAt);
 
@@ -186,6 +186,10 @@ const LiveKeywordComponent = ({
   const [refreshDate, setRefreshDate] = useState("");
   //  const [campaignStatus, setCampaignStatus] = useState<number>(campaignStatus
   const [loading, setLoading] = useState(false);
+        const [showLastKeywords, setShowLastKeywords] = useState(true);
+        const [showPastRank, setShowPastRank] = useState<boolean>(false);
+
+
   // useEffect(() => {
   //   // Remove skeleton after 30s max
   //   const timer = setTimeout(() => {
@@ -203,6 +207,8 @@ const LiveKeywordComponent = ({
   // }, [tableBody]);
 
   // console.log(campaignLiveKeywordsData, "campaignLiveKeywordsData");
+  
+  
   const setExelData = (data: any) => {
     setSortedDataForExel(data);
   };
@@ -248,13 +254,16 @@ const LiveKeywordComponent = ({
   };
 
   const keywordTableData = (campaignLiveKeywordsData: any) => {
-    console.log("calling fn on delte");
+    // console.log("calling fn on delte");
 
     if (campaignLiveKeywordsData.newLiveKeywordDbData) {
       const rawData = campaignLiveKeywordsData?.newLiveKeywordDbData;
       const topRankData = campaignLiveKeywordsData?.topRankData?.data;
 
       const data = rawData.map((item: any) => {
+         const haveNoPastRankData = item?.pastData === undefined || item?.pastData?.length === 0 
+
+         setShowLastKeywords(!haveNoPastRankData)
         return {
           keyword: item?.keyword || "",
           keywordId: item.keywordId,
@@ -265,10 +274,15 @@ const LiveKeywordComponent = ({
           page: Math?.ceil(item.rank_absolute / 10).toString() || 0,
           Absolute_Rank: item?.rank_absolute || 0,
           Group_Rank: item?.rank_group || 0,
-          sevenDays: "-",
+           sevenDays: item?.rankChange || 0,
+          changeDirection: item?.changeDirection || "",
           life: item?.rank_absolute || 0,
           comp: item?.competition || 0,
           sv: item?.searchVolumn || 0,
+           ...(!haveNoPastRankData
+      && { pastData:  item?.pastData}
+      ),
+          // pastData:  && item?.pastData,
           date: new Date(item.createdAt).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "short",
@@ -284,7 +298,37 @@ const LiveKeywordComponent = ({
     
     }
   };
-
+ 
+const tableHeader: Tableitems[] = [
+    { key: "select", label: "", icon: null },
+    { key: "keyword", label: "Keyword" },
+    { key: "location", label: "Location" },
+    { key: "intent", label: "Intent" },
+    { key: "start", label: "Start" },
+    { key: "page", label: "Page", icon: <FcGoogle className="inline mr-1" /> },
+    {
+      key: "Absolute_Rank",
+      label: "A-Rank",
+      icon: <FcGoogle className="inline mr-1" />,
+    },
+    {
+      key: "Group_Rank",
+      label: "Group_Rank",
+      icon: <FcGoogle className="inline mr-1" />,
+    },
+     // ✅ Conditional column insertion
+  ...(showPastRank
+    ? (showLastKeywords
+        ? [{ key: "pastRanks", label: "Past ranks" }]
+        : [])
+    : []),
+    
+    { key: "sevenDays", label: "7 Days" },
+    { key: "life", label: "Life" },
+    { key: "date", label: "Date" },
+    { key: "rankingUrl", label: "Ranking URL" },
+    { key: "edit", label: "Actions" },
+  ];
 
   return (
     <div className="w-full min-h-[80vh]  text-gray-100">
@@ -355,6 +399,10 @@ const LiveKeywordComponent = ({
             // CardSetOnChanges={CardSetOnChanges}
             // setCardData={setCardData}
             // keywordTableData={keywordTableData}
+            showPastRank={showPastRank}
+            setShowPastRank={setShowPastRank}
+             setShowLastKeywords={setShowLastKeywords}
+            showLastKeywords={showLastKeywords}
             ShareCampaignStatus={ShareCampaignStatus}
             setFilterCampaignLiveKeywordsData={
               setFilterCampaignLiveKeywordsData

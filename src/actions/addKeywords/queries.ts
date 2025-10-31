@@ -27,7 +27,7 @@ export const addkeywords = async (formData: any) => {
   if (!user) return { error: "Unauthorized please login" };
 
   const campaignId = formData?.campaignId;
-  console.log(campaignId, "campaignId");
+  // console.log(campaignId, "campaignId");
   console.log(formData, "formData input");
 
   formData.keywords = Array.from(
@@ -43,9 +43,12 @@ export const addkeywords = async (formData: any) => {
     keywords: { $in: formData.keywords },
     userId: userIdObj,
     CampaignId: campaignIdObj,
-    searchLocationCode: formData.searchLocationCode, // ✅ include location
+      status: { $in: [1, 2] }, // ✅ find only where status is 1 or 2 
+    searchLocationCode: formData.searchLocationCode,
   }).select("keywords searchLocationCode");
 
+  
+console.log(existingKeywordDocs, "existing keywords");
   const existingSet = new Set(
     existingKeywordDocs.map(
       (doc) => `${doc.keywords}|${doc.searchLocationCode}`
@@ -58,6 +61,14 @@ export const addkeywords = async (formData: any) => {
 
   console.log(formData.keywords, "keywords to insert");
 
+  if (formData.keywords.length === 0) {
+    return {
+      success: true,
+      message: "No new keywords to add",
+      // queued: 0,
+      // counts: await keywordQueue.getJobCounts(),
+    };
+  }
   const createdKeywords =
     formData?.keywords?.length > 0
       ? await Keyword.insertMany(
@@ -70,7 +81,7 @@ export const addkeywords = async (formData: any) => {
         )
       : [];
 
-  console.log(createdKeywords, "created keywords");
+  // console.log(createdKeywords, "created keywords");
 
   // Redis progress setup
   const redis = getRedis();

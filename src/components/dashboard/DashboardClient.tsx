@@ -83,8 +83,8 @@ const DashboardClient = () => {
         const campaignStatusData = dbStatusWiseData?.campaignDatastatus;
         const keywordStatusData = dbStatusWiseData?.keywordDatastatus;
 
-        console.log(campaignStatusData, "comapignStatusData");
-        console.log(keywordStatusData, "keywordStatusData");
+        // console.log(campaignStatusData, "comapignStatusData");
+        // console.log(keywordStatusData, "keywordStatusData");
 
         setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
         setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
@@ -99,7 +99,7 @@ const DashboardClient = () => {
             keywordStatusData?.filter(
               (item: any) => item?.campaignId === campaignId
             ) || [];
-          console.log(keywordsForCampaign, " keywordForCampaign");
+          // console.log(keywordsForCampaign, " keywordForCampaign");
 
           // Sum up all top rank values
           // const totalRanks = {
@@ -135,7 +135,7 @@ const DashboardClient = () => {
 
 
           // console.log(keywordsForCampaign, "keywordForCampaignSet");
-          console.log(totalRanks, "flattened ranks");
+          // console.log(totalRanks, "flattened ranks");
 
 
 
@@ -176,7 +176,7 @@ const DashboardClient = () => {
           };
         });
 
-        console.log(tabledata, "tabledata inside");
+        // console.log(tabledata, "tabledata inside");
 
         setTableData(tabledata ?? []);
       } catch (error) {
@@ -307,8 +307,8 @@ const DashboardClient = () => {
 
           const campaignStatusData = dbStatusWiseData?.campaignDatastatus;
           const keywordStatusData = dbStatusWiseData?.keywordDatastatus;
-
-          console.log(campaignStatusData, "comapignStatusData");
+// 
+          // console.log(campaignStatusData, "comapignStatusData");
 
           // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
           setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
@@ -324,7 +324,7 @@ const DashboardClient = () => {
               keywordStatusData?.filter(
                 (item: any) => item?.campaignId === campaignId
               ) || [];
-            console.log(keywordsForCampaign, " keywordForCampaign");
+            // console.log(keywordsForCampaign, " keywordForCampaign");
 
             // Sum up all top rank values
             // const totalRanks = {
@@ -360,7 +360,7 @@ const DashboardClient = () => {
 
 
             // console.log(keywordsForCampaign, "keywordForCampaignSet");
-            console.log(totalRanks, "flattened ranks");
+            // console.log(totalRanks, "flattened ranks");
 
 
 
@@ -432,8 +432,8 @@ const DashboardClient = () => {
   const filteredData = tableData.filter((item) =>
     item?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase())
   );
-  console.log(filteredData, "filteredData");
-  console.log(tableData, "tableDataDashboard");
+  // console.log(filteredData, "filteredData");
+  // console.log(tableData, "tableDataDashboard");
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
@@ -445,7 +445,7 @@ const DashboardClient = () => {
         <aside className="w-[250px] h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
             
-            archivedCampaignData={archivedCampaigns}
+            // archivedCampaignData={archivedCampaigns}
           />
         </aside>
 

@@ -12,8 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
 import { Trash2, RotateCcw, Search } from "lucide-react";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { FaArchive } from "react-icons/fa";
+import { getArchivedCampaign } from "@/actions/campaign";
 
 const campaigns = [
   {
@@ -44,15 +45,32 @@ const campaigns = [
   },
 ];
 
-export default function ArchivedCampaignTable(archivedCampaignData: any) {
+export default function ArchivedCampaignTable() {
     // const {campaignId}= useCampaignData()
   const [search, setSearch] = useState("");
-  const [archivedData, setArchivedData] = useState();
-  console.log(
-    archivedCampaignData?.archivedCampaignData,
-    "archivedCampaignData"
-  );
+  const [archivedData, setArchivedData] = useState<any>([]);
+  // console.log(
+  //   archivedCampaignData?.archivedCampaignData,
+  //   "archivedCampaignData"
+  // );
+  const [archivedCampaignData, setArchivedCampaignData] = useState<any>([]);
+useEffect(() => {
 
+    const fetchArchivedCampaign = async () => {
+      const fetchData = await getArchivedCampaign();
+
+        setArchivedCampaignData(fetchData?.KeywordTrackingDataArchied || []);
+      
+
+    }
+      
+    fetchArchivedCampaign();
+   
+    
+
+
+
+  },[])
   const filteredData = campaigns.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -97,7 +115,7 @@ export default function ArchivedCampaignTable(archivedCampaignData: any) {
             </TableHeader>
             <TableBody>
               {archivedCampaignData?.archivedCampaignData.map((campaign: any) => {
-                            console.log(campaign,"campaign map")
+                            // console.log(campaign,"campaign map")
                 return (
                 <TableRow key={campaign.key}>
                   <TableCell className="font-medium">{campaign.projectUrl.replace(/^https?:\/\/(www\.)?/, "")}</TableCell>

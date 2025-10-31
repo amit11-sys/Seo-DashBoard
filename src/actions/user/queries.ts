@@ -11,6 +11,8 @@ import Campaign from "@/lib/models/campaign.model";
 
 export const newUserSignUp = async (formData: any) => {
   try {
+   
+    return( {error:"Registration is currently no allow. Please contact support for assistance."})
     await connectToDB();
     const { email, password } = formData;
 
@@ -32,7 +34,7 @@ export const newUserSignUp = async (formData: any) => {
     const user = await User.create({
       email,
       password: hashedPassword,
-      role: 2,
+      role: 3,
     });
 
     if (!user) {
@@ -108,11 +110,13 @@ export const verifyUser = async (formData: any) => {
 
     // Check if the user exists
     const user = await User.findOne({ email });
-    console.log(user, "user-Data");
+    // console.log(user, "user-Data");
     if (!user) {
       return { error: "User does not exist." };
     }
-
+    if(user?.role!=2){
+      return { error: "You are not authorized to access this panel." };
+    }
     // Validate password
     const isPasswordValid = await isPasswordCorrect(password, user.password);
     if (!isPasswordValid) {

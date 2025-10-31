@@ -5,7 +5,8 @@ import Campaign from "@/lib/models/campaign.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 
 // import { fetchLocations } from "../KeywordsGmb/queries";
-import { refreshGoogleAccessToken } from "../googleConsole/queries";
+// import { refreshGoogleAccessToken } from "../googleConsole/queries";
+// import { getListAnalyticsAccounts } from "../googleConsole";
 
 export const newCampaign = async (formData: any) => {
   try {
@@ -14,7 +15,7 @@ export const newCampaign = async (formData: any) => {
 
     const user: any = await getUserFromToken();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
     // const nameExists = await Campaign.findOne({ campaignName: formData?.name });
     // const urlExists = await Campaign.findOne({ projectUrl: formData?.url });
@@ -145,7 +146,10 @@ export const archivedCampaign = async () => {
       return { error: "Unauthorized please login" };
     }
 
-    const KeywordTrackingDataArchied = await Campaign.find({ status: 2 });
+    const KeywordTrackingDataArchied = await Campaign.find({
+      status: 2,
+      userId: user?.id,
+    });
 
     if (!KeywordTrackingDataArchied) {
       return { error: " Not Find Id Error while deleting campaign" };
@@ -185,8 +189,8 @@ export const ArchivedCampaignCreate = async (
       return { error: "Campaign ID is missing." };
     }
 
-    console.log(topRankData, "topRankData in server");
-    console.log(status, "statusin");
+    // console.log(topRankData, "topRankData in server");
+    // console.log(status, "statusin");
 
     // delete campaign
     if (status === 3) {
@@ -256,8 +260,9 @@ export const CompaignCount = async () => {
 
     const campaignCount = await Campaign.find({
       status: { $in: [1, 2] },
+      userId: user?.id,
     });
-    console.log(campaignCount, "campaignCount");
+    // console.log(campaignCount, "campaignCount");
     return {
       success: true,
       message: "Campaign Count Successfully",
@@ -289,7 +294,7 @@ export const DbCompaignDataUpdate = async (
     if (!user) {
       return { error: "Unauthorized" };
     }
-
+    // console.log(tokenResult, "tokenResultIN DB update");
     const {
       access_token,
       expires_in,
@@ -297,9 +302,11 @@ export const DbCompaignDataUpdate = async (
       id_token,
       refresh_token_expires_in,
     } = tokenResult as GoogleTokenResult;
-    console.log(tokenResult, "tokenResultIN DB update");
+    // console.log(tokenResult, "tokenResultIN DB update");
 
     const now = Date.now();
+    // const consoleAccountData = await getListAnalyticsAccounts(access_token);
+    // console.log(consoleAccountData, "consoleAccountData");
 
     // convert to absolute timestamps (in ms)
     const googleAccessTokenExpiry = now + expires_in * 1000;
@@ -315,12 +322,13 @@ export const DbCompaignDataUpdate = async (
           googleRefreshToken: refresh_token,
           googleRefreshTokenExpiry: googleRefreshTokenExpiry,
           googleId_token: id_token,
+          // consoleAccountData,
         },
       },
       { new: true }
     );
 
-console.log("Updated campaign:", campaignGoogleData);
+// console.log("Updated campaign:", campaignGoogleData);
 
 
 
@@ -374,37 +382,37 @@ export const DBcompaignGoogleData = async (newCompaignId: string) => {
 };
 
 
-export async function getValidGoogleToken(campaignId: string) {
-  const campaign = await Campaign.findById({ _id: campaignId });
-  if (!campaign) throw new Error("Campaign not found");
+// export async function getValidGoogleToken(campaignId: string) {
+//   const campaign = await Campaign.findById({ _id: campaignId });
+//   if (!campaign) throw new Error("Campaign not found");
 
-  const now = Date.now();
+//   const now = Date.now();
 
-  // If token is expired or missing → refresh it
-  if (
-    !campaign.googleAccessToken ||
-    !campaign.googleAccessTokenExpiry ||
-    now > Number(campaign.googleAccessTokenExpiry)
-  ) {
-    return await refreshGoogleAccessToken(campaignId);
-  }
+//   if (
+//     !campaign.googleAccessToken ||
+//     !campaign.googleAccessTokenExpiry ||
+//     now > Number(campaign.googleAccessTokenExpiry)
+//   ) {
+//     return await refreshGoogleAccessToken(campaignId);
+//   }
 
-  // Otherwise return the campaign with the valid token
-  return campaign;
-}
+//   return campaign;
+// }
+
+
 export const CurrentCampaignIdData = async (campaignId: string) => {
   try {
     await connectToDB();
 
     const user = await getUserFromToken();
     if (!user) {
-      return { error: "Unauthorized" };
+      return { error: "Unauthorized please login" };
     }
 
     const CurrentCampaignIdData = await Campaign.findById({ _id: campaignId });
 
     if (!campaignId) {
-      return { error: "Error while getting campaign New Id" };
+      return { success: false, error: "Error while getting campaign New Id" };
     }
 
     return {

@@ -3,6 +3,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import KeywordEdit from "./KeywordEdit";
 import DeleteConfirm from "./KeywordDel";
+import { TiArrowUp, TiArrowDown } from "react-icons/ti";
 
 import {
   getDbLiveKeywordData,
@@ -13,10 +14,12 @@ import {
 import { SearchIcon } from "lucide-react";
 import { useLoader } from "@/hooks/useLoader";
 import { Button } from "@/components/ui/button";
-import { LuArrowUpDown, LuDelete } from "react-icons/lu";
+import { LuArrowUpDown, LuDelete, LuTable } from "react-icons/lu";
 import { FaCopy, FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import { BsSearch } from "react-icons/bs";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+
 import { TableSkeleton } from "@/components/Skeleton/TableSkeleton";
 import SingleKeywordRefresh from "../SingleKeywordRefresh";
 import { RiRefreshFill } from "react-icons/ri";
@@ -44,10 +47,12 @@ interface TablebodyItems {
   Group_Rank: string;
   checkUrl: string;
   // oneDay: string;
-  sevenDays: string;
+  sevenDays: number;
+  changeDirection: string;
   // thirtyDays: string;
   life: string;
   comp: any;
+  pastData: any;
   sv: any;
   date: string;
   rankingUrl: string;
@@ -73,12 +78,18 @@ interface CustomTableProps {
   setFilterCampaignLiveKeywordsData?: any;
   locationFilter: string;
   setLocationFilter: React.Dispatch<React.SetStateAction<string>>;
-  getKeywordData:()=>void
+  getKeywordData: () => void;
+  setShowLastKeywords: React.Dispatch<React.SetStateAction<boolean>>;
+  showLastKeywords: boolean;
+   showPastRank : boolean; // 👈 new prop,
+  setShowPastRank : React.Dispatch<React.SetStateAction<boolean>>; // 👈 new prop,
 }
 
 const CustomTable = ({
   setExelData,
   // CardSetOnChanges,
+  setShowLastKeywords,
+  showLastKeywords,
   tableHeader,
   // setCardData,
   setFilterCampaignLiveKeywordsData,
@@ -90,11 +101,13 @@ const CustomTable = ({
   campaignId,
   showAddedKeyword,
   setTableBody,
+  showPastRank,
+  setShowPastRank,
   filterCampaignLiveKeywordsData,
   // fetchCardDatafilterLocation,
   locationFilter,
   setLocationFilter,
-  getKeywordData
+  getKeywordData,
 }: CustomTableProps) => {
   const [editableRowIndex, setEditableRowIndex] = useState<number | null>(null);
   const { startLoading, stopLoading } = useLoader();
@@ -109,6 +122,10 @@ const CustomTable = ({
   const [sortedData, setSortedData] = useState<TablebodyItems[]>([]);
 
   const [excludeZero, setExcludeZero] = useState<boolean>(false); // 👈 new toggle
+
+  // Add this near your other useStates:
+// const [showPastRank, setShowPastRank] = useState<boolean>(false);
+
   // sortMode can be: "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
   // const [sortMode, setSortMode] = useState<
   //   "normal" | "asc_all" | "desc_all" | "asc_nozero" | "desc_nozero"
@@ -118,6 +135,7 @@ const CustomTable = ({
   const uniqueLocations = Array.from(
     new Set(filterCampaignLiveKeywordsData?.map((row: any) => row.location))
   );
+  console.log(sortedData, "sortedData");
 
   useEffect(() => {
     setSortedData(tableData);
@@ -202,14 +220,13 @@ const CustomTable = ({
         )
       );
     }
-  };
-
+  }; 
   const handleBlur = () => {
     setEditableRowIndex(null);
   };
 
   const addEditkeywordsData = async (data: any) => {
-    console.log(data, "default function");
+    // console.log(data, "default function");
 
     // Transform and set default data
     const transformed = data.map((item: any) => ({
@@ -259,12 +276,12 @@ const CustomTable = ({
     selectedKeywords: string[],
     campaignId: string
   ) => {
-    console.log(selectedKeywords, "selectedKeywords");
+    // console.log(selectedKeywords, "selectedKeywords");
     try {
       const res = await deleteKeywordData(selectedKeywords);
       if (res.success) {
         toast.success("Keyword(s) deleted successfully");
-        getKeywordData()
+        getKeywordData();
       } else {
         toast.error(res.error || "Failed to delete keyword");
       }
@@ -285,8 +302,7 @@ const CustomTable = ({
   // };
 
   return (
-    <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
-      {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
+    <>
       <div className="flex gap-3 mb-3">
         <BulkDeleteDialog
           selectedKeywords={selectedKeywords}
@@ -302,273 +318,416 @@ const CustomTable = ({
     Refresh Selected
   </button> */}
       </div>
+      <div className="w-full shadow-lg text-black rounded-md max-h-[700px] overflow-x-auto relative">
+        {/* {tableData.length === 0 ? <TableSkeleton/> : (  */}
 
-      <table className="min-w-[1000px] w-full table-auto">
-        <thead>
-          <tr className="sticky top-0 bg-gradient-to-r bg-gray-200 text-black">
-            {tableHeader.map((header, id) => {
-              // skip select and edit headers if ShareCampaignStatus === 2
-              if (
-                (header.key === "select" || header.key === "edit") &&
-                ShareCampaignStatus === 2
-              ) {
-                return null;
-              }
+          <table className="min-w-[1000px] w-full table-auto text-[13px]">
+  <thead>
+    {/* 🔹 Row 1: Main headers */}
+    <tr className="sticky top-0 z-[40]  bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 shadow-sm text-[12px]">
+      {tableHeader?.map((header: any, id: number) => {
+        if (
+          (header.key === "select" || header.key === "edit") &&
+          ShareCampaignStatus === 2
+        ) {
+          return null;
+        }
+          if(showPastRank){
 
+            if (
+              header.key === "pastRanks" &&
+              showLastKeywords &&
+              sortedData.length > 0
+            ) {
               return (
                 <th
-                  key={id}
-                  className="py-3 px-1 text-center text-sm font-medium"
+                  key="pastRanks"
+                  className="py-2 px-1 text-center font-semibold tracking-wide border-r border-gray-300 text-[12px]"
                 >
-                  <div className="flex items-center text-sm justify-center gap-1">
-                    {header.icon && (
-                      <span className="text-sm">{header.icon}</span>
-                    )}
-                    {header.label}
-
-                    {/* Group_Rank sorting button */}
-                    {header.key === "Group_Rank" && (
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                          }
-                        >
-                          <LuArrowUpDown className="h-4 w-4" />
-                        </Button>
-
-                        <Button
-                          variant={excludeZero ? "default" : "ghost"}
-                          size="sm"
-                          onClick={() => setExcludeZero(!excludeZero)}
-                        >
-                          {excludeZero ? (
-                            <FaRegEyeSlash title="Show Zero" />
-                          ) : (
-                            <FaRegEye title="Hide Zero" />
-                          )}
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* Select All checkbox */}
-                    {header.key === "select" && (
-                      <Checkbox
-                        checked={selectAll}
-                        onCheckedChange={(checked) => {
-                          setSelectAll(!!checked);
-                          if (checked) {
-                            setSelectedKeywords(
-                              sortedData.map((d) => d.keywordId)
-                            );
-                          } else {
-                            setSelectedKeywords([]);
-                          }
-                        }}
-                        className="data-[state=checked]:bg-orange-500 
-                  data-[state=checked]:border-orange-500 
-                  data-[state=checked]:text-white"
-                      />
-                    )}
-
-                    {/* Location filter */}
-                    {header.key === "location" && (
-                      <select
-                        className="ml-2 border-none rounded px-1 py-2 w-28 text-xs"
-                        value={locationFilter}
-                        onChange={(e) => setLocationFilter(e.target.value)}
-                      >
-                        <option value="all">All</option>
-                        {uniqueLocations.map((loc: any) => (
-                          <option key={loc} value={loc}>
-                            {loc}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                  <div className="flex flex-col items-center">
+                    <span className="text-gray-700 text-[12px]">{header.label}</span>
+                    <div className="flex mt-1 gap-1">
+                      {sortedData[0]?.pastData?.map(
+                        (monthLabel: any, m: number) => (
+                          <motion.span
+                            key={`past-rank-month-${m}`}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2, delay: m * 0.05 }}
+                            className="py-1 px-2 text-center text-[11px] font-medium text-gray-600 bg-white border rounded shadow-sm w-[55px]"
+                          >
+                            {monthLabel.month}
+                          </motion.span>
+                        )
+                      )}
+                    </div>
                   </div>
                 </th>
               );
-            })}
-          </tr>
-        </thead>
+            }
+          }
 
-        <tbody>
-          {sortedData.length === 0 ? (
-            <tr>
-              <td colSpan={15} className="text-center text-gray-500 py-6">
-                No keyword data found
-              </td>
-            </tr>
-          ) : (
-            sortedData.map((data, rowIndex) => {
-              const keywordId = data.keywordId;
-              // const matchedKeywordData = keywordDbData?.find(
-              //   (item: { _id: string }) => item._id === keywordId
-              // );
+        return (
+          <th
+            key={id}
+            className="py-2 px-2 text-center font-semibold tracking-wide border-r border-gray-300 text-[12px]"
+          >
+            <div className="flex items-center justify-center gap-1 text-gray-700">
+              {header.icon && <span className="text-xs">{header.icon}</span>}
+              {header.label}
+            </div>
 
-              return (
-                <tr
-                  key={rowIndex}
-                  className="hover:bg-indigo-50 transition-colors"
+            {/* {header.key === "Group_Rank" && (
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                  }
                 >
-                  {/* Checkbox column (hidden if ShareCampaignStatus === 2) */}
-                  {ShareCampaignStatus !== 2 && (
-                    <td className="text-center border p-1">
-                      <Checkbox
-                        className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500 
-                  data-[state=checked]:text-white"
-                        checked={selectedKeywords.includes(data.keywordId)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedKeywords((prev) => [
-                              ...prev,
-                              data.keywordId,
-                            ]);
-                          } else {
-                            setSelectedKeywords((prev) =>
-                              prev.filter((id) => id !== data.keywordId)
-                            );
-                          }
-                        }}
-                      />
-                    </td>
-                  )}
+                  <LuArrowUpDown className="h-3 w-3" />
+                </Button>
 
-                  {/* Keyword column */}
-                  <td
-                    className="text-center text-[14px] overflow-hidden text-wrap min-w-[200px] border p-1 relative group"
-                    title={data.keyword}
-                  >
-                    {data.keyword}
-                    {/* Hover actions */}
-                    <div
-                      className="flex gap-5 justify-center w-full h-full bg-white items-center absolute right-0 top-0 -translate-y-[20px] opacity-0 
+                <Button
+                  variant={excludeZero ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setExcludeZero(!excludeZero)}
+                >
+                  {excludeZero ? (
+                    <FaRegEyeSlash title="Show Zero" />
+                  ) : (
+                    <FaRegEye title="Hide Zero" />
+                  )}
+                </Button>
+              </div>
+            )} */}
+            {header.key === "Group_Rank" && (
+  <div className="flex items-center gap-2 justify-center">
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+    >
+      <LuArrowUpDown className="h-3 w-3" />
+    </Button>
+
+    <Button
+      variant={excludeZero ? "default" : "ghost"}
+      size="sm"
+      onClick={() => setExcludeZero(!excludeZero)}
+    >
+      {excludeZero ? (
+        <FaRegEyeSlash title="Show Zero" />
+      ) : (
+        <FaRegEye title="Hide Zero" />
+      )}
+    </Button>
+
+        {/* 👇 NEW COLLAPSE SWITCH */}
+    {showLastKeywords && (
+      <Button
+        variant={showPastRank ? "default" : "ghost"}
+        size="sm"
+        onClick={() => setShowPastRank(!showPastRank)}
+        title={showPastRank ? "Hide Past Ranks" : "Show Past Ranks"}
+      >
+        <LuTable className="h-3 w-3" />
+      </Button>
+    )}
+   
+  </div>
+)}
+
+
+            {header.key === "select" && (
+              <Checkbox
+                checked={selectAll}
+                onCheckedChange={(checked) => {
+                  setSelectAll(!!checked);
+                  if (checked) {
+                    setSelectedKeywords(sortedData.map((d) => d.keywordId));
+                  } else {
+                    setSelectedKeywords([]);
+                  }
+                }}
+                className="data-[state=checked]:bg-orange-500 
+                  data-[state=checked]:border-orange-500 
+                  data-[state=checked]:text-white"
+              />
+            )}
+
+            {header.key === "location" && (
+              <select
+                className="ml-2 border-none rounded px-1 py-1 w-24 text-[11px]"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+              >
+                <option value="all">All</option>
+                {uniqueLocations.map((loc: any) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </select>
+            )}
+          </th>
+        );
+      })}
+    </tr>
+  </thead>
+
+  <tbody className="text-[12px]">
+    {sortedData.length === 0 ? (
+      <tr>
+        <td colSpan={15} className="text-center text-gray-500 py-6 text-[13px]">
+          No keyword data found
+        </td>
+      </tr>
+    ) : (
+      <AnimatePresence>
+        {sortedData.map((data: any, rowIndex) => {
+          const keywordId = data.keywordId;
+
+          return (
+            <motion.tr
+              key={rowIndex}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, delay: rowIndex * 0.05 }}
+              className="hover:bg-indigo-50 transition-colors text-[12px]"
+            >
+              {/* Checkbox col */}
+                      {ShareCampaignStatus !== 2 && (
+                        <td className="text-center border p-1">
+                          <Checkbox
+                            checked={selectedKeywords.includes(data.keywordId)}
+                            onCheckedChange={(checked) => {
+                              setSelectedKeywords((prev) =>
+                                checked
+                                  ? [...prev, data.keywordId]
+                                  : prev.filter((id) => id !== data.keywordId)
+                              );
+                            }}
+                          />
+                        </td>
+                      )}
+
+                      {/* Keyword column with hover actions */}
+                      <td
+                        className="text-center text-[14px] overflow-hidden text-wrap min-w-[200px] border p-1 relative group"
+                        title={data.keyword}
+                      >
+                        {data.keyword}
+
+                        <div
+                          className="flex gap-5 justify-center w-full h-full bg-white items-center absolute right-0 top-0 -translate-y-[20px] opacity-0 
                 group-hover:opacity-100 group-hover:translate-y-0
                 transition-all duration-300 ease-out"
-                    >
-                      <button onClick={() => handleSpyGlass(data?.checkUrl)}>
-                        <BsSearch
-                          title="Go To"
-                          className="text-orange-500 text-xl"
-                        />
-                      </button>
-                      <button onClick={() => handleCopy(data?.keyword)}>
-                        <FaCopy
-                          title="Copy"
-                          className="text-blue-400 text-xl"
-                        />
-                      </button>
-                    </div>
-                  </td>
-
-                  <td className="text-center text-[12px] border  min-w-[50px] p-1">
-                    {data.location}
-                  </td>
-                  <td className="text-center text-[12px] border p-3">
-                    {data.intent}
-                  </td>
-
-                  {/* Editable start column */}
-                  <td
-                    className="text-center text-[12px] border cursor-pointer p-1"
-                    onClick={() => handleStartClick(rowIndex)}
-                  >
-                    {editableRowIndex === rowIndex ? (
-                      <input
-                        type="text"
-                        value={data.start}
-                        onChange={(e) =>
-                          handleStartChange(e, rowIndex, keywordId)
-                        }
-                        onBlur={handleBlur}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleBlur();
-                        }}
-                        className="w-14 px-2 text-black text-center rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        autoFocus
-                      />
-                    ) : (
-                      <span className="font-semibold text-indigo-600">
-                        {data.start}
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="text-center text-[12px] border p-1">
-                    {data.page}
-                  </td>
-                  <td className="text-center text-[12px] border p-3">
-                    {data.Absolute_Rank}
-                  </td>
-                  <td className="text-center text-[12px] border p-1">
-                    {data.Group_Rank}
-                  </td>
-                  <td className="text-center text-[12px] border p-1">
-                    {data.sevenDays}
-                  </td>
-                  <td className="text-center text-[12px] border p-1">
-                    {data.life}
-                  </td>
-                  <td className="text-center text-[12px] border text-nowrap p-1">
-                    {data.date}
-                  </td>
-
-                  <td className="text-center max-w-[150px] text-[12px] border p-1">
-                    <div className="flex justify-center items-center">
-                      {data.rankingUrl === "no ranking" ? (
-                        <span className="text-black">__</span>
-                      ) : (
-                        <a
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline truncate block max-w-[140px]"
-                          href={data.rankingUrl}
-                          title={data.rankingUrl} // full URL on hover
                         >
-                          {data.rankingUrl}
-                        </a>
+                          <button
+                            onClick={() => handleSpyGlass(data?.checkUrl)}
+                          >
+                            <BsSearch
+                              title="Go To"
+                              className="text-orange-500 text-xl"
+                            />
+                          </button>
+                          <button onClick={() => handleCopy(data?.keyword)}>
+                            <FaCopy
+                              title="Copy"
+                              className="text-blue-400 text-xl"
+                            />
+                          </button>
+                        </div>
+                      </td>
+
+                      <td className="text-center border p-1">
+                        {data.location}
+                      </td>
+                      <td className="text-center text-[12px] border p-3">
+                        <span
+                          className="px-2 py-1 rounded text-white text-xs cursor-default"
+                          title={data?.intent} // hover shows full string
+                          style={{
+                            backgroundColor: (() => {
+                              if (!data?.intent) return "#999"; // default gray
+                              const firstLetter = data.intent[0].toLowerCase(); // first letter only
+                              switch (firstLetter) {
+                                case "c": // commercial
+                                  return "#f97510"; // orange
+                                case "i": // informational
+                                  return "#3b82f6"; // blue
+                                case "n": // navigational
+                                  return "#10b981"; // green
+                                case "t": // transactional
+                                  return "#ef4444"; // red
+                                default:
+                                  return "#fff"; // white
+                              }
+                            })(),
+                          }}
+                        >
+                          {data?.intent ? data.intent[0].toUpperCase() : "-"}
+                        </span>
+                      </td>
+                      <td
+                        className="text-center text-[12px] border cursor-pointer p-1"
+                        onClick={() => handleStartClick(rowIndex)}
+                      >
+                        {editableRowIndex === rowIndex ? (
+                          <input
+                            type="text"
+                            value={data.start}
+                            onChange={(e) =>
+                              handleStartChange(e, rowIndex, keywordId)
+                            }
+                            onBlur={handleBlur}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleBlur();
+                            }}
+                            className="w-14 px-2 text-black text-center rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            autoFocus
+                          />
+                        ) : (
+                          <span className="font-semibold text-indigo-600">
+                            {data.start}
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-center border p-1">{data.page}</td>
+                      <td className="text-center border p-1">
+                        {data.Absolute_Rank}
+                      </td>
+                      <td className="text-center border p-1">
+                        {data.Group_Rank}
+                      </td>
+
+                    
+                      {/* ✅ Past Ranks (aligned with month subheader) */}
+                        
+                   {/* {showLastKeywords && (
+                        <td className="text-center border p-1">
+                          <div className="grid grid-cols-6">
+
+                        
+                            {data?.pastData?.map((i: any, m: number) => (
+                              <motion.div
+                                key={`past-rank-${rowIndex}-${m}`}
+                                initial={{ opacity: 0, x: 40 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -40 }}
+                                transition={{ duration: 0.3, delay: m * 0.05 }}
+                                className="w-20 text-center    p-1 text-sm"
+                              >
+                                {i?.rank || "-"}
+                              </motion.div>
+                            ))}
+                          </div>
+                        </td>
+                      )}  */}
+
+                      {showPastRank && (
+  <>
+    {showLastKeywords && (
+      <td className="text-center border p-1">
+        <div className="grid grid-cols-6">
+          {data?.pastData?.map((i: any, m: number) => (
+            <motion.div
+              key={`past-rank-${rowIndex}-${m}`}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3, delay: m * 0.05 }}
+              className="w-20 text-center p-1 text-sm"
+            >
+              {i?.rank || "-"}
+            </motion.div>
+          ))}
+        </div>
+      </td>
+    )}
+  </>
+)}
+
+
+                      <td className="text-center text-[12px] border p-1">
+                        {data?.sevenDays === 0 && "-"}
+
+                        {/* ✅ if improved */}
+                        {data.changeDirection === "up" && (
+                          <span className="inline-flex items-center ml-1 text-green-500 text-[15px]">
+                            {data.sevenDays}
+                            <TiArrowUp className="ml-0.5" />
+                          </span>
+                        )}
+
+                        {/* ✅ if dropped */}
+                        {data.changeDirection === "down" && (
+                          <span className="inline-flex items-center ml-1 text-red-500 text-[15px]">
+                            {data.sevenDays}
+                            <TiArrowDown className="ml-0.5" />
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-center border p-1">{data.life}</td>
+                      <td className="text-center border p-1">{data.date}</td>
+                      <td className="text-center max-w-[150px] text-[12px] border p-1">
+                        <div className="flex justify-center items-center">
+                          {data.rankingUrl === "no ranking" ? (
+                            <span className="text-black">__</span>
+                          ) : (
+                            <a
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline truncate block max-w-[140px]"
+                              href={data.rankingUrl}
+                              title={data.rankingUrl}
+                            >
+                              {data.rankingUrl}
+                            </a>
+                          )}
+                        </div>
+                      </td>
+
+                      {ShareCampaignStatus !== 2 && (
+                        <td className="text-center text-[12px] border p-1">
+                          <div className="flex justify-center items-center gap-2">
+                            <KeywordEdit
+                              // CardSetOnChanges={CardSetOnChanges}
+                              campaignId={campaignId || ""}
+                              keywordId={keywordId}
+                              addEditkeywordsData={addEditkeywordsData}
+                              // showAddedKeyword={showAddedKeyword}
+                              setTableBody={setTableBody}
+                              defaultData={defaultData}
+                              getKeywordData={getKeywordData}
+                            />
+
+                            <SingleKeywordRefresh
+                              // CardSetOnChanges={CardSetOnChanges}
+                              campaignId={campaignId || ""}
+                              keywordId={keywordId}
+                              keyword={data.keyword}
+                              setTableBody={setTableBody}
+                              getKeywordData={getKeywordData}
+                            />
+                          </div>
+                        </td>
                       )}
-                    </div>
-                  </td>
+            </motion.tr>
+          );
+        })}
+      </AnimatePresence>
+    )}
+  </tbody>
+</table>
 
-                  {/* Edit/Action column (hidden if ShareCampaignStatus === 2) */}
-                  {ShareCampaignStatus !== 2 && (
-                    <td className="text-center text-[12px] border p-1">
-                      <div className="flex justify-center items-center gap-2">
-                        <KeywordEdit
-                          // CardSetOnChanges={CardSetOnChanges}
-                          campaignId={campaignId || ""}
-                          keywordId={keywordId}
-                          addEditkeywordsData={addEditkeywordsData}
-                          // showAddedKeyword={showAddedKeyword}
-                          setTableBody={setTableBody}
-                          defaultData={defaultData}
-                          getKeywordData={getKeywordData}
-                        />
-
-                        <SingleKeywordRefresh
-                          // CardSetOnChanges={CardSetOnChanges}
-                          campaignId={campaignId || ""}
-                          keywordId={keywordId}
-                          keyword={data.keyword}
-                          setTableBody={setTableBody}
-                          getKeywordData={getKeywordData}
-                        />
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
-
-      {/* )}  */}
-    </div>
+        {/* )}  */}
+      </div>
+    </>
   );
 };
 

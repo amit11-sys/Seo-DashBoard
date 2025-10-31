@@ -6,6 +6,7 @@ import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordCompon
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
 import Footer from "@/components/Common/Footer";
+import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
 
 export default async function DashboardDetails({
   params,
@@ -30,36 +31,37 @@ export default async function DashboardDetails({
         <Navbar campaignId={campaignId as string} />
       </div>
 
-      <div className="flex flex-1 pt-[80px] overflow-hidden">
+      <div
+        id="main-scroll-container"
+        className="flex flex-1 pt-[80px] overflow-hidden"
+      >
         <aside className="w-[250px]   h-full fixed left-0 top-[20px] z-40">
           <SidebarWrapper
             campaignId={campaignId as string}
-            archivedCampaignData={
-              archivedCampaignData?.KeywordTrackingDataArchied ?? []
-            }
+            // archivedCampaignData={
+            //   archivedCampaignData?.KeywordTrackingDataArchied ?? []
+            // }
           />
         </aside>
 
-        <main className="ml-[250px] flex-1 overflow-y-auto  p-4">
+        <main className="ml-[250px] relative flex-1 overflow-y-auto p-4">
           <Header
             campaignStatus={campaignStatus}
             topRankData={campaignLiveKeywordsData.topRankData}
             campaignId={campaignId}
           />
 
-          <SearchConsoleData
-            // consoleRef={consoleRef}
-            // setPdfChartData={setPdfChartData}
-            //   handleGeneratePDF={handleGeneratePDF}
+          <SearchConsoleData campaignId={campaignId} />
+          <SearchAnalytics
+            campignDataWithId={campignDataWithId}
             campaignId={campaignId}
-            // setPdfTableConsoleData={setPdfTableConsoleData}
           />
+
           <LiveKeywordComponent
             campaignStatus={campaignStatus}
-            // campaignLiveKeywordsData={campaignLiveKeywordsData}
             campaignId={campaignId}
           />
-          <Footer/>
+          <Footer mainContainerId="main-scroll-container" />
         </main>
       </div>
     </section>

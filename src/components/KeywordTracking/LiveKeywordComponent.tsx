@@ -235,6 +235,7 @@ const LiveKeywordComponent = ({
   const getkeywordData = async () => {
      try {
       if (!campaignId) return;
+      setLoading(true);
       const liveKeywordData = await keywordLiveData(
         campaignId,
         campaignStatus,
@@ -252,6 +253,8 @@ const LiveKeywordComponent = ({
       await keywordTableData(liveKeywordData);
     } catch (error) {
       console.error("Error fetching live keyword data:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -357,13 +360,38 @@ const tableHeader: Tableitems[] = [
       </div>
       <div className="backdrop-blur-md text-black  border border-white/10 rounded-xl px-6  flex  justify-evenly  items-center">
  
-        <div className=" w-full">
-          <TopRankCard
-            title={campaignLiveKeywordsData?.topRankData?.title}
-            data={campaignLiveKeywordsData?.topRankData?.data}
-            totalKeywords={campaignLiveKeywordsData?.topRankData?.totalKeywords}
-          />
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-6 gap-6">
+            <div className="flex gap-4">
+              <div className="w-40 h-40 rounded-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-[shimmer_5.6s_infinite]"></div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-40 h-40 rounded-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-[shimmer_5.6s_infinite]"></div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-40 h-40 rounded-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-[shimmer_5.6s_infinite]"></div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-40 h-40 rounded-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-[shimmer_5.6s_infinite]"></div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-40 h-40 rounded-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-[shimmer_5.6s_infinite]"></div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-40 h-40 rounded-xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-[shimmer_5.6s_infinite]"></div>
+            </div>
+          </div>
+        ) : (
+          <div className=" w-full">
+            <TopRankCard
+              title={campaignLiveKeywordsData?.topRankData?.title}
+              data={campaignLiveKeywordsData?.topRankData?.data}
+              totalKeywords={
+                campaignLiveKeywordsData?.topRankData?.totalKeywords
+              }
+            />
+          </div>
+        )}
 
         {/* <div className="w-[60%]">
         <TrackingChart/>

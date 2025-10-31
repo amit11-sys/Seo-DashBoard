@@ -60,7 +60,11 @@ export default async function DashboardDetails({
             campaignId={campaignId}
             ActiveUserData={ActiveUserData?.user as any}
           />
-
+          <LiveKeywordComponent
+          ActiveUserData={ActiveUserData?.user as any}
+            campaignStatus={campaignStatus}
+            campaignId={campaignId}
+          />
           <SearchConsoleData ActiveUserData={ActiveUserData?.user as any} campaignId={campaignId} />
           <SearchAnalytics
           ActiveUserData={ActiveUserData?.user as any}
@@ -68,11 +72,7 @@ export default async function DashboardDetails({
             campaignId={campaignId}
           />
 
-          <LiveKeywordComponent
-          ActiveUserData={ActiveUserData?.user as any}
-            campaignStatus={campaignStatus}
-            campaignId={campaignId}
-          />
+          
           <Footer mainContainerId="main-scroll-container" />
         </main>
       </div>

@@ -7,8 +7,7 @@ import User from "@/lib/models/user.model";
 import UserAccess from "@/lib/models/userAccess.model";
 import { generateSignupEmail } from "@/lib/template/html_SignupEmail";
 import { generateShareToken } from "@/lib/utils/token";
-import bcrypt from "bcryptjs";
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 import { mailSender } from "../mail";
 
 export async function GenerateShareLink(
@@ -40,11 +39,11 @@ export async function GenerateShareLink(
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    const hashedPassword = await bcrypt.hash("Swayam@11", 10);
+    // const hashedPassword = await bcrypt.hash("Swayam@11", 10);
 
     const newInvitedUser = await User.create({
       email,
-      password: hashedPassword,
+      password: "",
       parentAdminId: new mongoose.Types.ObjectId(userId),
       invitedAt: new Date(),
       inviteTokenId: link?.token,

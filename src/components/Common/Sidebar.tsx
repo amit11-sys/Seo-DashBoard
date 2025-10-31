@@ -1,9 +1,8 @@
-
 import { Nav } from "@/components/ui/nav";
 import {
   FaMinus, // Minus
   FaUsers, // Users
-  FaArchive
+  FaArchive,
 } from "react-icons/fa";
 
 import { useEffect, useState } from "react";
@@ -12,31 +11,28 @@ import { getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
 type SidebarProps = {
   isCollapsed: boolean;
   // archivedCampaignData?: any;
-  campaignId?: string
+  campaignId?: string;
 };
 
-const Sidebar = ({ isCollapsed, 
+const Sidebar = ({
+  isCollapsed,
   // archivedCampaignData,
-  campaignId }: SidebarProps) => {
+  campaignId,
+}: SidebarProps) => {
   const [campaignData, setCampaignData] = useState<any>();
   const [archivedCampaignData, setArchivedCampaignData] = useState<any>();
   useEffect(() => {
-
     const fetchArchivedCampaign = async () => {
-      const fetchData = await getArchivedCampaign();
+      const fetchData:any = await getArchivedCampaign();
 
-        setArchivedCampaignData(fetchData?.KeywordTrackingDataArchied || []);
-      
+      // console.log(fetchData,"fetchData in sidebar");
 
-    }
-      
+      setArchivedCampaignData(fetchData?.KeywordTrackingDataArchived || []);
+    };
+
     fetchArchivedCampaign();
-   
-    
+  }, []);
 
-
-
-  },[])
   useEffect(() => {
     const fetchData = async () => {
       const data = await getUserCampaign();
@@ -46,7 +42,7 @@ const Sidebar = ({ isCollapsed,
       }
     };
     fetchData();
-  },[])
+  }, []);
 
   // console.log(campaignData);
   const organizeCompaignData = campaignData?.map((c: any) => {
@@ -59,7 +55,6 @@ const Sidebar = ({ isCollapsed,
     };
   });
   const organizedArchivedCompaignData = archivedCampaignData?.map((c: any) => {
-  
     return {
       title: c.projectUrl,
       href: `/dashboard/${c._id}`,
@@ -123,4 +118,3 @@ const Sidebar = ({ isCollapsed,
 };
 
 export default Sidebar;
-

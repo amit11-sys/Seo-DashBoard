@@ -18,6 +18,7 @@ interface SearchConsoleDataProps {
   handleGeneratePDF?: any;
   setPdfChartData?: any;
   consoleRef?: any;
+  ActiveUserData?:any
 }
 
 const SearchConsoleData = ({
@@ -26,8 +27,8 @@ const SearchConsoleData = ({
   setPdfTableConsoleData,
   // handleGeneratePDF,
   setPdfChartData,
+  ActiveUserData,
 }: SearchConsoleDataProps) => {
-  // console.log(campaignId, "campaignId in search console");
   const [searchConsoleGraphData, setSearchConsoleGraphData] = useState<any>();
   const [searchConsoleTableData, setSearchConsoleTableData] = useState<any>();
   const [loading, setLoading] = useState(true); // 🔹 Added loading state
@@ -135,99 +136,7 @@ const SearchConsoleData = ({
     setSearchConsoleTableData(tableRes);
   };
 
-  // const handleLoginGoogle = () => {
-  //   const stateData = {
-  //     campaignId: campaignId,
-  //     analyticsData: isAnalyticsData,
-  //     consoleData: isConsolesData,
-  //   };
-
-  //   // const url = `${process.env.NEXT_PUBLIC_GOOGLE_AUTH}`;
-  //   const options = {
-  //     scope: [
-  //       `${process.env.NEXT_PUBLIC_USER_INFO_PROFILE}`,
-  //       `${process.env.NEXT_PUBLIC_USER_INFO_EMAIL}`,
-  //       `${process.env.NEXT_PUBLIC_AUTH_ANALYTICS}`,
-  //       `${process.env.NEXT_PUBLIC_AUTH_WEBMASTERS}`,
-  //       `${process.env.NEXT_PUBLIC_AUTH_ANALYTICS_READONLY}`,
-  //       `${process.env.NEXT_PUBLIC_AUTH_BUSINESS_MANAGE}`,
-  //     ].join(" "),
-  //     response_type: "code",
-  //     state: encodeURIComponent(JSON.stringify(stateData)),
-  //     redirect_uri: `${process.env.NEXT_PUBLIC_REDIRECT_URI}api/googleLogin`,
-  //     access_type: "offline",
-  //     prompt: "consent",
-  //     client_id: `${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}`,
-  //   };
-
-  //   const qs = new URLSearchParams(options);
-  //   //     const qs = new URLSearchParams(options);
-  //   const url = `${process.env.NEXT_PUBLIC_GOOGLE_AUTH_O}?${qs.toString()}`;
-
-  //   const popup = window.open(
-  //     url,
-  //     "googleAuthPopup",
-  //     "width=600,height=700,scrollbars=yes,resizable=yes"
-  //   );
-
-  //   // Listen for message from popup
-  //   const messageHandler = (event: MessageEvent) => {
-  //     if (event.origin !== window.location.origin) return;
-  //     if (event.data?.gmail) {
-  //       alert(`Google account connected: ${event.data.gmail}`); // or use a toast
-  //       window.removeEventListener("message", messageHandler);
-  //       popup?.close(); // close popup if not already closed
-  //     }
-  //   };
-
-  //   window.addEventListener("message", messageHandler);
-  //     // return `${url}?${qs.toString()}`;
-
-  // };
-
-  // const handleLoginGoogle = () => {
-  //   const stateData = { campaignId };
-  //   const state = encodeURIComponent(JSON.stringify(stateData));
-
-  //   const options: any = {
-  //     scope: [
-  //       process.env.NEXT_PUBLIC_USER_INFO_PROFILE,
-  //       process.env.NEXT_PUBLIC_USER_INFO_EMAIL,
-  //       process.env.NEXT_PUBLIC_AUTH_ANALYTICS,
-  //       process.env.NEXT_PUBLIC_AUTH_WEBMASTERS,
-  //       process.env.NEXT_PUBLIC_AUTH_ANALYTICS_READONLY,
-  //       process.env.NEXT_PUBLIC_AUTH_BUSINESS_MANAGE,
-  //     ].join(" "),
-  //     response_type: "code",
-  //     state,
-  //     redirect_uri: `${process.env.NEXT_PUBLIC_REDIRECT_URI}api/googleLogin`,
-  //     access_type: "offline",
-  //     prompt: "consent",
-  //     client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-  //   };
-
-  //   const qs = new URLSearchParams(options);
-  //   const url = `${process.env.NEXT_PUBLIC_GOOGLE_AUTH_O}?${qs.toString()}`;
-
-  //   const popup = window.open(
-  //     url,
-  //     "googleAuthPopup",
-  //     "width=600,height=700,scrollbars=yes,resizable=yes"
-  //   );
-
-  //   // Listen for message from popup
-  //   const messageHandler = (event: MessageEvent) => {
-  //     if (event.origin !== window.location.origin) return;
-  //     if (event.data?.gmail) {
-  //       alert(`Google account connected: ${event.data.gmail}`); // or use a toast
-  //       window.removeEventListener("message", messageHandler);
-  //       popup?.close(); // close popup if not already closed
-  //     }
-  //   };
-
-  //   window.addEventListener("message", messageHandler);
-  // };
-
+ 
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
 const handleConnect = () => {
   console.log("click")
@@ -252,7 +161,7 @@ const handleConnect = () => {
 
       <div className="relative w-full gap-10 flex flex-col items-center justify-center bg-gray-100">
         <div className=" w-full bg-white/60">
-          <SearchConsoleHead disableConsole={disableConsole} />{" "}
+          <SearchConsoleHead ActiveUserData={ActiveUserData} disableConsole={disableConsole} />{" "}
         </div>
         {/* <div className="flex flex-col items-center gap-4">
          <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
@@ -273,7 +182,7 @@ const handleConnect = () => {
     return (
       <div className="relative w-full h-[70vh] flex items-center justify-center bg-gray-100">
         <div className="absolute inset-0 bg-white/60 backdrop-blur-md">
-          <SearchConsoleHead disableConsole={disableConsole} />{" "}
+          <SearchConsoleHead ActiveUserData={ActiveUserData} disableConsole={disableConsole} />{" "}
         </div>
         <div className="absolute z-10 bg-white shadow-lg rounded-xl p-8 text-center max-w-md mx-auto">
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">
@@ -298,7 +207,7 @@ const handleConnect = () => {
         
         <div className="relative w-full h-[70vh] flex flex-col gap-10 items-center justify-center bg-gray-100">
           <div className=" w-full bg-white/60 ">
-            <SearchConsoleHead disableConsole={disableConsole} />{" "}
+            <SearchConsoleHead ActiveUserData={ActiveUserData} disableConsole={disableConsole} />{" "}
           </div>
           <div className="  bg-white shadow-lg rounded-xl p-8 text-center max-w-md mx-auto">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">
@@ -311,6 +220,8 @@ const handleConnect = () => {
               // href={handleLoginGoogle()}
               // onClick={() => handleConnectClick("Google Search Console")}
             > */}
+            {ActiveUserData?.role === 2 && (
+
               <Button
                 onClick={() => {
                   handleConnect();
@@ -320,6 +231,8 @@ const handleConnect = () => {
               >
                 Proceed
               </Button>
+
+            ) }
             {/* </a> */}
           </div>
         </div>
@@ -331,7 +244,7 @@ const handleConnect = () => {
       <>
    
       <div>
-        <SearchConsoleHead disableConsole={disableConsole} />
+        <SearchConsoleHead ActiveUserData={ActiveUserData} disableConsole={disableConsole} />
         <AnalyticsChart
           analyticData={searchConsoleGraphData}
           tableData={searchConsoleTableData}
@@ -348,3 +261,6 @@ const handleConnect = () => {
 };
 
 export default SearchConsoleData;
+
+
+

@@ -24,6 +24,7 @@ import { TbRestore } from "react-icons/tb";
 import { MdDeleteForever } from "react-icons/md";
 import { Link, Router } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getActiveUser } from "@/actions/user";
 
 interface TableData {
   name: string ;
@@ -51,6 +52,7 @@ const DashboardClient = () => {
   const [campaignStatus, setCampaignStatus] = useState<number>(1);
   const [activeComapignCount, setActiveComapignCount] = useState<number>(0);
   const [archivedComapignCount, setArchivedComapignCount] = useState<number>(0);
+  const [activeUserData, setActiveUserData] = useState<any>(null);
   const router = useRouter();
   const handleArchivedCampaigns = () => {
     setTabSelected("Archived Campaigns");
@@ -63,18 +65,24 @@ const DashboardClient = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        
+
+  
         const archived = await getArchivedCampaign();
         const keywords = await getDbTopLiveKeywordData();
         const campaignStatus1 = await getUserCampaign();
         const campaignCountData = await getCompaignCount();
+        const activeUserId = archived?.user?.id;
 
+  const ActiveUserData = await getActiveUser(activeUserId ||"");
+        setActiveUserData(ActiveUserData?.user);
 
              if(archived.error === "Unauthorized please login") {
         window.dispatchEvent(new Event("session-expired"));
         return
       }
         setArchivedComapignCount(
-          archived?.KeywordTrackingDataArchied?.length ?? 0
+          archived?.KeywordTrackingDataArchived?.length 
         );
         setActiveComapignCount(campaignStatus1?.campaign?.length ?? 0);
 
@@ -86,7 +94,7 @@ const DashboardClient = () => {
         // console.log(campaignStatusData, "comapignStatusData");
         // console.log(keywordStatusData, "keywordStatusData");
 
-        setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
+        setArchivedCampaigns(archived?.KeywordTrackingDataArchived ?? []);
         setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
         setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
 
@@ -148,6 +156,7 @@ const DashboardClient = () => {
           });
 
           return {
+             campaignId:campaignId,
             name: campaign.projectUrl || "",
             date: formatted,
             kwds: keywordsForCampaign.length || 0,
@@ -185,7 +194,7 @@ const DashboardClient = () => {
     };
 
     fetchData();
-  }, []);
+  }, [campaignStatus]);
   const handleDelete = async (campaignId: string) => {
     try {
       // 1. First, archive/delete the campaign in DB
@@ -204,7 +213,7 @@ const DashboardClient = () => {
         campaignStatus1,
         campaignCountData,
         dbStatusWiseData,
-      ] = await Promise.all([
+      ]:any = await Promise.all([
         getArchivedCampaign(),
         getDbTopLiveKeywordData(),
         getUserCampaign(),
@@ -288,129 +297,129 @@ const DashboardClient = () => {
     const restore = await CreateArchivedCampaign(CompaignId, status);
     router.push(`/dashboard/${CompaignId}`);
   };
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const archived = await getArchivedCampaign();
-          const keywords = await getDbTopLiveKeywordData();
-          const campaignStatus1 = await getUserCampaign();
-          const campaignCountData = await getCompaignCount();
-                  if(archived.error === "Unauthorized please login") {
-        window.dispatchEvent(new Event("session-expired"));
-        return
-      }
-          setArchivedComapignCount(
-            archived?.KeywordTrackingDataArchied?.length ?? 0
-          );
-          setActiveComapignCount(campaignStatus1?.campaign?.length ?? 0);
-          const dbStatusWiseData = await getDbKeywordStatusData(campaignStatus);
+//     useEffect(() => {
+//       const fetchData = async () => {
+//         try {
+//           const archived:any = await getArchivedCampaign();
+//           const keywords = await getDbTopLiveKeywordData();
+//           const campaignStatus1 = await getUserCampaign();
+//           const campaignCountData = await getCompaignCount();
+//                   if(archived.error === "Unauthorized please login") {
+//         window.dispatchEvent(new Event("session-expired"));
+//         return
+//       }
+//           setArchivedComapignCount(
+//             archived?.KeywordTrackingDataArchied?.length ?? 0
+//           );
+//           setActiveComapignCount(campaignStatus1?.campaign?.length ?? 0);
+//           const dbStatusWiseData = await getDbKeywordStatusData(campaignStatus);
 
-          const campaignStatusData = dbStatusWiseData?.campaignDatastatus;
-          const keywordStatusData = dbStatusWiseData?.keywordDatastatus;
-// 
-          // console.log(campaignStatusData, "comapignStatusData");
+//           const campaignStatusData = dbStatusWiseData?.campaignDatastatus;
+//           const keywordStatusData = dbStatusWiseData?.keywordDatastatus;
+// // 
+//           // console.log(campaignStatusData, "comapignStatusData");
 
-          // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
-          setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
-          setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
-          setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
+//           // inside campaignStatus we have 1 or 2 if one we not show restore icon and delete icon if 2 we show restore icon and delete icon (note:campaignStatus already is store inside usestate)
+//           setArchivedCampaigns(archived?.KeywordTrackingDataArchied ?? []);
+//           setTopKeywordsCount(keywords?.TopLiveKeywordDbData?.length ?? 0);
+//           setCampaignCount(campaignCountData?.campaignCount?.length ?? 0);
 
        
-            const tabledata = campaignStatusData?.map((campaign: any) => {
-            const campaignId = campaign._id;
+//             const tabledata = campaignStatusData?.map((campaign: any) => {
+//             const campaignId = campaign._id;
 
-            // Get all keyword entries for this campaign
-            const keywordsForCampaign =
-              keywordStatusData?.filter(
-                (item: any) => item?.campaignId === campaignId
-              ) || [];
-            // console.log(keywordsForCampaign, " keywordForCampaign");
+//             // Get all keyword entries for this campaign
+//             const keywordsForCampaign =
+//               keywordStatusData?.filter(
+//                 (item: any) => item?.campaignId === campaignId
+//               ) || [];
+//             // console.log(keywordsForCampaign, " keywordForCampaign");
 
-            // Sum up all top rank values
-            // const totalRanks = {
-            //   top3: 0,
-            //   top10: 0,
-            //   top20: 0,
-            //   top30: 0,
-            //   top100: 0,
-            // };
+//             // Sum up all top rank values
+//             // const totalRanks = {
+//             //   top3: 0,
+//             //   top10: 0,
+//             //   top20: 0,
+//             //   top30: 0,
+//             //   top100: 0,
+//             // };
 
-            // keywordsForCampaign.forEach((kw: any) => {
-            //   totalRanks.top3 += kw?.top3 || 0;
-            //   totalRanks.top10 += kw?.top10 || 0;
-            //   totalRanks.top20 += kw?.top20 || 0;
-            //   totalRanks.top30 += kw?.top30 || 0;
-            //   totalRanks.top100 += kw?.top100 || 0;
-            // });
-            // console.log(keywordsForCampaign,'keywordForCampaignSet');
+//             // keywordsForCampaign.forEach((kw: any) => {
+//             //   totalRanks.top3 += kw?.top3 || 0;
+//             //   totalRanks.top10 += kw?.top10 || 0;
+//             //   totalRanks.top20 += kw?.top20 || 0;
+//             //   totalRanks.top30 += kw?.top30 || 0;
+//             //   totalRanks.top100 += kw?.top100 || 0;
+//             // });
+//             // console.log(keywordsForCampaign,'keywordForCampaignSet');
 
-            // Flatten all rank_group values from keywordsForCampaign
-            const allRankGroups = keywordsForCampaign
-              .flatMap((kw: any) => kw.rank_group)
-              .filter((rank: number) => rank > 0); // Only valid positive ranks
+//             // Flatten all rank_group values from keywordsForCampaign
+//             const allRankGroups = keywordsForCampaign
+//               .flatMap((kw: any) => kw.rank_group)
+//               .filter((rank: number) => rank > 0); // Only valid positive ranks
 
-            // Compute top rank stats from the combined rank groups
-            const totalRanks = {
-              top3: allRankGroups.filter((r: number) => r <= 3).length,
-              top10: allRankGroups.filter((r: number) => r <= 10).length,
-              top20: allRankGroups.filter((r: number) => r <= 20).length,
-              top30: allRankGroups.filter((r: number) => r <= 30).length,
-              top100: allRankGroups.filter((r: number) => r <= 100).length,
-            };
-
-
-            // console.log(keywordsForCampaign, "keywordForCampaignSet");
-            // console.log(totalRanks, "flattened ranks");
+//             // Compute top rank stats from the combined rank groups
+//             const totalRanks = {
+//               top3: allRankGroups.filter((r: number) => r <= 3).length,
+//               top10: allRankGroups.filter((r: number) => r <= 10).length,
+//               top20: allRankGroups.filter((r: number) => r <= 20).length,
+//               top30: allRankGroups.filter((r: number) => r <= 30).length,
+//               top100: allRankGroups.filter((r: number) => r <= 100).length,
+//             };
 
 
-
-            // Format created date
-            const mongoDate = new Date(campaign.createdAt);
-            const formatted = mongoDate.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "2-digit",
-            });
-
-            return {
-              campaignId:campaignId,
-              name: campaign.projectUrl,
-              date: formatted,
-              kwds: keywordsForCampaign.length || 0,
-              top3: totalRanks.top3,
-              top10: totalRanks.top10,
-              top20: totalRanks.top20,
-              top30: totalRanks.top30,
-              top100: totalRanks.top100,
-              action:
-                campaignStatus === 2 ? (
-                  <div className="flex gap-2">
-                    <button
-                      title="Restore"
-                      onClick={() => handleRestore(campaignId)}
-                    >
-                      <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
-                    </button>
-                    <button
-                      title="Delete Forever"
-                      onClick={() => handleDelete(campaignId)}
-                    >
-                      <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
-                    </button>
-                  </div>
-                ) : null,
-            };
-          });
+//             // console.log(keywordsForCampaign, "keywordForCampaignSet");
+//             // console.log(totalRanks, "flattened ranks");
 
 
-          setTableData(tabledata ?? []);
-        } catch (error) {
-          console.error("Error fetching dashboard data:", error);
-        }
-      };
 
-      fetchData();
-    }, [campaignStatus]);
+//             // Format created date
+//             const mongoDate = new Date(campaign.createdAt);
+//             const formatted = mongoDate.toLocaleDateString("en-US", {
+//               year: "numeric",
+//               month: "short",
+//               day: "2-digit",
+//             });
+
+//             return {
+//               campaignId:campaignId,
+//               name: campaign.projectUrl,
+//               date: formatted,
+//               kwds: keywordsForCampaign.length || 0,
+//               top3: totalRanks.top3,
+//               top10: totalRanks.top10,
+//               top20: totalRanks.top20,
+//               top30: totalRanks.top30,
+//               top100: totalRanks.top100,
+//               action:
+//                 campaignStatus === 2 ? (
+//                   <div className="flex gap-2">
+//                     <button
+//                       title="Restore"
+//                       onClick={() => handleRestore(campaignId)}
+//                     >
+//                       <TbRestore className="w-4 h-4 text-green-600 hover:text-green-700" />
+//                     </button>
+//                     <button
+//                       title="Delete Forever"
+//                       onClick={() => handleDelete(campaignId)}
+//                     >
+//                       <MdDeleteForever className="w-4 h-4 text-red-500 hover:text-red-700" />
+//                     </button>
+//                   </div>
+//                 ) : null,
+//             };
+//           });
+
+
+//           setTableData(tabledata ?? []);
+//         } catch (error) {
+//           console.error("Error fetching dashboard data:", error);
+//         }
+//       };
+
+//       fetchData();
+//     }, [campaignStatus]);
 
     const tableHeader = [
       { key: "name", label: "Campaign Name" },
@@ -438,7 +447,7 @@ const DashboardClient = () => {
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
       <div className="fixed top-0 left-0 right-0 z-50">
-        <Navbar campaignId={"898"} />
+        <Navbar ActiveUserData={activeUserData} campaignId={"898"} />
       </div>
 
       <div className="flex flex-1 pt-[80px] overflow-hidden">

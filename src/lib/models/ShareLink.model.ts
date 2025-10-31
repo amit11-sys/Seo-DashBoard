@@ -1,9 +1,12 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models } from "mongoose";
 
 const shareLinkSchema = new Schema(
   {
-    token: { type: String, required: true, unique: true },
-    userId: { type: String, required: true },
+    campaignId: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Campaign", required: true }
+    ],
+    token: { type: String, required: true, unique: true }, // ✅ required + unique
+    userId: { type: String, required: true }, // ✅ required
     createdAt: { type: Date, default: Date.now },
     expiresAt: { type: Date },
   },

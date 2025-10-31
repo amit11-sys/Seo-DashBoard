@@ -15,8 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { getGenerateShareLink } from "@/actions/generateShareLink";
-import { BsShare } from "react-icons/bs";
+
 // import { getfirstCompaignData } from "@/actions/keywordTracking";
 // import { useCampaignData } from "@/app/context/CampaignContext";
 
@@ -25,9 +24,10 @@ interface HeaderProps {
   campaignId: string;
   topRankData:any
   campaignStatus:any
+  ActiveUserData?:any
 }
 
-const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }) => {
+const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus,ActiveUserData }) => {
   const { startLoading, stopLoading } = useLoader();
   const [openDelete, setOpenDelete] = useState(false);
   const [openArchive, setOpenArchive] = useState(false);
@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
 
   return (
 
-    <header className="flex items-end justify-end p-2 shadow-md rounded-md">
+    <header className="flex items-end my-6 justify-end p-2 shadow-md rounded-md">
       
       {campaignStatus === 1 && (
          <div className="flex items-center space-x-4 ml-auto">
@@ -80,8 +80,9 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
         >
           
         </button>
+          {ActiveUserData?.role === 2 && (
 
-        {/* Dialog Trigger for archive */} 
+
        <Dialog open={openArchive} onOpenChange={setOpenArchive}>
           <DialogTrigger asChild>
             <button
@@ -127,6 +128,7 @@ const Header: React.FC<HeaderProps> = ({ campaignId,topRankData,campaignStatus }
             </DialogFooter>
           </DialogContent>
         </Dialog> 
+          )}
 
   
       </div>

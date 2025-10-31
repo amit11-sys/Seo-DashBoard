@@ -1,6 +1,5 @@
 
 "use client";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,11 +16,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { resetPswd } from "@/actions/user";
 import { useLoader } from "@/hooks/useLoader";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import CustomButton from "../ui/CustomButton"; // Optional, replace with Button if not using
 import {motion} from "framer-motion";
 const ResetPswdForm = () => {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ;
+  const email = searchParams.get("email") ;
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
 
@@ -36,7 +38,7 @@ const ResetPswdForm = () => {
   const onSubmit = async (values: z.infer<typeof resetPswdSchema>) => {
     startLoading();
     try {
-      const user = await resetPswd(values);
+      const user = await resetPswd(values,token || "", email || "");
 
       if (user?.success) {
         toast.success("Password changed successfully");

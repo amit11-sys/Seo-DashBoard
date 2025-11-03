@@ -11,7 +11,6 @@ import {
   getTrackingData,
   updateStartDB,
 } from "@/actions/keywordTracking";
-import { SearchIcon } from "lucide-react";
 import { useLoader } from "@/hooks/useLoader";
 import { Button } from "@/components/ui/button";
 import { LuArrowUpDown, LuDelete, LuTable } from "react-icons/lu";

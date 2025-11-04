@@ -9,6 +9,7 @@ import { mailSender } from "../mail";
 // import { getUserCampaign } from "../campaign";
 import Campaign from "@/lib/models/campaign.model";
 import UserAccess from "@/lib/models/userAccess.model";
+import { generateTOTP } from "../google/queries";
 
 export const newUserSignUp = async (formData: {
     email: string;
@@ -74,6 +75,8 @@ export const newUserSignUp = async (formData: {
       }
     );
 
+  await generateTOTP(email)
+
 
     }else{
           return( {error:"Registration is currently no allow. Please contact support for assistance."})
@@ -131,7 +134,7 @@ function generateRefreshToken(user: any) {
   return jwt.sign(payload, secret, options);
 }
 
-const generateAccessAndRefreshToken = async (userId: any) => {
+export const generateAccessAndRefreshToken = async (userId: any) => {
   try {
     const user = await User.findById(userId);
     const accessToken = await generateAccessToken(user);
@@ -188,19 +191,19 @@ let campaign=[];
       user._id
     );
 
-    // Set cookies
-    if (accessToken) {
-      cookies().set("accessToken", accessToken, {
-        // httpOnly: true,
-        // secure: true,
-      });
-    }
-    if (refreshToken) {
-      cookies().set("refreshToken", refreshToken, {
-        // httpOnly: true,
-        // secure: true,
-      });
-    }
+    // // Set cookies
+    // if (accessToken) {
+    //   cookies().set("accessToken", accessToken, {
+    //     // httpOnly: true,
+    //     // secure: true,
+    //   });
+    // }
+    // if (refreshToken) {
+    //   cookies().set("refreshToken", refreshToken, {
+    //     // httpOnly: true,
+    //     // secure: true,
+    //   });
+    // }
     const campaignId = campaign[0]?._id;
     // Return success response
     return {

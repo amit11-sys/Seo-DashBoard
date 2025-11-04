@@ -37,21 +37,29 @@ export default function SignInForm() {
 
   const onSubmit = async (values: z.infer<typeof signInSchema>) => {
     startLoading();
-    try {
+    try { 
       const user = await getLoggedInUser(values);
 
-      if (user?.success) {
-        toast.success("Login Successful");
+      // if (user?.success) {
+      //   toast.success("Login Successful");
 
-        const campaignId = user?.campaignId;
-        if (campaignId) {
-          router.push(`/dashboard`);
-        } else {
-          router.push(`/add-campaign`);
-        }
+      //   const campaignId = user?.campaignId;
+      //   if (campaignId) {
+      //     router.push(`/dashboard`);
+      //   } else {
+      //     router.push(`/add-campaign`);
+      //   }
+      // } 
+      if (user?.success) {
+        toast.success("Password verified. Enter your Authenticator code");
+
+        router.push(
+          `/verify-2fa?email=${values.email}&campaignId=${user?.campaignId}&userId=${user?.user?.id}`
+        );
       } else {
         toast.error(user?.error || "Invalid credentials");
       }
+    
     } catch (error) {
       toast.error("Something went wrong");
     } finally {

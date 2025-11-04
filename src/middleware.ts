@@ -180,7 +180,8 @@ export async function middleware(request: NextRequest) {
     pathname === "/term-and-conditions" ||
     pathname === "/privacy-policy" ||
     pathname.startsWith("/reset-password") ||
-    pathname.startsWith("/dashboard/detail");
+    pathname.startsWith("/dashboard/detail") ||
+    pathname.startsWith("/verify-2fa");
 
   if (isPublicPath && token) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
@@ -195,7 +196,8 @@ export async function middleware(request: NextRequest) {
       pathname.startsWith("/dashboard/detail") ||
       pathname.startsWith("/term-and-conditions") ||
       pathname.startsWith("/privacy-policy") ||
-      pathname.startsWith("/reset-password")
+      pathname.startsWith("/reset-password")  ||
+      pathname.startsWith("/verify-2fa")
     ) {
       return NextResponse.next();
     }

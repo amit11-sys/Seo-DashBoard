@@ -10,7 +10,9 @@ import GoogleSites from "@/lib/models/gscSites.model";
 import mongoose from "mongoose";
 import { url } from "inspector";
 import { listAnalyticsAccounts } from "../analytics/queries";
-
+import User from "@/lib/models/user.model";
+import { authenticator } from "otplib";
+import QRCode from "qrcode";
 export const GmailLoginDetails = async () => {
   try {
     await connectToDB(); // must be before using the model!
@@ -684,3 +686,30 @@ export const updateGoogleAccessToken = async (
     return { success: false, message: error.message || "Failed to refresh token." };
   }
 };
+
+
+
+
+
+
+
+export async function generateTOTP(email: string) {
+  authenticator.options = {
+    step: 30,
+    window: 1
+  };
+  const secret = authenticator.generateSecret();
+
+  // otpauth URL for TOTP (Google Authenticator)
+  const otpauth = authenticator.keyuri(email, "TrackScop", secret);
+
+  
+  const qrCode = await QRCode.toDataURL(otpauth);
+  await User.findOneAndUpdate(
+    { email },
+    { totpSecret: secret },
+    { new: true }
+  );
+
+  return { qrCode, secret };
+}

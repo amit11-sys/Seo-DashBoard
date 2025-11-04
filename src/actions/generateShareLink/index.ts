@@ -1,7 +1,9 @@
 import {
   deleteUserAccess,
   GenerateShareLink,
+  GenerateSingleShareLink,
   SaveAssignedCampaigns,
+  SingleValidateShareToken,
   UserAccessData,
   validateShareToken,
 } from "./queries";
@@ -15,8 +17,22 @@ export const getGenerateShareLink = async (
 
   return SharedLink;
 };
+export const getGenerateSingleShareLink = async (
+  path: string,
+  campignId: string,
+  // email: string
+) => {
+  const SharedLink = await GenerateSingleShareLink(path, campignId);
+
+  return SharedLink;
+};
 export const getValidateShareToken = async (token: string) => {
   const SharedLink = await validateShareToken(token);
+
+  return SharedLink;
+};
+export const getSingleValidateShareToken = async (token: string) => {
+  const SharedLink = await SingleValidateShareToken(token);
 
   return SharedLink;
 };

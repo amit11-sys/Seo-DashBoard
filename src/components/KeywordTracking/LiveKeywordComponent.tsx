@@ -90,7 +90,7 @@ interface LiveKeywordComponentProps {
   campaignStatus?: number;
   ShareCampaignStatus?: number;
   tokendata?: any;
-  ActiveUserData: {role:number};
+  ActiveUserData?: {role:number};
 }
 
 interface HeaderProps {

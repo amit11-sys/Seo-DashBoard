@@ -22,7 +22,6 @@ import NewCustomTable from "@/components/NewCustomTable";
 import { FaArchive } from "react-icons/fa";
 import { TbRestore } from "react-icons/tb";
 import { MdDeleteForever } from "react-icons/md";
-import { Link, Router } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getActiveUser } from "@/actions/user";
 

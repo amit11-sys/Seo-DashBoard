@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     resetToken: { type: String },
     resetTokenExpires:{ type: String },
     role:{ type: Number, default: 3 },

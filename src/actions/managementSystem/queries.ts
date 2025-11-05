@@ -14,14 +14,14 @@ interface SaveTodoParams {
   campaignId: string;
   todoTitle: string;
   todoDescription: string;
-  assignedUser:string
+  assignedUser: string;
 }
 interface SaveTodoSubParams {
   campaignId: string;
   todoTitle: string;
   todoDescription: string;
-  assignedUser:string
-  todoId:string
+  assignedUser: string;
+  todoId: string;
 }
 
 export const saveMessage = async (data: SaveMessageParams) => {
@@ -51,7 +51,6 @@ export const saveMessage = async (data: SaveMessageParams) => {
       message: "Message saved successfully",
       data: newMessage,
     };
-
   } catch (error: any) {
     console.error("Error saving message:", error);
     return {
@@ -72,9 +71,8 @@ export const deleteMsg = async (msgID: string) => {
       };
     }
 
-
     const newMessage = await Message.deleteOne({
-      _id:msgID
+      _id: msgID,
     });
 
     return {
@@ -82,7 +80,6 @@ export const deleteMsg = async (msgID: string) => {
       message: "Message Deleted successfully",
       data: newMessage,
     };
-
   } catch (error: any) {
     console.error("Error Deleting message:", error);
     return {
@@ -107,7 +104,6 @@ export const Messages = async (campaignId: string) => {
 
     const newMessage = await Message.find({
       campaignId,
-        
     });
 
     return {
@@ -115,7 +111,6 @@ export const Messages = async (campaignId: string) => {
       message: "Message fetched successfully",
       data: newMessage,
     };
-
   } catch (error: any) {
     console.error("Error saving message:", error);
     return {
@@ -135,20 +130,26 @@ export const Todos = async (campaignId: string) => {
         error: "Unauthorized. Please login.",
       };
     }
+    const userData = await User.findById({ _id: user.id });
 
     // const { msgTitle, msgDescription, campaignId } = data;
-
-    const newTodo = await Todo.find({
-      campaignId,
-        
-    });
+    let newTodo: any = [];
+    if (userData?.role === 2) {
+      newTodo = await Todo.find({
+        campaignId,
+      });
+    } else {
+      newTodo = await Todo.find({
+        campaignId,
+        assignedTo: user.id,
+      });
+    }
 
     return {
       success: true,
       message: "Message fetched successfully",
       data: newTodo,
     };
-
   } catch (error: any) {
     console.error("Error saving message:", error);
     return {
@@ -168,32 +169,29 @@ export const saveTodos = async (data: SaveTodoParams) => {
         error: "Unauthorized. Please login.",
       };
     }
-    console.log(data,"severDatafor todo")
+    console.log(data, "severDatafor todo");
     // const assinedUSerData = await User.findOne({parentAdminId: user.id});
-  
 
-    const { todoTitle, todoDescription, campaignId,assignedUser } = data;
+    const { todoTitle, todoDescription, campaignId, assignedUser } = data;
 
-     const newTodo = await Todo.create({
-     title: todoTitle,
-         description: todoDescription,
-         userId: user.id,
-         campaignId:campaignId,
-         assignedAt: Date.now(),
-         assignedTo: assignedUser,
-         assignedBy: user.id,
-        //  subtodo: [],
+    const newTodo = await Todo.create({
+      title: todoTitle,
+      description: todoDescription,
+      userId: user.id,
+      campaignId: campaignId,
+      assignedAt: Date.now(),
+      assignedTo: assignedUser,
+      assignedBy: user.id,
+      //  subtodo: [],
     });
 
-    console.log(newTodo,"newtototo")
-
+    console.log(newTodo, "newtototo");
 
     return {
       success: true,
       message: "todo fetched successfully",
       data: newTodo,
     };
-
   } catch (error: any) {
     console.error("Error saving message:", error);
     return {
@@ -213,22 +211,16 @@ export const deleteTodos = async (todoId: string) => {
         error: "Unauthorized. Please login.",
       };
     }
-  
 
-
-
-     const deleteTodo = await Todo.deleteOne({
-      _id: todoId
+    const deleteTodo = await Todo.deleteOne({
+      _id: todoId,
     });
-
-
 
     return {
       success: true,
       message: "todo fetched successfully",
       data: deleteTodo,
     };
-
   } catch (error: any) {
     console.error("Error saving message:", error);
     return {
@@ -248,16 +240,13 @@ export const UserForTodos = async () => {
         error: "Unauthorized. Please login.",
       };
     }
-    const assinedUSerData = await User.find({parentAdminId: user.id});
-  
-
+    const assinedUSerData = await User.find({ parentAdminId: user.id });
 
     return {
       success: true,
       message: "todo fetched successfully",
       data: assinedUSerData,
     };
-
   } catch (error: any) {
     console.error("Error saving message:", error);
     return {
@@ -315,7 +304,6 @@ export const saveSubTodos = async (data: SaveTodoSubParams) => {
       message: "Sub-todo added successfully",
       data: updatedTodo,
     };
-
   } catch (error: any) {
     console.error("Error saving sub-todo:", error);
     return {
@@ -325,7 +313,7 @@ export const saveSubTodos = async (data: SaveTodoSubParams) => {
   }
 };
 
-export const editSubTodos = async (subTodoId: string , status : string) => {
+export const editSubTodos = async (subTodoId: string, status: string) => {
   try {
     await connectToDB();
 
@@ -340,10 +328,10 @@ export const editSubTodos = async (subTodoId: string , status : string) => {
     // ✅ Update subtodo status in DB
     const updatedTodo = await Todo.findOneAndUpdate(
       { "subtodo._id": subTodoId, userid: user.id },
-      { 
-        $set: { 
+      {
+        $set: {
           "subtodo.$.status": status,
-        } 
+        },
       },
       { new: true }
     );
@@ -360,7 +348,6 @@ export const editSubTodos = async (subTodoId: string , status : string) => {
       message: "Sub todo marked as Completed successfully",
       data: updatedTodo,
     };
-
   } catch (error: any) {
     console.error("Error updating sub todo:", error);
     return {
@@ -385,8 +372,8 @@ export const deleteSubTodos = async (subTodoId: string) => {
       { userid: user.id, "subtodo._id": subTodoId },
       {
         $pull: {
-          subtodo: { _id: subTodoId }
-        }
+          subtodo: { _id: subTodoId },
+        },
       },
       { new: true }
     );
@@ -403,7 +390,6 @@ export const deleteSubTodos = async (subTodoId: string) => {
       message: "Sub todo deleted successfully",
       data: updatedTodo,
     };
-
   } catch (error: any) {
     console.error("Error deleting sub todo:", error);
     return {
@@ -412,6 +398,3 @@ export const deleteSubTodos = async (subTodoId: string) => {
     };
   }
 };
-
-
-

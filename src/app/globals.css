@@ -9,6 +9,16 @@
   }
 }
 
+.toolbar-btn {
+  @apply w-8 h-8 flex items-center justify-center text-sm rounded hover:bg-gray-100 active:bg-gray-200 transition;
+}
+.ProseMirror {
+  padding: 0.5rem;
+}
+
+.ProseMirror p {
+  margin: 0;
+}
 
 @layer base {
   :root {

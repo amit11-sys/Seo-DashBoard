@@ -24,13 +24,13 @@ interface HeaderProps {
   topRankData: any;
   campaignStatus: any;
   ActiveUserData?: any;
-  handleTabChange: (tab: string) => void | undefined;
+  handleTabChange?: (tab: string) => void | undefined;
   activeTab?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
   activeTab,
-  handleTabChange,
+   handleTabChange = () => {},
   campaignId,
   topRankData,
   campaignStatus,

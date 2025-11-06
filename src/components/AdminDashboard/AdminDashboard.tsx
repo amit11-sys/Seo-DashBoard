@@ -43,8 +43,6 @@ export default function AdminDashboard({ campaigns, userAcessData }: any) {
   const [showDialog, setShowDialog] = useState(false);
   const [userAccessData, setUserAccessData] = useState<any[]>([]);
   const [confirmAction, setConfirmAction] = useState<any>(null);
-  console.log(userAccessData, "acesss");
-  console.log(campaigns, "camp");
 
   useEffect(() => {
     setUserAccessData(userAcessData?.allUsersWithAccess || []);

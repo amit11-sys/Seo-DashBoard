@@ -9,6 +9,36 @@
   }
 }
 
+.toolbar-btn {
+  @apply w-8 h-8 flex items-center justify-center text-sm rounded hover:bg-gray-100 active:bg-gray-200 transition;
+}
+.ProseMirror {
+  padding: 0.5rem;
+}
+
+.ProseMirror p {
+  margin: 0;
+}
+
+/* Scrollbar Style */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #ec9d4d; /* soft orange/brown */
+  border-radius: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #b57444;
+}
+
 
 @layer base {
   :root {

@@ -104,7 +104,7 @@ export const Messages = async (campaignId: string) => {
 
     const newMessage = await Message.find({
       campaignId,
-    });
+    }).sort({ createdAt: -1 });
 
     return {
       success: true,
@@ -133,16 +133,17 @@ export const Todos = async (campaignId: string) => {
     const userData = await User.findById({ _id: user.id });
 
     // const { msgTitle, msgDescription, campaignId } = data;
-    let newTodo: any = [];
+    let newTodo = [];
+
     if (userData?.role === 2) {
       newTodo = await Todo.find({
         campaignId,
-      });
+      }).sort({ createdAt: -1 });
     } else {
       newTodo = await Todo.find({
         campaignId,
         assignedTo: user.id,
-      });
+      }).sort({ createdAt: -1 });
     }
 
     return {
@@ -277,8 +278,8 @@ export const saveSubTodos = async (data: SaveTodoSubParams) => {
     }
 
     const newSubTodo = {
-      title: todoTitle,
-      description: todoDescription,
+      title: todoTitle || "",
+      description: todoDescription || "",
       assignedTo: assignedUser || null,
       assignedBy: user.id,
       assignedAt: new Date(),
@@ -313,7 +314,19 @@ export const saveSubTodos = async (data: SaveTodoSubParams) => {
   }
 };
 
-export const editSubTodos = async (subTodoId: string, status: string) => {
+export const editSubTodos = async ({
+  id,
+  status,
+  description,
+  comment,
+  subtaskTitle,
+}: {
+  id: string;
+  status: string;
+  description: string;
+  comment: string;
+  subtaskTitle: string;
+}) => {
   try {
     await connectToDB();
 
@@ -327,10 +340,70 @@ export const editSubTodos = async (subTodoId: string, status: string) => {
 
     // ✅ Update subtodo status in DB
     const updatedTodo = await Todo.findOneAndUpdate(
-      { "subtodo._id": subTodoId, userid: user.id },
+      { "subtodo._id": id, userid: user.id },
       {
         $set: {
           "subtodo.$.status": status,
+          "subtodo.$.description": description,
+          "subtodo.$.comment": comment,
+          "subtodo.$.title": subtaskTitle,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedTodo) {
+      return {
+        success: false,
+        message: "Sub todo not found",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Sub todo marked as Completed successfully",
+      data: updatedTodo,
+    };
+  } catch (error: any) {
+    console.error("Error updating sub todo:", error);
+    return {
+      success: false,
+      error: "Something went wrong while updating.",
+    };
+  }
+};
+export const editMainTodos = async ({
+  id,
+  status,
+  description,
+  comment,
+  subtaskTitle,
+}: {
+  id: string;
+  status: string;
+  description: string;
+  comment: string;
+  subtaskTitle: string;
+}) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return {
+        success: false,
+        error: "Unauthorized. Please login.",
+      };
+    }
+
+    // ✅ Update subtodo status in DB
+    const updatedTodo = await Todo.findOneAndUpdate(
+      { _id: id, userid: user.id },
+      {
+        $set: {
+          // "status": status,
+          description: description,
+          title: subtaskTitle,
         },
       },
       { new: true }

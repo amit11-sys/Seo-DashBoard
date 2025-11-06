@@ -1,4 +1,4 @@
-import { deleteMsg, deleteSubTodos, deleteTodos, editSubTodos, Messages, saveMessage, saveSubTodos, saveTodos, Todos, UserForTodos } from "./queries";
+import { deleteMsg, deleteSubTodos, deleteTodos, editMainTodos, editSubTodos, Messages, saveMessage, saveSubTodos, saveTodos, Todos, UserForTodos } from "./queries";
 
 interface SaveMessageParams {
   campaignId: string;
@@ -68,10 +68,17 @@ export const getAndSaveTodos = async (data: SaveTodoParams) => {
 
     return saveddata
 }
-export const geteditSubTodos = async (todoId : string, status : string) => {
+export const geteditSubTodos = async ({ id, status, description, comment,subtaskTitle }:{ id: string, status: string, description: string, comment: string ,subtaskTitle:string}) => {
 
 
-    const data = await editSubTodos(todoId  , status);
+    const data = await editSubTodos({ id, status, description, comment ,subtaskTitle});
+
+    return data
+}
+export const geteditMainTodos = async ({ id, status, description, comment,subtaskTitle }:{ id: string, status: string, description: string, comment: string ,subtaskTitle:string}) => {
+
+
+    const data = await editMainTodos({ id, status, description, comment ,subtaskTitle});
 
     return data
 }

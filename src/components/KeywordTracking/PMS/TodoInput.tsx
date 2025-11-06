@@ -265,7 +265,7 @@ export default function TodoInput({
     if (!task.trim()) {
       alert("Please enter a title");
       return;
-    }
+    } 
 
     if (!description || description === "<p></p>") {
       alert("Please enter task details");

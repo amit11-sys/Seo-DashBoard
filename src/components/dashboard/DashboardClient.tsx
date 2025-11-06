@@ -24,6 +24,7 @@ import { TbRestore } from "react-icons/tb";
 import { MdDeleteForever } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import { getActiveUser } from "@/actions/user";
+import Footer from "../Common/Footer";
 
 interface TableData {
   name: string ;
@@ -457,7 +458,7 @@ const DashboardClient = () => {
           />
         </aside>
 
-        <main className="ml-[250px] flex-1 overflow-y-auto p-4">
+        <main id="main-scroll-container" className="ml-[250px] flex-1 overflow-y-auto p-4">
           <div className="p-6 space-y-6">
             <div className="flex gap-3">
               <CustomTrackingCard
@@ -512,7 +513,7 @@ const DashboardClient = () => {
               tableHeader={tableHeader}
             />
           </div>
-      {/* <Footer/> */}
+          <Footer mainContainerId="main-scroll-container" />
         </main>
         
       </div>

@@ -3,39 +3,84 @@ import bcrypt from "bcryptjs";
 import User from "@/lib/models/user.model";
 import { cookies } from "next/headers";
 import jwt, { SignOptions, Secret } from "jsonwebtoken";
-import { generateToken } from "@/lib/utils/token";
+import { generateToken, parseShareToken } from "@/lib/utils/token";
 import { generateResetEmail } from "@/lib/template/html_template";
 import { mailSender } from "../mail";
 // import { getUserCampaign } from "../campaign";
 import Campaign from "@/lib/models/campaign.model";
+import UserAccess from "@/lib/models/userAccess.model";
 
-export const newUserSignUp = async (formData: any) => {
+export const newUserSignUp = async (formData: {
+    email: string;
+    password: string;
+    terms: boolean;
+}, token: string) => {
   try {
-   
-    return( {error:"Registration is currently no allow. Please contact support for assistance."})
     await connectToDB();
-    const { email, password } = formData;
+    const userData = await User.findOne({ email: formData.email });
+    const isTokenValid =userData?.inviteTokenId === token;
+    let user = null;
 
+
+    if(isTokenValid){
+
+
+    const { email, password } = formData;
+      const tokenData = await parseShareToken(token)
+
+      if(tokenData?.email !== email){
+        return { error: "Invalid permission for the provided email." };
+      }
     // Validate required fields
     if (!email?.trim() || !password?.trim()) {
       return { error: "All fields are required." };
     }
 
     // Check if the email already exists
-    const existedUser = await User.findOne({ email });
-    if (existedUser) {
-      return { error: "Email already in use." };
-    }
+    // const existedUser = await User.findOne({ email });
+    // if (existedUser) {
+    //   return { error: "Email already in use." };
+    // }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new user
-    const user = await User.create({
-      email,
+    // user = await User.create({
+    //   email,
+    //   password: hashedPassword,
+    //   role: 3,
+    // });
+      user = await User.findOneAndUpdate(
+  { email }, 
+  {
+    $set: {
       password: hashedPassword,
-      role: 3,
-    });
+      // parentAdminId: new mongoose.Types.ObjectId(userId),
+      // invitedAt: new Date(),
+      // inviteTokenId: link?.token,
+    },
+  },
+  { new: true } 
+);
+
+        
+    await User.updateOne(
+      { email }, 
+      {
+        $set: {
+          inviteTokenId: null,
+        },
+      }
+    );
+
+
+    }else{
+          return( {error:"Registration is currently no allow. Please contact support for assistance."})
+
+    }
+   
+   
 
     if (!user) {
       return { error: "Something went wrong while registering the user." };
@@ -65,6 +110,7 @@ function generateAccessToken(user: any) {
   const payload = {
     id: user._id,
     email: user.email,
+    role: user.role,
   };
 
   const secret: Secret = `${process.env.ACCESS_TOKEN_SECRET}`; // Type explicitly
@@ -114,7 +160,7 @@ export const verifyUser = async (formData: any) => {
     if (!user) {
       return { error: "User does not exist." };
     }
-    if(user?.role!=2){
+    if(user?.role!=2 && user?.role!=3){
       return { error: "You are not authorized to access this panel." };
     }
     // Validate password
@@ -122,7 +168,20 @@ export const verifyUser = async (formData: any) => {
     if (!isPasswordValid) {
       return { error: "Invalid User Credentials." };
     }
-    const campaign = await Campaign.find({ userId: user?.id });
+      const CampaignData = await User.findById({ _id: user?.id });
+    console.log(CampaignData,"dataCam")
+    const UserAccessData = await UserAccess.findOne({ userId: user?.id });
+    const UserRole = CampaignData?.role;
+
+let campaign=[];
+    if(UserRole==3){
+
+       campaign = await Campaign.find({  _id: { $in: UserAccessData?.campaignId }, });
+    }else if(UserRole==2){
+
+
+       campaign = await Campaign.find({ userId: user?.id });
+    }
     // console.log(campaign[0]._id,"campaign id")
     // Generate tokens
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
@@ -171,8 +230,8 @@ export async function forgotPasswordAction(email: string) {
 
     const token = await generateToken();
     const expires = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
-
-    await User.updateOne(
+console.log(token,"tokenfor forget")
+  const forgetUpdateddata =   await User.updateOne(
       { email }, // Filter to find the user
       {
         $set: {
@@ -181,6 +240,7 @@ export async function forgotPasswordAction(email: string) {
         },
       }
     );
+    console.log(forgetUpdateddata,"forgetupdateddata")
 
     const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}&email=${email}`;
 
@@ -198,11 +258,11 @@ export async function forgotPasswordAction(email: string) {
   }
 }
 
-export async function resetPasswordAction(formData: any) {
+export async function resetPasswordAction(formData: any,token:string,email:string) {
   try {
     await connectToDB();
-    const { token, password } = formData;
-
+    const {  password } = formData;
+      console.log(token,password,"checkredetyttt")
     if (!token || !password) {
       return { error: "Missing token or password" };
     }
@@ -210,6 +270,7 @@ export async function resetPasswordAction(formData: any) {
       resetToken: token,
       resetTokenExpiry: { $gte: Date.now() },
     });
+
     if (!user) return { error: "Invaid or expired token" };
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.findOneAndUpdate(
@@ -239,3 +300,21 @@ export const logout = async () => {
     return { error: "Failed to logout" };
   }
 };
+
+
+export const  ActiveUser = async (userId:string) =>{
+  try {
+    await connectToDB();
+
+    const user = await User.findById({ _id: userId  });
+
+    if(!user){
+      return { success: false, error: "User not found" };
+    } else {
+      return { success: true, message: "User Data Fetched", user };
+    }
+  } catch (error) {
+    console.error("Error activating user:", error);
+    return { error: "Failed to activate user" };
+  }
+} 

@@ -6,6 +6,8 @@ import Keyword from "@/lib/models/keyword.model";
 import KeywordTracking from "@/lib/models/keywordTracking.model";
 import Location from "@/lib/models/Location.model";
 import { fetchDBLocation } from "../locations_Language/queries";
+import User from "@/lib/models/user.model";
+import UserAccess from "@/lib/models/userAccess.model";
 
 export const createKeywordTracking = async (keywordData: any) => {
   try {
@@ -690,8 +692,21 @@ export const DbTopLiveKeywordData = async () => {
     if (!user) {
       return { error: "Unauthorized please login" };
     }
+     const CampaignData = await User.findById({ _id: user?.id });
+       const UserAccessData = await UserAccess.findOne({ userId: user?.id });
+       const UserRole = CampaignData?.role;
+let TopLiveKeywordDbData:any = [];
+       if (UserRole === 3) {
+        //client role
+         TopLiveKeywordDbData = await KeywordTracking.find({ status: 1 , campaignId: { $in: UserAccessData?.campaignId } });
 
-    const TopLiveKeywordDbData = await KeywordTracking.find({ status: 1, userId: user?.id });
+       }else if (UserRole === 2) {
+
+        //admin role
+         TopLiveKeywordDbData = await KeywordTracking.find({ status: 1, userId: user?.id });
+
+       }
+
 
     // Format for card
     // console.log(TopLiveKeywordDbData, "TopLiveKeywordDbData");
@@ -726,8 +741,20 @@ export const DbKeywordStatusData = async (statusCode: number) => {
       return { error: "Unauthorized please login" };
     }
 
+      const CampaignData = await User.findById({ _id: user?.id });
+    const UserAccessData = await UserAccess.findOne({ userId: user?.id });
+    const UserRole = CampaignData?.role;
+     let campaignDatastatus = [];
+    if(UserRole ===3){
+
+       campaignDatastatus = await Campaign.find({ status: statusCode , _id: { $in: UserAccessData?.campaignId } });
+    }else if(UserRole ===2){
+
+
+       campaignDatastatus = await Campaign.find({ status: statusCode, userId: user?.id });
+    }
+
     // 1. Get all campaigns with given status
-    const campaignDatastatus = await Campaign.find({ status: statusCode, userId: user?.id });
 
     if (!campaignDatastatus || campaignDatastatus.length === 0) {
       return { error: "No campaigns found for given status." };

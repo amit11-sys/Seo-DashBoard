@@ -43,23 +43,23 @@ export default  function SidebarWrapper({
     <>
       <div
         className={cn(
-          "h-screen border-r  z-40 fixed pt-20   bg-white shadow-lg border-muted transition-all duration-300 ease-in-out",
+          "h-screen border-r  z-40 fixed pt-20   bg-[#273F4F] shadow-lg border-muted transition-all duration-300 ease-in-out",
           isCollapsed ? "w-16" : "w-0 md:w-64",
         )}
       >
-        <div className="flex justify-center items-center pt-4">
+        <div className="flex justify-center items-center pt-4 bg-[#273F4F]">
           {isCollapsed ? (
-            <span className="text-lg font-semibold">
-              <MdDashboard className="text-2xl" />
+            <span className="text-lg text-white font-semibold">
+              <MdDashboard className="text-2xl text-white" />
             </span>
           ) : (
             <Link href="/dashboard">
-            <span className="text-xl text-center flex gap-1 justify-center items-center font-semibold"><FaHome />Dashboard</span>
+            <span className="text-xl text-white text-center flex gap-1 justify-center items-center font-semibold"><FaHome />Dashboard</span>
             </Link>
           )}
         </div>
 
-        <ScrollArea className="h-[calc(100vh-48px)]">
+        <ScrollArea className=" shadow-xl shadow-black  h-[calc(100vh-48px)]">
           <Sidebar campaignId={campaignId}
           //  archivedCampaignData={archivedCampaignData} 
            isCollapsed={isCollapsed} />

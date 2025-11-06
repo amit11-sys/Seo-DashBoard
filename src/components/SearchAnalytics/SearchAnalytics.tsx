@@ -16,11 +16,13 @@ import { TbDisabled } from "react-icons/tb";
 interface SearchAnalyticsProps {
   campaignId: string;
   campignDataWithId: any;
+  ActiveUserData?:{role:number}
 }
 
 const SearchAnalytics = ({
   campaignId,
   campignDataWithId,
+  ActiveUserData
 }: SearchAnalyticsProps) => {
   const [chart, setChart] = useState<any>([]);
   const [country, setCountry] = useState<any>([]);
@@ -305,7 +307,7 @@ const handleConnect = () => {
     )}
       <div ref={reportRef} className="p-4 space-y-8">
         {/* Heading */}
-        <div className="flex justify-between items-center mt-20 p-4 bg-white shadow rounded-md">
+        <div className="flex justify-between items-center mt-20 p-4 bg-white   rounded-md">
           <div className="flex items-center justify-center w-full gap-3">
             <FcGoogle className="text-blue-600 text-4xl" />
             <div>
@@ -315,15 +317,19 @@ const handleConnect = () => {
             </div>
             <FaInfoCircle className="text-gray-400 text-sm ml-1 cursor-pointer" />
           </div>
+
+          {ActiveUserData?.role === 2 && (
+            
           <div> <FcDeleteDatabase
                     className="cursor-pointer text-4xl"
                     title="Disable Search Analytics"
                     onClick={disableAnalytics}
                   /></div>
+          )}
         </div>
 
         {isLoading ? (
-          <div className="relative w-full h-[70vh] flex flex-col items-center justify-center bg-gray-100">
+          <div className="relative w-full h-[70vh] flex flex-col items-center justify-center ">
             {/* Header */}
             {/* <div className="flex items-center bg-white py-4 justify-center w-full gap-3 shadow-md">
               <FcGoogle className="text-blue-600 text-4xl" />
@@ -353,13 +359,18 @@ const handleConnect = () => {
               <p className="text-gray-500 mb-6">
                 You need to connect Google Search Console. Please login.
               </p>
-             
+
+              {ActiveUserData?.role === 2 && (
+
+
                 <Button 
                 onClick={() => handleConnect()}
                 
                 className="bg-gradient-to-r from-orange-500 to-red-500 rounded-full text-white hover:opacity-90 transition">
                   Proceed
                 </Button>
+
+              )}
            
             </div>
           </div>

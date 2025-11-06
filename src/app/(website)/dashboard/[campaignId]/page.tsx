@@ -7,6 +7,7 @@ import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import SearchConsoleData from "@/components/GoogleConsole/SearchConsole";
 import Footer from "@/components/Common/Footer";
 import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
+import { getActiveUser } from "@/actions/user";
 
 export default async function DashboardDetails({
   params,
@@ -15,7 +16,15 @@ export default async function DashboardDetails({
 }) {
   const { campaignId } = params;
   const campignDataWithId = await getGetCampaignByid(campaignId);
+
   const campaignStatus = campignDataWithId?.campaign?.status;
+
+  const activeUserId = campignDataWithId?.user?.id;
+
+  const ActiveUserData = await getActiveUser(activeUserId ||"");
+  // console.log(activeUserId,"activeUserIdinDashboardDetails");
+  // console.log(ActiveUserData,"ActiveUserDataDashboardDetails");
+  // console.log(campignDataWithId,"campignDataWithId");
 
   const campaignLiveKeywordsData = await getDbLiveKeywordDataWithSatusCode(
     campaignId,
@@ -23,12 +32,12 @@ export default async function DashboardDetails({
   );
   // console.log(campaignStatus, "campaignStatus");
 
-  const archivedCampaignData = await getArchivedCampaign();
+  // const archivedCampaignData = await getArchivedCampaign();
 
   return (
     <section className="relative h-screen flex flex-col overflow-hidden">
       <div className="fixed top-0 left-0 right-0 z-50">
-        <Navbar campaignId={campaignId as string} />
+        <Navbar ActiveUserData={ActiveUserData?.user as any} campaignId={campaignId as string} />
       </div>
 
       <div
@@ -44,23 +53,26 @@ export default async function DashboardDetails({
           />
         </aside>
 
-        <main className="ml-[250px] relative flex-1 overflow-y-auto p-4">
+        <main className="ml-[250px] relative flex-1 overflow-y-auto p-10 bg-gray-100">
           <Header
             campaignStatus={campaignStatus}
             topRankData={campaignLiveKeywordsData.topRankData}
             campaignId={campaignId}
+            ActiveUserData={ActiveUserData?.user as any}
           />
-
-          <SearchConsoleData campaignId={campaignId} />
+          <LiveKeywordComponent
+          ActiveUserData={ActiveUserData?.user as any}
+            campaignStatus={campaignStatus}
+            campaignId={campaignId}
+          />
+          <SearchConsoleData ActiveUserData={ActiveUserData?.user as any} campaignId={campaignId} />
           <SearchAnalytics
+          ActiveUserData={ActiveUserData?.user as any}
             campignDataWithId={campignDataWithId}
             campaignId={campaignId}
           />
 
-          <LiveKeywordComponent
-            campaignStatus={campaignStatus}
-            campaignId={campaignId}
-          />
+          
           <Footer mainContainerId="main-scroll-container" />
         </main>
       </div>

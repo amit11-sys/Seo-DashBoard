@@ -5,8 +5,8 @@ import SidebarWrapper from "@/components/Common/SidebarWrapper";
 import LiveKeywordComponent from "@/components/KeywordTracking/LiveKeywordComponent";
 import { getArchivedCampaign, getGetCampaignByid } from "@/actions/campaign";
 import { redirect } from "next/navigation";
-import { getValidateShareToken } from "@/actions/generateShareLink";
-import { parseShareToken } from "@/lib/utils/token";
+import { getSingleValidateShareToken, getValidateShareToken } from "@/actions/generateShareLink";
+import { parseShareToken, parseSingleShareToken } from "@/lib/utils/token";
 
 export default  async function page({
 params,
@@ -15,7 +15,8 @@ params: { token: string};}) {
   
 const { token } =  params;
 
-const tokendata = await parseShareToken(token)
+const tokendata = await parseSingleShareToken(token)
+console.log(tokendata,"tokenData")
 
 const campaignId = tokendata.campaignId
 
@@ -31,7 +32,7 @@ const campaignId = tokendata.campaignId
 
 
   if (token) {
-    const { valid } = await getValidateShareToken(token);
+    const { valid } = await getSingleValidateShareToken(token);
     if (!valid) {
       redirect("/sign");
     }

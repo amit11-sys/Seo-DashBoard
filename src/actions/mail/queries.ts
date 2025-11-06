@@ -14,7 +14,7 @@ export const sendMail = async (email: string, subject: string, text: any) => {
     });
 
     const send = await transporter.sendMail({
-      from: `"SEO DAHBOARD" <${process.env.USER}>`,
+      from: `"Track Scop " <${process.env.USER}>`,
       to: email,
       subject: subject,
       html: text,

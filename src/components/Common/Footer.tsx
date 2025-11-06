@@ -3,34 +3,34 @@
 import { useEffect, useState } from "react";
 
 export default function Footer({ mainContainerId }: { mainContainerId: string }) {
-  const [showFooter, setShowFooter] = useState(false);
+  // const [showFooter, setShowFooter] = useState(false);
 
-  useEffect(() => {
-    const mainEl = document.getElementById(mainContainerId);
-    if (!mainEl) return;
+  // useEffect(() => {
+  //   const mainEl = document.getElementById(mainContainerId);
+  //   if (!mainEl) return;
 
-    const handleScroll = () => {
-      const scrollTop = mainEl.scrollTop;
-      const scrollHeight = mainEl.scrollHeight;
-      const clientHeight = mainEl.clientHeight;
+  //   const handleScroll = () => {
+  //     const scrollTop = mainEl.scrollTop;
+  //     const scrollHeight = mainEl.scrollHeight;
+  //     const clientHeight = mainEl.clientHeight;
 
-      // small tolerance for floating point / padding issues
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 5; 
-      setShowFooter(atBottom);
-    };
+  //     // small tolerance for floating point / padding issues
+  //     const atBottom = scrollTop + clientHeight >= scrollHeight - 5; 
+  //     setShowFooter(atBottom);
+  //   };
 
-    // listen to scroll
-    mainEl.addEventListener("scroll", handleScroll);
+  //   // listen to scroll
+  //   mainEl.addEventListener("scroll", handleScroll);
 
-    // call once in case already at bottom
-    handleScroll();
+  //   // call once in case already at bottom
+  //   handleScroll();
 
-    return () => {
-      mainEl.removeEventListener("scroll", handleScroll);
-    };
-  }, [mainContainerId]);
+  //   return () => {
+  //     mainEl.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [mainContainerId]);
 
-  if (!showFooter) return null;
+  // if (!showFooter) return null;
 
   return (
     <footer className="w-full bg-[#273F4F] py-4 text-center text-sm text-white shadow-md transition-transform duration-300">

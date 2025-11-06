@@ -30,6 +30,8 @@ export const getLoggedInUser = async (formData: any) => {
 
 export const logoutUser = () => {
   const user = logout();
+  console.log(user);
+  
   return user;
 };
 

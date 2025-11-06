@@ -22,7 +22,6 @@ import { NewCustomInput } from "../NewCustomInput";
 import CustomButton from "../ui/CustomButton";
 
 export default function SignInForm() {
-  
   const router = useRouter();
   const { startLoading, stopLoading } = useLoader();
 
@@ -99,7 +98,25 @@ export default function SignInForm() {
               </FormItem>
             )}
           />
-
+          <p className="text-[12px] text-gray-600 text-start ">
+            
+            By logging in, you agree to our {" "}
+            <a
+              href={`${process.env.NEXT_PUBLIC_BASE_URL}/term-and-conditions`}
+              target="_blank"
+              className="text-orange-600 underline hover:text-orange-700 transition"
+            >
+             Terms of Service
+            </a>{" "}
+            and{" "}
+            <a
+              href={`${process.env.NEXT_PUBLIC_BASE_URL}/privacy-policy`}
+              target="_blank"
+              className="text-orange-600 underline hover:text-orange-700 transition"
+            >
+              Privacy Policy
+            </a>
+          </p>
           <div className="flex justify-between items-center text-sm">
             <Link
               href="/forgot-password"

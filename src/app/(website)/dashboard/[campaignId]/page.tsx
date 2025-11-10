@@ -9,6 +9,8 @@ import Footer from "@/components/Common/Footer";
 import SearchAnalytics from "@/components/SearchAnalytics/SearchAnalytics";
 import { getActiveUser } from "@/actions/user";
 import KeywordComponent from "@/components/KeywordTracking/KeywordComponent";
+import { getTemplates } from "@/actions/todoTemplate/queries";
+import { TemplateProvider } from "@/context/TemplateContext";
 
 export default async function DashboardDetails({
   params,
@@ -23,7 +25,7 @@ export default async function DashboardDetails({
   const campaignStatus = campignDataWithId?.campaign?.status;
 
   const activeUserId = campignDataWithId?.user?.id;
-
+ const { templates } = await getTemplates();
   const ActiveUserData = await getActiveUser(activeUserId ||"");
   // console.log(activeUserId,"activeUserIdinDashboardDetails");
   // console.log(ActiveUserData,"ActiveUserDataDashboardDetails");
@@ -38,10 +40,14 @@ export default async function DashboardDetails({
   // const archivedCampaignData = await getArchivedCampaign();
 
   return (
-    <>
-    <KeywordComponent ActiveUserData={ActiveUserData} campaignId={campaignId} campaignStatus={campaignStatus} campaignLiveKeywordsData={campaignLiveKeywordsData} campignDataWithId={campignDataWithId} />
-    
-   
-    </>
+     <TemplateProvider initialTemplates={templates}>
+      <KeywordComponent
+        ActiveUserData={ActiveUserData}
+        campaignId={campaignId}
+        campaignStatus={campaignStatus}
+        campaignLiveKeywordsData={campaignLiveKeywordsData}
+        campignDataWithId={campignDataWithId}
+      />
+    </TemplateProvider>
   );
 }

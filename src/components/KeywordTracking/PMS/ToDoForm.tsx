@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/select";
 import { LuLoader } from "react-icons/lu";
 import { MdEdit } from "react-icons/md";
+import { SaveTemplateDialog } from "./SaveTemplateDialog";
+import { ImportTemplateDialog } from "./ImportTemplateDialog";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
 function SafeHTML({ html }: { html: string }) {
   const cleanHTML = DOMPurify.sanitize(html);
@@ -64,37 +66,37 @@ interface Todo {
   subtodos: any;
 }
 
-export default function TodoForm({ campaignId }: { campaignId: string }) {
+export default function TodoForm({ campaignId, templates }: { campaignId: string, templates:any }) {
   const [openSubTodoDialog, setOpenSubTodoDialog] = useState(false);
   const [currentTodoId, setCurrentTodoId] = useState<any>("");
   const [subTodoTitle, setSubTodoTitle] = useState("");
   const [subTodoDesc, setSubTodoDesc] = useState("");
-  const addSubTodofn = () => {
-    if (!subTodoTitle.trim() || currentTodoId === null) return;
+  // const addSubTodofn = () => {
+  //   if (!subTodoTitle.trim() || currentTodoId === null) return;
 
-    setTodos(
-      todos.map((t: any) =>
-        t.id === currentTodoId
-          ? {
-              ...t,
-              subtodos: [
-                ...(t.subtodos || []),
-                {
-                  id: Date.now(),
-                  title: subTodoTitle,
-                  desc: subTodoDesc,
-                  completed: false,
-                },
-              ],
-            }
-          : t
-      )
-    );
+  //   setTodos(
+  //     todos.map((t: any) =>
+  //       t.id === currentTodoId
+  //         ? {
+  //             ...t,
+  //             subtodos: [
+  //               ...(t.subtodos || []),
+  //               {
+  //                 id: Date.now(),
+  //                 title: subTodoTitle,
+  //                 desc: subTodoDesc,
+  //                 completed: false,
+  //               },
+  //             ],
+  //           }
+  //         : t
+  //     )
+  //   );
 
-    setSubTodoTitle("");
-    setSubTodoDesc("");
-    setOpenSubTodoDialog(false);
-  };
+  //   setSubTodoTitle("");
+  //   setSubTodoDesc("");
+  //   setOpenSubTodoDialog(false);
+  // };
 
   const [todos, setTodos] = useState<any>([]);
 
@@ -123,10 +125,6 @@ export default function TodoForm({ campaignId }: { campaignId: string }) {
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [isEditingComment, setIsEditingComment] = useState(false);
   const [subtaskTitle, setSubtaskTitle] = useState("");
-  const [subtaskTodoTitle, setSubtaskTodoTitle] = useState("");
-  const [isEditingTodoTitle, setIsEditingTodoTitle] = useState(false);
-  const [isEditingTodoDesc, setIsEditingTodoDesc] = useState(false);
-  const [isEditingTodoComment, setIsEditingTodoComment] = useState(false);
 
   const [isOpenEditForm, setisOpenEditForm] = useState(false);
   const [editTodoFormData, setEditTodoFormData] = useState(null);
@@ -196,20 +194,7 @@ export default function TodoForm({ campaignId }: { campaignId: string }) {
     setSelectedUserIdFromParent(selectedUserId);
   };
 
-  // const [openTodo, setOpenTodo] = useState<string | null>(null);
-  const [openSub, setOpenSub] = useState<string | null>(null);
-
   const addSubTodo = async (todoId: string) => {
-    // if (!subTodoTitle.trim()) {
-    //   alert("Sub-task title is required");
-    //   return;
-    // }
-
-    // if (!subTodoDesc.trim()) {
-    //   alert("Sub-task description is required");
-    //   return;
-    // }
-
     const payload = {
       todoId,
       todoTitle: subTodoTitle,
@@ -248,10 +233,6 @@ export default function TodoForm({ campaignId }: { campaignId: string }) {
 
   // ✅ Delete todo
   const deleteTodo = async (id: string) => {
-    // Save previous state for rollback
-    // const previousTodos = [...todos];
-
-    // Optimistic UI update
 
     try {
       const response = await getdeleteTodos(id);
@@ -265,55 +246,15 @@ export default function TodoForm({ campaignId }: { campaignId: string }) {
       await fetchTodo();
     } catch (error) {
       console.error("Error deleting todo:", error);
-
-      // Rollback UI if API fails
-      // setTodos(previousTodos);
-
-      // Optional toast error
-      // toast.error("Failed to delete todo. Try again.");
     }
   };
 
   const toggleComplete = async (subTodoId: string) => {};
 
-  // const handleEditSub = (sub) => {
-
-  //   console.log("edit sub", sub);
-  // };
-
   const handleDeleteSub = async (subTodoId: string) => {
     await getdeleteSubTodos(subTodoId);
     fetchTodo();
   };
-
-  // const handleStatusChange = async (subTodoId: string, status: string) => {
-  //   console.log("Update status:", subTodoId, status);
-  //   setOpenDialog(false);
-
-  //   try {
-  //     // ✅ Call your API
-  //     const res = await geteditSubTodos(subTodoId, status);
-
-  //     if (!res.success) {
-  //       toast.error("Failed to update status ❌");
-  //       return;
-  //     }
-
-  //     // ✅ Refresh todos
-  //     await fetchTodo();
-
-  //     toast.success(
-  //       status === "Completed"
-  //         ? "Task marked as completed ✅"
-  //         : status === "In Progress"
-  //           ? "Task moved to In Progress 🚀"
-  //           : "Task set to Pending ⏳"
-  //     );
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error("Something went wrong!");
-  //   }
-  // };
 
   const handleSubEditSave = async ({
     id,
@@ -328,7 +269,7 @@ export default function TodoForm({ campaignId }: { campaignId: string }) {
     comment: string;
     subtaskTitle: string;
   }) => {
-    console.log("Update status:", id, status, description, comment);
+    // console.log("Update status:", id, status, description, comment);
     setOpenDialog(false);
 
     try {
@@ -416,10 +357,21 @@ export default function TodoForm({ campaignId }: { campaignId: string }) {
     }
   }, [selectedSub]);
 
-  console.log(todos, "inCOmp");
+console.log(todos);
+
   return (
     <>
       <div className="bg-white rounded-2xl shadow-sm shadow-gray-600 p-6 w-full max-w-5xl mx-auto mt-8">
+         <div className="flex justify-end mb-4">
+       <SaveTemplateDialog todos={todos} />
+       <ImportTemplateDialog campaignId={campaignId} template={templates} fetchTodo={fetchTodo} />
+  {/* <Button
+            className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm ml-4"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            + Import Template
+          </Button> */}
+          </div>
         <div className="flex items-center justify-between mb-6 relative">
           <Button
             className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm"

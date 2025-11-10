@@ -9,7 +9,7 @@ import SearchAnalytics from '../SearchAnalytics/SearchAnalytics'
 import Footer from '../Common/Footer'
 import ManagementSystem from './PMS/ManagementSystem'
 
-const KeywordComponent = ({ campaignId, campaignStatus, campaignLiveKeywordsData, ActiveUserData,campignDataWithId }: any) => {
+const KeywordComponent = ({ campaignId, campaignStatus, campaignLiveKeywordsData, ActiveUserData,campignDataWithId, templates }: any) => {
 
 
 const [activeTab, setactiveTab] = useState("SEO");
@@ -68,7 +68,7 @@ const handleTabChange = (tab: string) => {
           />
                 </div>)}
                 {activeTab === "PMS" && ( <>
-                <ManagementSystem campaignId={campaignId} campignDataWithId={campignDataWithId}  />
+                <ManagementSystem campaignId={campaignId} campignDataWithId={campignDataWithId} templates={templates}  />
             </>)}
                
              

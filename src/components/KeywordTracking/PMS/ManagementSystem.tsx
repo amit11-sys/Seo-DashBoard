@@ -24,7 +24,7 @@ const items = [
   },
 ];
 
-export default function ManagementSystem({ campaignId, campignDataWithId }: any) {
+export default function ManagementSystem({ campaignId, campignDataWithId, templates }: any) {
   const [activeType, setActiveType] = useState("");
   const [projctUrl, setProjectUrl] = useState("");
 
@@ -105,7 +105,7 @@ export default function ManagementSystem({ campaignId, campignDataWithId }: any)
           )}
 
           {activeType === "todo" && (
-            <TodoForm campaignId={campaignId} />
+            <TodoForm campaignId={campaignId} templates={templates} />
           )}
         </motion.div>
       )}

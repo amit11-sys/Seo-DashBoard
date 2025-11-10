@@ -1,4 +1,4 @@
-import { deleteMsg, deleteSubTodos, deleteTodos, editMainTodos, editSubTodos, Messages, saveMessage, saveSubTodos, saveTodos, Todos, UserForTodos } from "./queries";
+import { deleteMsg, deleteSubTodos, deleteTodos, editMainTodos, editSubTodos, fetchSingleTodos, Messages, saveMessage, saveSubTodos, saveTodos, Todos, todoTempDisabled, UserForTodos } from "./queries";
 
 interface SaveMessageParams {
   campaignId: string;
@@ -61,6 +61,13 @@ export const getdeleteTodos = async (toDoId : string) => {
 
     return deleteData
 }
+export const gettodoTempDisabled = async (toDoId : string) => {
+
+
+    const deleteData = await todoTempDisabled(toDoId);
+
+    return deleteData
+}
 export const getAndSaveTodos = async (data: SaveTodoParams) => {
 
 
@@ -75,10 +82,10 @@ export const geteditSubTodos = async ({ id, status, description, comment,subtask
 
     return data
 }
-export const geteditMainTodos = async ({ id, status, description, comment,subtaskTitle }:{ id: string, status: string, description: string, comment: string ,subtaskTitle:string}) => {
+export const geteditMainTodos = async ({ id, description,subtaskTitle }:{ id: string, description: string,subtaskTitle:string}) => {
 
 
-    const data = await editMainTodos({ id, status, description, comment ,subtaskTitle});
+    const data = await editMainTodos({ id, description ,subtaskTitle});
 
     return data
 }
@@ -86,6 +93,15 @@ export const getdeleteSubTodos = async (todoId : string) => {
 
 
     const data = await deleteSubTodos(todoId);
+
+    return data
+}
+
+// +++++++++++++++++++++++++++++++
+export const getfetchSingleTodos = async (todoId : string) => {
+
+
+    const data = await fetchSingleTodos(todoId);
 
     return data
 }

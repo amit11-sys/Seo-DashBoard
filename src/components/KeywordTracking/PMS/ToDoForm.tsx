@@ -1,4 +1,42 @@
+
+
 "use client";
+
+
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { reorderList } from "@/lib/dragUtils";
+// import { Trash2 } from "lucide-react";
+// import { FaEdit } from "react-icons/fa";
+
+type Subtask = {
+  _id: string;
+  title: string;
+  status?: "Pending" | "In Progress" | "Completed";
+};
+
+// type Todo = {
+//   id: string;
+//   title: string;
+//   description?: string;
+//   subtodos: Subtask[];
+// };
+
+type Props = {
+  todos: Todo[];
+};
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +60,10 @@ import {
   fetchTodos,
   getdeleteSubTodos,
   getdeleteTodos,
+  geteditMainTodos,
   geteditSubTodos,
   getsaveSubTodos,
+  gettodoTempDisabled,
 } from "@/actions/managementSystem/index";
 import DOMPurify from "dompurify";
 import { toast } from "sonner";
@@ -38,10 +78,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// import { useSortable } from "@dnd-kit/sortable";
+// import { CSS } from "@dnd-kit/utilities";
+// import { FaEdit } from "react-icons/fa";
+// import { Trash2 } from "lucide-react";
+import { GripVertical } from "lucide-react"; // drag handle icon
+
 import { LuLoader } from "react-icons/lu";
 import { MdEdit } from "react-icons/md";
 import { SaveTemplateDialog } from "./SaveTemplateDialog";
 import { ImportTemplateDialog } from "./ImportTemplateDialog";
+import { useRouter } from "next/navigation";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
 function SafeHTML({ html }: { html: string }) {
   const cleanHTML = DOMPurify.sanitize(html);
@@ -66,38 +113,21 @@ interface Todo {
   subtodos: any;
 }
 
-export default function TodoForm({ campaignId, templates }: { campaignId: string, templates:any }) {
+export default function TodoForm({
+  campaignId,
+  templates,
+}: {
+  campaignId: string;
+  templates: any;
+}) {
+  const router = useRouter();
+  const sensors = useSensors(useSensor(PointerSensor));
+
   const [openSubTodoDialog, setOpenSubTodoDialog] = useState(false);
   const [currentTodoId, setCurrentTodoId] = useState<any>("");
   const [subTodoTitle, setSubTodoTitle] = useState("");
   const [subTodoDesc, setSubTodoDesc] = useState("");
-  // const addSubTodofn = () => {
-  //   if (!subTodoTitle.trim() || currentTodoId === null) return;
-
-  //   setTodos(
-  //     todos.map((t: any) =>
-  //       t.id === currentTodoId
-  //         ? {
-  //             ...t,
-  //             subtodos: [
-  //               ...(t.subtodos || []),
-  //               {
-  //                 id: Date.now(),
-  //                 title: subTodoTitle,
-  //                 desc: subTodoDesc,
-  //                 completed: false,
-  //               },
-  //             ],
-  //           }
-  //         : t
-  //     )
-  //   );
-
-  //   setSubTodoTitle("");
-  //   setSubTodoDesc("");
-  //   setOpenSubTodoDialog(false);
-  // };
-
+  const [userRole, setUserRole] = useState<number>();
   const [todos, setTodos] = useState<any>([]);
 
   const [openTodo, setOpenTodo] = useState(false);
@@ -127,7 +157,7 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
   const [subtaskTitle, setSubtaskTitle] = useState("");
 
   const [isOpenEditForm, setisOpenEditForm] = useState(false);
-  const [editTodoFormData, setEditTodoFormData] = useState(null);
+  const [editTodoFormData, setEditTodoFormData] = useState<any>(null);
 
   const openSubDialog = (sub: any) => {
     setSelectedSub(sub);
@@ -140,12 +170,15 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
       const response = await fetchTodos(campaignId);
       console.log(response, "todoresponse");
       const data = response?.data?.map((todo: any) => ({
-        id: todo._id.toString(),
-        title: todo.title,
-        desc: todo.description,
-        status: todo.status,
-        subtodos: todo.subtodo,
+        id: todo?._id.toString(),
+        title: todo?.title,
+        desc: todo?.description,
+        status: todo?.status,
+        isTempDisabled: todo?.isTempDisabled,
+        subtodos: todo?.subtodo,
       }));
+      setUserRole(response?.userRole);
+      console.log(data, "tododdodDataa");
       setTodos(data || []);
     } catch (error) {
       console.error("Error fetching messages:", error);
@@ -186,7 +219,10 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
     setOpenSubTodoDialog(true);
   };
   const openTodoEditForm = (todoData: any) => {
+    console.log(todoData, "opnetodoedit");
     setEditTodoFormData(todoData);
+    setDescription(todoData?.desc);
+    setSubtaskTitle(todoData?.title);
     setisOpenEditForm(true);
   };
 
@@ -233,7 +269,6 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
 
   // ✅ Delete todo
   const deleteTodo = async (id: string) => {
-
     try {
       const response = await getdeleteTodos(id);
 
@@ -269,7 +304,7 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
     comment: string;
     subtaskTitle: string;
   }) => {
-    // console.log("Update status:", id, status, description, comment);
+    console.log("Update status SUB:", id, status, description, comment);
     setOpenDialog(false);
 
     try {
@@ -302,29 +337,17 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
       toast.error("Something went wrong!");
     }
   };
-  const handleMainTOdoEditSave = async ({
-    id,
-    status,
-    description,
-    comment,
-    subtaskTitle,
-  }: {
-    id: string;
-    status: string;
-    description: string;
-    comment: string;
-    subtaskTitle: string;
-  }) => {
-    console.log("Update status:", id, status, description, comment);
-    setOpenDialog(false);
+  const handleMainTOdoEditSave = async ({ id }: { id: string }) => {
+    console.log("Update status:", id, description, subtaskTitle);
+    setisOpenEditForm(false);
 
     try {
       // ✅ Call your API
-      const res = await geteditSubTodos({
+      const res = await geteditMainTodos({
         id,
-        status,
+
         description,
-        comment,
+
         subtaskTitle,
       });
 
@@ -335,14 +358,6 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
 
       // ✅ Refresh todos
       await fetchTodo();
-
-      toast.success(
-        status === "Completed"
-          ? "Task marked as completed ✅"
-          : status === "In Progress"
-            ? "Task moved to In Progress 🚀"
-            : "Task set to Pending ⏳"
-      );
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong!");
@@ -357,21 +372,416 @@ export default function TodoForm({ campaignId, templates }: { campaignId: string
     }
   }, [selectedSub]);
 
-console.log(todos);
+  console.log(todos);
+
+  // handleNaviagte twith todo/id
+  const handleNavigate = (todoId: string) => {
+    router.push(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/${campaignId}/todo/${todoId}`
+    );
+  };
+  const [todoList, setTodoList] = useState<Todo[]>([]);
+  const [openItems, setOpenItems] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (todos?.length) {
+      setTodoList(todos);
+      setOpenItems(todos.map((t: any) => t.id)); // Open all accordions by default
+    }
+  }, [todos]);
+
+  const handleDragEnd = (todoId: string, event: any) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setTodoList((prev) =>
+      prev.map((todo) => {
+        if (todo.id !== todoId) return todo;
+
+        const oldIndex = todo.subtodos.findIndex(
+          (s: { _id: string }) => s._id === active.id
+        );
+        const newIndex = todo.subtodos.findIndex(
+          (s: { _id: string }) => s._id === over.id
+        );
+        const reordered = reorderList(todo.subtodos, oldIndex, newIndex);
+
+        // 👇 optional: send reordered data to API
+        // saveReorderedSubtasks(todo.id, reordered);
+
+        return { ...todo, subtodos: reordered };
+      })
+    );
+  };
+
+  //   function SortableSubtask({
+  //   sub,
+  //   onEdit,
+  //   onDelete,
+  // }: {
+  //   sub: Subtask;
+  //   onEdit: any;
+  //   onDelete: any;
+  // }) {
+  //   const { attributes, listeners, setNodeRef, transform, transition } =
+  //     useSortable({
+  //       id: sub._id,
+  //     });
+
+  //   const style = {
+  //     transform: CSS.Transform.toString(transform),
+  //     transition,
+  //   };
+
+  //   return (
+  //     <li
+  //       ref={setNodeRef}
+  //       style={style}
+  //       {...attributes}
+  //       {...listeners}
+  //       className="cursor-grab ml-5 active:cursor-grabbing flex justify-between bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border"
+  //     >
+  //       <div className="flex ml-3 items-center gap-2">
+  //         <span
+  //           className={`${
+  //             sub.status === "Completed"
+  //               ? "line-through text-gray-400"
+  //               : "text-gray-800"
+  //           }`}
+  //         >
+  //           {sub.title}
+  //         </span>
+  //       </div>
+  //       {/* <div className="flex gap-2 items-center">
+  //         <button onClick={onEdit} className="p-1 hover:bg-gray-200 rounded">
+  //           <FaEdit className="h-4 w-4 text-blue-600" />
+  //         </button>
+  //         <button onClick={onDelete} className="p-1 hover:bg-gray-200 rounded">
+  //           <Trash2 className="h-4 w-4 text-red-600" />
+  //         </button>
+  //       </div> */}
+  //       <div className="flex">
+  //         <div className="flex items-center gap-2"></div>
+  //         <div className="flex justify-center items-center gap-2">
+  //           {sub.status === "Completed" ? (
+  //             <span className="text-xs text-green-600">Completed</span>
+  //           ) : sub.status === "In Progress" ? (
+  //             <span className="text-xs text-orange-600">In Progress</span>
+  //           ) : (
+  //             <span className="text-xs text-gray-600">Pending</span>
+  //           )}
+  //           <button
+  //             // onClick={() => handleEditSub(selectedSub._id)}
+  //               onClick={onEdit}
+  //             className="p-1 hover:bg-gray-100 bg-red-400 rounded"
+  //           >
+  //             <FaEdit
+  //               // onClick={() => {
+  //               //   openSubDialog(sub);
+  //               // }}
+
+  //               className="h-4 w-4 text-blue-600"
+  //             />
+  //           </button>
+
+  //           <button
+  //             // onClick={() => handleDeleteSub(sub._id)}
+  //             onClick={onDelete}
+  //             className="p-1 hover:bg-gray-100 rounded"
+  //           >
+  //             <Trash2 className="h-4 w-4 text-red-600" />
+  //           </button>
+  //         </div>
+  //       </div>
+  //     </li>
+  //   );
+  // }
+
+  // function SortableSubtask({
+  //   sub,
+  //   onEdit,
+  //   onDelete,
+  // }: {
+  //   sub: any;
+  //   onEdit: () => void;
+  //   onDelete: () => void;
+  // }) {
+  //   const { attributes, listeners, setNodeRef, transform, transition } =
+  //     useSortable({
+  //       id: sub._id,
+  //     });
+
+  //   const style = {
+  //     transform: CSS.Transform.toString(transform),
+  //     transition,
+  //   };
+
+  //   return (
+  //     <li
+  //       ref={setNodeRef}
+  //       style={style}
+  //       {...attributes}
+  //       {...listeners}
+  //       className="cursor-grab ml-5 active:cursor-grabbing flex justify-between bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border"
+  //     >
+  //       <div className="flex ml-3 items-center gap-2">
+  //         <span
+  //           className={`${
+  //             sub.status === "Completed"
+  //               ? "line-through text-gray-400"
+  //               : "text-gray-800"
+  //           }`}
+  //         >
+  //           {sub.title}
+  //         </span>
+  //       </div>
+
+  //       <div className="flex gap-2 items-center">
+  //         <span
+  //           className={`text-xs ${
+  //             sub.status === "Completed"
+  //               ? "text-green-600"
+  //               : sub.status === "In Progress"
+  //                 ? "text-orange-600"
+  //                 : "text-gray-600"
+  //           }`}
+  //         >
+  //           {sub.status}
+  //         </span>
+
+  //         <button
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             onEdit();
+  //           }}
+  //           className="p-1 hover:bg-gray-100 rounded"
+  //         >
+  //           <FaEdit className="h-4 w-4 text-blue-600" />
+  //         </button>
+
+  //         <button
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             onDelete();
+  //           }}
+  //           className="p-1 hover:bg-gray-100 rounded"
+  //         >
+  //           <Trash2 className="h-4 w-4 text-red-600" />
+  //         </button>
+  //       </div>
+  //     </li>
+  //   );
+  // }
+
+//   function SortableSubtask({
+//   sub,
+//   onEdit,
+//   onDelete,
+// }: {
+//   sub: any;
+//   onEdit: () => void;
+//   onDelete: () => void;
+// }) {
+//   const { attributes, listeners, setNodeRef, transform, transition } =
+//     useSortable({ id: sub._id });
+
+//   const style = {
+//     transform: CSS.Transform.toString(transform),
+//     transition,
+//   };
+
+//   return (
+//     <li
+//       ref={setNodeRef}
+//       style={style}
+//       {...attributes}
+//       {...listeners}
+//       className="cursor-grab ml-5 active:cursor-grabbing flex justify-between bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border"
+//     >
+//       <div className="flex ml-3 items-center gap-2">
+//         <span
+//           className={`${
+//             sub.status === "Completed"
+//               ? "line-through text-gray-400"
+//               : "text-gray-800"
+//           }`}
+//         >
+//           {sub.title}
+//         </span>
+//       </div>
+
+//       <div className="flex gap-2 items-center">
+//         <span
+//           className={`text-xs ${
+//             sub.status === "Completed"
+//               ? "text-green-600"
+//               : sub.status === "In Progress"
+//               ? "text-orange-600"
+//               : "text-gray-600"
+//           }`}
+//         >
+//           {sub.status}
+//         </span>
+
+//         <button
+//           onClick={(e) => {
+//             e.stopPropagation();
+//             e.preventDefault(); // ✅ prevents drag from taking over
+//             onEdit();
+//           }}
+//           className="p-1 hover:bg-gray-100 rounded"
+//         >
+//           <FaEdit className="h-4 w-4 text-blue-600" />
+//         </button>
+
+//         <button
+//           onClick={(e) => {
+//             e.stopPropagation();
+//             e.preventDefault(); // ✅ prevents drag conflict
+//             onDelete();
+//           }}
+//           className="p-1 hover:bg-gray-100 rounded"
+//         >
+//           <Trash2 className="h-4 w-4 text-red-600" />
+//         </button>
+//       </div>
+//     </li>
+//   );
+// }
+
+
+
+
+
+function SortableSubtask({
+  sub,
+  onEdit,
+  onDelete,
+}: {
+  sub: any;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: sub._id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="flex justify-between items-center gap-3 bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border ml-5"
+    >
+      {/* Left side: handle + title */}
+      <div className="flex items-center gap-2">
+        {/* ✅ Drag handle only */}
+        <span
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing text-gray-400"
+        >
+          <GripVertical className="h-4 w-4" />
+        </span>
+
+        <span
+          className={`${
+            sub.status === "Completed"
+              ? "line-through text-gray-400"
+              : "text-gray-800"
+          }`}
+        >
+          {sub.title}
+        </span>
+      </div>
+
+      {/* Right side: status + buttons */}
+      <div className="flex gap-2 items-center">
+        <span
+          className={`text-xs ${
+            sub.status === "Completed"
+              ? "text-green-600"
+              : sub.status === "In Progress"
+              ? "text-orange-600"
+              : "text-gray-600"
+          }`}
+        >
+          {sub.status}
+        </span>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          className="p-1 hover:bg-gray-200 rounded"
+        >
+          <FaEdit className="h-4 w-4 text-blue-600" />
+        </button>
+          {/* {todo.isTempDisabled ? " text-gray-300" : ""} */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="p-1 hover:bg-gray-200 rounded"
+        >
+          <Trash2 className="h-4 w-4 text-red-600" />
+        </button>
+      </div>
+    </li>
+  );
+}
+
+
+
+  console.log(selectedSub, "slectedokk");
+
+  // const handleSwitchDisabledChange = async (e: boolean, todo: any) => {
+  //   const disabled = await gettodoTempDisabled(todo.id);
+  // };
+
+  const handleSwitchDisabledChange = async (checked: boolean, todo: any) => {
+    try {
+      // Optimistic UI update
+      // setTodoList((prev: any[]) =>
+      //   prev.map((t) =>
+      //     t._id === todo._id ? { ...t, isTempDisabled: checked } : t
+      //   )
+      // );
+      const res = await gettodoTempDisabled(todo.id);
+      await fetchTodo();
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.error(res.error);
+      }
+    } catch (err) {
+      console.error("Switch toggle failed:", err);
+      toast.error("Something went wrong.");
+    }
+  };
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-sm shadow-gray-600 p-6 w-full max-w-5xl mx-auto mt-8">
-         <div className="flex justify-end mb-4">
-       <SaveTemplateDialog todos={todos} />
-       <ImportTemplateDialog campaignId={campaignId} template={templates} fetchTodo={fetchTodo} />
-  {/* <Button
+      <div className="bg-white rounded-2xl shadow-sm shadow-gray-600 p-6 w-full  mx-auto mt-8">
+        <div className="flex justify-end mb-4">
+          <SaveTemplateDialog todos={todos} />
+          <ImportTemplateDialog
+            campaignId={campaignId}
+            template={templates}
+            fetchTodo={fetchTodo}
+          />
+          {/* <Button
             className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm ml-4"
             onClick={() => setShowAddForm(!showAddForm)}
           >
             + Import Template
           </Button> */}
-          </div>
+        </div>
         <div className="flex items-center justify-between mb-6 relative">
           <Button
             className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm"
@@ -411,7 +821,6 @@ console.log(todos);
             </DialogContent>
           </Dialog>
         )}
-
         <hr />
         {/* <TodoAccordion deleteTodo={deleteTodo} todos={todos} /> */}
         {todoLoading ? (
@@ -438,99 +847,92 @@ console.log(todos);
           </div>
         ) : (
           <>
-            {/* ✅ Todo Accordions */}
-            {/* ✅ Scrollable Accordion Container */}
-            <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-              <Accordion type="multiple" className="w-full">
-                {todos?.map((todo: any) => (
+            <div className="max-h-[550px]  overflow-y-auto pr-2 custom-scrollbar">
+              <Accordion
+                type="multiple"
+                value={openItems}
+                onValueChange={setOpenItems}
+                className="w-full  space-y-2"
+              >
+                {todoList.map((todo: any) => (
                   <AccordionItem key={todo.id} value={todo.id}>
-                    <AccordionTrigger className="bg-gray-100 p-3 rounded-md [&>svg]:hidden font-semibold">
-                      <span onClick={() => handleOpenTodo(todo)}>
-                        {todo.title}
-                      </span>
-                      {/* ✅ Add Sub-Todo & Delete Icons */}
+                    <AccordionTrigger
+                      className={`${todo.isTempDisabled ? " text-gray-300" : ""} hover:none text-base bg-gray-100 [&>svg]:hidden font-semibold`}
+                    >
+                      {todo.title} {todo.isTempDisabled && "🚫"}
+                      <p className="text-sm text-gray-700 mb-2">
+                        {todo.description}
+                      </p>
                       <div className="flex gap-3">
                         <BsPlus
                           className="h-4 w-4 text-green-600 cursor-pointer"
                           onClick={() => openSubTodoForm(todo.id)}
                         />
-                        {/* edit button  */}
-                        {/* <MdEdit
+
+                        <MdEdit
                           className="h-4 w-4 text-blue-500 cursor-pointer"
                           onClick={() => openTodoEditForm(todo)}
-                        /> */}
-                        <BsTrash2
-                          className="h-4 w-4 text-red-500 cursor-pointer"
-                          onClick={() => deleteTodo(todo.id)}
                         />
+                        {/* add switch button for temapry diasable  */}
+                        <Switch
+                          title="Disable Todo"
+                          checked={todo.isTempDisabled}
+                          onCheckedChange={(checked) =>
+                            handleSwitchDisabledChange(checked, todo)
+                          }
+                          className="
+    h-4 w-7 transition-all duration-200
+    data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-gray-300
+    [&>span]:h-3 [&>span]:w-3 [&>span]:transition-all [&>span]:duration-200
+    [&>span]:data-[state=checked]:translate-x-3.5
+  "
+                        />
+
+                        {userRole === 2 ? (
+                          <>
+                            {" "}
+                            <BsTrash2
+                              className="h-4 w-4 text-red-500 cursor-pointer"
+                              onClick={() => deleteTodo(todo.id)}
+                            />{" "}
+                          </>
+                        ) : (
+                          <> </>
+                        )}
                       </div>
                     </AccordionTrigger>
-
-                    <AccordionContent className="pl-14">
+                    <AccordionContent>
                       {todo.subtodos?.length > 0 ? (
-                        <ul className="space-y-1 mt-2">
-                          {todo.subtodos.map((sub: any) => (
-                            <li
-                              key={sub._id}
-                              // onClick={() => openSubDialog(sub)}
-                              className="cursor-pointer flex justify-between bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border-b border-s"
-                            >
-                              <div className="flex items-center justify-center">
-                                <span
-                                  onClick={() => {
-                                    setSelectedSubTodo(sub);
-                                    setOpenSubTodoView(true);
-                                  }}
-                                  className={`text-sm ${
-                                    sub.status === "Completed"
-                                      ? "line-through text-gray-400"
-                                      : "text-gray-800"
-                                  }`}
-                                >
-                                  {sub.title}
-                                </span>
-                              </div>
-                              <div className="flex">
-                                <div className="flex items-center gap-2"></div>
-                                <div className="flex justify-center items-center gap-2">
-                                  {sub.status === "Completed" ? (
-                                    <span className="text-xs text-green-600">
-                                      Completed
-                                    </span>
-                                  ) : sub.status === "In Progress" ? (
-                                    <span className="text-xs text-orange-600">
-                                      In Progress
-                                    </span>
-                                  ) : (
-                                    <span className="text-xs text-gray-600">
-                                      Pending
-                                    </span>
-                                  )}
-                                  <button
-                                    // onClick={() => handleEditSub(selectedSub._id)}
-                                    className="p-1 hover:bg-gray-100 rounded"
-                                  >
-                                    <FaEdit
-                                      onClick={() => {
-                                        openSubDialog(sub);
-                                      }}
-                                      className="h-4 w-4 text-blue-600"
-                                    />
-                                  </button>
-
-                                  <button
-                                    onClick={() => handleDeleteSub(sub._id)}
-                                    className="p-1 hover:bg-gray-100 rounded"
-                                  >
-                                    <Trash2 className="h-4 w-4 text-red-600" />
-                                  </button>
+                        <DndContext
+                          sensors={sensors}
+                          collisionDetection={closestCenter}
+                          onDragEnd={(event) => handleDragEnd(todo.id, event)}
+                        >
+                          <SortableContext
+                            items={todo?.subtodos.map(
+                              (s: { _id: string }) => s._id
+                            )}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            <ul className="space-y-2">
+                              {todo.subtodos.map((sub: any) => (
+                                <div key={sub._id}>
+                                  <SortableSubtask
+                                    sub={sub}
+                                    onEdit={() => 
+                                      openSubDialog(sub)
+                                    }
+                                    onDelete={() => handleDeleteSub(sub._id)}
+                                    // onDelete={(sub) => handleDeleteSub(sub._id)}
+                                  />
+                                  
                                 </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
+                              ))}
+                            </ul>
+                          </SortableContext>
+                        </DndContext>
                       ) : (
-                        <p className="text-xs text-gray-500">No Sub Tasks</p>
+                        <p className="text-xs text-gray-500">No subtasks</p>
                       )}
                     </AccordionContent>
                   </AccordionItem>
@@ -676,7 +1078,6 @@ console.log(todos);
         </DialogContent>
       </Dialog>
 
-
       {/* ✅ Task Edit Dialog */}
       <Dialog open={isOpenEditForm} onOpenChange={setisOpenEditForm}>
         <DialogContent className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 space-y-6 max-w-lg transition-all">
@@ -685,7 +1086,6 @@ console.log(todos);
             <h2 className="text-xl font-semibold text-gray-900">
               Task Details
             </h2>
-           
           </div>
 
           {/* 📝 Title */}
@@ -706,7 +1106,7 @@ console.log(todos);
                 onClick={() => setIsEditingTitle(true)}
                 className="cursor-pointer font-semibold text-gray-900 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
               >
-                {subtaskTitle || "Click to add title..."}
+                {editTodoFormData?.title || "Click to add title..."}
               </div>
             )}
           </div>
@@ -730,54 +1130,17 @@ console.log(todos);
                 onClick={() => setIsEditingDesc(true)}
                 className="cursor-pointer text-gray-700 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
               >
-                {description || "Click to add description..."}
+                {editTodoFormData?.desc ? (
+                  <SafeHTML html={description} />
+                ) : (
+                  "Click to add description..."
+                )}
+                {/* {description || "Click to add description..."} */}
               </div>
             )}
           </div>
 
-          {/* 📊 Status Dropdown
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Status
-            </label>
-            <Select
-              value={statusChange}
-              onValueChange={(value) => setStatusChange(value)}
-            >
-              <SelectTrigger className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                <SelectValue placeholder="Select Status" />
-              </SelectTrigger>
-              <SelectContent className="bg-white shadow-md border border-gray-200 rounded-lg">
-                <SelectItem value="Pending">🕒 Pending</SelectItem>
-                <SelectItem value="In Progress">⚙️ Work In Progress</SelectItem>
-                <SelectItem value="Completed">✅ Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 💬 Comments */}
-          {/* <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Comment
-            </label>
-            {isEditingComment ? (
-              <Textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                onBlur={() => setIsEditingComment(false)}
-                autoFocus
-                placeholder="Write a comment..."
-                className="resize-none min-h-[80px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            ) : (
-              <div
-                onClick={() => setIsEditingComment(true)}
-                className="cursor-pointer text-gray-700 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
-              >
-                {comment || "Click to add a comment..."}
-              </div>
-            )}
-          </div> */} 
+         
 
           {/* ⚙️ Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t">
@@ -792,12 +1155,11 @@ console.log(todos);
               className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg"
               onClick={() =>
                 handleMainTOdoEditSave({
-                  id: selectedSub._id,
-                  subtaskTitle,
-                  status: statusChange,
-                  description,
-                  comment,
-                  
+                  id: editTodoFormData?.id,
+                  // subtaskTitle : editTodoFormData?.title,
+                  // status: statusChange,
+                  // description: editTodoFormData?.desc,
+                  // comment,
                 })
               }
             >

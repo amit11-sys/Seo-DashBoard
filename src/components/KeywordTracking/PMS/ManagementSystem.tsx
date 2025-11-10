@@ -83,7 +83,7 @@ export default function ManagementSystem({ campaignId, campignDataWithId, templa
       {/* ✅ Active Form */}
       {activeType && (
         <motion.div
-          className="max-w-3xl mx-auto w-full px-6 mt-6"
+          className="max-w-5xl mx-auto w-full px-6 mt-6"
           initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }}
         >

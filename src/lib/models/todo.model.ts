@@ -29,6 +29,10 @@ const todoSchema = new mongoose.Schema(
       type: String,
       default: "pending",
     },
+    isTempDisabled: {
+      type: Boolean,
+      default: false,
+    },
 
     subtodo: { type: Array, default: [] },
   },

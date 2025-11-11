@@ -445,7 +445,7 @@ export default function TodoForm({
       <li
         ref={setNodeRef}
         style={style}
-        className="flex justify-between items-center gap-3 bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border ml-5"
+        className="flex shadow-md justify-between items-center gap-3 bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border border-gray-300 ml-5"
       >
         {/* Left side: handle + title */}
         <div className="flex items-center gap-2">
@@ -579,7 +579,7 @@ export default function TodoForm({
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-sm shadow-gray-600 p-6 w-full  mx-auto mt-8">
+      <div className=" px-5 mt-8">
         <div className="flex justify-end mb-4">
           <SaveTemplateDialog todos={todos} />
           <ImportTemplateDialog
@@ -659,7 +659,8 @@ export default function TodoForm({
           </div>
         ) : (
           <>
-            <div className="max-h-[550px]  overflow-y-auto pr-2 custom-scrollbar">
+            {/* <div className="max-h-[550px]  overflow-y-auto pr-2 custom-scrollbar"> */}
+            <div className="">
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -690,7 +691,7 @@ export default function TodoForm({
                   >
                     {todoList.map((todo: any) => (
                       <SortableTodo key={todo.id} todo={todo}>
-                        <AccordionItem value={todo.id}>
+                        <AccordionItem className="my-4" value={todo.id}>
                           <AccordionTrigger
                             className={`${todo.isTempDisabled ? " text-gray-300" : ""} hover:none text-base bg-gray-100 [&>svg]:hidden font-semibold`}
                           >
@@ -705,7 +706,7 @@ export default function TodoForm({
                             <p className="text-sm text-gray-700 mb-2">
                               {todo.description}
                             </p>
-                            <div className="flex gap-3">
+                            <div className="flex pr-4  gap-3">
                               <BsPlus
                                 className="h-4 w-4 text-green-600 cursor-pointer"
                                 onClick={() => openSubTodoForm(todo.id)}
@@ -753,7 +754,7 @@ export default function TodoForm({
                                   )}
                                   strategy={verticalListSortingStrategy}
                                 >
-                                  <ul className="space-y-2">
+                                  <ul className="space-y-2 ">
                                     {todo.subtodos.map((sub: any) => (
                                       <div key={sub._id}>
                                         <SortableSubtask

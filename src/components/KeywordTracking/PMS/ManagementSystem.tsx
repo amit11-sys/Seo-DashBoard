@@ -83,12 +83,12 @@ export default function ManagementSystem({ campaignId, campignDataWithId, templa
       {/* ✅ Active Form */}
       {activeType && (
         <motion.div
-          className="max-w-5xl mx-auto w-full px-6 mt-6"
+          className="max-w-full w-full  mt-6"
           initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold capitalize">
+            <h2 className="text-xl px-4 font-semibold capitalize">
               Add {activeType}
             </h2>
             <Button 

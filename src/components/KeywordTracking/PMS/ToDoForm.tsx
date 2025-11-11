@@ -1,7 +1,8 @@
-
-
 "use client";
 
+// import { GripVertical } from "lucide-react";
+// import { CSS } from "@dnd-kit/utilities";
+// import { useSortable } from "@dnd-kit/sortable";
 
 import {
   DndContext,
@@ -36,7 +37,6 @@ type Subtask = {
 type Props = {
   todos: Todo[];
 };
-
 
 import { Button } from "@/components/ui/button";
 import {
@@ -134,6 +134,7 @@ export default function TodoForm({
   const [selectedTodo, setSelectedTodo] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [openSubTodoView, setOpenSubTodoView] = useState(false);
+  const [subTodoDetails, setSetSubTodoDetails] = useState<any>(null);
   const [selectedSubTodo, setSelectedSubTodo] = useState<any>(null);
   const [selectedUserIdFromParent, setSelectedUserIdFromParent] =
     useState<any>(null);
@@ -155,9 +156,12 @@ export default function TodoForm({
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [isEditingComment, setIsEditingComment] = useState(false);
   const [subtaskTitle, setSubtaskTitle] = useState("");
+  const [todoList, setTodoList] = useState<Todo[]>([]);
+  const [openItems, setOpenItems] = useState<string[]>([]);
 
   const [isOpenEditForm, setisOpenEditForm] = useState(false);
   const [editTodoFormData, setEditTodoFormData] = useState<any>(null);
+  const [todoDetails, setTodoDetails] = useState<any>(null);
 
   const openSubDialog = (sub: any) => {
     setSelectedSub(sub);
@@ -217,6 +221,14 @@ export default function TodoForm({
   const openSubTodoForm = (todoId: any) => {
     setCurrentTodoId(todoId);
     setOpenSubTodoDialog(true);
+  };
+  const handleOpenTodoDetails = (todo: any) => {
+    setTodoDetails(todo);
+    setOpenTodo(true);
+  };
+  const handleOpenSubTodoDetails = (todo: any) => {
+    setSetSubTodoDetails(todo);
+    setOpenSubTodoView(true);
   };
   const openTodoEditForm = (todoData: any) => {
     console.log(todoData, "opnetodoedit");
@@ -380,8 +392,6 @@ export default function TodoForm({
       `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/${campaignId}/todo/${todoId}`
     );
   };
-  const [todoList, setTodoList] = useState<Todo[]>([]);
-  const [openItems, setOpenItems] = useState<string[]>([]);
 
   useEffect(() => {
     if (todos?.length) {
@@ -414,329 +424,131 @@ export default function TodoForm({
     );
   };
 
-  //   function SortableSubtask({
-  //   sub,
-  //   onEdit,
-  //   onDelete,
-  // }: {
-  //   sub: Subtask;
-  //   onEdit: any;
-  //   onDelete: any;
-  // }) {
-  //   const { attributes, listeners, setNodeRef, transform, transition } =
-  //     useSortable({
-  //       id: sub._id,
-  //     });
+  function SortableSubtask({
+    sub,
+    onEdit,
+    onDelete,
+  }: {
+    sub: any;
+    onEdit: () => void;
+    onDelete: () => void;
+  }) {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: sub._id });
 
-  //   const style = {
-  //     transform: CSS.Transform.toString(transform),
-  //     transition,
-  //   };
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
 
-  //   return (
-  //     <li
-  //       ref={setNodeRef}
-  //       style={style}
-  //       {...attributes}
-  //       {...listeners}
-  //       className="cursor-grab ml-5 active:cursor-grabbing flex justify-between bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border"
-  //     >
-  //       <div className="flex ml-3 items-center gap-2">
-  //         <span
-  //           className={`${
-  //             sub.status === "Completed"
-  //               ? "line-through text-gray-400"
-  //               : "text-gray-800"
-  //           }`}
-  //         >
-  //           {sub.title}
-  //         </span>
-  //       </div>
-  //       {/* <div className="flex gap-2 items-center">
-  //         <button onClick={onEdit} className="p-1 hover:bg-gray-200 rounded">
-  //           <FaEdit className="h-4 w-4 text-blue-600" />
-  //         </button>
-  //         <button onClick={onDelete} className="p-1 hover:bg-gray-200 rounded">
-  //           <Trash2 className="h-4 w-4 text-red-600" />
-  //         </button>
-  //       </div> */}
-  //       <div className="flex">
-  //         <div className="flex items-center gap-2"></div>
-  //         <div className="flex justify-center items-center gap-2">
-  //           {sub.status === "Completed" ? (
-  //             <span className="text-xs text-green-600">Completed</span>
-  //           ) : sub.status === "In Progress" ? (
-  //             <span className="text-xs text-orange-600">In Progress</span>
-  //           ) : (
-  //             <span className="text-xs text-gray-600">Pending</span>
-  //           )}
-  //           <button
-  //             // onClick={() => handleEditSub(selectedSub._id)}
-  //               onClick={onEdit}
-  //             className="p-1 hover:bg-gray-100 bg-red-400 rounded"
-  //           >
-  //             <FaEdit
-  //               // onClick={() => {
-  //               //   openSubDialog(sub);
-  //               // }}
+    return (
+      <li
+        ref={setNodeRef}
+        style={style}
+        className="flex justify-between items-center gap-3 bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border ml-5"
+      >
+        {/* Left side: handle + title */}
+        <div className="flex items-center gap-2">
+          {/* ✅ Drag handle only */}
+          <span
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing text-gray-400"
+          >
+            <GripVertical className="h-4 w-4" />
+          </span>
 
-  //               className="h-4 w-4 text-blue-600"
-  //             />
-  //           </button>
+          <span
+            className={`${
+              sub.status === "Completed"
+                ? "line-through text-gray-400"
+                : "text-gray-800"
+            }`}
+          >
+            <span
+              className="cursor-pointer"
+              onClick={() => handleOpenSubTodoDetails(sub)}
+            >
+              {sub.title}
+            </span>
+          </span>
+        </div>
 
-  //           <button
-  //             // onClick={() => handleDeleteSub(sub._id)}
-  //             onClick={onDelete}
-  //             className="p-1 hover:bg-gray-100 rounded"
-  //           >
-  //             <Trash2 className="h-4 w-4 text-red-600" />
-  //           </button>
-  //         </div>
-  //       </div>
-  //     </li>
-  //   );
-  // }
+        {/* Right side: status + buttons */}
+        <div className="flex gap-2 items-center">
+          <span
+            className={`text-xs ${
+              sub.status === "Completed"
+                ? "text-green-600"
+                : sub.status === "In Progress"
+                  ? "text-orange-600"
+                  : "text-gray-600"
+            }`}
+          >
+            {sub.status}
+          </span>
 
-  // function SortableSubtask({
-  //   sub,
-  //   onEdit,
-  //   onDelete,
-  // }: {
-  //   sub: any;
-  //   onEdit: () => void;
-  //   onDelete: () => void;
-  // }) {
-  //   const { attributes, listeners, setNodeRef, transform, transition } =
-  //     useSortable({
-  //       id: sub._id,
-  //     });
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="p-1 hover:bg-gray-200 rounded"
+          >
+            <FaEdit className="h-4 w-4 text-blue-600" />
+          </button>
+          {/* {todo.isTempDisabled ? " text-gray-300" : ""} */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-1 hover:bg-gray-200 rounded"
+          >
+            <Trash2 className="h-4 w-4 text-red-600" />
+          </button>
+        </div>
+      </li>
+    );
+  }
 
-  //   const style = {
-  //     transform: CSS.Transform.toString(transform),
-  //     transition,
-  //   };
+  // Reuse reorderList helper you already have
 
-  //   return (
-  //     <li
-  //       ref={setNodeRef}
-  //       style={style}
-  //       {...attributes}
-  //       {...listeners}
-  //       className="cursor-grab ml-5 active:cursor-grabbing flex justify-between bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border"
-  //     >
-  //       <div className="flex ml-3 items-center gap-2">
-  //         <span
-  //           className={`${
-  //             sub.status === "Completed"
-  //               ? "line-through text-gray-400"
-  //               : "text-gray-800"
-  //           }`}
-  //         >
-  //           {sub.title}
-  //         </span>
-  //       </div>
+  function SortableTodo({
+    todo,
+    children,
+  }: {
+    todo: any;
+    children: React.ReactNode;
+  }) {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: todo.id });
 
-  //       <div className="flex gap-2 items-center">
-  //         <span
-  //           className={`text-xs ${
-  //             sub.status === "Completed"
-  //               ? "text-green-600"
-  //               : sub.status === "In Progress"
-  //                 ? "text-orange-600"
-  //                 : "text-gray-600"
-  //           }`}
-  //         >
-  //           {sub.status}
-  //         </span>
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
 
-  //         <button
-  //           onClick={(e) => {
-  //             e.stopPropagation();
-  //             onEdit();
-  //           }}
-  //           className="p-1 hover:bg-gray-100 rounded"
-  //         >
-  //           <FaEdit className="h-4 w-4 text-blue-600" />
-  //         </button>
-
-  //         <button
-  //           onClick={(e) => {
-  //             e.stopPropagation();
-  //             onDelete();
-  //           }}
-  //           className="p-1 hover:bg-gray-100 rounded"
-  //         >
-  //           <Trash2 className="h-4 w-4 text-red-600" />
-  //         </button>
-  //       </div>
-  //     </li>
-  //   );
-  // }
-
-//   function SortableSubtask({
-//   sub,
-//   onEdit,
-//   onDelete,
-// }: {
-//   sub: any;
-//   onEdit: () => void;
-//   onDelete: () => void;
-// }) {
-//   const { attributes, listeners, setNodeRef, transform, transition } =
-//     useSortable({ id: sub._id });
-
-//   const style = {
-//     transform: CSS.Transform.toString(transform),
-//     transition,
-//   };
-
-//   return (
-//     <li
-//       ref={setNodeRef}
-//       style={style}
-//       {...attributes}
-//       {...listeners}
-//       className="cursor-grab ml-5 active:cursor-grabbing flex justify-between bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border"
-//     >
-//       <div className="flex ml-3 items-center gap-2">
-//         <span
-//           className={`${
-//             sub.status === "Completed"
-//               ? "line-through text-gray-400"
-//               : "text-gray-800"
-//           }`}
-//         >
-//           {sub.title}
-//         </span>
-//       </div>
-
-//       <div className="flex gap-2 items-center">
-//         <span
-//           className={`text-xs ${
-//             sub.status === "Completed"
-//               ? "text-green-600"
-//               : sub.status === "In Progress"
-//               ? "text-orange-600"
-//               : "text-gray-600"
-//           }`}
-//         >
-//           {sub.status}
-//         </span>
-
-//         <button
-//           onClick={(e) => {
-//             e.stopPropagation();
-//             e.preventDefault(); // ✅ prevents drag from taking over
-//             onEdit();
-//           }}
-//           className="p-1 hover:bg-gray-100 rounded"
-//         >
-//           <FaEdit className="h-4 w-4 text-blue-600" />
-//         </button>
-
-//         <button
-//           onClick={(e) => {
-//             e.stopPropagation();
-//             e.preventDefault(); // ✅ prevents drag conflict
-//             onDelete();
-//           }}
-//           className="p-1 hover:bg-gray-100 rounded"
-//         >
-//           <Trash2 className="h-4 w-4 text-red-600" />
-//         </button>
-//       </div>
-//     </li>
-//   );
-// }
-
-
-
-
-
-function SortableSubtask({
-  sub,
-  onEdit,
-  onDelete,
-}: {
-  sub: any;
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: sub._id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <li
-      ref={setNodeRef}
-      style={style}
-      className="flex justify-between items-center gap-3 bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border ml-5"
-    >
-      {/* Left side: handle + title */}
-      <div className="flex items-center gap-2">
-        {/* ✅ Drag handle only */}
-        <span
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={` relative rounded-md mb-2 bg-gray-50 hover:bg-gray-100shadow-sm}`}
+      >
+        {/* Drag handle area */}
+        <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing text-gray-400"
+          className="flex absolute top-4 left-0 z-30 items-center gap-2 cursor-grab active:cursor-grabbing  px-2 py-1 text-gray-500"
         >
           <GripVertical className="h-4 w-4" />
-        </span>
-
-        <span
-          className={`${
-            sub.status === "Completed"
-              ? "line-through text-gray-400"
-              : "text-gray-800"
-          }`}
-        >
-          {sub.title}
-        </span>
+          {/* <span className="text-sm text-gray-700">Drag</span> */}
+        </div>
+        {/* Actual Todo accordion */}
+        <div className="relative pl-6">{children}</div>
       </div>
-
-      {/* Right side: status + buttons */}
-      <div className="flex gap-2 items-center">
-        <span
-          className={`text-xs ${
-            sub.status === "Completed"
-              ? "text-green-600"
-              : sub.status === "In Progress"
-              ? "text-orange-600"
-              : "text-gray-600"
-          }`}
-        >
-          {sub.status}
-        </span>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          className="p-1 hover:bg-gray-200 rounded"
-        >
-          <FaEdit className="h-4 w-4 text-blue-600" />
-        </button>
-          {/* {todo.isTempDisabled ? " text-gray-300" : ""} */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="p-1 hover:bg-gray-200 rounded"
-        >
-          <Trash2 className="h-4 w-4 text-red-600" />
-        </button>
-      </div>
-    </li>
-  );
-}
-
-
+    );
+  }
 
   console.log(selectedSub, "slectedokk");
 
@@ -848,103 +660,133 @@ function SortableSubtask({
         ) : (
           <>
             <div className="max-h-[550px]  overflow-y-auto pr-2 custom-scrollbar">
-              <Accordion
-                type="multiple"
-                value={openItems}
-                onValueChange={setOpenItems}
-                className="w-full  space-y-2"
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(event) => {
+                  const { active, over } = event;
+                  if (!over || active.id === over.id) return;
+
+                  const oldIndex = todoList.findIndex(
+                    (t) => t.id === active.id
+                  );
+                  const newIndex = todoList.findIndex((t) => t.id === over.id);
+                  const reordered = reorderList(todoList, oldIndex, newIndex);
+                  setTodoList(reordered);
+
+                  // optional: call API to persist new order
+                  // await saveReorderedTodos(reordered)
+                }}
               >
-                {todoList.map((todo: any) => (
-                  <AccordionItem key={todo.id} value={todo.id}>
-                    <AccordionTrigger
-                      className={`${todo.isTempDisabled ? " text-gray-300" : ""} hover:none text-base bg-gray-100 [&>svg]:hidden font-semibold`}
-                    >
-                      {todo.title} {todo.isTempDisabled && "🚫"}
-                      <p className="text-sm text-gray-700 mb-2">
-                        {todo.description}
-                      </p>
-                      <div className="flex gap-3">
-                        <BsPlus
-                          className="h-4 w-4 text-green-600 cursor-pointer"
-                          onClick={() => openSubTodoForm(todo.id)}
-                        />
-
-                        <MdEdit
-                          className="h-4 w-4 text-blue-500 cursor-pointer"
-                          onClick={() => openTodoEditForm(todo)}
-                        />
-                        {/* add switch button for temapry diasable  */}
-                        <Switch
-                          title="Disable Todo"
-                          checked={todo.isTempDisabled}
-                          onCheckedChange={(checked) =>
-                            handleSwitchDisabledChange(checked, todo)
-                          }
-                          className="
-    h-4 w-7 transition-all duration-200
-    data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-gray-300
-    [&>span]:h-3 [&>span]:w-3 [&>span]:transition-all [&>span]:duration-200
-    [&>span]:data-[state=checked]:translate-x-3.5
-  "
-                        />
-
-                        {userRole === 2 ? (
-                          <>
-                            {" "}
-                            <BsTrash2
-                              className="h-4 w-4 text-red-500 cursor-pointer"
-                              onClick={() => deleteTodo(todo.id)}
-                            />{" "}
-                          </>
-                        ) : (
-                          <> </>
-                        )}
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {todo.subtodos?.length > 0 ? (
-                        <DndContext
-                          sensors={sensors}
-                          collisionDetection={closestCenter}
-                          onDragEnd={(event) => handleDragEnd(todo.id, event)}
-                        >
-                          <SortableContext
-                            items={todo?.subtodos.map(
-                              (s: { _id: string }) => s._id
-                            )}
-                            strategy={verticalListSortingStrategy}
+                <SortableContext
+                  items={todoList.map((t) => t.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Accordion
+                    type="multiple"
+                    value={openItems}
+                    onValueChange={setOpenItems}
+                    className="w-full space-y-2"
+                  >
+                    {todoList.map((todo: any) => (
+                      <SortableTodo key={todo.id} todo={todo}>
+                        <AccordionItem value={todo.id}>
+                          <AccordionTrigger
+                            className={`${todo.isTempDisabled ? " text-gray-300" : ""} hover:none text-base bg-gray-100 [&>svg]:hidden font-semibold`}
                           >
-                            <ul className="space-y-2">
-                              {todo.subtodos.map((sub: any) => (
-                                <div key={sub._id}>
-                                  <SortableSubtask
-                                    sub={sub}
-                                    onEdit={() => 
-                                      openSubDialog(sub)
-                                    }
-                                    onDelete={() => handleDeleteSub(sub._id)}
-                                    // onDelete={(sub) => handleDeleteSub(sub._id)}
-                                  />
-                                  
-                                </div>
-                              ))}
-                            </ul>
-                          </SortableContext>
-                        </DndContext>
-                      ) : (
-                        <p className="text-xs text-gray-500">No subtasks</p>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+                            <span
+                              onClick={() => {
+                                handleOpenTodoDetails(todo);
+                              }}
+                            >
+                              {todo.title}
+                              {todo.isTempDisabled && "🚫"}
+                            </span>
+                            <p className="text-sm text-gray-700 mb-2">
+                              {todo.description}
+                            </p>
+                            <div className="flex gap-3">
+                              <BsPlus
+                                className="h-4 w-4 text-green-600 cursor-pointer"
+                                onClick={() => openSubTodoForm(todo.id)}
+                              />
+
+                              <MdEdit
+                                className="h-4 w-4 text-blue-500 cursor-pointer"
+                                onClick={() => openTodoEditForm(todo)}
+                              />
+
+                              <Switch
+                                title="Disable Todo"
+                                checked={todo.isTempDisabled}
+                                onCheckedChange={(checked) =>
+                                  handleSwitchDisabledChange(checked, todo)
+                                }
+                                className=" h-4 w-7 transition-all duration-200
+                                data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-gray-300
+                                [&>span]:h-3 [&>span]:w-3 [&>span]:transition-all [&>span]:duration-200
+                                [&>span]:data-[state=checked]:translate-x-3.5
+                              "
+                              />
+
+                              {userRole === 2 && (
+                                <BsTrash2
+                                  className="h-4 w-4 text-red-500 cursor-pointer"
+                                  onClick={() => deleteTodo(todo.id)}
+                                />
+                              )}
+                            </div>
+                          </AccordionTrigger>
+
+                          <AccordionContent>
+                            {todo.subtodos?.length > 0 ? (
+                              <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={(event) =>
+                                  handleDragEnd(todo.id, event)
+                                }
+                              >
+                                <SortableContext
+                                  items={todo.subtodos.map(
+                                    (s: { _id: string }) => s._id
+                                  )}
+                                  strategy={verticalListSortingStrategy}
+                                >
+                                  <ul className="space-y-2">
+                                    {todo.subtodos.map((sub: any) => (
+                                      <div key={sub._id}>
+                                        <SortableSubtask
+                                          sub={sub}
+                                          onEdit={() => openSubDialog(sub)}
+                                          onDelete={() =>
+                                            handleDeleteSub(sub._id)
+                                          }
+                                        />
+                                      </div>
+                                    ))}
+                                  </ul>
+                                </SortableContext>
+                              </DndContext>
+                            ) : (
+                              <p className="text-xs text-gray-500">
+                                No subtasks
+                              </p>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </SortableTodo>
+                    ))}
+                  </Accordion>
+                </SortableContext>
+              </DndContext>
             </div>
           </>
         )}
         <></>
       </div>
 
-      {/* ✅ SubTask Dialog */}
+      {/* ✅ edit SubTask Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 space-y-6 max-w-lg transition-all">
           {/* 🧭 Header */}
@@ -1116,7 +958,7 @@ function SortableSubtask({
             <label className="block text-sm font-medium text-gray-700">
               Description
             </label>
-            {isEditingDesc ? (
+            {/* {isEditingDesc ? (
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -1135,12 +977,36 @@ function SortableSubtask({
                 ) : (
                   "Click to add description..."
                 )}
-                {/* {description || "Click to add description..."} */}
+              </div>
+            )} */}
+            {isEditingDesc ? (
+              <div>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  onBlur={() => setIsEditingDesc(false)}
+                  autoFocus
+                  placeholder="Edit description..."
+                  className="resize-none min-h-[100px] text-gray-800 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+                {/* <div className="mt-2 text-sm text-gray-600">
+      <p className="font-semibold mb-1">Preview:</p>
+      <SafeHTML html={description} />
+    </div> */}
+              </div>
+            ) : (
+              <div
+                onClick={() => setIsEditingDesc(true)}
+                className="cursor-pointer text-gray-700 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
+              >
+                {description ? (
+                  <SafeHTML html={description} />
+                ) : (
+                  "Click to add description..."
+                )}
               </div>
             )}
           </div>
-
-         
 
           {/* ⚙️ Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t">
@@ -1215,17 +1081,17 @@ function SortableSubtask({
                 }`}
               >
                 <h1>Title</h1>
-                {selectedTodo?.title || "Untitled Todo"}
+                {todoDetails?.title || "Untitled Todo"}
               </DialogTitle>
             </div>
           </DialogHeader>
 
           {/* 📝 Description */}
           <div className="">
-            {selectedTodo?.desc ? (
+            {todoDetails?.desc ? (
               <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
                 <h1>Description</h1>
-                <SafeHTML html={selectedTodo.desc} />
+                <SafeHTML html={todoDetails.desc} />
               </div>
             ) : (
               <p className="text-gray-500 italic text-sm bg-gray-50 border border-dashed border-gray-200 rounded-lg p-4">
@@ -1262,20 +1128,110 @@ function SortableSubtask({
           <DialogHeader className="flex flex-col">
             {/* <DialogTitle>{selectedSubTodo?.title}</DialogTitle> */}
             <h1>Title</h1>
-            <DialogTitle>{selectedSubTodo?.title}</DialogTitle>
+            <DialogTitle>{subTodoDetails?.title}</DialogTitle>
           </DialogHeader>
           <h1 className="mt-4">Sub-Task</h1>
           <p className="text-gray-700 text-sm ">
             {/* {selectedSubTodo?.description} */}
-            {selectedSubTodo?.description}
+            {subTodoDetails?.description}
           </p>
           <h1 className="mt-4">Comment</h1>
           <p className="text-gray-700 text-sm ">
             {/* {selectedSubTodo?.description} */}
-            {selectedSubTodo?.comment}
+            {subTodoDetails?.comment}
           </p>
         </DialogContent>
       </Dialog>
     </>
   );
 }
+
+// <Accordion
+//                 type="multiple"
+//                 value={openItems}
+//                 onValueChange={setOpenItems}
+//                 className="w-full  space-y-2"
+//               >
+//                 {todoList.map((todo: any) => (
+//                   <AccordionItem key={todo.id} value={todo.id}>
+//                     <AccordionTrigger
+//                       className={`${todo.isTempDisabled ? " text-gray-300" : ""} hover:none text-base bg-gray-100 [&>svg]:hidden font-semibold`}
+//                     >
+//                       {todo.title} {todo.isTempDisabled && "🚫"}
+//                       <p className="text-sm text-gray-700 mb-2">
+//                         {todo.description}
+//                       </p>
+//                       <div className="flex gap-3">
+//                         <BsPlus
+//                           className="h-4 w-4 text-green-600 cursor-pointer"
+//                           onClick={() => openSubTodoForm(todo.id)}
+//                         />
+
+//                         <MdEdit
+//                           className="h-4 w-4 text-blue-500 cursor-pointer"
+//                           onClick={() => openTodoEditForm(todo)}
+//                         />
+//                         <Switch
+//                           title="Disable Todo"
+//                           checked={todo.isTempDisabled}
+//                           onCheckedChange={(checked) =>
+//                             handleSwitchDisabledChange(checked, todo)
+//                           }
+//                           className="
+//     h-4 w-7 transition-all duration-200
+//     data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-gray-300
+//     [&>span]:h-3 [&>span]:w-3 [&>span]:transition-all [&>span]:duration-200
+//     [&>span]:data-[state=checked]:translate-x-3.5
+//   "
+//                         />
+
+//                         {userRole === 2 ? (
+//                           <>
+//                             {" "}
+//                             <BsTrash2
+//                               className="h-4 w-4 text-red-500 cursor-pointer"
+//                               onClick={() => deleteTodo(todo.id)}
+//                             />{" "}
+//                           </>
+//                         ) : (
+//                           <> </>
+//                         )}
+//                       </div>
+//                     </AccordionTrigger>
+//                     <AccordionContent>
+//                       {todo.subtodos?.length > 0 ? (
+//                         <DndContext
+//                           sensors={sensors}
+//                           collisionDetection={closestCenter}
+//                           onDragEnd={(event) => handleDragEnd(todo.id, event)}
+//                         >
+//                           <SortableContext
+//                             items={todo?.subtodos.map(
+//                               (s: { _id: string }) => s._id
+//                             )}
+//                             strategy={verticalListSortingStrategy}
+//                           >
+//                             <ul className="space-y-2">
+//                               {todo.subtodos.map((sub: any) => (
+//                                 <div key={sub._id}>
+//                                   <SortableSubtask
+//                                     sub={sub}
+//                                     onEdit={() =>
+//                                       openSubDialog(sub)
+//                                     }
+//                                     onDelete={() => handleDeleteSub(sub._id)}
+//                                     // onDelete={(sub) => handleDeleteSub(sub._id)}
+//                                   />
+
+//                                 </div>
+//                               ))}
+//                             </ul>
+//                           </SortableContext>
+//                         </DndContext>
+//                       ) : (
+//                         <p className="text-xs text-gray-500">No subtasks</p>
+//                       )}
+//                     </AccordionContent>
+//                   </AccordionItem>
+//                 ))}
+//               </Accordion>

@@ -1106,7 +1106,7 @@ function SortableSubtask({
                 onClick={() => setIsEditingTitle(true)}
                 className="cursor-pointer font-semibold text-gray-900 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
               >
-                {editTodoFormData?.title || "Click to add title..."}
+                {subtaskTitle || "Click to add title..."}
               </div>
             )}
           </div>
@@ -1130,7 +1130,7 @@ function SortableSubtask({
                 onClick={() => setIsEditingDesc(true)}
                 className="cursor-pointer text-gray-700 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
               >
-                {editTodoFormData?.desc ? (
+                {description ? (
                   <SafeHTML html={description} />
                 ) : (
                   "Click to add description..."

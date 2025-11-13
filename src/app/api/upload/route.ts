@@ -5,11 +5,11 @@ import path from "path";
 import { Readable } from "stream";
 import { IncomingMessage } from "http";
 
-export const config = {
-  api: {
-    bodyParser: false, // ❌ disable default parser for file upload
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false, // ❌ disable default parser for file upload
+//   },
+// };
 
 // ensure upload dir exists
 const uploadDir = path.join(process.cwd(), "public", "uploads");

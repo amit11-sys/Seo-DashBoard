@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       if (!name) continue;
 
       const safeName = path.basename(name); // 🧩 sanitize name
-      const filePath = path.join(process.cwd(), "public", "uploads", safeName);
+      const filePath = path.join(process.cwd(),"uploads", safeName);
 
       try {
         if (fs.existsSync(filePath)) {

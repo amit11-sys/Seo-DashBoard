@@ -70,7 +70,7 @@ import DOMPurify from "dompurify";
 import { toast } from "sonner";
 // import TodoAccordion from "./TodoAccordian";
 import { BsCheckSquare, BsPlus, BsSquare, BsTrash2 } from "react-icons/bs";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaRegCircle } from "react-icons/fa";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -97,6 +97,9 @@ import { useRouter } from "next/navigation";
 import RichTextArea from "@/components/TestArea";
 import RichTextEditor from "@/components/TestArea";
 import { SyncTodoTemplate } from "@/actions/todoTemplate/queries";
+import TaskCard from "./TaskCard";
+import { FaUser } from "react-icons/fa6";
+import UserImage from "./AvatarGroup";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
 function SafeHTML({ html }: { html: string }) {
   const cleanHTML = DOMPurify.sanitize(html);
@@ -170,7 +173,7 @@ export default function TodoForm({
   const [isOpenEditForm, setisOpenEditForm] = useState(false);
   const [editTodoFormData, setEditTodoFormData] = useState<any>(null);
   const [todoDetails, setTodoDetails] = useState<any>(null);
-
+  const [listView, setListView] = useState<string>("list");
   const openSubDialog = (sub: any) => {
     setSelectedSub(sub);
     setOpenDialog(true);
@@ -192,9 +195,8 @@ export default function TodoForm({
       setUserRole(response?.userRole);
       console.log(data, "tododdodDataa");
       setTodos(data || []);
-      const todoData = response?.data
+      const todoData = response?.data;
       // await SyncTodoTemplate(todoData, campaignId)
-
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
@@ -512,7 +514,6 @@ export default function TodoForm({
         attachments: uploadedFiles,
       });
 
-
       if (!res.success) {
         toast.error("Failed to update subtask ❌");
         return;
@@ -652,73 +653,76 @@ export default function TodoForm({
     };
 
     return (
-      <li
-        ref={setNodeRef}
-        style={style}
-        className="flex shadow-md justify-between items-center gap-3 bg-gray-50 hover:bg-gray-100 p-2 rounded text-sm border border-gray-300 ml-5"
-      >
-        {/* Left side: handle + title */}
-        <div className="flex items-center gap-2">
-          {/* ✅ Drag handle only */}
-          <span
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing text-gray-400"
-          >
-            <GripVertical className="h-4 w-4" />
-          </span>
-
-          <span
-            className={`${
-              sub.status === "Completed"
-                ? "line-through text-gray-400"
-                : "text-gray-800"
-            }`}
-          >
-            <span
-              className="cursor-pointer"
-              onClick={() => handleOpenSubTodoDetails(sub)}
+      <>
+        <li
+          ref={setNodeRef}
+          style={style}
+          className="flex justify-between items-center gap-3  rounded text-sm ml-5"
+        >
+          {/* Left side: handle + title */}
+          <div className="flex items-center gap-2">
+            {/* ✅ Drag handle only */}
+            {/* <span
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing text-gray-400"
             >
-              {sub.title}
+              <GripVertical className="h-4 w-4 text-orange-500" />
+            </span> */}
+
+            <span
+              className={`${
+                sub.status === "Completed"
+                  ? "line-through text-gray-400"
+                  : "text-gray-800"
+              }`}
+            >
+              <span
+                className="cursor-pointer flex text-[17px] items-center gap-2 "
+                onClick={() => handleOpenSubTodoDetails(sub)}
+              >
+                <FaRegCircle className="text-[#FFB900] " /> {sub.title}{" "}
+                <UserImage />
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
 
-        {/* Right side: status + buttons */}
-        <div className="flex gap-2 items-center">
-          <span
-            className={`text-xs ${
-              sub.status === "Completed"
-                ? "text-green-600"
-                : sub.status === "In Progress"
-                  ? "text-orange-600"
-                  : "text-gray-600"
-            }`}
-          >
-            {sub.status}
-          </span>
+          {/* Right side: status + buttons */}
+          <div className="flex gap-2 items-center">
+            <span
+              className={`text-xs ${
+                sub.status === "Completed"
+                  ? "text-green-600"
+                  : sub.status === "In Progress"
+                    ? "text-orange-600"
+                    : "text-gray-600"
+              }`}
+            >
+              {sub.status}
+            </span>
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="p-1 hover:bg-gray-200 rounded"
-          >
-            <FaEdit className="h-4 w-4 text-blue-600" />
-          </button>
-          {/* {todo.isTempDisabled ? " text-gray-300" : ""} */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-1 hover:bg-gray-200 rounded"
-          >
-            <Trash2 className="h-4 w-4 text-red-600" />
-          </button>
-        </div>
-      </li>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="p-1 hover:bg-gray-200 rounded"
+            >
+              <FaEdit className="h-4 w-4 text-[#363636]" />
+            </button>
+            {/* {todo.isTempDisabled ? " text-gray-300" : ""} */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="p-1 hover:bg-gray-200 rounded"
+            >
+              <Trash2 className="h-4 w-4 text-red-600" />
+            </button>
+          </div>
+        </li>
+      </>
     );
   }
 
@@ -743,19 +747,19 @@ export default function TodoForm({
       <div
         ref={setNodeRef}
         style={style}
-        className={` relative rounded-md mb-2 bg-gray-50 hover:bg-gray-100shadow-sm}`}
+        className={` relative rounded-md mb-2 bg-gray-50 hover:bg-gray-100 shadow-sm}`}
       >
         {/* Drag handle area */}
         <div
           {...attributes}
           {...listeners}
-          className="flex absolute top-4 left-0 z-30 items-center gap-2 cursor-grab active:cursor-grabbing  px-2 py-1 text-gray-500"
+          className="flex absolute top-4 -left-2 z-30 items-center gap-2 cursor-grab active:cursor-grabbing  px-2 py-1 text-white"
         >
           <GripVertical className="h-4 w-4" />
           {/* <span className="text-sm text-gray-700">Drag</span> */}
         </div>
         {/* Actual Todo accordion */}
-        <div className="relative pl-6">{children}</div>
+        <div className="relative">{children}</div>
       </div>
     );
   }
@@ -868,49 +872,113 @@ export default function TodoForm({
     const newFiles = [...uploadsFiles, ...files];
     setUploadsFiles(newFiles);
   };
-  
-  const removeFileupload =(file: any) => {
-    console.log(file,"filetoRemove")
+
+  const removeFileupload = (file: any) => {
+    console.log(file, "filetoRemove");
     //     [
-      //     {
-        //         "name": "favicon.png"
-        //     }
-        // ]
-  
-        
-        const newFiles = uploadsFiles.filter((f: any) =>  f.name !== file[0].name );
-        setUploadsFiles(newFiles);
-      }
-      console.log(uploadsFiles, " 🚫remove now logs the correct updated remo");
+    //     {
+    //         "name": "favicon.png"
+    //     }
+    // ]
+
+    const newFiles = uploadsFiles.filter((f: any) => f.name !== file[0].name);
+    setUploadsFiles(newFiles);
+  };
   return (
     <>
+      {/* {progress sections} */}
+      <div className="w-full flex-col items-center justify-center mb-6">
+        <div className="flex justify-center mb-2">
+          <img src="../../../../images/Todo/meter 1.png" alt="meter" />
+        </div>
+        <h2 className="text-2xl font-semibold text-center">Our progress</h2>
+      </div>
       <div className=" px-5 mt-8">
-        <div className="flex justify-end mb-4">
+        {/* <div className="flex justify-end mb-4">
           <SaveTemplateDialog todos={todos} campaignId={campaignId}  />
           <ImportTemplateDialog
             campaignId={campaignId}
             template={templates}
             fetchTodo={fetchTodo}
           />
-          {/* <Button
+          <Button
+            className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm ml-4"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            + Import Template
+          </Button>
+        </div> */}
+
+        <div className="flex items-start justify-between mt-10 relative">
+          <button
+            onClick={() => setShowAddForm(true)}
+            className=" text-white bg-[#20364B] hover:bg-[#30506e] border rounded-full px-10 py-2 text-sm"
+          >
+            + New Task
+          </button>
+          <h1 className="text-2xl font-semibold text-center">To-Do Board</h1>
+
+          <div className="flex justify-end gap-3 mb-4">
+            <SaveTemplateDialog todos={todos} campaignId={campaignId} />
+            <ImportTemplateDialog
+              campaignId={campaignId}
+              template={templates}
+              fetchTodo={fetchTodo}
+            />
+
+            {/* <Button
             className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm ml-4"
             onClick={() => setShowAddForm(!showAddForm)}
           >
             + Import Template
           </Button> */}
+            <div>
+              <Select value={listView} onValueChange={setListView}>
+                <SelectTrigger
+                  className="
+        bg-[#20364B]
+        hover:bg-[#000000] 
+        text-white 
+        rounded-full 
+        
+        border
+        px-10 
+        py-5 
+            
+        shadow-none 
+        w-auto
+      "
+                >
+                  <SelectValue placeholder="Select View" />
+                </SelectTrigger>
+
+                <SelectContent className="rounded-xl bg-white shadow-lg border border-gray-200">
+                  <SelectItem value="list">List View</SelectItem>
+                  <SelectItem value="card">Card View</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center justify-between mb-6 relative">
-          <Button
-            className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm"
+        {/* <div className="flex items-start justify-between  relative">
+          
+
+          <div className="flex justify-end gap-3 mb-4">
+            <SaveTemplateDialog todos={todos} campaignId={campaignId}  />
+          <ImportTemplateDialog
+            campaignId={campaignId}
+            template={templates}
+            fetchTodo={fetchTodo}
+          />
+
+            <Button
+            className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm ml-4"
             onClick={() => setShowAddForm(!showAddForm)}
           >
-            + New Task
+            + Import Template
           </Button>
-
-          <h1 className="text-2xl font-semibold absolute left-1/2 -translate-x-1/2">
-            To-Do Board
-          </h1>
-        </div>
+          </div>
+        </div> */}
 
         {/* {showAddForm && (
           <div className="mb-6 p-4 border rounded-xl shadow-sm bg-gray-50">
@@ -938,7 +1006,7 @@ export default function TodoForm({
             </DialogContent>
           </Dialog>
         )}
-        <hr />
+        <hr className="my-5" />
         {/* <TodoAccordion deleteTodo={deleteTodo} todos={todos} /> */}
         {todoLoading ? (
           // ✅ Loading UI
@@ -964,313 +1032,167 @@ export default function TodoForm({
           </div>
         ) : (
           <>
-            {/* <div className="max-h-[550px]  overflow-y-auto pr-2 custom-scrollbar"> */}
-            <div className="">
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={(event) => {
-                  const { active, over } = event;
-                  if (!over || active.id === over.id) return;
+            {listView === "card" ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {todoList.map((todo) => (
+                    <TaskCard
+                      key={todo.id}
+                      todo={todo}
+                      openSubTodoForm={openSubTodoForm}
+                      openTodoEditForm={openTodoEditForm}
+                      deleteTodo={deleteTodo}
+                      handleSwitchDisabledChange={handleSwitchDisabledChange}
+                      openSubDialog={openSubDialog}
+                      handleDeleteSub={handleDeleteSub}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(event) => {
+                      const { active, over } = event;
+                      if (!over || active.id === over.id) return;
 
-                  const oldIndex = todoList.findIndex(
-                    (t) => t.id === active.id
-                  );
-                  const newIndex = todoList.findIndex((t) => t.id === over.id);
-                  const reordered = reorderList(todoList, oldIndex, newIndex);
-                  setTodoList(reordered);
+                      const oldIndex = todoList.findIndex(
+                        (t) => t.id === active.id
+                      );
+                      const newIndex = todoList.findIndex(
+                        (t) => t.id === over.id
+                      );
 
-                  // optional: call API to persist new order
-                  // await saveReorderedTodos(reordered)
-                }}
-              >
-                <SortableContext
-                  items={todoList.map((t) => t.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <Accordion
-                    type="multiple"
-                    value={openItems}
-                    onValueChange={setOpenItems}
-                    className="w-full space-y-2"
+                      const reordered = reorderList(
+                        todoList,
+                        oldIndex,
+                        newIndex
+                      );
+                      setTodoList(reordered);
+                    }}
                   >
-                    {todoList.map((todo: any) => (
-                      <SortableTodo key={todo.id} todo={todo}>
-                        <AccordionItem className="my-4" value={todo.id}>
-                          <AccordionTrigger
-                            className={`${todo.isTempDisabled ? " text-gray-300" : ""} hover:none text-base bg-gray-100 [&>svg]:hidden font-semibold`}
-                          >
-                            <span
-                              onClick={() => {
-                                handleOpenTodoDetails(todo);
-                              }}
-                            >
-                              {todo.title}
-                              {todo.isTempDisabled && "🚫"}
-                            </span>
-                            <p className="text-sm text-gray-700 mb-2">
-                              {todo.description}
-                            </p>
-                            <div className="flex pr-4  gap-3">
-                              <BsPlus
-                                className="h-4 w-4 text-green-600 cursor-pointer"
-                                onClick={() => openSubTodoForm(todo.id)}
-                              />
+                    <SortableContext
+                      items={todoList.map((t) => t.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-4">
+                        {todoList.map((todo: any) => (
+                          <SortableTodo key={todo.id} todo={todo}>
+                            <div className="bg-[#F0F8FF] text-black border-b shodow-xl rounded-2xl p-4">
+                              {/* HEADER (Title, Desc + Actions) */}
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <h3
+                                    className="font-semibold text-2xl cursor-pointer"
+                                    onClick={() => handleOpenTodoDetails(todo)}
+                                  >
+                                    {todo.title} {todo.isTempDisabled && "🚫"}
+                                  </h3>
+                                  <p className="text-sm text-gray-300">
+                                    {todo.description}
+                                  </p>
+                                </div>
 
-                              <MdEdit
-                                className="h-4 w-4 text-blue-500 cursor-pointer"
-                                onClick={() => openTodoEditForm(todo)}
-                              />
+                                <div className="flex gap-3">
+                                  <BsPlus
+                                    className="h-5 w-5 text-black cursor-pointer"
+                                    onClick={() => openSubTodoForm(todo.id)}
+                                  />
 
-                              <Switch
-                                title="Disable Todo"
-                                checked={todo.isTempDisabled}
-                                onCheckedChange={(checked) =>
-                                  handleSwitchDisabledChange(checked, todo)
-                                }
-                                className=" h-4 w-7 transition-all duration-200
-                                data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-gray-300
-                                [&>span]:h-3 [&>span]:w-3 [&>span]:transition-all [&>span]:duration-200
-                                [&>span]:data-[state=checked]:translate-x-3.5
-                              "
-                              />
+                                  <MdEdit
+                                    className="h-4 w-4 text-black cursor-pointer"
+                                    onClick={() => openTodoEditForm(todo)}
+                                  />
 
-                              {userRole === 2 && (
-                                <BsTrash2
-                                  className="h-4 w-4 text-red-500 cursor-pointer"
-                                  onClick={() => deleteTodo(todo.id)}
-                                />
+                                  <Switch
+                                    title="Disable Todo"
+                                    checked={todo.isTempDisabled}
+                                    onCheckedChange={(checked) =>
+                                      handleSwitchDisabledChange(checked, todo)
+                                    }
+                                    className="h-4 w-7 data-[state=checked]:bg-orange-500 
+                      data-[state=unchecked]:bg-gray-400 
+                      [&>span]:h-3 [&>span]:w-3 
+                      [&>span]:data-[state=checked]:translate-x-3.5"
+                                  />
+
+                                  {userRole === 2 && (
+                                    <BsTrash2
+                                      className="h-4 w-4 text-[#FFB900] cursor-pointer"
+                                      onClick={() => deleteTodo(todo.id)}
+                                    />
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* SUBTASK LIST */}
+                              {todo.subtodos?.length > 0 ? (
+                                <DndContext
+                                  sensors={sensors}
+                                  collisionDetection={closestCenter}
+                                  onDragEnd={(event) =>
+                                    handleDragEnd(todo.id, event)
+                                  }
+                                >
+                                  <SortableContext
+                                    items={todo.subtodos.map(
+                                      (s: { _id: string }) => s._id
+                                    )}
+                                    strategy={verticalListSortingStrategy}
+                                  >
+                                    <ul className="mt-3 space-y-2">
+                                      {todo.subtodos.map((sub: any) => (
+                                        <div key={sub._id}>
+                                          <SortableSubtask
+                                            sub={sub}
+                                            onEdit={() => openSubDialog(sub)}
+                                            onDelete={() =>
+                                              handleDeleteSub(sub._id)
+                                            }
+                                          />
+                                        </div>
+                                      ))}
+                                    </ul>
+                                  </SortableContext>
+
+                                  <Button
+                                    className="mt-3 bg-[#FFB900] hover:bg-[#ffd256] 
+                    text-black rounded-full px-3 py-1 text-xs"
+                                    onClick={() => setOpenSubTodoDialog(true)}
+                                  >
+                                    + Add Subtodo
+                                  </Button>
+                                </DndContext>
+                              ) : (
+                                <p className="text-xs ml-5 mt-2 text-gray-400">
+                                  No subtasks
+                                </p>
                               )}
                             </div>
-                          </AccordionTrigger>
-
-                          <AccordionContent>
-                            {todo.subtodos?.length > 0 ? (
-                              <DndContext
-                                sensors={sensors}
-                                collisionDetection={closestCenter}
-                                onDragEnd={(event) =>
-                                  handleDragEnd(todo.id, event)
-                                }
-                              >
-                                <SortableContext
-                                  items={todo.subtodos.map(
-                                    (s: { _id: string }) => s._id
-                                  )}
-                                  strategy={verticalListSortingStrategy}
-                                >
-                                  <ul className="space-y-2 ">
-                                    {todo.subtodos.map((sub: any) => (
-                                      <div key={sub._id}>
-                                        <SortableSubtask
-                                          sub={sub}
-                                          onEdit={() => openSubDialog(sub)}
-                                          onDelete={() =>
-                                            handleDeleteSub(sub._id)
-                                          }
-                                        />
-                                      </div>
-                                    ))}
-                                  </ul>
-                                </SortableContext>
-                              </DndContext>
-                            ) : (
-                              <p className="text-xs text-gray-500">
-                                No subtasks
-                              </p>
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                      </SortableTodo>
-                    ))}
-                  </Accordion>
-                </SortableContext>
-              </DndContext>
-            </div>
+                          </SortableTodo>
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                </div>
+              </>
+            )}
           </>
         )}
         <></>
       </div>
 
       {/* ✅ edit SubTask Dialog */}
-      {/* <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 space-y-6 max-w-lg transition-all">
-          <div className="flex items-center justify-between border-b pb-3">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Sub-Task Details
-            </h2>
-          </div>
 
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Title
-            </label>
-            {isEditingTitle ? (
-              <Textarea
-                value={subtaskTitle}
-                onChange={(e) => setSubtaskTitle(e.target.value)}
-                onBlur={() => setIsEditingTitle(false)}
-                autoFocus
-                className="resize-none font-semibold text-gray-800 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-              />
-            ) : (
-              <div
-                onClick={() => setIsEditingTitle(true)}
-                className="cursor-pointer font-semibold text-gray-900 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
-              >
-                {subtaskTitle || "Click to add title..."}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            {isEditingDesc ? (
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                onBlur={() => setIsEditingDesc(false)}
-                autoFocus
-                placeholder="Edit description..."
-                className="resize-none min-h-[90px] text-gray-800 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            ) : (
-              <div
-                onClick={() => setIsEditingDesc(true)}
-                className="cursor-pointer text-gray-700 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
-              >
-                {description || "Click to add description..."}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Status
-            </label>
-            <Select
-              value={statusChange}
-              onValueChange={(value) => setStatusChange(value)}
-            >
-              <SelectTrigger className="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                <SelectValue placeholder="Select Status" />
-              </SelectTrigger>
-              <SelectContent className="bg-white shadow-md border border-gray-200 rounded-lg">
-                <SelectItem value="Pending">🕒 Pending</SelectItem>
-                <SelectItem value="In Progress">⚙️ Work In Progress</SelectItem>
-                <SelectItem value="Completed">✅ Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Comment
-            </label>
-            {isEditingComment ? (
-              <Textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                onBlur={() => setIsEditingComment(false)}
-                autoFocus
-                placeholder="Write a comment..."
-                className="resize-none min-h-[80px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-            ) : (
-              <div
-                onClick={() => setIsEditingComment(true)}
-                className="cursor-pointer text-gray-700 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
-              >
-                {comment || "Click to add a comment..."}
-              </div>
-            )}
-          </div>
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Attach Files / Photos
-            </label>
-
-            <div
-              {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition ${
-                isDragActive
-                  ? "border-indigo-400 bg-indigo-50"
-                  : "border-gray-300 hover:border-indigo-400 hover:bg-gray-50"
-              }`}
-            >
-              <input {...getInputProps()} />
-              <Upload className="mx-auto mb-2 h-6 w-6 text-gray-400" />
-              <p className="text-sm text-gray-600">
-                {isDragActive
-                  ? "Drop the files here..."
-                  : "Drag & drop or click to upload"}
-              </p>
-            </div>
-
-            {files.length > 0 && (
-              <ul className="mt-3 space-y-2">
-                {files.map((file) => (
-                  <li
-                    key={file.name}
-                    className="flex items-center justify-between bg-gray-100 p-2 rounded-md text-sm text-gray-700"
-                  >
-                    <div className="flex items-center gap-2">
-                      {file.type.startsWith("image/") && (
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={file.name}
-                          className="h-8 w-8 object-cover rounded"
-                        />
-                      )}
-                      <span className="truncate max-w-[200px]">
-                        {file.name}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => removeFile(file)}
-                      className="text-gray-400 hover:text-red-500 transition"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="flex items-center justify-end gap-3 pt-4 border-t">
-            <Button
-              variant="outline"
-              onClick={() => setOpenDialog(false)}
-              className="rounded-lg border-gray-300 hover:bg-gray-100"
-            >
-              Close
-            </Button>
-            <Button
-              className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg"
-              onClick={() =>
-                handleSubEditSave({
-                  id: selectedSub._id,
-                  status: statusChange,
-                  description,
-                  comment,
-                  subtaskTitle,
-                })
-              }
-            >
-              Save
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog> */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="bg-white rounded-2xl shadow-xl border border-gray-100 p-0 max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden">
           {/* 🧭 Header */}
           <div className="flex items-center justify-between border-b px-6 py-4">
             <h2 className="text-xl font-semibold text-gray-900">
-             📝 Sub-Task Details
+              📝 Sub-Task Details
             </h2>
           </div>
 
@@ -1404,7 +1326,7 @@ export default function TodoForm({
                   onClick={() => setIsEditingComment(true)}
                   className="cursor-pointer text-gray-700 bg-gray-50 hover:bg-gray-100 transition rounded-lg p-2 border border-transparent hover:border-gray-200"
                 >
-                 <SafeHTML html={comment} />
+                  <SafeHTML html={comment} />
                 </div>
               )}
             </div>
@@ -1641,46 +1563,46 @@ export default function TodoForm({
 
       {/* ✅ View Todo Dialog */}
       <Dialog open={openTodo} onOpenChange={setOpenTodo}>
-  <DialogContent className="bg-white rounded-2xl shadow-xl border border-orange-100 max-w-md sm:max-w-lg p-6 sm:p-8 transition-all">
-    {/* Header */}
-    <DialogHeader className="border-b border-orange-100 pb-3">
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-xs uppercase text-orange-500 tracking-wider font-semibold">
-            Title
-          </h2>
-          <DialogTitle
-            className={`text-xl font-bold mt-1 ${
-              todoDetails?.completed === "completed"
-                ? "line-through text-gray-400"
-                : "text-gray-900"
-            }`}
-          >
-            {todoDetails?.title || "Untitled Todo"}
-          </DialogTitle>
-        </div>
-      </div>
-    </DialogHeader>
+        <DialogContent className="bg-white rounded-2xl shadow-xl border border-orange-100 max-w-md sm:max-w-lg p-6 sm:p-8 transition-all">
+          {/* Header */}
+          <DialogHeader className="border-b border-orange-100 pb-3">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-xs uppercase text-orange-500 tracking-wider font-semibold">
+                  Title
+                </h2>
+                <DialogTitle
+                  className={`text-xl font-bold mt-1 ${
+                    todoDetails?.completed === "completed"
+                      ? "line-through text-gray-400"
+                      : "text-gray-900"
+                  }`}
+                >
+                  {todoDetails?.title || "Untitled Todo"}
+                </DialogTitle>
+              </div>
+            </div>
+          </DialogHeader>
 
-    {/* Description */}
-    <div className="mt-5">
-      <h3 className="text-sm font-semibold text-orange-500 uppercase tracking-wide mb-1">
-        Description
-      </h3>
+          {/* Description */}
+          <div className="mt-5">
+            <h3 className="text-sm font-semibold text-orange-500 uppercase tracking-wide mb-1">
+              Description
+            </h3>
 
-      {todoDetails?.desc ? (
-        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed bg-orange-50/40 border border-orange-100 rounded-md p-3">
-          <SafeHTML html={todoDetails.desc} />
-        </div>
-      ) : (
-        <p className="text-gray-500 italic text-sm bg-orange-50/30 border border-dashed border-orange-100 rounded-lg p-4">
-          No description provided.
-        </p>
-      )}
-    </div>
+            {todoDetails?.desc ? (
+              <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed bg-orange-50/40 border border-orange-100 rounded-md p-3">
+                <SafeHTML html={todoDetails.desc} />
+              </div>
+            ) : (
+              <p className="text-gray-500 italic text-sm bg-orange-50/30 border border-dashed border-orange-100 rounded-lg p-4">
+                No description provided.
+              </p>
+            )}
+          </div>
 
-    {/* Status & Meta Info */}
-    {/* <div className="mt-6 border-t border-orange-100 pt-4 flex items-center justify-between text-sm">
+          {/* Status & Meta Info */}
+          {/* <div className="mt-6 border-t border-orange-100 pt-4 flex items-center justify-between text-sm">
       <span
         className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
           todoDetails?.completed === "completed"
@@ -1704,123 +1626,125 @@ export default function TodoForm({
           : "N/A"}
       </span>
     </div> */}
-  </DialogContent>
-</Dialog>
-
+        </DialogContent>
+      </Dialog>
 
       {/* subTodo dilaog view */}
-     
+
       <Dialog open={openSubTodoView} onOpenChange={setOpenSubTodoView}>
-  <DialogContent className="bg-white gap-0 rounded-2xl shadow-lg border border-orange-200 p-6">
-    {/* Header Section */}
-    <DialogHeader className="flex flex-col border-b border-orange-100 pb-3">
-      <h2 className="text-xs uppercase text-orange-500 tracking-wider font-semibold">
-        Title
-      </h2>
-      <DialogTitle className="text-xl font-bold text-gray-900">
-        {subTodoDetails?.title || "Untitled Sub-Task"}
-      </DialogTitle>
-    </DialogHeader>
+        <DialogContent className="bg-white gap-0 rounded-2xl shadow-lg border border-orange-200 p-6">
+          {/* Header Section */}
+          <DialogHeader className="flex flex-col border-b border-orange-100 pb-3">
+            <h2 className="text-xs uppercase text-orange-500 tracking-wider font-semibold">
+              Title
+            </h2>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              {subTodoDetails?.title || "Untitled Sub-Task"}
+            </DialogTitle>
+          </DialogHeader>
 
-    {/* Description */}
-    <div className="mt-5">
-      <h3 className="text-sm font-semibold text-orange-500 uppercase tracking-wide">
-        Sub-Task
-      </h3>
-      <p className="text-gray-700 text-sm mt-1 leading-relaxed bg-orange-50/50 p-3 rounded-md border border-orange-100">
-        {subTodoDetails?.description || "No description provided."}
-      </p>
-    </div>
-
-    {/* Comment */}
-    <div className="mt-5">
-      <h3 className="text-sm font-semibold text-orange-500 uppercase tracking-wide">
-        Comment
-      </h3>
-      <div className="text-gray-700 text-sm mt-1 leading-relaxed bg-orange-50/50 p-3 rounded-md border border-orange-100">
-        <SafeHTML html={subTodoDetails?.comment || "No comment available."} />
-      </div>
-    </div>
-
-    {/* Attachments Section */}
-    {Array.isArray(subTodoDetails?.commentsImgs) &&
-      subTodoDetails.commentsImgs.length > 0 && (
-        <div className="mt-6">
-          <div className="flex items-center gap-2 mb-3">
+          {/* Description */}
+          <div className="mt-5">
             <h3 className="text-sm font-semibold text-orange-500 uppercase tracking-wide">
-              Attachments
+              Sub-Task
             </h3>
-            <div className="h-[1px] bg-orange-200 flex-1" />
+            <p className="text-gray-700 text-sm mt-1 leading-relaxed bg-orange-50/50 p-3 rounded-md border border-orange-100">
+              {subTodoDetails?.description || "No description provided."}
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {subTodoDetails.commentsImgs.map((img: string, index: number) => (
-              <div
-                key={index}
-                className="relative group rounded-xl overflow-hidden border border-orange-100 bg-orange-50 hover:shadow-md transition"
-              >
-                <img
-                  src={img}
-                  alt={`Attachment ${index + 1}`}
-                  className="h-28 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+          {/* Comment */}
+          <div className="mt-5">
+            <h3 className="text-sm font-semibold text-orange-500 uppercase tracking-wide">
+              Comment
+            </h3>
+            <div className="text-gray-700 text-sm mt-1 leading-relaxed bg-orange-50/50 p-3 rounded-md border border-orange-100">
+              <SafeHTML
+                html={subTodoDetails?.comment || "No comment available."}
+              />
+            </div>
+          </div>
 
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
-                  {/* Download */}
-                  <button
-                    onClick={() => handleDownloadImage(img)}
-                    className="p-2 bg-white rounded-full hover:bg-orange-100 transition"
-                    title="Download"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-5 h-5 text-orange-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
-                      />
-                    </svg>
-                  </button>
+          {/* Attachments Section */}
+          {Array.isArray(subTodoDetails?.commentsImgs) &&
+            subTodoDetails.commentsImgs.length > 0 && (
+              <div className="mt-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-sm font-semibold text-orange-500 uppercase tracking-wide">
+                    Attachments
+                  </h3>
+                  <div className="h-[1px] bg-orange-200 flex-1" />
+                </div>
 
-                  {/* Delete */}
-                  <button
-                    onClick={() =>
-                      handleDeleteImage(img, subTodoDetails?._id)
-                    }
-                    className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition"
-                    title="Delete Image"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-5 h-5 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {subTodoDetails.commentsImgs.map(
+                    (img: string, index: number) => (
+                      <div
+                        key={index}
+                        className="relative group rounded-xl overflow-hidden border border-orange-100 bg-orange-50 hover:shadow-md transition"
+                      >
+                        <img
+                          src={img}
+                          alt={`Attachment ${index + 1}`}
+                          className="h-28 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
+                          {/* Download */}
+                          <button
+                            onClick={() => handleDownloadImage(img)}
+                            className="p-2 bg-white rounded-full hover:bg-orange-100 transition"
+                            title="Download"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-5 h-5 text-orange-600"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"
+                              />
+                            </svg>
+                          </button>
+
+                          {/* Delete */}
+                          <button
+                            onClick={() =>
+                              handleDeleteImage(img, subTodoDetails?._id)
+                            }
+                            className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition"
+                            title="Delete Image"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-5 h-5 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-  </DialogContent>
-</Dialog>
-
+            )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

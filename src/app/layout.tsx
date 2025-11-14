@@ -1,3 +1,6 @@
+
+
+
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -9,9 +12,13 @@ import { CampaignDataProvider } from "@/app/context/CampaignContext";
 import SessionExpiredDialog from "@/components/Common/SessionExpiredDialog";
 import { LanguageProvider } from "./context/LanguageContext";
 
+import { Montserrat } from "next/font/google";
 
-
-
+// ✅ Add Montserrat
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+});
 
 
 export const metadata: Metadata = {
@@ -21,6 +28,7 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
   },
 };
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,7 +36,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={` antialiased  relative `}>
+      {/* ✅ Apply font to entire app */}
+      <body className={`${montserrat.className} antialiased relative`}>
         <CampaignDataProvider>
           <LanguageProvider>
             <Loader />

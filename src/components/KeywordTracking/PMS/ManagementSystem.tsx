@@ -26,7 +26,7 @@ const items = [
     title: "Docs",
     icon: <FaRegFileAlt className="text-4xl text-[#FFB900]" />,
     desc: "Create tasks, assign work, and track progress easily.",
-    type: "todo",
+    type: "docs",
   },
 ];
 

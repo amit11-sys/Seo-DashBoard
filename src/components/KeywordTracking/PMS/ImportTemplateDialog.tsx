@@ -63,12 +63,12 @@ export function ImportTemplateDialog({
     });
     // setLoading(false);
 
-    if (res.success) {
-      toast.success(res.message);
+    if (res?.success) {
+      toast.success(res?.message);
       fetchTodo();
       setOpen(false);
     } else {
-      toast.error(res.message || "Failed to import todos");
+      toast.error(res?.message || "Failed to import todos");
     }
   };
   console.log(templates);
@@ -97,7 +97,7 @@ export function ImportTemplateDialog({
             <SelectTrigger className="w-full mt-1">
               <SelectValue placeholder="Choose a template" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {templates.map((t) => (
                 <SelectItem key={t._id} value={t._id}>
                   {t.title}

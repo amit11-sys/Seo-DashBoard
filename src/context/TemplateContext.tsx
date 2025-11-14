@@ -48,59 +48,59 @@ export const TemplateProvider = ({ children, initialTemplates = [] }: { children
 
   // ✅ Save new template and update state
   const addTemplate = useCallback(async (todos: any[], name: string, description: string) => {
-    console.log(todos, 'abe chl');
+    console.log(todos, name,description, 'abe chl');
     
-    // if (!name.trim()) return toast.error("Please enter a template name");
-    // if (!todos.length) return toast.error("No todos to save as template");
+    if (!name.trim()) return toast.error("Please enter a template name");
+    if (!todos.length) return toast.error("No todos to save as template");
 
-    // try {
-    //   setLoading(true);
-    //   const res = await saveTodoAsTemplate({ todos, templateTitle: name, templateDescription: description });
-    //   if (res?.success && res?.template) {
-    //     setTemplates((prev:any) => [res.template, ...prev]);
-    //     toast.success("Template saved successfully");
-    //   } else {
-    //     toast.error(res?.message || "Failed to save template");
-    //   }
-    // } catch (err) {
-    //   console.error("Error saving template:", err);
-    //   toast.error("Error saving template");
-    // } finally {
-    //   setLoading(false);
-    // }
-     if (todos.length === 0) {
-          toast.error("No todos to save as template");
-          return;
-        }
-        if (!name.trim()) {
-          toast.error("Template name is required");
-          return;
-        }
+    try {
+      setLoading(true);
+      const res = await saveTodoAsTemplate({ todos, templateTitle: name, templateDescription: description });
+      if (res?.success && res?.template) {
+        setTemplates((prev:any) => [res.template, ...prev]);
+        toast.success("Template saved successfully");
+      } else {
+        toast.error(res?.message || "Failed to save template");
+      }
+    } catch (err) {
+      console.error("Error saving template:", err);
+      toast.error("Error saving template");
+    } finally {
+      setLoading(false);
+    }
+    //  if (todos.length === 0) {
+    //       toast.error("No todos to save as template");
+    //       return;
+    //     }
+    //     if (!name.trim()) {
+    //       toast.error("Template name is required");
+    //       return;
+    //     }
     
-        const formattedTodos = todos.map((t) => ({
-          title: t.title,
-          description: t.desc || "",
-          subtodo: t.subtodos.map((sub:any) => ({
-            title: sub.title,
-            description: sub.description || "",
-          })),
-        }));
-    console.log(formattedTodos, 'abe');
+        // const formattedTodos = todos.map((t) => ({
+        //   title: t.title,
+        //   description: t.desc || "",
+        //   subtodo: t.subtodos.map((sub:any) => ({
+        //     title: sub.title,
+        //     description: sub.description || "",
+        //   })),
+        // }));
+    // console.log(formattedTodos, 'abe');
     
         // setLoading(true);
-        const res = await saveTodoAsTemplate({
-          todos: formattedTodos,
-          templateTitle: name,
-          templateDescription: description,
-        });
+        // const res = await saveTodoAsTemplate({
+        //   todos: todos,
+        //   templateTitle: name,
+        //   templateDescription: description,
+        // });
         // setLoading(false);
     
-        if (res.success) {
-          toast.success("Template saved successfully!");
-    setTemplates((prev:any) => [res.template, ...prev]);
-        } else {
-          toast.error(res.message || "Failed to save template");
-        }
+    //     if (res.success) {
+    //       toast.success("Template saved successfully!");
+    // setTemplates((prev:any) => [res.template, ...prev]);
+    //     } else {
+    //       toast.error(res.message || "Failed to save template");
+    //     }
   }, []);
 
   return (

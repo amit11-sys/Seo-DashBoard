@@ -5,6 +5,9 @@ import { connectToDB } from "@/lib/db";
 import Message from "@/lib/models/message.model";
 import Todo from "@/lib/models/todo.model";
 import User from "@/lib/models/user.model";
+import fs from "fs";
+import path from "path";
+
 interface SaveMessageParams {
   campaignId: string;
   msgTitle: string;
@@ -119,7 +122,7 @@ export const Messages = async (campaignId: string) => {
     };
   }
 };
-export const Todos = async (campaignId: string) => {
+export const Todos = async (campaignId: string, todoId?: string) => {
   try {
     await connectToDB();
 
@@ -130,6 +133,7 @@ export const Todos = async (campaignId: string) => {
         error: "Unauthorized. Please login.",
       };
     }
+   
     const userData = await User.findById({ _id: user.id });
 
     // const { msgTitle, msgDescription, campaignId } = data;
@@ -150,6 +154,7 @@ export const Todos = async (campaignId: string) => {
       success: true,
       message: "Message fetched successfully",
       data: newTodo,
+      userRole: userData?.role,
     };
   } catch (error: any) {
     console.error("Error saving message:", error);
@@ -201,6 +206,55 @@ export const saveTodos = async (data: SaveTodoParams) => {
     };
   }
 };
+
+/**
+ * Deletes one or more files from /public/uploads safely
+ * @param filenames - string | string[]
+ */
+export async function deleteFilesAction(filenames: string | string[]) {
+  try {
+    const list = Array.isArray(filenames) ? filenames : [filenames];
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+
+    const deleted: string[] = [];
+    const notFound: string[] = [];
+    const errors: { name: string; error: string }[] = [];
+
+    for (const name of list) {
+      if (!name) continue;
+
+      // 🧩 Ensure no path traversal (security)
+      const safeName = path.basename(name);
+      const filePath = path.join(uploadDir, safeName);
+
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          deleted.push(safeName);
+        } else {
+          notFound.push(safeName);
+        }
+      } catch (err: any) {
+        errors.push({ name: safeName, error: err.message });
+      }
+    }
+
+    return {
+      success: true,
+      deleted,
+      notFound,
+      errors,
+      message: `Deleted ${deleted.length}, not found ${notFound.length}`,
+    };
+  } catch (err: any) {
+    console.error("Delete error:", err);
+    return {
+      success: false,
+      error: err.message || "Delete failed",
+    };
+  }
+}
+
 export const deleteTodos = async (todoId: string) => {
   try {
     await connectToDB();
@@ -212,6 +266,20 @@ export const deleteTodos = async (todoId: string) => {
         error: "Unauthorized. Please login.",
       };
     }
+    const todoData = await Todo.findById({ _id: todoId });
+
+    if (!todoData) {
+      throw new Error("Todo not found");
+    }
+
+    const subTodo = todoData.subtodo || [];
+
+    const allImageUrls = subTodo
+      .map((item: any) => item.commentsImgs || [])
+      .flat()
+      .filter((url: string) => typeof url === "string" && url.trim() !== "");
+
+    await deleteFilesAction(allImageUrls);
 
     const deleteTodo = await Todo.deleteOne({
       _id: todoId,
@@ -219,7 +287,7 @@ export const deleteTodos = async (todoId: string) => {
 
     return {
       success: true,
-      message: "todo fetched successfully",
+      message: "todo deleted successfully",
       data: deleteTodo,
     };
   } catch (error: any) {
@@ -230,6 +298,54 @@ export const deleteTodos = async (todoId: string) => {
     };
   }
 };
+export const todoTempDisabled = async (todoId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return {
+        success: false,
+        error: "Unauthorized. Please login.",
+      };
+    }
+
+    // Find the current todo
+    const todo = await Todo.findById({ _id: todoId });
+    // if (!todo) {
+    //   return {
+    //     success: false,
+    //     error: "Todo not found.",
+    //   };
+    // }
+    console.log(todo, "todoIndisable");
+
+    // Toggle the boolean value
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      todoId,
+      {
+        $set: {
+          isTempDisabled: !todo.isTempDisabled,
+        },
+      },
+      { new: true }
+    );
+    console.log(updatedTodo, "updateddistable");
+
+    return {
+      success: true,
+      message: `Todo updated successfully`,
+      data: updatedTodo,
+    };
+  } catch (error: any) {
+    console.error("Error toggling isTempDisabled:", error);
+    return {
+      success: false,
+      error: "Something went wrong while updating the todo.",
+    };
+  }
+};
+
 export const UserForTodos = async () => {
   try {
     await connectToDB();
@@ -241,8 +357,7 @@ export const UserForTodos = async () => {
         error: "Unauthorized. Please login.",
       };
     }
-    const assinedUSerData = await User.find({ parentAdminId: user.id });
-
+    const assinedUSerData = await User.find({ role: 3 });
     return {
       success: true,
       message: "todo fetched successfully",
@@ -320,12 +435,14 @@ export const editSubTodos = async ({
   description,
   comment,
   subtaskTitle,
+  attachments,
 }: {
   id: string;
   status: string;
   description: string;
   comment: string;
   subtaskTitle: string;
+  attachments: any;
 }) => {
   try {
     await connectToDB();
@@ -337,20 +454,35 @@ export const editSubTodos = async ({
         error: "Unauthorized. Please login.",
       };
     }
+    console.table({
+      id,
+      status,
+      description,
+      comment,
+      subtaskTitle,
+      ok: "all dataaa",
+    });
+    console.log(attachments, "attachmentsFile");
 
     // ✅ Update subtodo status in DB
-    const updatedTodo = await Todo.findOneAndUpdate(
-      { "subtodo._id": id, userid: user.id },
-      {
-        $set: {
-          "subtodo.$.status": status,
-          "subtodo.$.description": description,
-          "subtodo.$.comment": comment,
-          "subtodo.$.title": subtaskTitle,
-        },
-      },
-      { new: true }
-    );
+    // attachments : [ '/uploads/1762932792620-825140705-favicon.png' ]
+   const updatedTodo = await Todo.findOneAndUpdate(
+  { "subtodo._id": id, userid: user.id },
+  {
+    $set: {
+      "subtodo.$.status": status,
+      "subtodo.$.description": description,
+      "subtodo.$.comment": comment,
+      "subtodo.$.title": subtaskTitle,
+    },
+    $push: {
+      "subtodo.$.commentsImgs": { $each: attachments }, 
+    },
+  },
+  { new: true }
+);
+
+    console.log(updatedTodo, "testTdo");
 
     if (!updatedTodo) {
       return {
@@ -374,15 +506,15 @@ export const editSubTodos = async ({
 };
 export const editMainTodos = async ({
   id,
-  status,
+  // status,
   description,
-  comment,
+  // comment,
   subtaskTitle,
 }: {
   id: string;
-  status: string;
+  // status: string;
   description: string;
-  comment: string;
+  // comment: string;
   subtaskTitle: string;
 }) => {
   try {
@@ -395,9 +527,10 @@ export const editMainTodos = async ({
         error: "Unauthorized. Please login.",
       };
     }
+    console.table({ id, description, subtaskTitle, ok: "all dataaa" });
 
     // ✅ Update subtodo status in DB
-    const updatedTodo = await Todo.findOneAndUpdate(
+    const updatedTodo = await Todo.findByIdAndUpdate(
       { _id: id, userid: user.id },
       {
         $set: {
@@ -408,21 +541,22 @@ export const editMainTodos = async ({
       },
       { new: true }
     );
+    console.log(updatedTodo, "todoupdated");
 
     if (!updatedTodo) {
       return {
         success: false,
-        message: "Sub todo not found",
+        message: " todo not found",
       };
     }
 
     return {
       success: true,
-      message: "Sub todo marked as Completed successfully",
+      message: "todo marked as Completed successfully",
       data: updatedTodo,
     };
   } catch (error: any) {
-    console.error("Error updating sub todo:", error);
+    console.error("Error updating  todo:", error);
     return {
       success: false,
       error: "Something went wrong while updating.",
@@ -468,6 +602,102 @@ export const deleteSubTodos = async (subTodoId: string) => {
     return {
       success: false,
       error: "Something went wrong while deleting.",
+    };
+  }
+};
+// import fs from "fs";
+// import path from "path";
+// import { connectToDB } from "@/lib/mongodb";
+// import { getUserFromToken } from "@/lib/auth";
+// import Todo from "@/models/Todo"; // adjust import if needed
+
+export const deleteCommentImage = async (
+  imageUrl: string,
+  subTodoId: string
+) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return {
+        success: false,
+        error: "Unauthorized. Please login.",
+      };
+    }
+
+    // ✅ 2. Remove image from DB (inside subTodo.commentsImgs)
+    const updatedTodo = await Todo.findOneAndUpdate(
+      { userid: user.id, "subtodo._id": subTodoId },
+      {
+        $pull: {
+          "subtodo.$.commentsImgs": imageUrl,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedTodo) {
+      return {
+        success: false,
+        message: "Sub-task not found or no permission",
+        updatedTodo,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Image deleted successfully",
+      data: updatedTodo,
+    };
+  } catch (error: any) {
+    console.error("Error deleting comment image:", error);
+    return {
+      success: false,
+      error: error.message || "Something went wrong while deleting image.",
+    };
+  }
+};
+
+// ============================
+
+export const fetchSingleTodos = async (todoId: string) => {
+  try {
+    await connectToDB();
+
+    const user = await getUserFromToken();
+    if (!user) {
+      return {
+        success: false,
+        error: "Unauthorized. Please login.",
+      };
+    }
+    // const userData = await User.findById({ _id: user.id });
+
+    // let newTodo = [];
+
+    // if (userData?.role === 2) {
+    //   newTodo = await Todo.find({
+    //     campaignId,
+    //   }).sort({ createdAt: -1 });
+    // } else {
+    //   newTodo = await Todo.find({
+    //     campaignId,
+    //     assignedTo: user.id,
+    //   }).sort({ createdAt: -1 });
+    // }
+    const todo = await Todo.findById({ _id: todoId });
+
+    return {
+      success: true,
+      message: "Todo fetched successfully",
+      data: todo,
+    };
+  } catch (error: any) {
+    console.error("Error saving message:", error);
+    return {
+      success: false,
+      error: "Something went wrong while saving the message.",
     };
   }
 };

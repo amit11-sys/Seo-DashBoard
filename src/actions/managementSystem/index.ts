@@ -1,4 +1,4 @@
-import { deleteMsg, deleteSubTodos, deleteTodos, editMainTodos, editSubTodos, Messages, saveMessage, saveSubTodos, saveTodos, Todos, UserForTodos } from "./queries";
+import { deleteCommentImage, deleteMsg, deleteSubTodos, deleteTodos, editMainTodos, editSubTodos, fetchSingleTodos, Messages, saveMessage, saveSubTodos, saveTodos, Todos, todoTempDisabled, UserForTodos } from "./queries";
 
 interface SaveMessageParams {
   campaignId: string;
@@ -9,7 +9,7 @@ interface SaveTodoParams {
   campaignId: string;
   todoTitle: string;
   todoDescription: string;
-  assignedUser:string
+  assignedUser:any
 }
 
 export const getAndSaveMessage = async (data: SaveMessageParams) => {
@@ -61,6 +61,13 @@ export const getdeleteTodos = async (toDoId : string) => {
 
     return deleteData
 }
+export const gettodoTempDisabled = async (toDoId : string) => {
+
+
+    const deleteData = await todoTempDisabled(toDoId);
+
+    return deleteData
+}
 export const getAndSaveTodos = async (data: SaveTodoParams) => {
 
 
@@ -68,17 +75,24 @@ export const getAndSaveTodos = async (data: SaveTodoParams) => {
 
     return saveddata
 }
-export const geteditSubTodos = async ({ id, status, description, comment,subtaskTitle }:{ id: string, status: string, description: string, comment: string ,subtaskTitle:string}) => {
+export const geteditSubTodos = async ({ id, status, description, comment,subtaskTitle,attachments }:{ id: string, status: string, description: string, comment: string ,subtaskTitle:string,attachments:any}) => {
 
 
-    const data = await editSubTodos({ id, status, description, comment ,subtaskTitle});
+    const data = await editSubTodos({ id, status, description, comment ,subtaskTitle,attachments});
 
     return data
 }
-export const geteditMainTodos = async ({ id, status, description, comment,subtaskTitle }:{ id: string, status: string, description: string, comment: string ,subtaskTitle:string}) => {
+export const getdeleteCommentImage = async (imageUrl: string,subTodoId  : string    ) => {
 
 
-    const data = await editMainTodos({ id, status, description, comment ,subtaskTitle});
+    const data = await deleteCommentImage( imageUrl,subTodoId);
+
+    return data
+}
+export const geteditMainTodos = async ({ id, description,subtaskTitle }:{ id: string, description: string,subtaskTitle:string}) => {
+
+
+    const data = await editMainTodos({ id, description ,subtaskTitle});
 
     return data
 }
@@ -86,6 +100,15 @@ export const getdeleteSubTodos = async (todoId : string) => {
 
 
     const data = await deleteSubTodos(todoId);
+
+    return data
+}
+
+// +++++++++++++++++++++++++++++++
+export const getfetchSingleTodos = async (todoId : string) => {
+
+
+    const data = await fetchSingleTodos(todoId);
 
     return data
 }

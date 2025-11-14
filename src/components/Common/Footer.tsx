@@ -33,7 +33,7 @@ export default function Footer({ mainContainerId }: { mainContainerId: string })
   // if (!showFooter) return null;
 
   return (
-    <footer className="w-full bg-[#273F4F] py-4 text-center text-sm text-white shadow-md transition-transform duration-300">
+    <footer className="w-full rounded-2xl bg-[#273F4F] py-4 text-center text-sm text-white shadow-md transition-transform duration-300">
       <p className="mb-0">
         &copy; {new Date().getFullYear()} TrackScop. All rights reserved.{" "}
         <a

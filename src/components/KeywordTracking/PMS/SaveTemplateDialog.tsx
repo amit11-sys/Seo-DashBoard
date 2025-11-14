@@ -479,10 +479,10 @@ export const SaveTemplateDialog = ({ todos, campaignId }: any) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm">
+      <DialogTrigger className="" asChild>
+        <button className=" text-black bg-[#FFB900] hover:bg-[#cf9902] border rounded-full px-8 py-2 text-sm">
           Save as Template
-        </Button>
+        </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md bg-white">

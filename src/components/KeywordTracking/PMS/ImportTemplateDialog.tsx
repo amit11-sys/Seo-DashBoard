@@ -76,12 +76,10 @@ export function ImportTemplateDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-4 py-2 text-sm"
-        >
+               <button className=" text-black bg-[#FFB900] hover:bg-[#cf9902] rounded-full border px-8 py-2 text-sm">
+
           Import from Template
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent className="bg-white">
         <DialogHeader>

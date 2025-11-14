@@ -5,14 +5,11 @@ export default function AuthLayout({
 }) {
   // return <main className="w-full grid  grid-cols-2 place-content-center min-h-screen ">
   return (
-    <main className="w-full  flex  justify-center items-center  min-h-screen ">
-      <section
-        className=" flex-1 h-screen w-full bg-center bg-cover"
-        style={{ backgroundImage: "url('/images/forms-bg.jpg')" }}
-      ></section>
+    <main className="w-full min-h-screen ">
+   
 
       {/* <section className="w-full flex justify-center items-center"> */}
-      <div className=" flex-1">{children}</div>
+      <div className="">{children}</div>
 
       {/* </section> */}
     </main>

@@ -40,7 +40,7 @@ const handleTabChange = (tab: string) => {
           />
         </aside>
 
-        <main className="ml-[250px] relative flex-1 overflow-y-auto p-10 bg-gray-100">
+        <main className="ml-[250px] relative flex-1 overflow-y-auto p-4 bg-white">
                  <Header
             campaignStatus={campaignStatus}
             topRankData={campaignLiveKeywordsData.topRankData}

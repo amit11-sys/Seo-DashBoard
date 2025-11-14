@@ -559,6 +559,15 @@ export default function MessageForm({ campaignId }: { campaignId: string }) {
     setSelectedMsg(msg);
     setOpenMsg(true);
   };
+    function cleanDomain(url: string) {
+    if (!url) return "";
+    return url
+      .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
+      .split("/")[0]
+      .trim();
+  }
+
 
   const fetchMsgs = async () => {
     setMessagesLoading(true);
@@ -584,21 +593,22 @@ export default function MessageForm({ campaignId }: { campaignId: string }) {
 
   return (
     <>
+    
       {/* Wrapper */}
       <motion.div
-        className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-lg p-8 w-full max-w-4xl mx-auto mt-10"
+        className="bg-[#F0F8FF]  rounded-3xl shadow-lg p-8 w-full max-w-4xl mx-auto mt-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-[22px] font-semibold bg-gradient-to-r from-[#ff6b3d] to-[#ff8c3d] bg-clip-text text-transparent tracking-wide">
-            📢 Message Board
+          <h1 className="text-[22px] font-semibold text-black tracking-wide">
+          Message Board
           </h1>
 
           <Button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-md text-white text-sm font-medium"
+            className="rounded-full bg-[#FFB900]  shadow-md text-black text-sm font-medium"
           >
             + New Message
           </Button>
@@ -611,7 +621,7 @@ export default function MessageForm({ campaignId }: { campaignId: string }) {
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="mb-5 p-4 border border-gray-200 rounded-xl bg-white shadow-sm"
+              className="mb-5   border-gray-200 rounded-xl bg-white shadow-sm"
             >
               <MessageInput fetchMsgs={fetchMsgs} campaignId={campaignId} />
             </motion.div>

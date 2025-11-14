@@ -11,6 +11,7 @@ import {
   FaMagnifyingGlassChart,
   FaPlus,
   FaPowerOff,
+  FaRegCircleUser,
   FaUser,
 } from "react-icons/fa6";
 
@@ -44,14 +45,14 @@ export default function Navbar({
   const userEmail = role?.email || ActiveUserData?.email;
 
   return (
-    <div className="z-50 fixed top-0 left-0 bg-[#273F4F] shadow w-full">
-      <nav className="px-5 py-2 shadow w-full mr-10">
+    <div className=" bg-[#20364B] rounded-full mx-3 mt-3 flex justify-between items-center">
+      <nav className=" shadow w-full mr-10">
         <div className="relative flex h-16 items-center justify-between">
           {/* Brand */}
           <div className="flex items-center justify-center">
             <Link
               href="/dashboard"
-              className="flex items-center gap-3 px-6 py-3 rounded-full text-white text-2xl font-bold tracking-wide shadow-lg transition-all duration-300 transform hover:scale-110 hover:shadow-xl"
+              className="flex items-center gap-3 px-6 py-3 rounded-full text-white text-2xl font-bold tracking-wide  transition-all duration-300 transform  border-none"
             >
               <MdDashboard className="text-white text-4xl drop-shadow-sm" />
               <span className="flex items-center">
@@ -66,13 +67,13 @@ export default function Navbar({
           </div>
 
           {/* Buttons Section */}
-          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 mt-4">
+          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4">
             {(role?.role === 2 || ActiveUserData?.role === 2) && (
               <Link
                 href="/add-campaign"
                 className="!flex !items-center !justify-center 
-                     bg-gradient-to-r from-[#FE7743] to-[#d65d2d]
-                     text-white px-4 py-2 rounded-full 
+                     bg-[#FFB900]
+                     text-black px-4 py-2 rounded-full 
                      text-xs sm:text-sm font-semibold 
                      shadow-md transition-all duration-300 
                      transform hover:scale-105 hover:shadow-lg 
@@ -89,8 +90,8 @@ export default function Navbar({
               <button
                 onClick={onLogout}
                 className="flex items-center justify-center gap-1
-               bg-gradient-to-r from-[#FE7743] to-[#d65d2d]
-               text-white px-4 py-2 rounded-full 
+              bg-[#FFB900]
+               text-black px-4 py-2 rounded-full 
                text-xs sm:text-sm font-semibold 
                shadow-md transition-all duration-300 
                transform hover:scale-105 hover:shadow-lg 
@@ -107,8 +108,8 @@ export default function Navbar({
                 <Link
                   href="/admin-dashboard"
                   className="flex items-center justify-center gap-1
-               bg-gradient-to-r from-[#FE7743] to-[#d65d2d]
-               text-white px-4 py-2 rounded-full 
+              bg-[#FFB900]
+               text-black px-4 py-2 rounded-full 
                text-xs sm:text-sm font-semibold 
                shadow-md transition-all duration-300 
                transform hover:scale-105 hover:shadow-lg 
@@ -125,11 +126,16 @@ export default function Navbar({
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
                 <button className="flex items-center justify-center text-white text-xl drop-shadow-sm p-2 rounded-full hover:bg-[#FF7A00]/20 transition">
-                  <FaUser title={userEmail} />
+                  <FaRegCircleUser title={userEmail} />
                 </button>
               </PopoverTrigger>
               {(role?.role === 2 || ActiveUserData?.role === 2) && (
-                <PopoverContent className="w-52 bg-white text-black rounded-lg shadow-lg p-4 mr-6 mt-4">
+                <PopoverContent
+                  side="bottom" // 👈 controls which side (top, bottom, left, right)
+                  align="end" // 👈 can be start, center, or end
+                  sideOffset={-5}
+                  className="w-52 bg-[#F0F8FF] text-black border-none rounded-xl shadow-lg p-4 mr-6 mt-4"
+                >
                   <div className="flex flex-col gap-2">
                     <span className="truncate font-light">{userEmail}</span>
                     {/* {(role?.role === 2 || ActiveUserData?.role === 2) && (
@@ -140,12 +146,14 @@ export default function Navbar({
                       Admin Dashboard
                     </Link>
                   )} */}
-                    <button
-                      onClick={onLogout}
-                      className="mt-2 px-2 py-1 text-sm bg-[#d65d2d] text-white rounded hover:bg-orange-600"
-                    >
-                      Logout
-                    </button>
+                    <div className="w-full flex justify-center items-center">
+                      <button
+                        onClick={onLogout}
+                        className="mt-2 px-2 py-1 text-sm  bg-[#FFB900] text-black rounded-full hover:bg-[#dba100]"
+                      >
+                        Logout
+                      </button>
+                    </div>
                   </div>
                 </PopoverContent>
               )}

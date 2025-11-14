@@ -3,10 +3,13 @@ import {
   FaMinus, // Minus
   FaUsers, // Users
   FaArchive,
+  FaHome,
 } from "react-icons/fa";
 
 import { useEffect, useState } from "react";
 import { getArchivedCampaign, getUserCampaign } from "@/actions/campaign";
+import Link from "next/link";
+import { MdDashboard } from "react-icons/md";
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -66,6 +69,7 @@ const Sidebar = ({
 
   return (
     <>
+     
       <Nav
         isCollapsed={isCollapsed}
         links={[

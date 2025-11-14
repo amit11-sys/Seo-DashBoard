@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { RiArchive2Line } from "react-icons/ri";
+import { BsArchive } from "react-icons/bs";
 
 // import { getfirstCompaignData } from "@/actions/keywordTracking";
 // import { useCampaignData } from "@/app/context/CampaignContext";
@@ -85,13 +87,13 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="flex items-center justify-between my-6 p-2 shadow-md rounded-md">
+      <header className="flex items-center  justify-between  px-3 py-4 shadow-md bg-[#20364B] rounded-full">
         {/* Tabs */}
-        <div className="flex gap-4">
+        <div className="flex ml-5 gap-4">
           <button
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
+            className={`px-10 py-2 rounded-full text-sm font-medium ${
               activeTab === "SEO"
-                ? "bg-orange-600 text-white"
+                ? "bg-[#FFB900] text-black"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
             onClick={() => handleTabChange("SEO")}
@@ -100,9 +102,9 @@ const Header: React.FC<HeaderProps> = ({
           </button>
 
           <button
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
+            className={`px-10 py-2 rounded-full text-sm font-medium ${
               activeTab === "PMS"
-                ? "bg-orange-600 text-white"
+                ? "bg-[#FFB900] text-black"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
             onClick={() => handleTabChange("PMS")}
@@ -119,9 +121,9 @@ const Header: React.FC<HeaderProps> = ({
                 <DialogTrigger asChild>
                   <button
                     title="Archive Campaign"
-                    className="flex items-center text-green-500 px-4 py-2 rounded transition"
+                    className="flex items-center text-[#FFB900] px-4 py-2 rounded transition"
                   >
-                    <FaArchive className="text-2xl" />
+                    <BsArchive className="text-2xl " />
                   </button>
                 </DialogTrigger>
 
